@@ -18,12 +18,12 @@ libraries:
   version: latest
 
 handlers:
-- url: /_ah/queue/deferred
-  script: djangoappengine.deferred.handler.application
-  login: admin
-  
-- url: /_ah/stats/.*
-  script: djangoappengine.appstats.application
+#- url: /_ah/queue/deferred
+#  script: djangoappengine.deferred.handler.application
+#  login: admin
+#  
+#- url: /_ah/stats/.*
+#  script: djangoappengine.appstats.application
 
 - url: /.*
   script: djangoappengine.main.application
