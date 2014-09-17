@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>trac</title>
+    </head>
+
+    <body>
+        <hl>welcome to trac!</hl><br />
+        
+        {% if user.is_authenticated %}
+        <hl>You're already logged in.</hl><br />
+        <a href="/users/logout">Logout</a><br />
+        <a href="/users/home">My home page</a><br />
+        {% else %}
+        <hl>Please log in or sign up below.</hl><br />
+        <a href="/users/register">Register Here</a><br />
+        <a href="/users/login">Login Here</a><br />
+        {% endif %}
+        
+    </body>
+
+</html>

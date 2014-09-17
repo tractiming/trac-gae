@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+
+{% load static %}
+
+<html lang="en">
+    
+<head>
+    <link href="{% static "css/style.css" %}" rel="stylesheet" type="text/css"/>
+    <title>{% block title %}trac{% endblock %}</title>
+</head>
+
+<body class="theme1">
+    
+    <!-- Main container starts -->
+	<div class="main-container">
+        
+        <!-- Header wrapper starts -->
+        <div class="header no-border">
+
+			<div class="user-details">
+                <span class="bold">
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'home' %}">{{ user.username }}</a>
+                    |
+                    <a href="{% url 'logout' %}">Logout</a>
+                    {% else %}
+                    <a href="{% url 'login' %}">Login</a>
+                    | 
+                    <a href="{% url 'register' %}">Sign Up</a>
+                    {% endif %}
+                </span>
+			</div>
+			<div class="product-name"></div>
+		</div>
+        <!-- Header wrapper ends -->
+        
+		<!-- Content Wrapper starts -->
+		<div class="content">
+		    <div class="active-area">
+			    <div class="box">
+			        <div class="upper-area">
+				        <div class="inner">
+
+                        {% block content %}{% endblock %}
+    
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+		<!-- Footer Wrapper starts -->
+		<div class="pageFooter">
+			<div class="compbase parbase globalfooter">
+				<div class="centerContainer">
+					<div class="contactModule gridRight">
+						<label>Share</label>
+
+						<a href="" target="_new" class="linkedin"></a>
+						
+					</div>
+					<div class="signUp gridRight">
+						<div class="newslettersignup newsletter"></div>
+					</div>
+					<a href="/en/home.html">
+                        <img alt="Logo" title="traclogo" class="cq-dd-image"
+                        src="{% static "img/traclogo_small.png"%}">
+					</a>
+					<div class="contactModule bottom">
+						<span class="copyright">&copy; 2014 Timing and Racing Around the Clock LLC. All rights reserved.</span>
+						<span class="links">
+							<a href="" target="_new">Locations</a>
+							<a href="l" target="_new">Legal &amp; Privacy Notices</a>
+							<a href="" target="_new">Contact Us</a>
+						</span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Footer Wrapper ends -->
+    </div>
+    
+</body>
+</html>

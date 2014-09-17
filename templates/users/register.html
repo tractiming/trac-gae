@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}trac - register{% endblock %}
+{% block content %}
+
+    {% if registered %}
+    <strong>Thanks for signing up!</strong><br />
+    <a href="/users/home">Go to my homepage</a><br />
+    {% else %}
+    <strong>Register here!</strong>
+
+    <form id="user_form" method="post" action=""
+        enctype="multipart/form-data">
+
+        {% csrf_token %}
+
+        {{ user_form.as_p }}
+
+        <input type="submit" name="submit" value="Register" />
+    </form> 
+    {% endif %}
+{% endblock %}
+
+
+<!--<!DOCTYPE html>
+<html>
+    <head>
+        <title>trac - register</title>
+    </head>
+
+    <body>
+        <hl>Sign up for trac</hl><br />
+
+        {% if registered %}
+        trac: <strong>Thanks for signing up!</strong><br />
+        <a href="/users/home">Go to my homepage</a><br />
+        {% else %}
+        trac: <strong>Register here!</strong>
+
+        <form id="user_form" method="post" action=""
+            enctype="multipart/form-data">
+
+            {% csrf_token %}
+
+            {{ user_form.as_p }}
+
+            <input type="submit" name="submit" value="Register" />
+        </form> 
+        {% endif %}
+    </body>
+</html>
+-->

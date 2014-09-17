@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>trac - log</title>
+    </head>
+
+    <body>
+        {{ user.username }}'s workout<br /><br />
+        date: {{ wdate }}<br />
+        workout id: {{ wid }}<br />
+        <br />
+        Athletes in this workout:<br />
+        {% for a in athletes %}
+        {{ a.username }}<br />
+        {% endfor %}
+    </body>
+
+
+</html>    

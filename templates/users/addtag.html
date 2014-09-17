@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}trac - add tag{% endblock %}
+{% block content %}
+    <form id="tag_form" method="post" action="">
+        {% csrf_token %}
+        Tag ID: <input type="text" name="id_str" value="" size="20" />
+        <br />
+        <input type="submit" value="submit" />
+    </form>
+{% endblock %}

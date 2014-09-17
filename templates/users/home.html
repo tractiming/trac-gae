@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}athlete home{% endblock %}
+{% block content %}
+        {% csrf_token %}
+        {{ user.username }}'s athlete page<br /><br />
+
+        <a href="{% url 'results_home' %}">my workouts</a><br />
+
+        {% if perms.auth.can_create_workout %}
+        <a href="{% url 'create_workout' %}">Create new workout</a><br />
+        {% endif %}
+
+
+{% endblock %}
+
+<!--
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>trac - Home</title>
+    </head>
+
+    <body>
+        {% csrf_token %}
+        <hl>{{ user_type }}'s homepage</hl><br />
+        welcome, 
+        {{ user.username }}<br /><br />
+        <a href="/users/logout">Logout</a><br />
+        <a href="/results">My workout log</a><br />
+
+        {% if perms.auth.can_create_workout %}
+        <a href="{% url 'create_workout' %}">Create new workout</a><br />
+        {% endif %}
+    </body>
+
+</html>
+-->
