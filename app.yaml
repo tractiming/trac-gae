@@ -13,9 +13,9 @@ builtins:
 inbound_services:
 - warmup
 
-libraries:
-- name: django
-  version: latest
+#libraries:
+#- name: django
+#  version: latest
 
 handlers:
 #- url: /_ah/queue/deferred
@@ -24,6 +24,8 @@ handlers:
 #  
 #- url: /_ah/stats/.*
 #  script: djangoappengine.appstats.application
+- url: /static
+  static_dir: static
 
 - url: /.*
   script: djangoappengine.main.application
