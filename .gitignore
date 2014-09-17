@@ -34,11 +34,12 @@ migrations/
 env/
 fixtures/
 
-# Google app engine
-djangoappengine/
-djangotoolbox/
-autoload/
-dbindexer/
+# Google app engine (we actually need these because the repo is synced to the
+# cloud)
+#djangoappengine/
+#djangotoolbox/
+#autoload/
+#dbindexer/
 build/
-simplejson/
-django/
+#simplejson/
+#django/
