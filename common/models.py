@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from djangotoolbox.fields import ListField
 
 class Tag(models.Model):
     """An RFID Tag. Has a name and belongs to one user."""
@@ -8,13 +9,24 @@ class Tag(models.Model):
     user = models.ForeignKey(User, unique=True, null=True, blank=True)
 
     def __unicode__(self):
-        return self.id_str
+        return "id=%s, user=%s" %(self.id_str, self.user.username)
 
-class Workout(models.Model):
-    """A workout session. Has start and stop time."""
+class Reader(models.Model):
+    """An RFID reader. Has an identifying number and can belong to many workouts."""
+    name = models.CharField(max_length=50)
+    id_str = models.CharField(max_length=50)
+    owner = models.ForeignKey(User)
+
+    def __unicode__(self):
+        return self.name
+
+class TimingSession(models.Model):
+    """A timing session, for example, a workout or race."""
+    name = models.CharField(max_length=50)
     start_time = models.DateTimeField()
     stop_time = models.DateTimeField()
-    owner = models.ForeignKey(User)
+    manager = models.ForeignKey(User)
+    readers = ListField(models.ForeignKey(Reader))
 
     def __unicode__(self):
         return "num=%i, start=%s" %(self.id, self.start_time)
@@ -30,7 +42,7 @@ class Workout(models.Model):
         return False
 
     def all_users(self):
-        """Returns a list of all users that are registered in the workout."""
+        """Returns a list of all users that are registered in the session."""
         user_list = []
         tag_ids = self.split_set.values_list('tag', flat=True).distinct()
         for tag_id in tag_ids:
@@ -41,36 +53,19 @@ class Workout(models.Model):
 
         return user_list        
 
-class Reader(models.Model):
-    """An RFID reader. Has an identifying number and can belong to many workouts."""
-    num = models.IntegerField(default=0)
-    workouts = models.ManyToManyField(Workout)
-    owner = models.ForeignKey(User)
-    key = models.CharField(max_length=50)
-
-    def __unicode__(self):
-        return "%i" %self.num
-
-    def active_workouts(self):
-        """Returns a list of active workouts to which reader belongs."""
-        return [w for w in self.workouts.all() if w.is_active()]
 
 class Split(models.Model):
     """A single split time from one tag."""
     tag = models.ForeignKey(Tag)
     time = models.DateTimeField()
     reader = models.ForeignKey(Reader)
-    workout = models.ForeignKey(Workout)
+    session = models.ForeignKey(TimingSession)
 
     class Meta:
         unique_together = ("tag", "time",)
 
     def __unicode__(self):
-        return "time=%s, tag=%s, reader=%i" %(self.time, self.tag.id_str, self.reader.num)
+        return "time=%s, tag=%s, reader=%s" %(self.time, self.tag.id_str, 
+                                              self.reader.id_str)
 
-
-    def parent_workout(self):
-        """Gets the parent workout for a single split."""
-        return self.reader.workouts.filter(start_time__lt=self.time, 
-                                           stop_time__gt=self.time)[0]
 

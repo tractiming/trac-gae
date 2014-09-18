@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User, Group
 from util import user_type
+from models import Athlete, Coach
 
 def register(request):
     """Registers a user and saves their information to the database."""
@@ -24,10 +25,16 @@ def register(request):
             
             user_type = user_form.cleaned_data['user_type']
             if user_type == '1':
-                Group.objects.get(name='athletes').user_set.add(user)
+                # Register an athlete.
+                athlete = Athlete()
+                athlete.user = user
+                athlete.save()
 
             elif user_type == '2':
-                Group.objects.get(name='coaches').user_set.add(user)
+                # Register a coach.
+                coach = Coach()
+                coach.user = user
+                coach.save()
 
             registered = True
             new_user = authenticate(username=request.POST['username'],

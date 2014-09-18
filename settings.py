@@ -47,7 +47,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     #'updates',
-    #'users',
+    'users',
     #'results',
     'common',
     'djangotoolbox',
