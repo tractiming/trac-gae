@@ -1,5 +1,5 @@
 """
-Django settings for tracd project.
+Django settings for trac-gae project.
 
 For more information on this file, see
 https://docs.djangoproject.com/en/1.6/topics/settings/
@@ -8,14 +8,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.6/ref/settings/
 """
 
-from djangoappengine.settings_base import *
-
 import os
-
-# Activate django-dbindexer for the default database.
-DATABASES['native'] = DATABASES['default']
-DATABASES['default'] = {'ENGINE': 'dbindexer', 'TARGET': 'native'}
-AUTOLOAD_SITECONF = 'indexes'
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 SETTINGS_DIR = os.path.dirname(__file__)
@@ -41,8 +34,8 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = (
     'django.contrib.admin',
-    'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.auth',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
@@ -50,14 +43,9 @@ INSTALLED_APPS = (
     'users',
     #'results',
     'common',
-    'djangotoolbox',
-    'autoload',
-    'dbindexer',
-    'djangoappengine', # This should come last.
 )
 
 MIDDLEWARE_CLASSES = (
-    'autoload.middleware.AutoloadMiddleware', # This should come first.    
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -66,26 +54,49 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
+
 ROOT_URLCONF = 'urls'
+
+WSGI_APPLICATION = 'wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
-
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#    }
-#}
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.mysql',
-#        'NAME': 'trac',
-#        'HOST': 'localhost',
-#        'USER': 'elliot',
-#        'PASSWORD': 'millie',
-#    }
-#}
+# Here we choose the backend based on whether we are running locally or in
+# production. For reference, see:
+# https://developers.google.com/appengine/docs/python/cloud-sql/django#development-settings
+if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine'):
+    # Running on production App Engine, so use a Google Cloud SQL database.
+    DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.mysql',
+                'HOST': '/cloudsql/trac-us:sql1',
+                'NAME': 'tracdb',
+                'USER': 'root',
+            }
+    }
+elif os.getenv('SETTINGS_MODE') == 'prod':
+    # Running in development, but want to access the Google Cloud SQL instance
+    # in production.
+    DATABASES = {
+            'default': {
+                'ENGINE': 'google.appengine.ext.django.backends.rdbms',
+                'INSTANCE': 'trac-us:sql1',
+                'NAME': 'tracdb',
+                'USER': 'root',
+            }
+    }
+else:
+    # Running in development, so use a local MySQL database.
+    # Note: not implemented yet.
+    raise("Local MySQL database not supported.")
+    DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.mysql',
+                'NAME': 'tracdb',
+                'USER': 'root',
+                'PASSWORD': 'password',
+            }
+    }
 
 #CACHES = {
 #        'default': {
@@ -115,3 +126,4 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
         os.path.join(SETTINGS_DIR, "static"),
 )
+

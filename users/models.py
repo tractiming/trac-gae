@@ -1,16 +1,24 @@
 from django.db import models
 from django.contrib.auth.models import User
-from djangotoolbox.fields import ListField
 
-class Athlete(models.Model):
+class AthleteProfile(models.Model):
     user = models.OneToOneField(User)
 
-class Coach(models.Model):
+    class Meta:
+        db_table = 'athlete_user'
+
+class CoachProfile(models.Model):
     user = models.OneToOneField(User)
     organization = models.CharField(max_length=50)
-    athletes = ListField(models.ForeignKey(Athlete))
+    athletes = models.ManyToManyField(AthleteProfile)
+
+    class Meta:
+        db_table = 'coach_user'
     
-class RaceDirector(models.Model):
+class RaceDirectorProfile(models.Model):
     user = models.OneToOneField(User)
+
+    class Meta:
+        db_table = 'director_profile'
 
     

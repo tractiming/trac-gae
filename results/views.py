@@ -1,11 +1,11 @@
 from django.shortcuts import render
 from django.template import RequestContext
-from results.forms import WorkoutForm, TagForm
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
-from common.models import Workout
+from common.models import TimingSession
 from users.util import is_coach, is_athlete
+from results.forms import WorkoutForm, TagForm
 
 @login_required
 def results_home(request):

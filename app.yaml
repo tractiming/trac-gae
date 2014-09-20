@@ -1,5 +1,4 @@
 # The app's runtime configuration.
-#
 
 application: trac-us
 version: 1
@@ -7,25 +6,15 @@ runtime: python27
 api_version: 1
 threadsafe: yes
 
+libraries:
+- name: django
+  version: "1.5"
+
 builtins:
-- remote_api: on
-
-inbound_services:
-- warmup
-
-#libraries:
-#- name: django
-#  version: latest
+- django_wsgi: on
 
 handlers:
-#- url: /_ah/queue/deferred
-#  script: djangoappengine.deferred.handler.application
-#  login: admin
-#  
-#- url: /_ah/stats/.*
-#  script: djangoappengine.appstats.application
+
 - url: /static
   static_dir: static
 
-- url: /.*
-  script: djangoappengine.main.application

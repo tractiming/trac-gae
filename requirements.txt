@@ -1,5 +1,0 @@
--e git+http://github.com/django-nonrel/djangotoolbox@master#egg=djangotoolbox
--e git+http://github.com/django-nonrel/djangoappengine@master#egg=djangoappengine
--e git+http://github.com/django-nonrel/django-dbindexer@master#egg=django-dbindexer
--e git+http://github.com/django-nonrel/django@master#egg=django-nonrel
--e git+http://github.com/adieu/django-autoload@master#egg=django-autoload

@@ -1,16 +1,18 @@
 from django.contrib.auth.models import User, Group
 
-def is_athlete(uname):
-    if Group.objects.get(name='athletes').user_set.filter(
-            username=uname).count():
+def is_athlete(user):
+    try:
+        user.athlete_profile
         return True
-    return False
+    except:
+        return False
 
 def is_coach(uname):
-    if Group.objects.get(name='coaches').user_set.filter(
-            username=uname).count():
+    try:
+        user.coach_profile
         return True
-    return False
+    except:
+        return False
 
 def user_type(user):
     if is_athlete(user):

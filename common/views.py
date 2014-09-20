@@ -6,3 +6,4 @@ def index(request):
     context = RequestContext(request)
     context_dict = {}
     return render(request, 'index.html', context_dict)
+

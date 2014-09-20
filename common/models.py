@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
-from djangotoolbox.fields import ListField
 
 class Tag(models.Model):
     """An RFID Tag. Has a name and belongs to one user."""
@@ -9,7 +8,8 @@ class Tag(models.Model):
     user = models.ForeignKey(User, unique=True, null=True, blank=True)
 
     def __unicode__(self):
-        return "id=%s, user=%s" %(self.id_str, self.user.username)
+        return "id=%s, user=%s" %(self.id_str, 
+                                  self.user.username if self.user else "")
 
 class Reader(models.Model):
     """An RFID reader. Has an identifying number and can belong to many workouts."""
@@ -26,7 +26,7 @@ class TimingSession(models.Model):
     start_time = models.DateTimeField()
     stop_time = models.DateTimeField()
     manager = models.ForeignKey(User)
-    readers = ListField(models.ForeignKey(Reader))
+    readers = models.ManyToManyField(Reader)
 
     def __unicode__(self):
         return "num=%i, start=%s" %(self.id, self.start_time)
@@ -41,20 +41,20 @@ class TimingSession(models.Model):
             return True
         return False
 
-    def all_users(self):
-        """Returns a list of all users that are registered in the session."""
-        user_list = []
-        tag_ids = self.split_set.values_list('tag', flat=True).distinct()
-        for tag_id in tag_ids:
-            user = Tag.objects.get(id=tag_id).user
+    #def all_users(self):
+    #    """Returns a list of all users that are registered in the session."""
+    #    user_list = []
+    #    tag_ids = self.split_set.values_list('tag', flat=True).distinct()
+    #    for tag_id in tag_ids:
+    #        user = Tag.objects.get(id=tag_id).user
+    #
+    #        if (user) and (user not in user_list):
+    #            user_list.append(user)
+    #
+    #    return user_list        
 
-            if (user) and (user not in user_list):
-                user_list.append(user)
 
-        return user_list        
-
-
-class Split(models.Model):
+class TagTime(models.Model):
     """A single split time from one tag."""
     tag = models.ForeignKey(Tag)
     time = models.DateTimeField()
