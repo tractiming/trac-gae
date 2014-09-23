@@ -34,12 +34,6 @@ migrations/
 env/
 fixtures/
 
-# Google app engine (we actually need these because the repo is synced to the
-# cloud)
-#djangoappengine/
-#djangotoolbox/
-#autoload/
-#dbindexer/
 build/
-#simplejson/
-#django/
+.gaedata/
+*.db

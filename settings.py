@@ -88,13 +88,13 @@ elif os.getenv('SETTINGS_MODE') == 'prod':
 else:
     # Running in development, so use a local MySQL database.
     # Note: not implemented yet.
-    raise("Local MySQL database not supported.")
     DATABASES = {
             'default': {
-                'ENGINE': 'django.db.backends.mysql',
-                'NAME': 'tracdb',
-                'USER': 'root',
-                'PASSWORD': 'password',
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': os.path.join(PROJECT_PATH, 'dev_loc.db'),
+                #'NAME': 'tracdb',
+                #'USER': 'root',
+                #'PASSWORD': 'password',
             }
     }
 
