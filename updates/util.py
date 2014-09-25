@@ -1,20 +1,20 @@
 from django.core.exceptions import ObjectDoesNotExist
-from common.models import Workout, Split, Tag, Reader
+from common.models import TimingSession, TagTime, Tag, Reader
 import datetime
 
-def get_splits(w_num):
+def get_splits(snum):
     """Returns a JSON object with current workout data, i.e, splits, names, etc."""
-    wdata = {}
+    sdata = {}
     try:
-        w = Workout.objects.get(num=w_num)
+        s = TimingSession.objects.get(pk=snum)
     except ObjectDoesNotExist:
-        return wdata
+        return sdata
 
-    wdata['date'] = w.start_time.strftime('%m.%d.%Y')
-    wdata['workoutID'] = int(w_num)
+    wdata['date'] = s.start_time.strftime('%m.%d.%Y')
+    wdata['workoutID'] = int(snum)
     wdata['runners'] = []
 
-    tag_ids = Split.objects.filter(workout_id=w_num).values_list('tag_id',
+    tag_ids = TagTime.objects.filter(timingsession_id=snum).values_list('tag_id',
             flat=True).distinct()
 
     for tag_id in tag_ids:
@@ -22,25 +22,26 @@ def get_splits(w_num):
         # Get the name of the tag's owner.
         user = Tag.objects.get(id=tag_id).user
         if user:
-            name = user.first_name+' '+user.last_name
+            name = user.get_full_name()
         else:
             name = str(tag_id)
 
         # Calculate the splits for this tag in the current workout.
         interval = []
-        splits = Split.objects.filter(workout_id=w_num, tag_id=tag_id).order_by('time')
+        times = TagTime.objects.filter(timingsession_id=snum, 
+                                       tag_id=tag_id).order_by('time')
         for i in range(len(splits)-1):
-            dt = splits[i+1].time-splits[i].time
+            dt = times[i+1].time-times[i].time
             interval.append(dt.total_seconds())
         counter = range(1,len(interval)+1)    
 
         # Add the runner's data to the workout. 
-        wdata['runners'].append({'name': name, 'counter': counter,
+        sdata['runners'].append({'name': name, 'counter': counter,
                                  'interval': interval})
 
-    return wdata    
+    return sdata    
 
-def parse_msg(string):
+def parse_raw_msg(string):
     """Extracts split data from reader notification message."""
     # Check that tag contains good information.
     if ('Tag:' not in string) or ('Last:' not in string) or ('Ant:' not in string):
@@ -60,3 +61,7 @@ def parse_msg(string):
             msg_info['Ant'] = int(k[1])
 
     return msg_info
+
+def parse_formatted_msg(string):
+    """Extracts time data from a formatted reader message."""
+    pass

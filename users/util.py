@@ -1,15 +1,17 @@
 from django.contrib.auth.models import User, Group
 
 def is_athlete(user):
+    """Checks if the user is an athlete."""
     try:
-        user.athlete_profile
+        user.athleteprofile
         return True
     except:
         return False
 
-def is_coach(uname):
+def is_coach(user):
+    """Checks if the user is a coach."""
     try:
-        user.coach_profile
+        user.coachprofile
         return True
     except:
         return False

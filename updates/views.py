@@ -3,24 +3,22 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count
-#from rest_framework.renderers import JSONRenderer
-#from rest_framework.parsers import JSONParser
-#from rest_framework.response import Response
-#from rest_framework.decorators import api_view
-from common.models import Workout, Split, Tag, Reader
 from django.core.cache import cache
 from django.db import IntegrityError
+import json
+from common.models import TimingSession, TagTime, Tag, Reader
 from util import parse_msg, get_splits
+
+_USE_CACHING = False
 
 class JSONResponse(HttpResponse):
     """Http response that renders its content to JSON."""
     def __init__(self, data, **kwargs):
-        #content = JSONRenderer().render(data)
+        content = json.dumps(data)
         kwargs['content_type'] = 'application/json'
         super(JSONResponse, self).__init__(content, **kwargs)
 
-#@csrf_exempt
-#@api_view(['GET', 'POST'])
+@csrf_exempt
 def workout_data(request):
     """Interfaces with readers/clients to provide up-to-date workout info."""
 
@@ -30,11 +28,16 @@ def workout_data(request):
     if request.method == 'GET':
         #return HttpResponse(200)
         w_num = request.GET['w']
-        cache_name = 'w'+str(w_num)+'_cached'
-        split_data = cache.get(cache_name)
-        if not split_data:
+
+        if _USE_CACHING:
+            cache_name = 'w'+str(w_num)+'_cached'
+            split_data = cache.get(cache_name)
+            if not split_data:
+                split_data = get_splits(w_num)
+                cache.set(cache_name, split_data)
+        else:
             split_data = get_splits(w_num)
-            cache.set(cache_name, split_data)
+
         return JSONResponse(split_data)
     
     # A post request adds the split to the database with the correct tag, time,

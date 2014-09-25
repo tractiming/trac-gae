@@ -3,7 +3,7 @@
 {% block title %}athlete home{% endblock %}
 {% block content %}
         {% csrf_token %}
-        {{ user.username }}'s athlete page<br /><br />
+        {{ user.username }}'s {{ user_type }} page<br /><br />
 
         {% comment %}
         <a href="{% url 'results_home' %}">my workouts</a><br />
