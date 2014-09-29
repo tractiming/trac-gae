@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
 from common.models import TimingSession
 from users.util import is_coach, is_athlete
-from results.forms import WorkoutForm, TagForm
+from results.forms import TimingSessionForm, TagForm
 
 @login_required
 def results_home(request):
@@ -49,6 +49,8 @@ def create_workout(request):
         workout_form = WorkoutForm()
 
     return render(request, 'results/createworkout.html', {'workout_form': workout_form})    
+
+@login_required
 def add_tag(request):
     """The form page that allows a user to add a tag to their account."""
     context = RequestContext(request)
@@ -57,11 +59,11 @@ def add_tag(request):
         tag_form = TagForm(data=request.POST)
 
         if tag_form.is_valid():
-            user = User.objects.get(username=request.user)
             tag = tag_form.save(commit=False)
-            tag.owner_id = user.id
+            #user = User.objects.get(username=request.user)
+            tag.owner_id = request.user.id
             tag.save()
-            return HttpResponseRedirect('results_home')
+            return HttpResponseRedirect('/users/home/')
 
         else:
             print tag_form.errors
@@ -69,7 +71,7 @@ def add_tag(request):
     else:
         tag_form = TagForm()
 
-    return render(request, 'add_tag', {'tag_form': tag_form})    
+    return render(request, 'users/addtag.html', {'tag_form': tag_form})    
 
 
 

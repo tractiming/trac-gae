@@ -41,7 +41,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'updates',
     'users',
-    #'results',
+    'results',
     'common',
 )
 

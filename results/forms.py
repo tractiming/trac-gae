@@ -1,14 +1,14 @@
 from django.contrib.auth.models import User
 #from results.models import WorkoutLog
-from common.models import Workout, Reader, Tag
+from common.models import Tag, Reader, TimingSession
 from django import forms
 
-class WorkoutForm(forms.ModelForm):
+class TimingSessionForm(forms.ModelForm):
     name = forms.CharField()
 
     class Meta:
-        model = Workout
-        fields = ('name', 'start_time', 'stop_time')
+        model = TimingSession
+        fields = ('name', 'start_time', 'stop_time',)
         widgets = {'start_time': forms.widgets.DateTimeInput(), 
                    'stop_time': forms.widgets.DateTimeInput()}
 
@@ -17,7 +17,7 @@ class ReaderForm(forms.ModelForm):
 
     class Meta:
         model = Reader
-        fields = ('num', 'key')
+        fields = ('id_str', 'name',)
 
 class TagForm(forms.ModelForm):
     """Form for registering an RFID tag."""

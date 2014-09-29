@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
 from django.views.decorators.csrf import csrf_exempt
-from views import workout_data
+import views
 
 urlpatterns = patterns('',
-    url(r'^$', csrf_exempt(workout_data)),
+    url(r'^$', views.session_data, name='session_data'),
 )

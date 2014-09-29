@@ -7,7 +7,7 @@ from django.core.cache import cache
 from django.db import IntegrityError
 import json
 from common.models import TimingSession, TagTime, Tag, Reader
-from util import parse_msg, get_splits
+from util import parse_raw_msg, get_splits
 
 _USE_CACHING = False
 
@@ -19,14 +19,13 @@ class JSONResponse(HttpResponse):
         super(JSONResponse, self).__init__(content, **kwargs)
 
 @csrf_exempt
-def workout_data(request):
+def session_data(request):
     """Interfaces with readers/clients to provide up-to-date workout info."""
 
     # A get request returns the JSON string with current workout information.
     # To get the info, we first try to read from the cache, if it is not there,
     # recalculate the splits and save to cache.
     if request.method == 'GET':
-        #return HttpResponse(200)
         w_num = request.GET['w']
 
         if _USE_CACHING:
@@ -39,34 +38,37 @@ def workout_data(request):
             split_data = get_splits(w_num)
 
         return JSONResponse(split_data)
-    
+
     # A post request adds the split to the database with the correct tag, time,
     # and workout information.
     elif request.method == 'POST':
         
-        print request.POST
-        #print request.META
-        return HttpResponse()
-        """
+        #print request.POST
         # Get the raw data from the post.
-        data = parse_msg(request.POST['m'])
+        data = request.POST
         
-        # Get the workouts to which the tag currently belongs.
-        t = Tag.objects.get(id_str=data['name'])
-        r = Reader.objects.get(num=int(request.POST['r']))
-        active_workouts = r.active_workouts()
-        
-        # Create new splits.
-        for w in active_workouts:
-            
-            # Save the new split in the db.
-            try:
-                s = Split(tag=t, time=data['time'], reader_id=r.id, workout_id=w.id)
-                s.save()
-            except IntegrityError:
-                pass
+        # Get the tag and reader associated with the notification. Note that if
+        # the tag or reader has not been established in the system, the split
+        # will be ignored here.
+        try:
+            t = Tag.objects.get(id_str=data['id'])
+            r = Reader.objects.get(id_str=data['r'])
+        except ObjectDoesNotExist:
+            return HttpResponse(200)
+
+        # Create the new TagTime.
+        tt = TagTime(tag_id=t.id, time=data['time'], reader_id=r.id)
+        try:
+            tt.save()
+        except IntegrityError:
+            return HttpResponse(200)
+
+        # Add the TagTime to all sessions active and having a related reader.
+        for s in r.active_sessions():
+            s.tagtimes.add(tt.pk)
 
             # Clear the workout cache.
-            cache.delete('w'+str(w.num)+'_cached')
-        """
+            if _USE_CACHING:
+                cache.delete('w'+str(w.num)+'_cached')
+
         return HttpResponse(200)

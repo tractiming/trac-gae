@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+import datetime
 
 class Tag(models.Model):
     """An RFID Tag. Has a name and belongs to one user."""
@@ -20,6 +21,23 @@ class Reader(models.Model):
     def __unicode__(self):
         return self.name
 
+    def active_sessions(self):
+        """Returns a list of all active sessions the reader belongs to."""
+        now = timezone.now()
+        return self.timingsession_set.filter(start_time__lte=now, stop_time__gte=now)
+
+class TagTime(models.Model):
+    """A single split time from one tag."""
+    tag = models.ForeignKey(Tag)
+    time = models.DateTimeField()
+    reader = models.ForeignKey(Reader)
+
+    class Meta:
+        unique_together = ("tag", "time",)
+
+    def __unicode__(self):
+        return "time=%s, tag=%s" %(self.time, self.tag.id_str)
+
 class TimingSession(models.Model):
     """A timing session, for example, a workout or race."""
     name = models.CharField(max_length=50)
@@ -27,6 +45,7 @@ class TimingSession(models.Model):
     stop_time = models.DateTimeField()
     manager = models.ForeignKey(User)
     readers = models.ManyToManyField(Reader)
+    tagtimes = models.ManyToManyField(TagTime)
 
     def __unicode__(self):
         return "num=%i, start=%s" %(self.id, self.start_time)
@@ -54,18 +73,5 @@ class TimingSession(models.Model):
     #    return user_list        
 
 
-class TagTime(models.Model):
-    """A single split time from one tag."""
-    tag = models.ForeignKey(Tag)
-    time = models.DateTimeField()
-    reader = models.ForeignKey(Reader)
-    session = models.ForeignKey(TimingSession)
-
-    class Meta:
-        unique_together = ("tag", "time",)
-
-    def __unicode__(self):
-        return "time=%s, tag=%s, reader=%s" %(self.time, self.tag.id_str, 
-                                              self.reader.id_str)
 
 
