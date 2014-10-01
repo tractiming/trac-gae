@@ -1,7 +1,5 @@
-'''
 from django.contrib.auth.models import User
-#from results.models import WorkoutLog
-from common.models import Tag, Reader, TimingSession
+from models import Tag, Reader, TimingSession
 from django import forms
 
 class TimingSessionForm(forms.ModelForm):
@@ -26,4 +24,4 @@ class TagForm(forms.ModelForm):
     class Meta:
         model = Tag
         fields = ('id_str',)
-'''
+

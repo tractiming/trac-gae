@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}trac - create workout{% endblock %}
+{% block content %}
+    <form id="timing_session_form" method="post" action="">
+        
+        {% csrf_token %}
+        
+        {{ session_form.as_p  }}
+        
+        <input type="submit" value="Create" />
+    </form>
+{% endblock %}

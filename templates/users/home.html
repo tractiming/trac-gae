@@ -5,9 +5,19 @@
         {% csrf_token %}
         {{ user.username }}'s {{ user_type }} page<br /><br />
 
-        {% comment %}
         <a href="{% url 'results_home' %}">my workouts</a><br />
+        <a href="{% url 'tag_manager' %}">manage my RFID tags</a><br />
+        <a href="{% url 'userhome' %}">edit my profile</a><br />
 
+
+        {% if user_type == "athlete" %}
+        {% endif %}
+        
+        {% if user_type == "coach" %}
+            <a href="{% url 'create_workout' %}">create a new workout</a><br />
+            {% endif %}
+
+        {% comment %}
         {% if perms.auth.can_create_workout %}
         #<a href="{% url 'create_workout' %}">Create new workout</a><br />
         {% endif %}

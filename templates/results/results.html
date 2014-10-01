@@ -1,15 +1,12 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>trac - log</title>
-    </head>
+{% extends "base.html" %}
 
-    <body>
-        {{ user.username }}'s workout home<br /><br />
-        {% for x in workout_list %}
-        <a href="{% url 'workout_results' wnum=x %}">Workout {{ x }}</a><br \>
-        {% endfor %}
-    </body>
+{% block title %}trac - my results{% endblock %}
+{% block content %}
+    {{ user.username }}'s workout home<br /><br />
 
-
-</html>    
+    Click on a workout to view results:<br />
+    {% for x in workout_list %}
+    <a href="{% url 'workout_results' wnum=x %}">Workout {{ x }}</a><br \>
+    {% endfor %}
+    
+{% endblock %}

@@ -10,6 +10,7 @@ from common.models import TimingSession, TagTime, Tag, Reader
 from util import parse_raw_msg, get_splits
 
 _USE_CACHING = False
+_DEBUG_POST = True
 
 class JSONResponse(HttpResponse):
     """Http response that renders its content to JSON."""
@@ -46,6 +47,10 @@ def session_data(request):
         #print request.POST
         # Get the raw data from the post.
         data = request.POST
+
+        if _DEBUG_POST:
+            print data
+            return HttpResponse(200)
         
         # Get the tag and reader associated with the notification. Note that if
         # the tag or reader has not been established in the system, the split
