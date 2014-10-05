@@ -11,7 +11,9 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         
 class TimingSessionSerializer(serializers.HyperlinkedModelSerializer):
     manager = serializers.Field(source='manager.username')
+    results = serializers.HyperlinkedIdentityField(view_name='timingsession-results',
+                                                   format='json')
 
     class Meta:
         model = TimingSession
-        fields = ('url', 'name', 'start_time', 'stop_time', 'manager')
+        fields = ('url', 'name', 'start_time', 'stop_time', 'manager', 'results')

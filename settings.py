@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_swagger',
     'updates',
     'users',
     'results',
@@ -134,3 +135,15 @@ STATICFILES_DIRS = (
         os.path.join(SETTINGS_DIR, "static"),
 )
 
+SWAGGER_SETTINGS = {
+        "exclude_namespaces": [],
+        "api_version": '0.1',
+        "enabled_methods": [
+            'get',
+            'post',
+            'put',
+            'patch',
+            'delete'
+        ],
+        "is_authenticated": False
+}

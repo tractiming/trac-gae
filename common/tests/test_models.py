@@ -62,8 +62,25 @@ class TagTimeTest(TestCase):
 class TimingSessionTest(TestCase):
 
     def create_timingsession(self):
-        pass
+        athlete1 = User.objects.create(username='a1')
+        athlete2 = User.objects.create(username='a2')
+        athlete3 = User.objects.create(username='a3')
 
+        tag1 = Tag.objects.create(user=athlete1, id_str='T001')
+        tag2 = Tag.objects.create(user=athlete2, id_str='T002')
+        tag3 = Tag.objects.create(user=athlete3, id_str='T003')
+
+        time1 = timezone.now()+timezone.timedelta(0,1,1)
+        time2 = timezone.now()+timezone.timedelta(0,1,2)
+        time3 = timezone.now()+timezone.timedelta(0,1,3)
+
+        coach = User.objects.create(username='bhudson')
+        ts = TimingSession()
+        ts. manager = coach
+        ts.name = 'Mile Repeats'
+        ts.start_time = timezone.now()
+        ts.stop_time = timezone.now()+timezone.timedelta(1)
+        
     def test_timingsession_creation(self):
         pass
 
@@ -71,5 +88,8 @@ class TimingSessionTest(TestCase):
         pass
 
     def test_results(self):
+        pass
+
+    def test_all_users(self):
         pass
 

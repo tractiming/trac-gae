@@ -12,5 +12,6 @@ urlpatterns = patterns('',
     url(r'^users/', include('users.urls')),
     url(r'^results/', include('results.urls')),
     url(r'^api/', include('api.urls')),
+    url(r'^swagger/', include('rest_framework_swagger.urls')),
     url(r'^admin/', include(admin.site.urls)),
 )
