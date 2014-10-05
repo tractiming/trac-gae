@@ -22,20 +22,28 @@ def results_home(request):
 
     #else:
     #    workout_list = []
-    workout_list = []
+    # For a coach, list all workout that he/she manages.
+    if is_coach(request.user):
+        session_list = request.user.timingsession_set.all()
+
+    elif is_althete(request.user):
+        session_list = []
+        
+    else:
+        session_list = []
     
-    return render(request, 'results/results.html', {'workout_list':
-        workout_list})
+    return render(request, 'results/results.html', {'session_list':
+        session_list})
 
 
 
 @login_required
 def workout_results(request, *args, **kwargs):
     """Displays the results of one workout for one athlete or coach."""
-    workout = Workout.objects.get(id=kwargs['wnum'])
-    athlete_list = workout.all_users()
-    workout_data = {'wid': workout.id, 'wdate': workout.start_time, 'athletes':
+    session = TimingSession.objects.get(id=kwargs['wnum'])
+    athlete_list = session.all_users()
+    session_data = {'wid': session.id, 'wdate': session.start_time, 'athletes':
             athlete_list}
-    return render(request, 'results/workoutresult.html', workout_data)
+    return render(request, 'results/workoutresult.html', session_data)
 
 

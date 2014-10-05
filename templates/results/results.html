@@ -5,8 +5,9 @@
     {{ user.username }}'s workout home<br /><br />
 
     Click on a workout to view results:<br />
-    {% for x in workout_list %}
-    <a href="{% url 'workout_results' wnum=x %}">Workout {{ x }}</a><br \>
+    {% for x in session_list %}
+    <a href="{% url 'workout_results' wnum=x.id %}">Workout {{ x.id }}: {{ x.name }}</a>
+    <br \>
     {% endfor %}
     
 {% endblock %}

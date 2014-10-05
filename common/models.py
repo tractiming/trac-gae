@@ -21,6 +21,7 @@ class Reader(models.Model):
     def __unicode__(self):
         return self.name
 
+    @property
     def active_sessions(self):
         """Returns a list of all active sessions the reader belongs to."""
         now = timezone.now()
@@ -37,6 +38,13 @@ class TagTime(models.Model):
 
     def __unicode__(self):
         return "time=%s, tag=%s" %(self.time, self.tag.id_str)
+
+    @property
+    def owner_name(self):
+        name = self.tag.user.get_full_name()
+        if not name:
+            return "Unknown"
+        return name
 
 class TimingSession(models.Model):
     """A timing session, for example, a workout or race."""
@@ -60,17 +68,51 @@ class TimingSession(models.Model):
             return True
         return False
 
-    #def all_users(self):
-    #    """Returns a list of all users that are registered in the session."""
-    #    user_list = []
-    #    tag_ids = self.split_set.values_list('tag', flat=True).distinct()
-    #    for tag_id in tag_ids:
-    #        user = Tag.objects.get(id=tag_id).user
-    #
-    #        if (user) and (user not in user_list):
-    #            user_list.append(user)
-    #
-    #    return user_list        
+    def results(self, force_update=False):
+        """Gets the current splits for the session."""
+        
+        wdata['date'] = self.start_time.strftime('%m.%d.%Y')
+        wdata['workoutID'] = self.id
+        wdata['runners'] = []
+
+        tag_ids = self.tagtimes.values_list('tag_id',flat=True).distinct()
+
+        for tag_id in tag_ids:
+
+            # Get the name of the tag's owner.
+            user = Tag.objects.get(id=tag_id).user
+            if user:
+                name = user.get_full_name()
+            else:
+                name = str(tag_id)
+
+            # Calculate the splits for this tag in the current workout.
+            interval = []
+            times = TagTime.objects.filter(timingsession_id=snum, 
+                                           tag_id=tag_id).order_by('time')
+            for i in range(len(splits)-1):
+                dt = times[i+1].time-times[i].time
+                interval.append(dt.total_seconds())
+            counter = range(1,len(interval)+1)    
+
+            # Add the runner's data to the workout. 
+            sdata['runners'].append({'name': name, 'counter': counter,
+                                     'interval': interval})
+
+        return sdata    
+
+    def all_users(self):
+        """Returns a list of all users that are registered in the session."""
+        user_list = []
+        tag_ids = self.tagtimes.values_list('tag', flat=True).distinct()
+        
+        for tag_id in tag_ids:
+            user = Tag.objects.get(id=tag_id).user
+    
+            if (user) and (user not in user_list):
+                user_list.append(user)
+   
+        return user_list        
 
 
 

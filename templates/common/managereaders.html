@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}trac - reader manager{% endblock %}
+{% block content %}
+    Manage my trac readers<br /><br />
+
+    My readers:
+    {% for r in reader_list %}
+    {{ r }}, 
+    {% endfor %}
+    <br /><br />
+
+
+    <a href="{% url 'add_reader' %}">register a reader</a><br />
+    
+{% endblock %}

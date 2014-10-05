@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}trac - add tag{% endblock %}
+{% block content %}
+    <form id="reader_form" method="post" action="">
+        {% csrf_token %}
+
+        {{ reader_form.as_p  }}
+
+        <input type="submit" value="submit" />
+    </form>
+{% endblock %}
