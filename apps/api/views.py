@@ -43,7 +43,7 @@ class RegistrationView(APIView):
 
         if not serializer.is_valid():
             return HttpResponse(serializer.errors,
-                    status=status.HTTP_404_BAD_REQUEST)
+                    status=status.HTTP_400_BAD_REQUEST)
         data = serializer.data
 
         # Create the user in the database.

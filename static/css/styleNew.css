@@ -61,6 +61,8 @@ body {
 .container {
   margin: 0 auto;
   max-width: 960px; }
+  
+tr.odd{background-color:#ccc}
 
 h2 {
   font-family: 'GothamHTF-Book', 'Helvetica', 'Arial', sans;
@@ -89,6 +91,16 @@ h3 {
   width: 95%;
   margin: 0 auto;
   }
+  h5{
+  font-size: 22px;
+  margin-bottom: 24px;
+  width: 95%;
+  margin: 0 auto;
+  transition: font-size 0.3s ease; }
+  @media only screen and (max-width: 719px) {
+    h5{
+      font-size: 1.2em;
+      line-height: 20px; } }
 
 p {
   line-height: 24px;
@@ -258,84 +270,76 @@ div.parallax {
     div.parallax > div div.content {
       margin: 0 auto;
       max-width: 960px; }
-  div.parallax div#top {
-    background: none;
-    text-align: center;
-    position: relative;
-    height: 945px; }
-    @media only screen and (max-width: 719px) {
-      div.parallax div#top {
-        height: 245px; } }
-    div.parallax div#top div.content {
-      padding: 300px 0;
-      z-index: 10;
-      position: relative;
-      visibility: hidden; }
-      div.parallax div#top div.content h1.logo {
-        background: url("../images/logo.png") no-repeat;
-        display: block;
-        height: 191px;
-        margin: 0 auto;
-        text-indent: -999999px;
-        width: 280px; }
-  div.parallax div.top-hide {
-    background: none !important; }
-  div.parallax div.lower-opacity {
-    opacity: 0.5; }
-  div.parallax div.visible {
-    visibility: visible !important; }
-  div.parallax div.video-background {
-    overflow: hidden;
-    background-color: #000;
-    height: 900px;
-    position: absolute;
-    width: 100%;
-    top: 45px;
-    left: 0; }
-    @media only screen and (max-width: 719px) {
-      div.parallax div.video-background {
-        height: 200px; } }
-    div.parallax div.video-background video {
-      min-height: 100%;
-      width: 100%;
-      background-color: #000; }
-    div.parallax div.video-background div.ui-video-background {
-      position: absolute;
-      top: 100px;
-      right: 100px; }
-    div.parallax div.video-background a.ui-icon {
-      text-indent: -99999px;
-      display: block;
-      opacity: 0.7;
-      background-image: no-repeat;
-      overflow: hidden; }
-    div.parallax div.video-background li.ui-video-background-play {
-      visibility: hidden; }
-    div.parallax div.video-background li.ui-video-background-mute {
-      padding: 10px;
-      display: block; }
-      div.parallax div.video-background li.ui-video-background-mute a.ui-icon-volume-on {
-        background: url("../images/Icon_unmute.png") no-repeat;
-        display: block;
-        width: 70px;
-        height: 65px; }
-      div.parallax div.video-background li.ui-video-background-mute a.ui-icon-volume-off {
-        background: url("../images/Icon_mute.png") no-repeat;
-        display: block;
-        width: 70px;
-        height: 65px; }
-      @media only screen and (device-width: 768px) {
-        div.parallax div.video-background li.ui-video-background-mute {
-          display: none; } }
-      @media only screen and (device-width: 320px) {
-        div.parallax div.video-background li.ui-video-background-mute {
-          display: none; } }
-     
+  
+          
+          /* Home Page */
+          div.parallax div#home {
+            padding-top:200px;
+    background: #3577A8;
+    text-align: center; }
+    @media only screen and (min-width: 960px) {
+      div.parallax div#home {
+        min-height: 500px; } }
+    div.parallax div#bg2 div.content {
+      padding-top: 135px;
+      padding-bottom: 135px; }
+      @media only screen and (min-width: 720px) and (max-width: 959px) {
+        div.parallax div#home div.content {
+          padding-top: 100px;
+          padding-bottom: 100px; } }
+      @media only screen and (max-width: 719px) {
+        div.parallax div#home div.content {
+          padding-top: 80px;
+          padding-bottom: 80px; } }
+          div.parallax div#home div.content .pictures{
+            width: inherit;
+          }
+          div.parallax div#home div.content .pictures .left{
+            float:left;
+            width: 150px;
+            height:150px;
+          }
+
+          div.parallax div#home div.content .pictures .mid{
+            width: 269px;
+            padding-top:25px;
+            display: inline;
+            height: 100px;
+          }
+
+          div.parallax div#home div.content .pictures .right{
+            float:right;
+            width: 89px;
+            height: 100px;
+          }
+          div.parallax div#home div.content .text{padding-top: 100px;}
+          
+          div.parallax div#home div.content .text .left{
+            float:left;
+            width: 150px;
+            height:150px;
+          }
+        
+          div.parallax div#home div.content .text .mid{
+            width: 269px;
+            display: inline-table;
+           
+            height: 100px;
+          }
+         
+          div.parallax div#home div.content .text .right{
+            float:right;
+            width: 150px;
+            height: 150px;
+          }
           
           
           
           
-          /* Product */
+          
+          
+          
+          /* Live Split */
   div.parallax div#bg2 {
     background: #3577A8;
     text-align: center; }
@@ -353,124 +357,68 @@ div.parallax {
         div.parallax div#bg2 div.content {
           padding-top: 80px;
           padding-bottom: 80px; } }
-          div.parallax div#bg2 div.content .pictures{
-            width: inherit;
-          }
-          div.parallax div#bg2 div.content .pictures .left{
-            float:left;
-            width: 150px;
-            height:150px;
-          }
-          div.parallax div#bg2 div.content .pictures .wifione{
-            display:inline;
-            margin-top: 20px;
-            padding-right: 75px;
-          }
-          div.parallax div#bg2 div.content .pictures .mid{
-            width: 269px;
-            padding-top:25px;
-            display: inline;
-            height: 100px;
-          }
-           div.parallax div#bg2 div.content .pictures .wifitwo{
-            display:inline;
-            padding-left: 75px;
-          }
-          div.parallax div#bg2 div.content .pictures .right{
-            float:right;
-            width: 89px;
-            height: 100px;
-          }
-          div.parallax div#bg2 div.content .text{padding-top: 100px;}
-          
-          div.parallax div#bg2 div.content .text .left{
-            float:left;
-            width: 200px;
-            height:100px;
-          }
-        
-          div.parallax div#bg2 div.content .text .mid{
-            width: 200px;
-            display: inline-table;
-           
-            height: 100px;
-          }
-         
-          div.parallax div#bg2 div.content .text .right{
-            float:right;
-            width: 200px;
-            height: 100px;
-          }
+          div.parallax div#bg2 div.content#results{}
           
           
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-  div.parallax div#bg3 {
-    background: #222;
-    text-align: center; }
-    @media only screen and (min-width: 960px) {
-      div.parallax div#bg3 {
-        min-height: 800px; } }
-    div.parallax div#bg3 div.content {
-      padding-top: 135px;
-      padding-bottom: 135px; }
-      @media only screen and (min-width: 720px) and (max-width: 959px) {
-        div.parallax div#bg3 div.content {
-          padding-top: 100px;
-          padding-bottom: 100px; } }
-      @media only screen and (max-width: 719px) {
-        div.parallax div#bg3 div.content {
-          padding-top: 80px;
-          padding-bottom: 80px; } }
-      div.parallax div#bg3 div.content p {
-        margin: 0 auto 24px; }
-        
-        div.parallax div#bg3 div.content .picture{
-          float:left;
-        }
-        
-         div.parallax div#bg3 div.content .text{
-          float:right;
-          width: 450px;
-         }
-        
-        
-        
-        
-        
-  div.parallax div#bg4 {
+            div.parallax div#calendar {
     background: #3577A8;
     text-align: center; }
     @media only screen and (min-width: 960px) {
-      div.parallax div#bg4 {
-        min-height: 525px; } }
-    div.parallax div#bg4 div.content {
+      div.parallax div#calendar {
+        min-height: 800px; } }
+    div.parallax div#calendar #content {
+      width:800px;
+      height:600px;
       padding-top: 135px;
-      padding-bottom: 135px; }
+      padding-bottom: 135px;
+      padding-left:100px;}
       @media only screen and (min-width: 720px) and (max-width: 959px) {
-        div.parallax div#bg4 div.content {
+        div.parallax div#calendar #content {
           padding-top: 100px;
           padding-bottom: 100px; } }
       @media only screen and (max-width: 719px) {
-        div.parallax div#bg4 div.content {  
+        div.parallax div#calendar #content {
           padding-top: 80px;
           padding-bottom: 80px; } }
-      div.parallax div#bg4 div.content p {
-        margin: 0 auto 24px; }
+         
+          
+          
+          
+          
+
+        
+        
+        
+  div.parallax div#footer {
+    background: #3577A8;
+    text-align: center; }
+    @media only screen and (min-width: 960px) {
+      div.parallax div#footer {
+        min-height: 400px; } }
+    div.parallax div#footer div.content {
+      padding-top: 100px;
+      padding-bottom: 100px;
+      font-size: 11px;}
+      @media only screen and (min-width: 720px) and (max-width: 959px) {
+        div.parallax div#footer div.content {
+          padding-top: 100px;
+          padding-bottom: 100px;
+          font-size: 11px;} }
+      @media only screen and (max-width: 719px) {
+        div.parallax div#footer div.content {  
+          padding-top: 80px;
+          padding-bottom: 80px;
+          font-size: 11px;} }
+      div.parallax div#footer div.content .contactModule .bottom {clear:both; margin-top:27px; text-align:right;}
+ div.parallax div#footer div.content .bottom a {border-left:1px solid #FFF; border-right:medium none; margin-left:6px; padding:0 0 0 10px;}
+ div.parallax div#footer div.content .bottom span a:first-child {border-left:medium none;}
+  div.parallax div#footer div.content .contactModule .copyright {float:left;}
  
- #top{
-	xbackground:url("images/shoes-video.jpg");   
- }
+ 
+
+
  
  
- 
+
+
  
