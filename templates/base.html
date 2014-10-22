@@ -6,20 +6,37 @@
     
 <head>
     <meta name="description"  content="A Chicago based startup focusing on simplifying the track and field experience." /> 
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
-    <link rel="canonical" href="http://www.trac-us.com"/>
-    <link rel="icon" href="img/favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" type="text/css" media="all" href="{% static
-    "css/styleNew.css" %}" />
+    {% block facebook_meta %}
+    <meta property="og:image" content="http://trac-us.com/images/shoes-video.jpg"/>
+    <meta property="og:title" content="TRAC | Timing and Racing Around the Clock "/>
+    <meta property="fb:admins" content="804255640" />
+    <meta property="og:type"   content="website" /> 
+     <meta property="og:site_name" content="Timing and Racing Around the Clock"/>
+    <meta property="og:url"    content="http://www.trac-us.com" /> 
+    <meta property="og:description" content="A Chicago based startup focusing on simplifying the track and field experience." /> 
+    {% endblock %}
     
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="canonical" href="http://www.trac-us.com"/>
+    <link rel="icon" href="{% static "img/favicon.ico" %}" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" media="all" 
+          href="{% static "css/styleNew.css" %}" />
+    <link rel="stylesheet" href="{% static "css/login_style.css" %}" />
+    
+    {% block js_scripts %}
     <script type="text/javascript" src="{% static "js/jquery-1.7.2.min.js" %}"></script>
     <script type="text/javascript" src="{% static "js/jquery.scrollorama.js" %}"></script>
     <script type="text/javascript" src="{% static "js/jquery.scrollTo.js" %}"></script>
-    <!--<script src="{% static "js/jquery-2.1.1.js" %}"></script>
-    <script src="{% static "js/trac-ajax.js" %}"></script>-->
+    <script src="{% static "js/trac-ajax.js" %}"></script>
+    <!--<script src="{% static "js/jquery-2.1.1.js" %}"></script>-->
+    {% endblock %}
 
-    <title>{% block title %}Timing and Racing Around the Clock | Chicago{% endblock %}</title>
+    <title>
+        {% block title %}
+        Timing and Racing Around the Clock | Chicago
+        {% endblock %}
+    </title>
 
     {% block extra_head %}
     {% endblock %}
@@ -29,21 +46,23 @@
   <div id="bowtruss-header" class="container">
     <a href="#" id="pull"></a>
     <ul>
+
       <li>
-        <a href="/" class="scrollto logo" title="Bow Truss Coffee Roasters">Bow Truss</a>
+        <a href="/" class="scrollto logo" title="trac">trac</a>
       </li>
+
       <li></li>
       <li></li>
       <li></li>
-      <li></li>
-      <li></li>
+
       <li>
-        <a href="/#top" class="scrollto" rel="home">Home</a>
+        <a href="/" class="scrollto" rel="home">Home</a>
       </li>
       
       <li>
         <a href="/#bg2" class="scrollto" rel="bg2">Live View</a>
-      </li>
+        </li>
+
       <li>
         <a href="/#bg3" class="scrollto" rel="bg3">Calendar</a>
       </li>
@@ -51,89 +70,72 @@
       <li>
         <a href="/#bg4" class="scrollto" rel="bg4">Create</a>
       </li>
-    
-      
-     
+
+      <li>
+        <div id="loginContainer">
+          <a href="#" id="loginButton"><span id="dropdown_text">Login</span></a>
+          <div stlye="clear:both">
+          </div>
+          <div id="loginBox">
+            <form id="loginForm">
+                <fieldset id="body">
+                    <fieldset>
+                      <label for="email">Username</label>
+                      <input type="text" name="username" id="username" />
+                    </fieldset>
+                    <fieldset>
+                      <label for="password">Password</label>
+                      <input type="password" name="password" id="password" />
+                    </fieldset>
+                    <input type="submit" id="login" value="Sign in" />
+                </fieldset>
+                <span><a href="#">Forgot password?</a>     |     <a href="{% url "register" %}">Sign Up!</a></span>
+            </form>
+          </div>
+        </div>
+        </li>
+
     </ul>
+
   </div>
-
-
   <div class="parallax">
     
     <div id="home">  
-     
 	    <div class="content">
             {% block content %}       
-            <br>
-              <br>
-            <div class="pictures">
-                <div class="left">
-                  <img src="img/actiontime.png" height="200px">
-                </div>
-       
-                <div class="mid">
-                    <img src="img/calendar.png" height="200px">
-                </div>
-        
-                <div class="right">
-                    <img src="img/create.png" height="185px">
-                </div>
-            </div>
-            
-            <div class="text">
-                <div class="left">
-                    <h5>
-                        &nbsp&nbspLIVE VIEW
-                    </h5>
-                </div>
-                
-                <div class="mid">
-                    <h5> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp CALENDAR</h5>
-                </div>
-                
-                <div class="right">
-                    <h5>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspCREATE</h5>
-                </div>
-            </div>
             {% endblock %} 
-      <!--  <br><br><br><br><br>
-        &#8226; Eliminates the need for clipboards and stopwatches
-        <br><br>
-          &#8226; Hardware is lightweight (5lbs) and rechargable
-          <br><br>
-           &#8226; Wearables attach to shoes and never need to be charged-->
-      </div>
+        </div>
     </div>
 
-     
-     
     <div id="footer">
-      <div class="content">
-				      <a href="/en/home.html">
-						<img alt="Logo" title="traclogo" class="cq-dd-image" src="img/traclogo_small.png">
-					</a>
-				      <br><br>
-					<div class="contactModule bottom">
-						<span class="copyright">&copy; 2014 Timing and Racing Around the Clock LLC. All rights reserved.</span>
-						<span class="links">
-							<a href="" target="_new">Locations</a>
-							<a href="l" target="_new">Legal &amp; Privacy Notices</a>
-							<a href="" target="_new">Contact Us</a>
-						</span>
-					</div>
-      </div>
-      
-      
-      
-    </div>
-    
-    
-    
-    
-    </div>
+        <div class="content">
+	        <a href="/en/home.html">
+                <img alt="Logo" title="traclogo" class="cq-dd-image" 
+                     src="{% static "img/traclogo_small.png" %}">
+			</a>
+            <br><br>
 
-    
+			<div class="contactModule bottom">
+			    <span class="copyright">&copy; 2014 Timing and Racing Around the Clock LLC. All rights reserved.</span>
+				<span class="links">
+				    <a href="" target="_new">Locations</a>
+					<a href="l" target="_new">Legal &amp; Privacy Notices</a>
+					<a href="" target="_new">Contact Us</a>
+				</span>
+			</div>
+        </div>
+    </div>
+          
+  </div>
 
-  </body>
+  <div id="dropdown-1" class="dropdown dropdown-tip">
+    <ul class="dropdown-menu">
+      <li><a href="#1">Settings</a></li>
+      <li class="dropdown-divider"></li>
+      <li><a href="#2">Log Out</a></li>
+    </ul>
+  </div>
+    
+</body>
 </html>
 

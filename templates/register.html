@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% load staticfiles %}
+
+
+{% block extra_head%}
+    <script type="text/javascript" src="{% static "js/trac-ajax.js" %}"></script>
+{% endblock %}    
+
+{% block content %}
+<div class="loginform-in">
+    <h1>Register for trac!</h1>
+    <div class="err" id="add_err"></div>
+    <fieldset>
+        <form action="./" method="post">
+        {% csrf_token %}
+            <ul>
+                <li> <label for="name">Username</label>
+                <input type="text" size="30" name="name" id="name" /></li>
+                <li> <label for="name">Password</label>
+                <input type="password" size="30" name="word" id="word" /></li>
+                <li> <label></label>
+                <input type="radio" name="utype" id="utype" value="athlete">Athlete
+                <input type="radio" name="utype" id="utype" value="coach">Coach
+                <br>
+                <input type="submit" id="register" name="register"
+                value="Register"
+                class="loginbutton"></li>
+            </ul>
+        </form>
+    </fieldset>    
+</div>    
+{% endblock %}

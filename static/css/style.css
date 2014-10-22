@@ -139,14 +139,14 @@ div#bowtruss-header {
     div#bowtruss-header a:hover {
       color: #F0B922; }
     div#bowtruss-header a.logo {
-      background: url("../images/trac_small.gif") no-repeat;
+      background: url("../img/trac_small.gif") no-repeat;
       display: inline-block;
       width: 200px;
       height: 60px;
       text-indent: -999999px; }
       @media all and (-webkit-min-device-pixel-ratio: 1.5) {
         div#bowtruss-header a.logo {
-          background-image: url("../images/trac_small.gif");
+          background-image: url("../img/trac_small.gif");
           background-size: 200px 60px; } }
       @media only screen and (max-width: 719px) {
         div#bowtruss-header a.logo {
@@ -194,7 +194,7 @@ div#bowtruss-header {
   div#bowtruss-header a#pull {
     overflow: hidden;
     display: none;
-    background: url("../images/trac_small.gif") no-repeat center;
+    background: url("../img/trac_small.gif") no-repeat center;
     background-size: 200px 60px; }
 
 @media only screen and (max-width: 719px) {
@@ -225,7 +225,7 @@ div#bowtruss-header {
       width: 100%; }
       div#bowtruss-header a#pull:after {
         content: "";
-        background: url("../images/trac_small.gif") no-repeat;
+        background: url("../img/trac_small.gif") no-repeat;
         background-size: 200px 60px;
         width: 31px;
         height: 19px;

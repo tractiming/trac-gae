@@ -68,7 +68,7 @@ class TimingSession(models.Model):
             return True
         return False
 
-    def results(self, force_update=False):
+    def get_results(self, force_update=False):
         """Gets the current splits for the session."""
         
         wdata['date'] = self.start_time.strftime('%m.%d.%Y')

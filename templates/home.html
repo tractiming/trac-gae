@@ -26,7 +26,8 @@
   <script type="text/javascript" src="js/jquery.scrollorama.js"></script>
   <script type="text/javascript" src="js/jquery.scrollTo.js"></script>
 
-
+  <link type="text/css" rel="stylesheet" href="jquery.dropdown.css" />
+<script type="text/javascript" src="jquery.dropdown.js"></script>
   
 
 </head>
@@ -36,15 +37,15 @@
     <a href="#" id="pull"></a>
     <ul>
       <li>
-        <a href="/" class="scrollto logo" title="Bow Truss Coffee Roasters">Bow Truss</a>
+        <a href="/" class="scrollto logo" title="TRAC">TRAC</a>
       </li>
       <li></li>
       <li></li>
       <li></li>
       <li></li>
-      <li></li>
+      
       <li>
-        <a href="/#top" class="scrollto" rel="home">Home</a>
+        <a href="/#top" class="scrollto" rel="top">Home</a>
       </li>
       
       <li>
@@ -57,6 +58,7 @@
       <li>
         <a href="/#bg4" class="scrollto" rel="bg4">Create</a>
       </li>
+      <li><a href="#" data-dropdown="#dropdown-1"><img src="images/ic_action_expand_blue_down.png" height=60%></a></li>
     
       
      
@@ -101,12 +103,7 @@
           </div>
            
         </div>
-      <!--  <br><br><br><br><br>
-        &#8226; Eliminates the need for clipboards and stopwatches
-        <br><br>
-          &#8226; Hardware is lightweight (5lbs) and rechargable
-          <br><br>
-           &#8226; Wearables attach to shoes and never need to be charged-->
+      
       </div>
     </div>
 
@@ -137,7 +134,14 @@
     
     </div>
 
-    
+    <div id="dropdown-1" class="dropdown dropdown-tip">
+    <ul class="dropdown-menu">
+        <li><a href="#1">Settings</a></li>
+        <li class="dropdown-divider"></li>
+        <li><a href="#2">Log Out</a></li>
+
+    </ul>
+</div>
 
   </body>
 </html>

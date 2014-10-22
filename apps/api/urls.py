@@ -3,8 +3,8 @@ from rest_framework import routers
 import views
 
 router = routers.DefaultRouter()
-router.register(r'users', views.UserViewSet)
-router.register(r'sessions', views.TimingSessionViewSet)
+router.register(r'users', views.UserViewSet, 'User')
+router.register(r'sessions', views.TimingSessionViewSet, 'Session')
 
 urlpatterns = [
         url(r'^', include(router.urls)),

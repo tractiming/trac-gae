@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+ <h2> Live Results</h2>
+    <table id="results" style="width:100%"></table>
+
+    <script>
+
+        //When DOM loaded we attach click event to button
+        $(document).ready(function() {
+            
+
+                //start ajax request
+                $.ajax({
+                    url: "{% static "json/test2.json" %}",
+                    //force to handle it as text
+                    dataType: "text",
+                    success: function(data) {
+                        
+                        //data downloaded so we call parseJSON function 
+                        //and pass downloaded data
+                        var json = $.parseJSON(data);
+                        //now json variable contains data in json format
+                        //let's display a few items
+                       // $('#results').html('Date: ' + json.date);
+			//$('#results').append('<p> Workout ID: '+ json.workoutID);
+			
+			
+			for (var i=0; i < json.runners.length; i++) {
+			  //print names and enter name array
+			  var name = json.runners[i].name;
+			  //prints all splits with no nesting
+			  //var interval = json.runners[i].interval
+			  if (i==0) {
+			    $('#results').append('<tr><td>Name</td></tr>');
+			    $('#results').append('<tr class="odd"><td>'+name+'</td></tr>');
+			  }
+			  else if((i)%2 ==0) {
+			    $('#results').append('<tr class="odd"><td>'+name+'</td></tr>');
+			  }
+			  else{
+			    $('#results').append('<tr><td>'+name+'</td></tr>');
+			  }
+			  
+			  
+			  var finaltime = 0;
+			  
+			  for (var j=0; j < json.runners[i].interval.length; j++) {
+			    //iterate over interval to get to nested time arrays
+			    var interval = json.runners[i].interval[j];
+			    //$('#results').append( "Interval Subset: ")
+			    
+
+			    for (var k=0; k < json.runners[i].interval[j].length; k++) {
+			      //interate over subarrays and pull out each individually and print
+			      var subinterval = json.runners[i].interval[j][k];
+			      var min = Math.floor(subinterval/60);
+			      var sec = (subinterval-(min*60));
+			     // $('#results').append('<td>');
+			      //This if statements adds the preceding 0 to any second less than 10
+			      
+			      if (sec<10) {
+				$('#results tr:last').append('<td>'+ min + ':0'+ sec +'</td>');
+			      }
+			      else
+			      {
+			      $('#results tr:last').append('<td>'+ min + ':'+ sec +'</td>');
+			      }
+			      finaltime = finaltime + subinterval;
+			      if (i==0) {
+				//Puts the word 'split #' on table
+				$('#results tr:first').append('<td>Split '+(k+1)+'</td>');
+			      }
+			    }
+			    
+			    
+			  }
+			  
+			  
+			  
+			   var minfinal = Math.floor(finaltime/60);
+			   var secfinal = (finaltime-(minfinal*60));
+			   //$('#results').append('<td>');
+			   if (secfinal<10) {
+			    $('#results tr:last').append( minfinal + ':0'+ secfinal );
+			   }
+			   else{
+			   $('#results tr:last').append( minfinal + ':'+ secfinal);
+			   };
+			   if (i==0) {
+				//adds word final time to table header
+				$('#results tr:first').append('<td>Final Time</td>');
+			      }
+			//$('#results').append('' );
+			}
+			
+			
+			
+                    }
+                });
+            
+        });
+	
+
+    </script>
+
+{% endblock %} 
+    
+    
+    
+</html>
+
+
+

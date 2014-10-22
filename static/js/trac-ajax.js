@@ -26,12 +26,35 @@ $.ajaxSetup({
 });
 
 $(document).ready(function() {
-   $("#add_err").css('display', 'none', 'important');
-   $("#login").click(function(){
+
+    $("#add_err").css('display', 'none', 'important');
+    $("#dropdown_text").text("Login");
+    
+    // Control of the login box.
+    var button = $('#loginButton');
+    var box = $('#loginBox');
+    var form = $('#loginForm');
+    button.removeAttr('href');
+    button.mouseup(function(login) {
+        box.toggle();
+        button.toggleClass('active');
+    });
+    form.mouseup(function() { 
+        return false;
+    });
+    $(this).mouseup(function(login) {
+        if(!($(login.target).parent('#loginButton').length > 0)) {
+            button.removeClass('active');
+            box.hide();
+        }
+    });
+    
+    // Login functionality.
+    $("#login").click(function(){
 
        // Get the username and password from login form.
-       var username=$('input[id=name]').val();
-       var password=$('input[id=word]').val();
+       var username=$('input[id=username]').val();
+       var password=$('input[id=password]').val();
 
        // Send a POST to the api to request an access token.
        $.ajax({
@@ -46,9 +69,11 @@ $(document).ready(function() {
           
            // Login was successful.
            success: function(data) {
-               alert("trying");
                    var access_token = data.access_token;
-                   alert("Logged in sucessfully");
+                    $("#dropdown_text").text(username);
+                    $("#loginBox").html('<form id="loginForm"><span><a href="#">My Profile</a></span><br><span><a href="#">Logout</a></span></form>');
+                    button.removeClass('active');
+                    box.hide();
            },
 
            // Login request failed.
@@ -60,4 +85,39 @@ $(document).ready(function() {
        return false;
 
    });
+
+   $("#register").click(function(){
+
+       // Get the username and password from registration form.
+       var username=$('input[id=name]').val();
+       var password=$('input[id=word]').val();
+       var user_type=$('input[id=utype]:checked').val();
+
+       alert(username);
+       // Send a POST to the api to register the user.
+       $.ajax({
+           type: "POST",
+           url: "/api/register/",
+           data: {
+               username: username,
+               password: password,
+               user_type: user_type,
+           },
+          
+           // Registration was successful.
+           success: function(data) {
+                   alert("Registered sucessfully");
+           },
+
+           // Registration failed.
+           error: function(xhr, errmsg, err) {
+               alert(user_type);
+               alert("Invalid registration.");
+           }
+       });
+
+       return false;
+
+   });
 });
+

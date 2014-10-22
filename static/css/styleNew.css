@@ -62,7 +62,7 @@ body {
   margin: 0 auto;
   max-width: 960px; }
   
-tr.odd{background-color:#ccc}
+tr.odd{background-color:#a3a3a3}
 
 h2 {
   font-family: 'GothamHTF-Book', 'Helvetica', 'Arial', sans;
@@ -147,18 +147,19 @@ div#bowtruss-header {
   z-index: 100; }
   div#bowtruss-header a {
     color: #3577A8;
-    text-decoration: none; }
+    text-decoration: none;
+    }
     div#bowtruss-header a:hover {
       color: #F0B922; }
     div#bowtruss-header a.logo {
-      background: url("../images/trac_small.gif") no-repeat;
+      background: url("../img/trac_small.gif") no-repeat;
       display: inline-block;
       width: 200px;
       height: 60px;
       text-indent: -999999px; }
       @media all and (-webkit-min-device-pixel-ratio: 1.5) {
         div#bowtruss-header a.logo {
-          background-image: url("../images/trac_small.gif");
+          background-image: url("../img/trac_small.gif");
           background-size: 200px 60px; } }
       @media only screen and (max-width: 719px) {
         div#bowtruss-header a.logo {
@@ -169,7 +170,8 @@ div#bowtruss-header {
     margin: 0 auto;
     width: 1000px;
     transition: width 0.3s ease;
-    overflow: hidden; }
+    overflow: visible;
+    }
     div#bowtruss-header ul:after {
       visibility: hidden;
       display: block;
@@ -186,7 +188,8 @@ div#bowtruss-header {
       line-height: 60px;
       padding: 0 20px;
       text-transform: uppercase;
-      transition: padding 0.3s ease; }
+      transition: padding 0.3s ease;
+      }
       @media only screen and (min-width: 720px) and (max-width: 959px) {
         div#bowtruss-header ul li {
           padding: 0 21px; } }
@@ -204,9 +207,9 @@ div#bowtruss-header {
           
         }
   div#bowtruss-header a#pull {
-    overflow: hidden;
+    overflow: visible;
     display: none;
-    background: url("../images/trac_small.gif") no-repeat center;
+    background: url("../img/trac_small.gif") no-repeat center;
     background-size: 200px 60px; }
 
 @media only screen and (max-width: 719px) {
@@ -237,7 +240,7 @@ div#bowtruss-header {
       width: 100%; }
       div#bowtruss-header a#pull:after {
         content: "";
-        background: url("../images/trac_small.gif") no-repeat;
+        background: url("../img/trac_small.gif") no-repeat;
         background-size: 200px 60px;
         width: 31px;
         height: 19px;
@@ -339,7 +342,7 @@ div.parallax {
           
           
           
-          /* Live Split */
+          /* Live Split Page */
   div.parallax div#bg2 {
     background: #3577A8;
     text-align: center; }
@@ -360,28 +363,51 @@ div.parallax {
           div.parallax div#bg2 div.content#results{}
           
           
+          
+             /* Calendar Page */
             div.parallax div#calendar {
     background: #3577A8;
     text-align: center; }
     @media only screen and (min-width: 960px) {
       div.parallax div#calendar {
         min-height: 800px; } }
-    div.parallax div#calendar #content {
+    div.parallax div#calendar #contentleft {
       width:800px;
       height:600px;
       padding-top: 135px;
       padding-bottom: 135px;
-      padding-left:100px;}
+      padding-left:100px;
+      float:left;}
       @media only screen and (min-width: 720px) and (max-width: 959px) {
-        div.parallax div#calendar #content {
+        div.parallax div#calendar #contentleft {
           padding-top: 100px;
-          padding-bottom: 100px; } }
+          padding-bottom: 100px;
+          float:left;} }
       @media only screen and (max-width: 719px) {
-        div.parallax div#calendar #content {
+        div.parallax div#calendar #contentleft {
           padding-top: 80px;
-          padding-bottom: 80px; } }
+          padding-bottom: 80px;
+          float:left;} }
          
-          
+          div.parallax div#calendar #contentright {
+            display: inline-table;
+      width:800px;
+      height:auto;
+      padding-top: 205px;
+      padding-bottom: 135px;
+      padding-left:100px;
+     }
+      @media only screen and (min-width: 720px) and (max-width: 959px) {
+        div.parallax div#calendar #contentright {
+          padding-top: 150px;
+          padding-bottom: 100px;
+          display: inline-table;} }
+      @media only screen and (max-width: 719px) {
+        div.parallax div#calendar #contentright{
+          padding-top: 120px;
+          padding-bottom: 80px;
+         display: inline-table;} }
+          div.parallax div#calendar #contentright #results{}
           
           
           

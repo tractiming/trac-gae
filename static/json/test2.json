@@ -1,0 +1,13 @@
+{
+  "date":"6.24.2014", 
+  "workoutID":1245813,
+  "runners": [{
+        "name": "Elliot",
+        "counter":[1],
+        "interval": [
+        [20]
+       ]
+        }
+]
+
+}
