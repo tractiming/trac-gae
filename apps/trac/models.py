@@ -71,6 +71,7 @@ class TimingSession(models.Model):
     def get_results(self, force_update=False):
         """Gets the current splits for the session."""
         
+        wdata = {}
         wdata['date'] = self.start_time.strftime('%m.%d.%Y')
         wdata['workoutID'] = self.id
         wdata['runners'] = []
@@ -80,7 +81,8 @@ class TimingSession(models.Model):
         for tag_id in tag_ids:
 
             # Get the name of the tag's owner.
-            user = Tag.objects.get(id=tag_id).user
+            tag = Tag.objects.get(id=tag_id)
+            user = tag.user
             if user:
                 name = user.get_full_name()
             else:
@@ -88,18 +90,18 @@ class TimingSession(models.Model):
 
             # Calculate the splits for this tag in the current workout.
             interval = []
-            times = TagTime.objects.filter(timingsession_id=snum, 
-                                           tag_id=tag_id).order_by('time')
-            for i in range(len(splits)-1):
+            times = TagTime.objects.filter(timingsession=self, 
+                                           tag=tag).order_by('time')
+            for i in range(len(times)-1):
                 dt = times[i+1].time-times[i].time
                 interval.append(dt.total_seconds())
             counter = range(1,len(interval)+1)    
 
             # Add the runner's data to the workout. 
-            sdata['runners'].append({'name': name, 'counter': counter,
+            wdata['runners'].append({'name': name, 'counter': counter,
                                      'interval': interval})
 
-        return sdata    
+        return wdata    
 
     def all_users(self):
         """Returns a list of all users that are registered in the session."""

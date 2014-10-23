@@ -50,6 +50,8 @@ def parse_raw_msg(string):
 
 def parse_formatted_msg(msg):
     """Extracts time data from a formatted reader message."""
+
+    # Ensure that the message contains valid info.
     for token in ['ant', 'r', 'id', 'time']:
         if token not in msg:
             return None

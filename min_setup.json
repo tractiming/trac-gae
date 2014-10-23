@@ -1,0 +1,978 @@
+[
+{
+    "pk": 1, 
+    "model": "contenttypes.contenttype", 
+    "fields": {
+        "model": "logentry", 
+        "name": "log entry", 
+        "app_label": "admin"
+    }
+},
+{
+    "pk": 2, 
+    "model": "contenttypes.contenttype", 
+    "fields": {
+        "model": "contenttype", 
+        "name": "content type", 
+        "app_label": "contenttypes"
+    }
+},
+{
+    "pk": 3, 
+    "model": "contenttypes.contenttype", 
+    "fields": {
+        "model": "permission", 
+        "name": "permission", 
+        "app_label": "auth"
+    }
+},
+{
+    "pk": 4, 
+    "model": "contenttypes.contenttype", 
+    "fields": {
+        "model": "group", 
+        "name": "group", 
+        "app_label": "auth"
+    }
+},
+{
+    "pk": 5, 
+    "model": "contenttypes.contenttype", 
+    "fields": {
+        "model": "user", 
+        "name": "user", 
+        "app_label": "auth"
+    }
+},
+{
+    "pk": 6, 
+    "model": "contenttypes.contenttype", 
+    "fields": {
+        "model": "customuser", 
+        "name": "custom user", 
+        "app_label": "auth"
+    }
+},
+{
+    "pk": 7, 
+    "model": "contenttypes.contenttype", 
+    "fields": {
+        "model": "extensionuser", 
+        "name": "extension user", 
+        "app_label": "auth"
+    }
+},
+{
+    "pk": 8, 
+    "model": "contenttypes.contenttype", 
+    "fields": {
+        "model": "custompermissionsuser", 
+        "name": "custom permissions user", 
+        "app_label": "auth"
+    }
+},
+{
+    "pk": 9, 
+    "model": "contenttypes.contenttype", 
+    "fields": {
+        "model": "isactivetestuser1", 
+        "name": "is active test user1", 
+        "app_label": "auth"
+    }
+},
+{
+    "pk": 10, 
+    "model": "contenttypes.contenttype", 
+    "fields": {
+        "model": "customusernonuniqueusername", 
+        "name": "custom user non unique username", 
+        "app_label": "auth"
+    }
+},
+{
+    "pk": 11, 
+    "model": "contenttypes.contenttype", 
+    "fields": {
+        "model": "customuserbadrequiredfields", 
+        "name": "custom user bad required fields", 
+        "app_label": "auth"
+    }
+},
+{
+    "pk": 12, 
+    "model": "contenttypes.contenttype", 
+    "fields": {
+        "model": "session", 
+        "name": "session", 
+        "app_label": "sessions"
+    }
+},
+{
+    "pk": 13, 
+    "model": "contenttypes.contenttype", 
+    "fields": {
+        "model": "client", 
+        "name": "client", 
+        "app_label": "oauth2"
+    }
+},
+{
+    "pk": 14, 
+    "model": "contenttypes.contenttype", 
+    "fields": {
+        "model": "grant", 
+        "name": "grant", 
+        "app_label": "oauth2"
+    }
+},
+{
+    "pk": 15, 
+    "model": "contenttypes.contenttype", 
+    "fields": {
+        "model": "accesstoken", 
+        "name": "access token", 
+        "app_label": "oauth2"
+    }
+},
+{
+    "pk": 16, 
+    "model": "contenttypes.contenttype", 
+    "fields": {
+        "model": "refreshtoken", 
+        "name": "refresh token", 
+        "app_label": "oauth2"
+    }
+},
+{
+    "pk": 17, 
+    "model": "contenttypes.contenttype", 
+    "fields": {
+        "model": "tag", 
+        "name": "tag", 
+        "app_label": "trac"
+    }
+},
+{
+    "pk": 18, 
+    "model": "contenttypes.contenttype", 
+    "fields": {
+        "model": "reader", 
+        "name": "reader", 
+        "app_label": "trac"
+    }
+},
+{
+    "pk": 19, 
+    "model": "contenttypes.contenttype", 
+    "fields": {
+        "model": "tagtime", 
+        "name": "tag time", 
+        "app_label": "trac"
+    }
+},
+{
+    "pk": 20, 
+    "model": "contenttypes.contenttype", 
+    "fields": {
+        "model": "timingsession", 
+        "name": "timing session", 
+        "app_label": "trac"
+    }
+},
+{
+    "pk": 21, 
+    "model": "contenttypes.contenttype", 
+    "fields": {
+        "model": "athleteprofile", 
+        "name": "athlete profile", 
+        "app_label": "trac"
+    }
+},
+{
+    "pk": 22, 
+    "model": "contenttypes.contenttype", 
+    "fields": {
+        "model": "coachprofile", 
+        "name": "coach profile", 
+        "app_label": "trac"
+    }
+},
+{
+    "pk": 23, 
+    "model": "contenttypes.contenttype", 
+    "fields": {
+        "model": "racedirectorprofile", 
+        "name": "race director profile", 
+        "app_label": "trac"
+    }
+},
+{
+    "pk": 1, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "add_logentry", 
+        "name": "Can add log entry", 
+        "content_type": 1
+    }
+},
+{
+    "pk": 2, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "change_logentry", 
+        "name": "Can change log entry", 
+        "content_type": 1
+    }
+},
+{
+    "pk": 3, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "delete_logentry", 
+        "name": "Can delete log entry", 
+        "content_type": 1
+    }
+},
+{
+    "pk": 4, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "add_contenttype", 
+        "name": "Can add content type", 
+        "content_type": 2
+    }
+},
+{
+    "pk": 5, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "change_contenttype", 
+        "name": "Can change content type", 
+        "content_type": 2
+    }
+},
+{
+    "pk": 6, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "delete_contenttype", 
+        "name": "Can delete content type", 
+        "content_type": 2
+    }
+},
+{
+    "pk": 7, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "add_permission", 
+        "name": "Can add permission", 
+        "content_type": 3
+    }
+},
+{
+    "pk": 8, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "change_permission", 
+        "name": "Can change permission", 
+        "content_type": 3
+    }
+},
+{
+    "pk": 9, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "delete_permission", 
+        "name": "Can delete permission", 
+        "content_type": 3
+    }
+},
+{
+    "pk": 10, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "add_group", 
+        "name": "Can add group", 
+        "content_type": 4
+    }
+},
+{
+    "pk": 11, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "change_group", 
+        "name": "Can change group", 
+        "content_type": 4
+    }
+},
+{
+    "pk": 12, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "delete_group", 
+        "name": "Can delete group", 
+        "content_type": 4
+    }
+},
+{
+    "pk": 13, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "add_user", 
+        "name": "Can add user", 
+        "content_type": 5
+    }
+},
+{
+    "pk": 14, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "change_user", 
+        "name": "Can change user", 
+        "content_type": 5
+    }
+},
+{
+    "pk": 15, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "delete_user", 
+        "name": "Can delete user", 
+        "content_type": 5
+    }
+},
+{
+    "pk": 16, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "add_customuser", 
+        "name": "Can add custom user", 
+        "content_type": 6
+    }
+},
+{
+    "pk": 17, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "change_customuser", 
+        "name": "Can change custom user", 
+        "content_type": 6
+    }
+},
+{
+    "pk": 18, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "delete_customuser", 
+        "name": "Can delete custom user", 
+        "content_type": 6
+    }
+},
+{
+    "pk": 19, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "add_extensionuser", 
+        "name": "Can add extension user", 
+        "content_type": 7
+    }
+},
+{
+    "pk": 20, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "change_extensionuser", 
+        "name": "Can change extension user", 
+        "content_type": 7
+    }
+},
+{
+    "pk": 21, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "delete_extensionuser", 
+        "name": "Can delete extension user", 
+        "content_type": 7
+    }
+},
+{
+    "pk": 22, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "add_custompermissionsuser", 
+        "name": "Can add custom permissions user", 
+        "content_type": 8
+    }
+},
+{
+    "pk": 23, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "change_custompermissionsuser", 
+        "name": "Can change custom permissions user", 
+        "content_type": 8
+    }
+},
+{
+    "pk": 24, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "delete_custompermissionsuser", 
+        "name": "Can delete custom permissions user", 
+        "content_type": 8
+    }
+},
+{
+    "pk": 25, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "add_isactivetestuser1", 
+        "name": "Can add is active test user1", 
+        "content_type": 9
+    }
+},
+{
+    "pk": 26, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "change_isactivetestuser1", 
+        "name": "Can change is active test user1", 
+        "content_type": 9
+    }
+},
+{
+    "pk": 27, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "delete_isactivetestuser1", 
+        "name": "Can delete is active test user1", 
+        "content_type": 9
+    }
+},
+{
+    "pk": 28, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "add_customusernonuniqueusername", 
+        "name": "Can add custom user non unique username", 
+        "content_type": 10
+    }
+},
+{
+    "pk": 29, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "change_customusernonuniqueusername", 
+        "name": "Can change custom user non unique username", 
+        "content_type": 10
+    }
+},
+{
+    "pk": 30, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "delete_customusernonuniqueusername", 
+        "name": "Can delete custom user non unique username", 
+        "content_type": 10
+    }
+},
+{
+    "pk": 31, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "add_customuserbadrequiredfields", 
+        "name": "Can add custom user bad required fields", 
+        "content_type": 11
+    }
+},
+{
+    "pk": 32, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "change_customuserbadrequiredfields", 
+        "name": "Can change custom user bad required fields", 
+        "content_type": 11
+    }
+},
+{
+    "pk": 33, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "delete_customuserbadrequiredfields", 
+        "name": "Can delete custom user bad required fields", 
+        "content_type": 11
+    }
+},
+{
+    "pk": 34, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "add_session", 
+        "name": "Can add session", 
+        "content_type": 12
+    }
+},
+{
+    "pk": 35, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "change_session", 
+        "name": "Can change session", 
+        "content_type": 12
+    }
+},
+{
+    "pk": 36, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "delete_session", 
+        "name": "Can delete session", 
+        "content_type": 12
+    }
+},
+{
+    "pk": 37, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "add_client", 
+        "name": "Can add client", 
+        "content_type": 13
+    }
+},
+{
+    "pk": 38, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "change_client", 
+        "name": "Can change client", 
+        "content_type": 13
+    }
+},
+{
+    "pk": 39, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "delete_client", 
+        "name": "Can delete client", 
+        "content_type": 13
+    }
+},
+{
+    "pk": 40, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "add_grant", 
+        "name": "Can add grant", 
+        "content_type": 14
+    }
+},
+{
+    "pk": 41, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "change_grant", 
+        "name": "Can change grant", 
+        "content_type": 14
+    }
+},
+{
+    "pk": 42, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "delete_grant", 
+        "name": "Can delete grant", 
+        "content_type": 14
+    }
+},
+{
+    "pk": 43, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "add_accesstoken", 
+        "name": "Can add access token", 
+        "content_type": 15
+    }
+},
+{
+    "pk": 44, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "change_accesstoken", 
+        "name": "Can change access token", 
+        "content_type": 15
+    }
+},
+{
+    "pk": 45, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "delete_accesstoken", 
+        "name": "Can delete access token", 
+        "content_type": 15
+    }
+},
+{
+    "pk": 46, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "add_refreshtoken", 
+        "name": "Can add refresh token", 
+        "content_type": 16
+    }
+},
+{
+    "pk": 47, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "change_refreshtoken", 
+        "name": "Can change refresh token", 
+        "content_type": 16
+    }
+},
+{
+    "pk": 48, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "delete_refreshtoken", 
+        "name": "Can delete refresh token", 
+        "content_type": 16
+    }
+},
+{
+    "pk": 49, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "add_tag", 
+        "name": "Can add tag", 
+        "content_type": 17
+    }
+},
+{
+    "pk": 50, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "change_tag", 
+        "name": "Can change tag", 
+        "content_type": 17
+    }
+},
+{
+    "pk": 51, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "delete_tag", 
+        "name": "Can delete tag", 
+        "content_type": 17
+    }
+},
+{
+    "pk": 52, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "add_reader", 
+        "name": "Can add reader", 
+        "content_type": 18
+    }
+},
+{
+    "pk": 53, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "change_reader", 
+        "name": "Can change reader", 
+        "content_type": 18
+    }
+},
+{
+    "pk": 54, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "delete_reader", 
+        "name": "Can delete reader", 
+        "content_type": 18
+    }
+},
+{
+    "pk": 55, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "add_tagtime", 
+        "name": "Can add tag time", 
+        "content_type": 19
+    }
+},
+{
+    "pk": 56, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "change_tagtime", 
+        "name": "Can change tag time", 
+        "content_type": 19
+    }
+},
+{
+    "pk": 57, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "delete_tagtime", 
+        "name": "Can delete tag time", 
+        "content_type": 19
+    }
+},
+{
+    "pk": 58, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "add_timingsession", 
+        "name": "Can add timing session", 
+        "content_type": 20
+    }
+},
+{
+    "pk": 59, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "change_timingsession", 
+        "name": "Can change timing session", 
+        "content_type": 20
+    }
+},
+{
+    "pk": 60, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "delete_timingsession", 
+        "name": "Can delete timing session", 
+        "content_type": 20
+    }
+},
+{
+    "pk": 61, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "add_athleteprofile", 
+        "name": "Can add athlete profile", 
+        "content_type": 21
+    }
+},
+{
+    "pk": 62, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "change_athleteprofile", 
+        "name": "Can change athlete profile", 
+        "content_type": 21
+    }
+},
+{
+    "pk": 63, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "delete_athleteprofile", 
+        "name": "Can delete athlete profile", 
+        "content_type": 21
+    }
+},
+{
+    "pk": 64, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "add_coachprofile", 
+        "name": "Can add coach profile", 
+        "content_type": 22
+    }
+},
+{
+    "pk": 65, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "change_coachprofile", 
+        "name": "Can change coach profile", 
+        "content_type": 22
+    }
+},
+{
+    "pk": 66, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "delete_coachprofile", 
+        "name": "Can delete coach profile", 
+        "content_type": 22
+    }
+},
+{
+    "pk": 67, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "add_racedirectorprofile", 
+        "name": "Can add race director profile", 
+        "content_type": 23
+    }
+},
+{
+    "pk": 68, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "change_racedirectorprofile", 
+        "name": "Can change race director profile", 
+        "content_type": 23
+    }
+},
+{
+    "pk": 69, 
+    "model": "auth.permission", 
+    "fields": {
+        "codename": "delete_racedirectorprofile", 
+        "name": "Can delete race director profile", 
+        "content_type": 23
+    }
+},
+{
+    "pk": 1, 
+    "model": "auth.user", 
+    "fields": {
+        "username": "elliot", 
+        "first_name": "", 
+        "last_name": "", 
+        "is_active": true, 
+        "is_superuser": true, 
+        "is_staff": true, 
+        "last_login": "2014-10-23T02:43:07.530Z", 
+        "groups": [], 
+        "user_permissions": [], 
+        "password": "pbkdf2_sha256$10000$MEDkXZLKRarM$w1PwwvkWLuC1993vZnjx5ZjLcItPk1SpCs4J5c21w3c=", 
+        "email": "ejhevel@gmail.com", 
+        "date_joined": "2014-10-23T02:43:07.530Z"
+    }
+},
+{
+    "pk": 2, 
+    "model": "auth.user", 
+    "fields": {
+        "username": "alsal", 
+        "first_name": "Alberto", 
+        "last_name": "Salazar", 
+        "is_active": true, 
+        "is_superuser": false, 
+        "is_staff": false, 
+        "last_login": "2014-10-23T02:45:04.475Z", 
+        "groups": [], 
+        "user_permissions": [], 
+        "password": "pbkdf2_sha256$10000$1svWw5Rnf8uT$9qBtLcRrUkII+3XLNURvwoNd5htl+a6AeTlbxjwH+cM=", 
+        "email": "", 
+        "date_joined": "2014-10-23T02:45:04.475Z"
+    }
+},
+{
+    "pk": 3, 
+    "model": "auth.user", 
+    "fields": {
+        "username": "grupp", 
+        "first_name": "Galen", 
+        "last_name": "Rupp", 
+        "is_active": true, 
+        "is_superuser": false, 
+        "is_staff": false, 
+        "last_login": "2014-10-23T02:51:04.396Z", 
+        "groups": [], 
+        "user_permissions": [], 
+        "password": "pbkdf2_sha256$10000$8tvA4XLLLwG9$dMvjJBzIYGu8jnaUzm+B+rtrMGf0Sz5C8eTckbI/9vE=", 
+        "email": "", 
+        "date_joined": "2014-10-23T02:51:04.396Z"
+    }
+},
+{
+    "pk": 1, 
+    "model": "oauth2.client", 
+    "fields": {
+        "name": "alsal", 
+        "url": "alsal", 
+        "client_type": 1, 
+        "redirect_uri": "", 
+        "user": 2, 
+        "client_id": "alsal", 
+        "client_secret": ""
+    }
+},
+{
+    "pk": 2, 
+    "model": "oauth2.client", 
+    "fields": {
+        "name": "grupp", 
+        "url": "grupp", 
+        "client_type": 1, 
+        "redirect_uri": "", 
+        "user": 3, 
+        "client_id": "grupp", 
+        "client_secret": ""
+    }
+},
+{
+    "pk": 1, 
+    "model": "trac.tag", 
+    "fields": {
+        "id_str": "E200 1AC1 9645 1A80 1039 8469", 
+        "user": 3
+    }
+},
+{
+    "pk": 1, 
+    "model": "trac.reader", 
+    "fields": {
+        "owner": 2, 
+        "name": "Alien", 
+        "id_str": "A1010"
+    }
+},
+{
+    "pk": 1, 
+    "model": "trac.tagtime", 
+    "fields": {
+        "tag": 1, 
+        "reader": 1, 
+        "time": "2014-10-17T20:23:03.324Z"
+    }
+},
+{
+    "pk": 2, 
+    "model": "trac.tagtime", 
+    "fields": {
+        "tag": 1, 
+        "reader": 1, 
+        "time": "2014-10-17T20:24:03.324Z"
+    }
+},
+{
+    "pk": 1, 
+    "model": "trac.timingsession", 
+    "fields": {
+        "name": "Workout1", 
+        "readers": [
+            1
+        ], 
+        "start_time": "2014-10-23T02:54:10.012Z", 
+        "tagtimes": [
+            1, 
+            2
+        ], 
+        "manager": 2, 
+        "stop_time": "2014-10-28T02:54:30.604Z"
+    }
+},
+{
+    "pk": 1, 
+    "model": "trac.athleteprofile", 
+    "fields": {
+        "user": 3
+    }
+},
+{
+    "pk": 1, 
+    "model": "trac.coachprofile", 
+    "fields": {
+        "organization": "", 
+        "athletes": [], 
+        "user": 2
+    }
+}
+]

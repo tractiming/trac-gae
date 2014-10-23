@@ -1,7 +1,18 @@
 from django.contrib.auth.models import User
+from django.utils import simplejson as json
 from rest_framework import serializers
 
 from trac.models import TimingSession, Tag, Reader, AthleteProfile
+
+class JSONReadOnlyField(serializers.Field):
+    """A custom serializer for rendering JSON."""
+
+    def to_native(self, obj):
+        return json.dumps(obj, encoding="utf8")
+
+    def from_native(self, value):
+        return json.loads(value)
+
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -29,15 +40,14 @@ class ReaderSerializer(serializers.ModelSerializer):
         model = Reader
         fields = ('name', 'id_str')
 
-class TimingSessionSerializer(serializers.HyperlinkedModelSerializer):
+class TimingSessionSerializer(serializers.ModelSerializer):
     manager = serializers.Field(source='manager.username')
-    results =\
-    serializers.HyperlinkedIdentityField(view_name='TimingSession-results',
-            format='json')
+    results = JSONReadOnlyField(source='get_results')
 
     class Meta:
         model = TimingSession
-        fields = ('url', 'name', 'start_time', 'stop_time', 'manager', 'results')
+        lookup_field = 'session'
+        fields = ('id', 'name', 'start_time', 'stop_time', 'manager', 'results')
 
 class CreateTimingSessionSerializer(serializers.ModelSerializer):
     class Meta:

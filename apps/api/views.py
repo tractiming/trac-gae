@@ -1,13 +1,17 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import IntegrityError
 from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework import renderers
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.decorators import link
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import (link, api_view, permission_classes,
+detail_route)
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from provider.oauth2.models import Client
 
@@ -16,7 +20,10 @@ from serializers import UserSerializer, RegistrationSerializer
 from serializers import TagSerializer, TimingSessionSerializer
 from serializers import ReaderSerializer
 
+import datetime
+
 from trac.models import TimingSession, AthleteProfile, CoachProfile
+from trac.models import Tag, Reader, TagTime
 from trac.util import is_athlete, is_coach
 
 
@@ -149,9 +156,42 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
         return sessions    
 
-    @link(renderer_classes=(renderers.JSONRenderer,))
-    def results(self, request, *args, **kwargs):
-        session = self.get_object()
-        result_set = {'wid': session.id,}
-        return JSONResponse(result_set)
+    def pre_save(self, obj):
+        """Assigns a manager to the workout before it is saved."""
+        obj.manager = self.request.user
+
+    #@detail_route(renderer_classes=(renderers.JSONRenderer,))
+    #def results(self, request, *args, **kwargs):
+    #    session = self.get_object()
+    #    result_set = {'wid': session.id,}
+    #    return JSONResponse(result_set)
     
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes((AllowAny,))
+def post_splits(request):
+    """Receives updates from readers."""
+    data = request.POST
+
+    # Get the tag and reader associated with the notification. Note that if the
+    # tag or reader has not been established in the system, the split will be
+    # ignored here.
+    try:
+        reader = Reader.objects.get(id_str=data['r'])
+        tag = Tag.objects.get(id_str=data['id'])
+    except ObjectDoesNotExist:
+        return HttpResponse(status.HTTP_400_BAD_REQUEST)
+
+    # Create new TagTime.
+    dtime = datetime.datetime.strptime(data['time'], "%Y/%m/%d %H:%M:%S.%f") 
+    tt = TagTime(tag_id=tag.id, time=dtime, reader_id=reader.id)
+    try:
+        tt.save()
+    except IntegrityError:
+        return HttpResponse(status.HTTP_400_BAD_REQUEST)
+
+    # Add the TagTime to all sessions active and having a related reader.
+    for s in reader.active_sessions:
+        s.tagtimes.add(tt.pk)
+
+    return HttpResponse(status.HTTP_201_CREATED)    
