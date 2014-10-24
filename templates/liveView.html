@@ -13,14 +13,18 @@
 
                 //start ajax request
                 $.ajax({
-                    url: "{% static "json/test2.json" %}",
+                    url: "/api/sessions/1/",{#"{% static "json/test2.json" %}",#}
                     //force to handle it as text
                     dataType: "text",
                     success: function(data) {
+                        alert('read data');
                         
                         //data downloaded so we call parseJSON function 
                         //and pass downloaded data
                         var json = $.parseJSON(data);
+                        json = $.parseJSON(json.results);
+                        alert(json);
+                        
                         //now json variable contains data in json format
                         //let's display a few items
                        // $('#results').html('Date: ' + json.date);
@@ -30,6 +34,7 @@
 			for (var i=0; i < json.runners.length; i++) {
 			  //print names and enter name array
 			  var name = json.runners[i].name;
+              alert(name);
 			  //prints all splits with no nesting
 			  //var interval = json.runners[i].interval
 			  if (i==0) {

@@ -134,7 +134,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
     Returns a list of all sessions associated with the user.
     """
     serializer_class = TimingSessionSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (AllowAny,IsAuthenticated,)
 
 
     def get_queryset(self):
@@ -172,7 +172,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 def post_splits(request):
     """Receives updates from readers."""
     data = request.POST
-
+    
     # Get the tag and reader associated with the notification. Note that if the
     # tag or reader has not been established in the system, the split will be
     # ignored here.

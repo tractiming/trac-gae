@@ -121,3 +121,13 @@ $(document).ready(function() {
    });
 });
 
+
+function get_session_resultsl(access_token, session_num, success_callback) {
+    $.ajax({
+        type: "GET",
+        url: "/api/sessions/"+session_num.toString()+"/",
+        data
+
+    });
+}
+

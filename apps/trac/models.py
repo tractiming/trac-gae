@@ -94,7 +94,7 @@ class TimingSession(models.Model):
                                            tag=tag).order_by('time')
             for i in range(len(times)-1):
                 dt = times[i+1].time-times[i].time
-                interval.append(dt.total_seconds())
+                interval.append([dt.total_seconds()])
             counter = range(1,len(interval)+1)    
 
             # Add the runner's data to the workout. 
