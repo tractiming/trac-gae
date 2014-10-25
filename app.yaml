@@ -16,8 +16,10 @@ libraries:
 builtins:
 - django_wsgi: on
 
-handlers:
+env_variables:
+  DJANGO_SETTINGS_MODULE: 'settings.dev'
 
+handlers:
 - url: /static
   static_dir: static
 
