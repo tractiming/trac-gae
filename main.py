@@ -1,7 +1,7 @@
 import os
 import sys
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings.dev")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
 
 from google.appengine.ext.webapp import util
 from django.conf import settings
