@@ -13,16 +13,19 @@ libraries:
 - name: MySQLdb
   version: "latest"
 
-env_variables:
-  DJANGO_SETTINGS_MODULE: 'settings.common'
+#env_variables:
+#  DJANGO_SETTINGS_MODULE: 'settings.common'
 
-builtins:
-- django_wsgi: on
+#builtins:
+#- django_wsgi: on
 
 
 handlers:
 - url: /static
   static_dir: static
+
+- url: /.*
+  script: main.py
 
 # TODO: set sensitive pages to use https
 #- url: /users
