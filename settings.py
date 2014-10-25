@@ -81,15 +81,15 @@ MIDDLEWARE_CLASSES = (
 ##############################################
 REST_FRAMEWORK = {
         'DEFAULT_PERMISSION_CLASSES': (
-            'rest_framework.permissions.IsAuthenticated',
+#            'rest_framework.permissions.IsAuthenticated',
         ),
         'DEFAULT_AUTHENTICATION_CLASSES': (
-            'rest_framework.authentication.OAuth2Authentication',
-            'rest_framework.authentication.SessionAuthentication',
-            'rest_framework.authentication.BasicAuthentication',
+#            'rest_framework.authentication.OAuth2Authentication',
+#            'rest_framework.authentication.SessionAuthentication',
+#            'rest_framework.authentication.BasicAuthentication',
         ),
         'DEFAULT_MODEL_SERIALIZER_CLASS': (
-            'rest_framework.serializers.ModelSerializer',
+#            'rest_framework.serializers.ModelSerializer',
         ),
 }
 
