@@ -32,7 +32,7 @@ ALLOWED_HOSTS = []
 ##########################################
 
 ########## DEBUG CONFIGURATION ##########
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 #########################################
 
