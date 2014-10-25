@@ -25,7 +25,7 @@ handlers:
   static_dir: static
 
 - url: /.*
-  script: main.py
+  script: main.application
 
 # TODO: set sensitive pages to use https
 #- url: /users
