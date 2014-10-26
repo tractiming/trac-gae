@@ -130,7 +130,7 @@ else:
     DATABASES = {
             'default': {
                 'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': join(DJANGO_ROOT, 'dev_loc.db'),
+                'NAME': join(DJANGO_ROOT, 'local', 'dev_loc.db'),
             }
     }
 ############################################
@@ -167,4 +167,4 @@ TEMPLATE_DIRS = (
 )
 ############################################
 
-WSGI_APPLICATION = 'wsgi.application'
+WSGI_APPLICATION = 'main.application'
