@@ -160,7 +160,6 @@ STATICFILES_DIRS = (
         normpath(join(DJANGO_ROOT, 'static')),
         normpath(join(DJANGO_ROOT, 'libs', 'rest_framework', 'static')),
 )
-print STATICFILES_DIRS
 ##################################
 
 ########## TEMPLATE CONFIGURATION ##########
