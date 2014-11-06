@@ -103,7 +103,7 @@ class TimingSession(models.Model):
 
         return wdata    
 
-    def all_users(self):
+    def get_athletes(self, names_only=True):
         """Returns a list of all users that are registered in the session."""
         user_list = []
         tag_ids = self.tagtimes.values_list('tag', flat=True).distinct()
@@ -113,16 +113,40 @@ class TimingSession(models.Model):
     
             if (user) and (user not in user_list):
                 user_list.append(user)
-   
-        return user_list        
+        
+        if not names_only:
+            return user_list
+        else:
+            names = [u.username for u in user_list]
+            return names
 
 class AthleteProfile(models.Model):
     user = models.OneToOneField(User)
+
+    def __unicode__(self):
+        return "name=%s" %self.user.username
+
+    def get_completed_sessions(self):
+        """Returns a list of sessions in which this user has participated."""
+        return TimingSession.objects.filter(tagtimes__tag__user=self.user)
+    
+    def get_tags(self, json_data=True):
+        """Returns a list of tags registered to the athlete."""
+        tags = Tag.objects.filter(user=self.user)
+        if not json_data:
+            return tags
+        ids = []
+        for t in tags:
+            ids.append(t.id_str)
+        return {'count': len(ids), 'ids': ids}    
 
 class CoachProfile(models.Model):
     user = models.OneToOneField(User)
     organization = models.CharField(max_length=50)
     athletes = models.ManyToManyField(AthleteProfile)
+
+    def __unicode__(self):
+        return "name=%s" %self.user.username
 
 class RaceDirectorProfile(models.Model):
     user = models.OneToOneField(User)

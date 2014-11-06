@@ -1,9 +1,19 @@
 from rest_framework import permissions
 
-class IsManagerOrReadOnly(permissions.BasePermission):
+class IsOwner(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
-            return True
+        #if request.method in permissions.SAFE_METHODS:
+        #    return True
+        return obj.owner == request.user
+    
+class IsManager(permissions.BasePermission):
 
-        return obj.manager == request.user
+    def has_object_permissions(self, request, view, obj):
+        return object.manager == request.user
+
+class IsCoachOf(permissions.BasePermission):
+
+    def has_object_permissions(self, request, view, obj):
+        return self.coachprofile_set.filter(user=request.user).exists()
+

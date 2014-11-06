@@ -29,6 +29,7 @@ $(document).ready(function() {
 
     $("#add_err").css('display', 'none', 'important');
     $("#dropdown_text").text("Login");
+
     
     // Control of the login box.
     var button = $('#loginButton');
@@ -55,7 +56,7 @@ $(document).ready(function() {
        // Get the username and password from login form.
        var username=$('input[id=username]').val();
        var password=$('input[id=password]').val();
-
+       
        // Send a POST to the api to request an access token.
        $.ajax({
            type: "POST",
@@ -69,7 +70,11 @@ $(document).ready(function() {
           
            // Login was successful.
            success: function(data) {
-                   var access_token = data.access_token;
+
+                    // Get the access token and store client side.
+                    var access_token = data.access_token;
+                    sessionStorage.setItem('access_token', access_token);
+
                     $("#dropdown_text").text(username);
                     $("#loginBox").html('<form id="loginForm"><span><a href="#">My Profile</a></span><br><span><a href="#">Logout</a></span></form>');
                     button.removeClass('active');
@@ -92,7 +97,6 @@ $(document).ready(function() {
        var username=$('input[id=name]').val();
        var password=$('input[id=word]').val();
        var user_type=$('input[id=utype]:checked').val();
-
        alert(username);
        // Send a POST to the api to register the user.
        $.ajax({
@@ -122,7 +126,7 @@ $(document).ready(function() {
 });
 
 
-function get_session_resultsl(access_token, session_num, success_callback) {
+function get_session_results(access_token, session_num, success_callback) {
     $.ajax({
         type: "GET",
         url: "/api/sessions/"+session_num.toString()+"/",

@@ -19,9 +19,13 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         model = User
         fields = ('url', 'username', 'email')
 
-class AthleteProfileSerializer(serializers.HyperlinkedModelSerializer):
+class AthleteProfileSerializer(serializers.ModelSerializer):
+    full_name = serializers.Field(source='user.username')
+    tags = JSONReadOnlyField(source='get_tags')
+
     class Meta:
         model = AthleteProfile
+        fields = ('full_name', 'tags')
 
 class RegistrationSerializer(serializers.ModelSerializer):
     user_type = serializers.CharField(max_length=15)
@@ -33,7 +37,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        fields = ('id_str')
+        fields = ('id_str',)
         
 class ReaderSerializer(serializers.ModelSerializer):
     class Meta:
@@ -43,11 +47,13 @@ class ReaderSerializer(serializers.ModelSerializer):
 class TimingSessionSerializer(serializers.ModelSerializer):
     manager = serializers.Field(source='manager.username')
     results = JSONReadOnlyField(source='get_results')
+    athletes = JSONReadOnlyField(source='get_athletes')
 
     class Meta:
         model = TimingSession
         lookup_field = 'session'
-        fields = ('id', 'name', 'start_time', 'stop_time', 'manager', 'results')
+        fields = ('id', 'name', 'start_time', 'stop_time', 'manager',
+                'results', 'athletes')
 
 class CreateTimingSessionSerializer(serializers.ModelSerializer):
     class Meta:

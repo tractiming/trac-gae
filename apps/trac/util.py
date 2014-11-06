@@ -12,7 +12,8 @@ def is_athlete(user):
         return False
 
 def is_coach(user):
-    """Checks if the user is a coach."""
+    """Checks if the user "Athlete profile with this User already exists."
+    ] is a coach."""
     try:
         user.coachprofile
         return True
