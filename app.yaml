@@ -25,8 +25,12 @@ handlers:
   static_dir: static
   secure: always
 
+#- url: /oauth2
+#  script: main.application
+#  secure: always
+
 - url: /.*
   script: main.application
   secure: always
-  login: required
+#  login: required
 
