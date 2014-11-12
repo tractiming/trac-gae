@@ -314,7 +314,7 @@ div.parallax {
     /* register */
    div.parallax div#regi {
             padding-top:200px;
-    background: url("../images/registration.jpg") no-repeat center;
+    background: url("../img/registration.jpg") no-repeat center;
     background-size:100%;
     text-align: center; }
     @media only screen and (min-width: 960px) {
