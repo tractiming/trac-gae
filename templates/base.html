@@ -79,33 +79,14 @@
         <a href="/create.html" class="scrollto" rel="bg4">Create</a>
       </li>
 
-      <li>
-        <div id="loginContainer">
-          <a id="loginButton"><span id="dropdown_text">Login</span></a>
-          <div stlye="clear:both">
-          </div>
-          <div id="loginBox">
-            <form id="loginForm">
-                <fieldset id="body">
-                    <fieldset>
-                      <label for="email">Username</label>
-                      <input type="text" name="username" id="username" />
-                    </fieldset>
-                    <fieldset>
-                      <label for="password">Password</label>
-                      <input type="password" name="password" id="password" />
-                    </fieldset>
-                    <input type="submit" id="login" value="Sign in" />
-                </fieldset>
-                <span><a href="#">Forgot password?</a>     |     <a href="{% url "register" %}">Sign Up!</a></span>
-            </form>
-          </div>
-        </div>
-        </li>
-
+      </li>
+      <li><a data-dropdown="#dropdown-1"><img src="{% static "img/ic_action_expand_blue_down.png" %}" height=60%></a></li>
+    
+      
+     
     </ul>
-
   </div>
+
   <div class="parallax">
 
             {% block content %}       

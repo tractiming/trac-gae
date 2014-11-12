@@ -25,9 +25,11 @@
            },
            success: function(data){
             alert(data);
+            alert('success');
            },
            error: function(data){
            alert(data);
+           alert('failure');
            }
       });
          });
@@ -42,7 +44,7 @@
 
 <div id="log">  
 	  <div id="contentleft">
-					
+					<h2> Sign in</h2>
 		<form name="tracform" id="myform">
 		  <p>
 		      <label>Username:</label> 
