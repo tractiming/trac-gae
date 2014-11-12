@@ -126,6 +126,7 @@ form label {
   font-size: 18px;
   font-weight: bold; }
 form input[type=text],
+form input[type=password],
 form textarea {
   -webkit-box-shadow: inset 1px 1px 0 0 rgba(0, 0, 0, 0.1);
   box-shadow: inset 1px 1px 0 0 rgba(0, 0, 0, 0.1);
@@ -275,7 +276,7 @@ div.parallax {
       max-width: 960px; }
   
   
-   
+  
   /* Login */
    div.parallax div#log {
             padding-top:200px;
@@ -309,6 +310,7 @@ div.parallax {
     div.parallax div#log #contentleft #myform .button-container{padding:40px 2px 0;}
     div.parallax div#log #contentleft #myform .button-container input{float:none; width:80px; background:#3577A8; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
 
+  
   
   
   
