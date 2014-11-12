@@ -274,6 +274,46 @@ div.parallax {
       margin: 0 auto;
       max-width: 960px; }
   
+  
+   
+  /* Login */
+   div.parallax div#log {
+            padding-top:200px;
+    background: url("../img/track.jpg") no-repeat center;
+    background-size:100%;
+    text-align: center; }
+    @media only screen and (min-width: 960px) {
+      div.parallax div#log {
+        min-height: 500px; } }
+
+          
+     div.parallax div#log #contentleft {
+     
+      height:300px;
+      padding-top: 30px;
+      padding-left:100px;
+      display: inline-table}
+      @media only screen and (min-width: 720px) and (max-width: 959px) {
+        div.parallax div#log #contentleft {
+          padding-top: 30px;
+
+          display: inline-table} }
+      @media only screen and (max-width: 719px) {
+        div.parallax div#log #contentleft {
+          padding-top: 20px;
+ 
+          display: inline-table} }
+    /*div.parallax div#create #contentleft div.form-row{font-size:17px; color:#ffffff; overflow:hidden; margin:10px 0 12px 0;}
+    div.parallax div#create #contentleft div.form-row label{float:left; color:#ffffff; margin:0 10px 0 0;}
+    div.parallax div#create #contentleft div.form-row  span{float:left;}*/
+    div.parallax div#log #contentleft #myform .button-container{padding:40px 2px 0;}
+    div.parallax div#log #contentleft #myform .button-container input{float:none; width:80px; background:#3577A8; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
+
+  
+  
+  
+  
+  
           
           /* Home Page */
           div.parallax div#home {

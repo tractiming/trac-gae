@@ -9,7 +9,7 @@
 
 $(document).ready(function() {
       $.ajax({
-                    url: "workoutTestList.json",
+                    url: "/api/sessions/",
                     //force to handle it as text
                     dataType: "text",
                     success: function(dateList) {
