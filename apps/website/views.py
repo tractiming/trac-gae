@@ -14,3 +14,12 @@ def live_view(request):
 
 def register(request):
     return render(request, 'register.html', {})
+
+def home(request):
+    return render(request, 'home.html', {})
+
+def create(request):
+    return render(request, 'create.html', {})
+
+def calendar(request):
+    return render(request, 'calendar.html', {})

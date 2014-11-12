@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+
+
+<script>
+	jQuery(document).ready(function($) {
+
+		$("#myform").progression({
+		  tooltipWidth: '200',
+		  tooltipPosition: 'left',
+		  tooltipOffset: '50',
+		  showProgressBar: false,
+		  showHelper: true,
+		  tooltipFontSize: '15',
+		  tooltipFontColor: 'fff',
+		  progressBarBackground: 'fff',
+		  progressBarColor: '6EA5E1',
+		  tooltipBackgroundColor:'F0B922',
+		  tooltipPadding: '10',
+		  tooltipAnimate: true
+		});
+
+	});
+
+	</script>
+<script type="text/javascript">
+$(document).ready(function () {
+  $('#myform').parsley().subscribe('parsley:form:validate', function (formInstance) {
+
+    // if one of these blocks is not failing do not prevent submission
+    // we use here group validation with option force (validate even non required fields)
+    if (formInstance.isValid('block1', true)) {
+     var MyForm = $("#myform").serializeJSON();
+     alert(MyForm);
+     //TODO: Make ajax call with respective JSON
+     return
+    }
+    // else stop form submission
+    formInstance.submitEvent.preventDefault();
+
+    // 
+    alert("Please Fix Mistakes and Resubmit");
+    return;
+  });
+});
+
+$(document).ready(function(){
+$("#submit").click(function(event)
+{
+  
+  
+
+});
+});
+</script>
+	
+  	<style>
+		#myform{
+			width:300px;
+			margin: 0 auto;
+		}
+		label{
+			display:block;
+		}
+		input,textarea{
+			width:75%;
+		}
+	</style>
+	
+
+
+
+
+    <div id="create">  
+     <h2>Create</h2>
+	 
+	  
+    <div id="contentleft">
+					
+		<form name="tracform" id="myform" method="POST" data-parsley-validate>
+		  <p>
+		      <label for="">Workout Title:</label> 
+		      <input data-progression="" type="text" data-helper="Title of the workout to help you identify it later" name="title" value="" placeholder="" required data-parsley-group="block1" />
+		  </p>
+		   <p>
+		      <label for="">Start Date:</label> 
+		      <input data-progression="" type="text" data-helper="Date that you plan to start the workout, YYYY-MM-DD" name="start_date" value="" placeholder="" required data-parsley-group="block1" />
+		  </p>
+		    <p>
+		      <label for="">End Date:</label> 
+		      <input data-progression="" type="text" data-helper="Date that you plan to end the workout, YYYY-MM-DD" name="end_date" value="" placeholder="" required data-parsley-group="block1"/>
+		  </p>
+		     <p>
+		      <label for="">Interval Distance:</label> 
+		      <input data-progression="" type="text" data-helper="Distance (in miles) of the repeat being run. I.E. in 4x400, put .25 " name="distance" value="" placeholder="" required data-parsley-group="block1"/>
+		  </p>
+		     <p>
+		      <label for="">Number of Repeats:</label> 
+		      <input data-progression="" type="text" data-helper="Quantity of thee repeat being run. I.E. in 4x400, put 4 " name="repeats" value="" placeholder=""/>
+		  </p>
+		     
+		     <p>
+		      
+		      <label>Reader #:</label>
+						<span>
+							<select>
+									<option>Reader 1 (ID# 12321)</option>
+							</select>
+						</span>
+		     </p>
+		    <br><br>
+		     <p>
+		      <label>Reader Position:</label>
+						<span>
+							<select>
+									<option>Start/Finish</option>
+									<option>Finish</option>
+							</select>
+						</span>
+		     </p>
+		     
+		          <div class="button-container">
+		    <input type="submit" name="" class="validate" id="submit" value="Save" />
+	                         </div>
+		</form>
+		
+				
+					
+					
+					
+					
+				
+    </div>
+                   <div id="contentright">
+We currently only support single reader workouts. <br><br> Readers need to be positioned on either a start/finish line or a finish line.
+<br><br>
+<img src="{% static "img/track1.png" %}" width="100%">
+              </div>
+    
+    
+     
+      </div>
+    {% endblock %} 
+    
+    
+    
+</html>
+

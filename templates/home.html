@@ -1,73 +1,7 @@
+{% extends "base.html" %}
+{% load staticfiles %}
 
-
-
-<!DOCTYPE html>
-<html class="">
-<head>
-  <title>Timing and Racing Around the Clock | Chicago</title>
-  <meta name="description"  content="A Chicago based startup focusing on simplifying the track and field experience." /> 
-
-<!--facebook meta-->
-<meta property="og:image" content="http://trac-us.com/images/shoes-video.jpg"/>
-<meta property="og:title" content="TRAC | Timing and Racing Around the Clock "/>
-<meta property="fb:admins" content="804255640" />
-<meta property="og:type"   content="website" /> 
- <meta property="og:site_name" content="Timing and Racing Around the Clock"/>
-<meta property="og:url"    content="http://www.trac-us.com" /> 
-<meta property="og:description"    content="A Chicago based startup focusing on simplifying the track and field experience." /> 
-<link rel="canonical" href="http://www.trac-us.com"/>
- 
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link rel="icon" href="images/favicon.ico" type="image/x-icon">
-
-  <link rel="stylesheet" type="text/css" media="all" href="css/styleNew.css" />
-  <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
-
-  <script type="text/javascript" src="js/jquery.scrollorama.js"></script>
-  <script type="text/javascript" src="js/jquery.scrollTo.js"></script>
-
-  <link type="text/css" rel="stylesheet" href="jquery.dropdown.css" />
-<script type="text/javascript" src="jquery.dropdown.js"></script>
-  
-
-</head>
-
-<body>
-  <div id="bowtruss-header" class="container">
-    <a href="#" id="pull"></a>
-    <ul>
-      <li>
-        <a href="/" class="scrollto logo" title="TRAC">TRAC</a>
-      </li>
-      <li></li>
-      <li></li>
-      <li></li>
-      <li></li>
-      
-      <li>
-        <a href="/#top" class="scrollto" rel="top">Home</a>
-      </li>
-      
-      <li>
-        <a href="/#bg2" class="scrollto" rel="bg2">Live View</a>
-      </li>
-      <li>
-        <a href="/#bg3" class="scrollto" rel="bg3">Calendar</a>
-      </li>
-     
-      <li>
-        <a href="/#bg4" class="scrollto" rel="bg4">Create</a>
-      </li>
-      <li><a href="#" data-dropdown="#dropdown-1"><img src="images/ic_action_expand_blue_down.png" height=60%></a></li>
-    
-      
-     
-    </ul>
-  </div>
-
-
-  <div class="parallax">
-    
+{% block content %}
     <div id="home">  
      
 	    <div class="content">
@@ -76,17 +10,17 @@
           <br>
         <div class="pictures">
         <div class="left">
-          <img src="images/actiontime.png" height="200px">
+          <img src="{% static "img/actiontime.png" %}" height="200px">
         </div>
        
         <div class="mid">
           
-          <img src="images/calendar.png" height="200px">
+          <img src="{% static "img/calendar.png" %}" height="200px">
             
         </div>
         
         <div class="right">
-          <img src="images/create.png" height="185px">
+          <img src="{% static "img/create.png" %}" height="185px">
         </div>
         </div>
         <div class="text">
@@ -108,43 +42,8 @@
     </div>
 
      
-     
-    <div id="footer">
-      <div class="content">
-				      <a href="/en/home.html">
-						<img alt="Logo" title="traclogo" class="cq-dd-image" src="images/traclogo_small.png">
-					</a>
-				      <br><br>
-					<div class="contactModule bottom">
-						<span class="copyright">&copy; 2014 Timing and Racing Around the Clock LLC. All rights reserved.</span>
-						<span class="links">
-							<a href="" target="_new">Locations</a>
-							<a href="l" target="_new">Legal &amp; Privacy Notices</a>
-							<a href="" target="_new">Contact Us</a>
-						</span>
-					</div>
-      </div>
-      
-      
-      
-    </div>
+   {% endblock %} 
     
     
     
-    
-    </div>
-
-    <div id="dropdown-1" class="dropdown dropdown-tip">
-    <ul class="dropdown-menu">
-        <li><a href="#1">Settings</a></li>
-        <li class="dropdown-divider"></li>
-        <li><a href="#2">Log Out</a></li>
-
-    </ul>
-</div>
-
-  </body>
 </html>
-
-
-

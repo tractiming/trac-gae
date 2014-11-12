@@ -2,27 +2,45 @@
 {% load staticfiles %}
 
 {% block content %}
-  <div id="bg2">  
-     
-	  <div class="content">
 
- <h2> Live Results</h2>
-    <table id="results" style="width:100%"></table>
-    
-<div class="button-container">
-  <input type="submit" name="" class="gen_btn" id="submit" value="Download" />
-</div>
+<script>
 
 
-    <script>
 
-        //When DOM loaded we attach click event to button
-        $(document).ready(function() {
-            
-	  var repeated_function = function(){
-                //start ajax request
-                $.ajax({
-                    url: "/api/sessions/1/",{#"{% static "json/test2.json" %}",#}
+$(document).ready(function() {
+      $.ajax({
+                    url: "workoutTestList.json",
+                    //force to handle it as text
+                    dataType: "text",
+                    success: function(dateList) {
+		       var json = $.parseJSON(dateList);
+		     //parse data, initialize variable
+			var formattedList = [];
+			//loop through list of json
+			for (ii=0; ii<json.length;ii++) {
+			  //iterate through and pull out id, url, and start date.
+			  var url = "/api/sessions/";
+			  var str = json[ii].start_time;
+			  str = str.slice(0,10);
+			  //reformat into objects in formatted list
+			  formattedList.push({title : json[ii].name, url : url+json[ii].id+".json", start : str});
+			 
+			}
+		      
+		$('#contentleft').fullCalendar({
+			editable: true,
+			eventLimit: true, // allow "more" link when too many events
+			events: formattedList //calls list from function above
+		});
+		   
+		    //on click prevent default, going to url normally
+		$(".fc-day-grid-event").click(function(event) {
+		 
+		  event.preventDefault();
+		  var path = $(this).attr('href').split('#');
+		  //alert(path);
+		   $.ajax({
+                    url: path,
                     //force to handle it as text
                     dataType: "text",
                     success: function(data) {
@@ -36,7 +54,7 @@
                        // $('#results').html('Date: ' + json.date);
 			//$('#results').append('<p> Workout ID: '+ json.workoutID);
 			
-			$('#results').empty();
+			  $('#results').empty();
 			for (var i=0; i < json.runners.length; i++) {
 			  //print names and enter name array
 			  var name = json.runners[i].name;
@@ -108,28 +126,19 @@
 			
 			
                     }
-                });}
-		repeated_function();
-	   setInterval(repeated_function,5000);
-        });
-	
+                });
 
-    </script>
-<script>
-//Download to Excel Script
-$(document).ready(function(){
-    $('#submit').click(function(){
+		$('#submit').click(function(){
         $.ajax({
-                    url: "WorkoutTest.json",
+                    url: path,
                     //force to handle it as text
                     dataType: "text",
                     success: function(data) {
         
         JSONToCSVConvertor(data, "TRAC_Report", true);}});
     });
-});
-
-function JSONToCSVConvertor(JSONData, ReportTitle, ShowLabel) {
+		
+		function JSONToCSVConvertor(JSONData, ReportTitle, ShowLabel) {
     //Data coming in must be json
     //parse through it
     var json = $.parseJSON(JSONData);
@@ -218,21 +227,61 @@ function JSONToCSVConvertor(JSONData, ReportTitle, ShowLabel) {
     link.click();
     document.body.removeChild(link);
 }
-</script>
- 
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		});
+
+
+               
+            
+        
+		    }});
+      
+      });
+		
+	     
+	
+
+    </script>
+  
+
+
     
-    
-    
-    
-    
-        </div>
+    <div id="calendar">  
+     <div id="contentleft">
+      
+      
+      
+     </div>
      
+     <div id="contentright">
+       <table id="results" style="width:100%"></table>
+       <div class="button-container">
+  <input type="submit" name="" class="gen_btn" id="submit" value="Download" />
+</div>
+     </div>
       </div>
+    
+    
+    
+    
+    
+    
+    
+    
 {% endblock %} 
     
     
     
 </html>
-
 
 
