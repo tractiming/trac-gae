@@ -128,7 +128,8 @@ class AthleteProfile(models.Model):
 
     def get_completed_sessions(self):
         """Returns a list of sessions in which this user has participated."""
-        return TimingSession.objects.filter(tagtimes__tag__user=self.user)
+        return TimingSession.objects.filter(
+                tagtimes__tag__user=self.user).distinct()
     
     def get_tags(self, json_data=True):
         """Returns a list of tags registered to the athlete."""
