@@ -69,15 +69,15 @@
       </li>
       
                <li>
-        <a href="/#bg2" class="scrollto" rel="bg2">Login</a>
+        <a href="/login.html" class="scrollto" rel="bg2">Login</a>
         </li>
 
       <li>
-        <a href="/#bg3" class="scrollto" rel="bg3">Register</a>
+        <a href="/register.html" class="scrollto" rel="bg3">Register</a>
       </li>
      
       <li>
-        <a href="/#bg3" class="scrollto" rel="bg3">About</a>
+        <a href="www.trac-us.com" class="scrollto" rel="bg3">About</a>
       </li>
 
       <li>
@@ -88,12 +88,13 @@
 
   <div class="parallax">
 <script>
-     $(document).ready(function() {
+    $(document).ready(function() {
          $("#submit").click(function(){
 
        // Get the username and password from login form.
        var username=$('input[id=username]').val();
        var password=$('input[id=password]').val();
+       alert(username);
        
       $.ajax({
            type: "POST",
@@ -105,21 +106,13 @@
                grant_type: 'password',
                client_id: username,
            },
-           success: function(data) {
-
-                    // Get the access token and store client side.
-                    var access_token = data.access_token;
-                    sessionStorage.setItem('access_token', access_token);
-
-                    $("#dropdown_text").text(username);
-                    $("#loginBox").html('<form id="loginForm"><span><a href="#">My Profile</a></span><br><span><a href="#">Logout</a></span></form>');
-                    button.removeClass('active');
-                    box.hide();
+           success: function(data){
+            alert(data);
+            alert('success');
            },
-
-           // Login request failed.
-           error: function(xhr, errmsg, err) {
-               alert("Invalid login.");
+           error: function(data){
+           alert(data);
+           alert('failure');
            }
       });
          });

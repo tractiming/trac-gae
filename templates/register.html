@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 
+
+
+    
 {% load static %}
 
 <html lang="en" class="">
@@ -56,7 +59,7 @@
     <a href="#" id="pull"></a>
     <ul>
 
-       <li>
+      <li>
         <a href="/" class="scrollto logo" title="trac">trac</a>
       </li>
        
@@ -69,33 +72,32 @@
       </li>
       
                <li>
-        <a href="/#bg2" class="scrollto" rel="bg2">Login</a>
+        <a href="/login.html" class="scrollto" rel="bg2">Login</a>
         </li>
 
       <li>
-        <a href="/#bg3" class="scrollto" rel="bg3">Register</a>
+        <a href="/register.html" class="scrollto" rel="bg3">Register</a>
       </li>
      
       <li>
-        <a href="/#bg3" class="scrollto" rel="bg3">About</a>
+        <a href="www.trac-us.com" class="scrollto" rel="bg3">About</a>
       </li>
 
       <li>
         </li>
 
     </ul>
-  </div>
 
+  </div>
   <div class="parallax">
-    
     <script>
-         $("#register").click(function(){
+   $("#register").click(function(){
 
        // Get the username and password from registration form.
        var username=$('input[id=username]').val();
        var password=$('input[id=password]').val();
        var user_type=$('input[id=utype]:checked').val();
-       
+       alert(username);
        // Send a POST to the api to register the user.
        $.ajax({
            type: "POST",
@@ -122,18 +124,12 @@
 
    });
 });
-        
-        
-        
-        
-        
-        
-    </script>
- <div id="regi">
+</script>
+    <div id="regi">
         
 	  <div id="contentleft">
-		<h2> Register</h2>
-		<form name="tracform" id="register">
+					<h2> Register</h2>
+		<form name="tracform" id="myform">
 		  <p>
 		      <label>Username:</label> 
 		      <input type="text" id="username" />
@@ -157,19 +153,19 @@
 	                         </div>
 		</form>
 		
-			
+				
+					
+					
+					
+					
+				
             </div>
     </div>
-
-
-
-
 
     <div id="footer">
         <div class="content">
 	        <a href="/en/home.html">
-                <img alt="Logo" title="traclogo" class="cq-dd-image" 
-                     src="{% static "img/traclogo_small.png" %}">
+
 			</a>
             <br><br>
 
@@ -190,3 +186,4 @@
     
 </body>
 </html>
+
