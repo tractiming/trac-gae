@@ -91,13 +91,16 @@
   </div>
   <div class="parallax">
     <script>
-   $("#register").click(function(){
+        $(document).ready(function() {
+   $("#register").click(function(event){
 
        // Get the username and password from registration form.
        var username=$('input[id=username]').val();
        var password=$('input[id=password]').val();
        var user_type=$('input[id=utype]:checked').val();
        alert(username);
+       event.preventDefault();
+       
        // Send a POST to the api to register the user.
        $.ajax({
            type: "POST",
@@ -111,6 +114,7 @@
            // Registration was successful.
            success: function(data) {
                    alert("Registered sucessfully");
+                   location.href="/login.html";
            },
 
            // Registration failed.
@@ -124,6 +128,7 @@
 
    });
 });
+        });
 </script>
     <div id="regi">
         

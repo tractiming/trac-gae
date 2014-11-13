@@ -1,17 +1,101 @@
-{% extends  "base.html" %}
-{% load staticfiles %}
+<!DOCTYPE html>
 
+{% load static %}
 
+<html lang="en" class="">
+    
+<head>
+    <meta name="description"  content="A Chicago based startup focusing on simplifying the track and field experience." /> 
 
-{% block content %}
+    {% block facebook_meta %}
+    <meta property="og:image" content="http://trac-us.com/images/shoes-video.jpg"/>
+    <meta property="og:title" content="TRAC | Timing and Racing Around the Clock "/>
+    <meta property="fb:admins" content="804255640" />
+    <meta property="og:type"   content="website" /> 
+     <meta property="og:site_name" content="Timing and Racing Around the Clock"/>
+    <meta property="og:url"    content="http://www.trac-us.com" /> 
+    <meta property="og:description" content="A Chicago based startup focusing on simplifying the track and field experience." /> 
+    {% endblock %}
+    
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="canonical" href="http://www.trac-us.com"/>
+    <link rel="icon" href="{% static "img/favicon.ico" %}" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" media="all" 
+          href="{% static "css/styleNew.css" %}" />
+    <link rel="stylesheet" href="{% static "css/login_style.css" %}" />
+     <link rel='stylesheet' href="{% static "css/fullcalendar.css" %}" />
+     	<link href="{% static "css/progression.min.css" %}" rel='stylesheet' type='text/css'>
+             <link type="text/css" rel="stylesheet" href="{% static "css/jquery.dropdown.css" %}" />
+
+    {% block js_scripts %}
+    <script type="text/javascript" src="{% static "js/jquery-1.7.2.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/jquery.scrollorama.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/jquery.scrollTo.js" %}"></script>
+    <script src="{% static "js/trac-ajax.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/jquery.dropdown.js" %}"></script>
+<script src="{% static "js/moment.min.js" %}"></script>
+<script src="{% static "js/fullcalendar.js" %}"></script>
+<script type="text/javascript" src="{% static "js/jquery.serializeJSON.min.js" %}"></script>
+<script type="text/javascript" src="{% static "js/parsley.min.js" %}"></script>
+<script type="text/javascript" src="{% static "js/progression.min.js" %}"></script>
+    <!--<script src="{% static "js/jquery-2.1.1.js" %}"></script>-->
+    {% endblock %}
+
+    <title>
+        {% block title %}
+        Timing and Racing Around the Clock | Chicago
+        {% endblock %}
+    </title>
+
+    {% block extra_head %}
+    {% endblock %}
+</head>
+
+<body>
+  <div id="bowtruss-header" class="container">
+    <a href="#" id="pull"></a>
+    <ul>
+
+       <li>
+        <a href="/" class="scrollto logo" title="trac">trac</a>
+      </li>
+       
+      <li></li>
+      <li></li>
+      <li></li>
+
+      <li>
+        
+      </li>
+      
+               <li>
+        <a href="/login.html" class="scrollto" rel="bg2">Login</a>
+        </li>
+
+      <li>
+        <a href="/register.html" class="scrollto" rel="bg3">Register</a>
+      </li>
+     
+      <li>
+        <a href="www.trac-us.com" class="scrollto" rel="bg3">About</a>
+      </li>
+
+      <li>
+        </li>
+
+    </ul>
+  </div>
+
+  <div class="parallax">
 <script>
-     $(document).ready(function() {
-         $("#submit").click(function(){
+    $(document).ready(function() {
+         $("#submit").click(function(event){
 
        // Get the username and password from login form.
        var username=$('input[id=username]').val();
        var password=$('input[id=password]').val();
        alert(username);
+       event.preventDefault();
        
       $.ajax({
            type: "POST",
@@ -23,14 +107,20 @@
                grant_type: 'password',
                client_id: username,
            },
-           success: function(data){
-            alert(data);
-            alert('success');
+           // Login was successful.
+           success: function(data) {
+
+                    // Get the access token and store client side.
+                    var access_token = data.access_token;
+                    sessionStorage.setItem('access_token', access_token);
+                    location.href ="/home.html";
            },
-           error: function(data){
-           alert(data);
-           alert('failure');
+
+           // Login request failed.
+           error: function(xhr, errmsg, err) {
+               alert("Invalid login.");
            }
+           
       });
          });
      });
@@ -71,7 +161,29 @@
 
 
 
-{% endblock %}
+
+    <div id="footer">
+        <div class="content">
+	        <a href="/en/home.html">
+                <img alt="Logo" title="traclogo" class="cq-dd-image" 
+                     src="{% static "img/traclogo_small.png" %}">
+			</a>
+            <br><br>
+
+			<div class="contactModule bottom">
+			    <span class="copyright">&copy; 2014 Timing and Racing Around the Clock LLC. All rights reserved.</span>
+				<span class="links">
+				    <a href="" target="_new">Locations</a>
+					<a href="l" target="_new">Legal &amp; Privacy Notices</a>
+					<a href="" target="_new">Contact Us</a>
+				</span>
+			</div>
+        </div>
+    </div>
+          
+  </div>
+
 
     
+</body>
 </html>
