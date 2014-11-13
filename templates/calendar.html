@@ -12,6 +12,9 @@ $(document).ready(function() {
                     url: "/api/sessions/",
                     //force to handle it as text
                     dataType: "text",
+		    beforeSend : function( xhr ) {
+        xhr.setRequestHeader(Authorization, BEARER + sessionStorage.access_token );
+    },
                     success: function(dateList) {
 		       var json = $.parseJSON(dateList);
 		     //parse data, initialize variable
