@@ -26,7 +26,7 @@
                     //force to handle it as text
                     dataType: "text",
 		    beforeSend : function( xhr ) {
-        xhr.setRequestHeader(Authorization, BEARER + sessionStorage.access_token );
+        xhr.setRequestHeader('Authorization', 'BEARER' + sessionStorage.access_token );
     },
                     success: function(data) {
                         
