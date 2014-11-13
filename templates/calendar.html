@@ -24,7 +24,7 @@ $(document).ready(function() {
 			  var str = json[ii].start_time;
 			  str = str.slice(0,10);
 			  //reformat into objects in formatted list
-			  formattedList.push({title : json[ii].name, url : url+json[ii].id+".json", start : str});
+			  formattedList.push({title : json[ii].name, url : url+json[ii].id, start : str});
 			 
 			}
 		      
