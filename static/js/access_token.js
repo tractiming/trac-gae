@@ -7,7 +7,9 @@ else{
     
 }
 
+    $(document).ready(function() {
 $("a.logout").click(function(){
     sessionStorage.clear();
     location.href="/login.html";
 });
+    });
