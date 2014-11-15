@@ -29,15 +29,15 @@
 
     {% block js_scripts %}
     <script type="text/javascript" src="{% static "js/jquery-1.7.2.min.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/jquery.scrollorama.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/jquery.scrollTo.js" %}"></script>
-    <script src="{% static "js/trac-ajax.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/access_token.js" %}"></script>
+
     <script type="text/javascript" src="{% static "js/jquery.dropdown.js" %}"></script>
 <script src="{% static "js/moment.min.js" %}"></script>
 <script src="{% static "js/fullcalendar.js" %}"></script>
 <script type="text/javascript" src="{% static "js/jquery.serializeJSON.min.js" %}"></script>
 <script type="text/javascript" src="{% static "js/parsley.min.js" %}"></script>
 <script type="text/javascript" src="{% static "js/progression.min.js" %}"></script>
+
     <!--<script src="{% static "js/jquery-2.1.1.js" %}"></script>-->
     {% endblock %}
 
@@ -117,9 +117,9 @@
 
   <div id="dropdown-1" class="dropdown dropdown-tip">
     <ul class="dropdown-menu">
-      <li><a href="#1">Settings</a></li>
+      <li><a class="settings">Settings</a></li>
       <li class="dropdown-divider"></li>
-      <li><a href="#2">Log Out</a></li>
+      <li><a class="logout">Log Out</a></li>
     </ul>
   </div>
     

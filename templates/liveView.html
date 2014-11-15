@@ -22,9 +22,10 @@
 	  var repeated_function = function(){
                 //start ajax request
                 $.ajax({
-                    url: "/api/sessions/1/",{#"{% static "json/test2.json" %}",#}
+                    url: "/api/sessions/9/",{#"{% static "json/test2.json" %}",#}
                     //force to handle it as text
                     dataType: "text",
+		    headers: {access_token: sessionStorage.access_token},
                     success: function(data) {
                         
                         //data downloaded so we call parseJSON function 

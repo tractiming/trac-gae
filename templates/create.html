@@ -25,36 +25,51 @@
 	});
 
 	</script>
-<script type="text/javascript">
-$(document).ready(function () {
-  $('#myform').parsley().subscribe('parsley:form:validate', function (formInstance) {
+	<script>
+    $(document).ready(function() {
+        $("#myform").on('submit', function(e){
+            e.preventDefault();
+	    
+            var form = $(this);
 
-    // if one of these blocks is not failing do not prevent submission
-    // we use here group validation with option force (validate even non required fields)
-    if (formInstance.isValid('block1', true)) {
-     var MyForm = $("#myform").serializeJSON();
-     alert(MyForm);
-     //TODO: Make ajax call with respective JSON
-     return
-    }
-    // else stop form submission
-    formInstance.submitEvent.preventDefault();
+            form.parsley().validate();
 
-    // 
-    alert("Please Fix Mistakes and Resubmit");
-    return;
-  });
-});
+	    
+	    
+            if (form.parsley().isValid()){
+	             var title=$('input[id=title]').val();
+		      var start_date=$('input[id=start_date]').val();
+		     var end_date=$('input[id=end_date]').val();
 
-$(document).ready(function(){
-$("#submit").click(function(event)
-{
-  
-  
+	      $.ajax({
+           type: "POST",
+           dataType:'json',
+           url: "/api/sessions/",
+	   headers: {access_token: sessionStorage.access_token},
+           data: {
+               name: title,
+               start_time: start_date,
+               stop_time: end_date,
+           },
+           // Login was successful.
+           success: function(data) {
+		    
+                   alert('valid');
+		   alert(data);
+           },
 
-});
-});
+           // Login request failed.
+           error: function(xhr, errmsg, err) {
+               alert("Invalid.");
+           }
+           
+      });
+                //TO DO: AJAX
+            }
+        });
+    });
 </script>
+	
 	
   	<style>
 		#myform{
@@ -82,23 +97,23 @@ $("#submit").click(function(event)
 		<form name="tracform" id="myform" method="POST" data-parsley-validate>
 		  <p>
 		      <label for="">Workout Title:</label> 
-		      <input data-progression="" type="text" data-helper="Title of the workout to help you identify it later" name="title" value="" placeholder="" required data-parsley-group="block1" />
+		      <input data-progression="" type="text" data-helper="Title of the workout to help you identify it later" id="title" value="" placeholder="" required data-parsley-group="block1" />
 		  </p>
 		   <p>
 		      <label for="">Start Date:</label> 
-		      <input data-progression="" type="text" data-helper="Date that you plan to start the workout, YYYY-MM-DD" name="start_date" value="" placeholder="" required data-parsley-group="block1" />
+		      <input data-progression="" type="text" data-helper="Date that you plan to start the workout, YYYY-MM-DD" id="start_date" value="" placeholder="" required data-parsley-group="block1" />
 		  </p>
 		    <p>
 		      <label for="">End Date:</label> 
-		      <input data-progression="" type="text" data-helper="Date that you plan to end the workout, YYYY-MM-DD" name="end_date" value="" placeholder="" required data-parsley-group="block1"/>
+		      <input data-progression="" type="text" data-helper="Date that you plan to end the workout, YYYY-MM-DD" id="end_date" value="" placeholder="" required data-parsley-group="block1"/>
 		  </p>
 		     <p>
 		      <label for="">Interval Distance:</label> 
-		      <input data-progression="" type="text" data-helper="Distance (in miles) of the repeat being run. I.E. in 4x400, put .25 " name="distance" value="" placeholder="" required data-parsley-group="block1"/>
+		      <input data-progression="" type="text" data-helper="Distance (in miles) of the repeat being run. I.E. in 4x400, put .25 " id="distance" value="" placeholder=""/>
 		  </p>
 		     <p>
 		      <label for="">Number of Repeats:</label> 
-		      <input data-progression="" type="text" data-helper="Quantity of thee repeat being run. I.E. in 4x400, put 4 " name="repeats" value="" placeholder=""/>
+		      <input data-progression="" type="text" data-helper="Quantity of thee repeat being run. I.E. in 4x400, put 4 " id="repeats" value="" placeholder=""/>
 		  </p>
 		     
 		     <p>
@@ -106,7 +121,7 @@ $("#submit").click(function(event)
 		      <label>Reader #:</label>
 						<span>
 							<select>
-									<option>Reader 1 (ID# 12321)</option>
+									<option>Reader 1 (ID# XXXX)</option>
 							</select>
 						</span>
 		     </p>

@@ -12,6 +12,7 @@ $(document).ready(function() {
                     url: "/api/sessions/",
                     //force to handle it as text
                     dataType: "text",
+		    headers: {access_token: sessionStorage.access_token},
                     success: function(dateList) {
 		       var json = $.parseJSON(dateList);
 		     //parse data, initialize variable
@@ -23,7 +24,7 @@ $(document).ready(function() {
 			  var str = json[ii].start_time;
 			  str = str.slice(0,10);
 			  //reformat into objects in formatted list
-			  formattedList.push({title : json[ii].name, url : url+json[ii].id+".json", start : str});
+			  formattedList.push({title : json[ii].name, url : url+json[ii].id, start : str});
 			 
 			}
 		      
