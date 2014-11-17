@@ -25,7 +25,7 @@
                     url: "/api/sessions/9/",{#"{% static "json/test2.json" %}",#}
                     //force to handle it as text
                     dataType: "text",
-		    
+		     headers: {Authorization: "Bearer " + sessionStorage.access_token},
                     success: function(data) {
                         
                         //data downloaded so we call parseJSON function 
