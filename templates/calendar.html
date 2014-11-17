@@ -42,6 +42,7 @@ $(document).ready(function() {
 		  //alert(path);
 		   $.ajax({
                     url: path,
+		     headers: {Authorization: "Bearer " + sessionStorage.access_token},
                     //force to handle it as text
                     dataType: "text",
                     success: function(data) {
