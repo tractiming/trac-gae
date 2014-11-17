@@ -48,7 +48,7 @@ DJANGO_APPS = (
     'django.contrib.admin',
     'django.contrib.contenttypes',
     'django.contrib.auth',
-    
+    'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
 )
@@ -70,7 +70,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 ########## MIDDLEWARE CONFIGURATION ##########
 MIDDLEWARE_CLASSES = (
-    
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -85,7 +85,7 @@ REST_FRAMEWORK = {
         ),
         'DEFAULT_AUTHENTICATION_CLASSES': (
             'rest_framework.authentication.OAuth2Authentication',
-            
+            'rest_framework.authentication.SessionAuthentication',
             'rest_framework.authentication.BasicAuthentication',
         ),
         'DEFAULT_MODEL_SERIALIZER_CLASS': (
