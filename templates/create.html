@@ -54,17 +54,17 @@
            // Login was successful.
            success: function(data) {
 		    
-                   alert('valid');
-		   alert(data);
+                   alert('Successfully Created');
+		  location.href ="/home.html";
            },
 
            // Login request failed.
            error: function(xhr, errmsg, err) {
-               alert("Invalid.");
+               alert("Invalid. Please Resubmit.");
            }
            
       });
-                //TO DO: AJAX
+               
             }
         });
     });
