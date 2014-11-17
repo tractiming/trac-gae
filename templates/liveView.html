@@ -14,18 +14,28 @@
 </div>
 
 
-    <script>
+ <script>
 
         //When DOM loaded we attach click event to button
         $(document).ready(function() {
             
-	  var repeated_function = function(){
+	    
+	    
+	    //alert(idjson);
+		    
+		    
+		    
+		    
+	  var repeated_function = function(idjson){
+	    //alert(idjson);
+	    var last_url = "/api/sessions/"+ idjson + ".json";
+	   // alert(last_url);
                 //start ajax request
                 $.ajax({
-                    url: "/api/sessions/9/",{#"{% static "json/test2.json" %}",#}
+                    url: last_url,
+		    headers: {Authorization: "Bearer " + sessionStorage.access_token},
                     //force to handle it as text
                     dataType: "text",
-		     headers: {Authorization: "Bearer " + sessionStorage.access_token},
                     success: function(data) {
                         
                         //data downloaded so we call parseJSON function 
@@ -110,26 +120,70 @@
 			
                     }
                 });}
-		repeated_function();
-	   setInterval(repeated_function,5000);
-        });
+		
+		
+		var lastWorkout = function(){
+		$.ajax({
+                    url: "/api/sessions/",
+		    headers: {Authorization: "Bearer " + sessionStorage.access_token},
+                    //force to handle it as text
+                    dataType: "text",
+                    success: function(data){
+		      var json = $.parseJSON(data);
+			//alert(json.length);
+			var idjson = json[json.length - 1].id;
+			//alert(idjson);
+			repeated_function(idjson);
+			return idjson;
+		    }
+		    
+	    });
+		}
+		
+		
+	    lastWorkout();
+	   setInterval(lastWorkout,5000);
+
 	
 
-    </script>
-<script>
+
 //Download to Excel Script
-$(document).ready(function(){
+
     $('#submit').click(function(){
         $.ajax({
-                    url: "/api/sessions/1/",
+                    url: "/api/sessions/",
+		    headers: {Authorization: "Bearer " + sessionStorage.access_token},
+                    //force to handle it as text
+                    dataType: "text",
+                    success: function(data){
+		      var json = $.parseJSON(data);
+			//alert(json.length);
+			var idjson = json[json.length - 1].id;
+			//alert(idjson);
+			urlfn(idjson);
+			return idjson;
+		    }
+		    
+	    });
+    });
+});
+	
+
+  
+  var urlfn = function(idjson){
+    var last_url = "/api/sessions/"+ idjson + ".json";
+    //alert(last_url);
+     $.ajax({
+                    url: last_url,
+		    headers: {Authorization: "Bearer " + sessionStorage.access_token},
                     //force to handle it as text
                     dataType: "text",
                     success: function(data) {
         
         JSONToCSVConvertor(data, "TRAC_Report", true);}});
-    });
-});
-
+  }
+  
+  
 function JSONToCSVConvertor(JSONData, ReportTitle, ShowLabel) {
     //Data coming in must be json
     //parse through it
@@ -220,7 +274,6 @@ function JSONToCSVConvertor(JSONData, ReportTitle, ShowLabel) {
     document.body.removeChild(link);
 }
 </script>
- 
     
     
     

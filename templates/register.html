@@ -97,12 +97,13 @@
        // Get the username and password from registration form.
        var username=$('input[id=username]').val();
        var password=$('input[id=password]').val();
+       var password_verify=$('input[id=password1]').val();
        var user_type=$('input[id=utype]:checked').val();
-       alert(username);
+       alert(user_type);
        event.preventDefault();
        
-       // Send a POST to the api to register the user.
-       $.ajax({
+       if (password == password_verify) {
+                 $.ajax({
            type: "POST",
            url: "/api/register/",
            data: {
@@ -123,6 +124,14 @@
                alert("Invalid registration.");
            }
        });
+       
+       }
+       
+       else
+       {
+        alert('Passwords Do Not Match');
+       }
+      
 
        return false;
 
