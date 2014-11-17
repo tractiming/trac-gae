@@ -28,7 +28,7 @@
 		    
 	  var repeated_function = function(idjson){
 	    //alert(idjson);
-	    var last_url = "/api/sessions/"+ idjson + ".json";
+	    var last_url = "/api/sessions/"+ idjson;
 	   // alert(last_url);
                 //start ajax request
                 $.ajax({
@@ -171,7 +171,7 @@
 
   
   var urlfn = function(idjson){
-    var last_url = "/api/sessions/"+ idjson + ".json";
+    var last_url = "/api/sessions/"+ idjson;
     //alert(last_url);
      $.ajax({
                     url: last_url,
