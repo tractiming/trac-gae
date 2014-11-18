@@ -87,35 +87,7 @@
   </div>
 
   <div class="parallax">
-      <div class="loader">
-   <center>
-       <img class="loading-image" src="{% static "img/ajax-loader.gif" %}" alt="loading..">
-   </center>
-</div>
-    <style>
-    
-    .loading-image {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  z-index: 10;
-}
-.loader
-{
-    display: none;
-    width:200px;
-    height: 200px;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    text-align:center;
-    margin-left: -50px;
-    margin-top: -100px;
-    z-index:2;
-    overflow: auto;
-}
-    
-</style>
+
 <script>
     $(document).ready(function() {
          $("#submit").click(function(event){
@@ -148,13 +120,8 @@
            // Login request failed.
            error: function(xhr, errmsg, err) {
                //alert("Invalid login.");
-           },
-            beforeSend: function(){
-       $('.loader').show();
-   },
-            complete: function(){
-       $('.loader').hide();
-  }
+           }
+            
       });
          });
      });
