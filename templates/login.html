@@ -88,17 +88,22 @@
 
   <div class="parallax">
 
-<script>
+	<script>
     $(document).ready(function() {
-         $("#submit").click(function(event){
+        $("#myform").on('submit', function(e){
+            e.preventDefault();
+	    
+            var form = $(this);
 
-       // Get the username and password from login form.
-       var username=$('input[id=username]').val();
+            form.parsley().validate();
+
+	    
+	    
+            if (form.parsley().isValid()){
+	              var username=$('input[id=username]').val();
        var password=$('input[id=password]').val();
-       
-       event.preventDefault();
-       
-      $.ajax({
+		    
+	     $.ajax({
            type: "POST",
            dataType:'json',
            url: "/oauth2/access_token/",
@@ -109,6 +114,7 @@
                client_id: username,
            },
            // Login was successful.
+          
            success: function(data) {
 
                     // Get the access token and store client side.
@@ -119,31 +125,27 @@
 
            // Login request failed.
            error: function(xhr, errmsg, err) {
-               //alert("Invalid login.");
+               alert("Invalid login.");
            }
-            
+           
       });
-         });
-     });
-         
-    
-    
-    
-
-       
+                //TO DO: AJAX
+            }
+        });
+    });
 </script>
 
 <div id="log">  
 	  <div id="contentleft">
 					<h2> Sign in</h2>
-		<form name="tracform" id="myform">
+		<form  id="myform" data-parsley-validate >
 		  <p>
 		      <label>Username:</label> 
-		      <input type="text" id="username" required/>
+		      <input type="text" id="username" required data-parsley-group="block1"/>
 		  </p>
 		 <p>
 		      <label>Password:</label> 
-		      <input  type="password" id="password" required />
+		      <input  type="password" id="password" required data-parsley-group="block1"/>
 		  </p>
 		     
 		          <div class="button-container">
