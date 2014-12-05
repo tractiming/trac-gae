@@ -7,16 +7,12 @@
 
 
 
-
-  
-  
+$(document).ready(function() {
       $.ajax({
                     url: "/api/sessions/",
                     //force to handle it as text
                     dataType: "text",
-		    beforeSend : function( xhr ) {
-        xhr.setRequestHeader('Authorization','Bearer' + sessionStorage.access_token );
-    },
+		    headers: {Authorization: "Bearer " + sessionStorage.access_token},
                     success: function(dateList) {
 		       var json = $.parseJSON(dateList);
 		     //parse data, initialize variable
@@ -35,33 +31,34 @@
 		$('#contentleft').fullCalendar({
 			editable: true,
 			eventLimit: true, // allow "more" link when too many events
-			events: formattedList, //calls list from function above
-			//defaultDate: '2014-10-12'
+			events: formattedList //calls list from function above
 		});
 		   
-		    //on click prevent default, going to url normally
-		
+
+
+
                
             
         
 		    }});
       
-      
+      });
 		
 	     
 	
 
     </script>
-
-    <script>
-      $(document).ready(function() {
-      $(document).on('click','a.fc-day-grid-event',function(event) {
-		// alert("HEY!");
+  <script>
+     $(document).ready(function() {
+    		    //on click prevent default, going to url normally
+		$(document).on('click','a.fc-day-grid-event',function(event) {
+		 
 		  event.preventDefault();
 		  var path = $(this).attr('href').split('#');
 		  //alert(path);
 		   $.ajax({
                     url: path,
+		     headers: {Authorization: "Bearer " + sessionStorage.access_token},
                     //force to handle it as text
                     dataType: "text",
                     success: function(data) {
@@ -152,6 +149,7 @@
 		$('#submit').click(function(){
         $.ajax({
                     url: path,
+		    headers: {Authorization: "Bearer " + sessionStorage.access_token},
                     //force to handle it as text
                     dataType: "text",
                     success: function(data) {
@@ -260,12 +258,8 @@
 		
 		
 		});
-      });
-
-      
-    </script>
-  
-  
+     });
+  </script>
 
 
     
