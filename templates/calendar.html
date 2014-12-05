@@ -7,12 +7,16 @@
 
 
 
-$(document).ready(function() {
+
+  
+  
       $.ajax({
                     url: "/api/sessions/",
                     //force to handle it as text
                     dataType: "text",
-		    headers: {Authorization: "Bearer " + sessionStorage.access_token},
+		    beforeSend : function( xhr ) {
+        xhr.setRequestHeader('Authorization','Bearer' + sessionStorage.access_token );
+    },
                     success: function(dateList) {
 		       var json = $.parseJSON(dateList);
 		     //parse data, initialize variable
@@ -31,18 +35,33 @@ $(document).ready(function() {
 		$('#contentleft').fullCalendar({
 			editable: true,
 			eventLimit: true, // allow "more" link when too many events
-			events: formattedList //calls list from function above
+			events: formattedList, //calls list from function above
+			//defaultDate: '2014-10-12'
 		});
 		   
 		    //on click prevent default, going to url normally
-		$(".fc-day-grid-event").click(function(event) {
-		 
+		
+               
+            
+        
+		    }});
+      
+      
+		
+	     
+	
+
+    </script>
+
+    <script>
+      $(document).ready(function() {
+      $(document).on('click','a.fc-day-grid-event',function(event) {
+		// alert("HEY!");
 		  event.preventDefault();
 		  var path = $(this).attr('href').split('#');
 		  //alert(path);
 		   $.ajax({
                     url: path,
-		     headers: {Authorization: "Bearer " + sessionStorage.access_token},
                     //force to handle it as text
                     dataType: "text",
                     success: function(data) {
@@ -133,7 +152,6 @@ $(document).ready(function() {
 		$('#submit').click(function(){
         $.ajax({
                     url: path,
-		    headers: {Authorization: "Bearer " + sessionStorage.access_token},
                     //force to handle it as text
                     dataType: "text",
                     success: function(data) {
@@ -242,19 +260,11 @@ $(document).ready(function() {
 		
 		
 		});
-
-
-               
-            
-        
-		    }});
-      
       });
-		
-	     
-	
 
+      
     </script>
+  
   
 
 
