@@ -2,7 +2,35 @@
 {% load staticfiles %}
 
 {% block content %}
-
+<script>
+      function initSpinnerFunction() {
+        $("body").prepend("<div id ='PleaseWait' style='display:none;'>Please wait...</div>");.
+    }
+    // Add the jQuery center() method...
+    jQuery.fn.center = function () {
+                this.css("position", "absolute");
+                this.css("top", ($(window).height() - this.height())/ 2 + $(window).scrollTop() + "px");
+                this.css("left", ($(window).width() - this.width()) / 2 + $(window).scrollLeft() + "px");
+                return this;
+            }
+            });
+  
+</script>
+<style type="text/css">
+        #PleaseWait
+        {
+            z-index: 2000;
+            padding:6px;
+            padding-left:40px;
+            background:#F2E8BC url("../static/img/spinner.gif") no-repeat 6px center;
+            width:200px;
+            height:80px;
+            -webkit-border-radius: 10px;
+            -moz-border-radius: 10px;
+            border:4px solid #666;
+            font-weight:bold;
+        }
+    </style>
 
 <script>
 	jQuery(document).ready(function($) {
@@ -27,8 +55,11 @@
 	</script>
 	<script>
     $(document).ready(function() {
+      
         $("#myform").on('submit', function(e){
             e.preventDefault();
+	    initSpinnerFunction();
+	    $('#PleaseWait').center();
 	    
             var form = $(this);
 
@@ -53,13 +84,14 @@
            },
            // Login was successful.
            success: function(data) {
-		    
+		    $('#PleaseWait').hide();
                    alert('Successfully Created');
 		  location.href ="/home.html";
            },
 
            // Login request failed.
            error: function(xhr, errmsg, err) {
+	    $('#PleaseWait').hide();
                alert("Invalid. Please Resubmit.");
            }
            
