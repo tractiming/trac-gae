@@ -287,6 +287,35 @@ div.parallax {
       div.parallax div#log {
         min-height: 500px; } }
 
+  div.parallax div#log div#notifications {
+  /* Add this class when you want to animate the notification component. */
+}
+div.parallax div#log div#notifications.animatable {
+  display: none;
+}
+div.parallax div#log div#notifications .notification {
+  display: none;
+  margin-top: 0;
+  padding: 15px 15px 15px 44px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  border-radius: 5px;
+  border-width: 1px;
+  border-style: solid;
+  text-align: left;
+  font-size: 1em;
+  background: url("../img/alert_icon.png") no-repeat;
+  background-size: 20px;
+  /* Default is the informational message */
+}
+div.parallax div#log div#notifications .notification.notification-critical {
+  background-color: #fff7f7;
+  
+  border-color: #c72e2e;
+}
+
+
           
      div.parallax div#log #contentleft {
      
