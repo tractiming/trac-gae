@@ -38,6 +38,7 @@
 <script type="text/javascript" src="{% static "js/jquery.serializeJSON.min.js" %}"></script>
 <script type="text/javascript" src="{% static "js/parsley.min.js" %}"></script>
 <script type="text/javascript" src="{% static "js/progression.min.js" %}"></script>
+<script type="text/javascript" src="{% static "js/spin.min.js" %}"></script>
     <!--<script src="{% static "js/jquery-2.1.1.js" %}"></script>-->
     {% endblock %}
 
@@ -89,9 +90,49 @@
   <div class="parallax">
 
 	<script>
+            	  var mySpinner = null;
+
+function setupLoading() {    
+    $('<div id="divSpin" />').appendTo(document.body);
+ 
+    var target = document.getElementById("divSpin");
+    
+    var opts = {
+        lines: 13, // The number of lines to draw
+        length: 20, // The length of each line
+        width: 10, // The line thickness
+        radius: 30, // The radius of the inner circle
+        corners: 1, // Corner roundness (0..1)
+        rotate: 8, // The rotation offset
+        direction: 1, // 1: clockwise, -1: counterclockwise
+        color: '#000', // #rgb or #rrggbb or array of colors
+        speed: 1, // Rounds per second
+        trail: 60, // Afterglow percentage
+        shadow: false, // Whether to render a shadow
+        hwaccel: false, // Whether to use hardware acceleration
+        className: 'mySpin', // The CSS class to assign to the spinner
+        zIndex: 2e9, // The z-index (defaults to 2000000000)
+        top: '50%', // Top position relative to parent
+        left: '50%' // Left position relative to parent
+    };
+    
+    mySpinner = new Spinner(opts).spin(target);
+}
+
+function removeLoading(){
+    mySpinner.stop();
+}
+
+function showLoading() {
+  //setupLoading();
+    mySpinner.spin();
+}
+            
+            
     $(document).ready(function() {
         $("#myform").on('submit', function(e){
             e.preventDefault();
+              setupLoading();
 	    
             var form = $(this);
 
@@ -116,7 +157,7 @@
            // Login was successful.
           
            success: function(data) {
-
+                     removeLoading();
                     // Get the access token and store client side.
                     var access_token = data.access_token;
                     sessionStorage.setItem('access_token', access_token);
@@ -125,6 +166,7 @@
 
            // Login request failed.
            error: function(xhr, errmsg, err) {
+                 removeLoading();
                alert("Invalid login.");
            }
            
