@@ -101,6 +101,10 @@ h3 {
     h5{
       font-size: 1.2em;
       line-height: 20px; } }
+h6{
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #2c2e2f;
+}
 
 p {
   line-height: 32px;
@@ -288,6 +292,7 @@ div.parallax {
         min-height: 500px; } }
 
   div.parallax div#log #contentleft div#notifications {
+    width: 300px;
   /* Add this class when you want to animate the notification component. */
 }
 div.parallax div#log #contentleft div#notifications.animatable {
@@ -305,14 +310,14 @@ div.parallax div#log #contentleft div#notifications .notification {
   border-style: solid;
   text-align: left;
   font-size: 1em;
-  background: url("../img/alert_icon.png") no-repeat;
+  background: url("../img/icon_alert_sprite-2x.png") no-repeat;
   background-size: 20px;
   /* Default is the informational message */
 }
 div.parallax div#log #contentleft div#notifications .notification.notification-critical {
   background-color: #fff7f7;
-  color:black;
-  border-color: #c72e2e;
+background-position: 12px -387px;
+border-color: #c72e2e;
 }
 
 
