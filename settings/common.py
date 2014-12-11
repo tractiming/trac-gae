@@ -57,6 +57,7 @@ THIRD_PARTY_APPS = (
         'rest_framework',
         'provider',
         'provider.oauth2',
+        'south',
 )
 
 LOCAL_APPS = (

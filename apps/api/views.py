@@ -47,6 +47,7 @@ class RegistrationView(APIView):
         serializer = RegistrationSerializer(data=request.DATA)
 
         if not serializer.is_valid():
+            print 'bad serializer'
             return HttpResponse(serializer.errors,
                     status=status.HTTP_400_BAD_REQUEST)
         data = serializer.data
@@ -88,6 +89,9 @@ class TagViewSet(viewsets.ModelViewSet):
         user = self.request.user
         tags = Tag.objects.filter(user=user)
         return tags
+
+    def pre_save(self, obj):
+        obj.user = self.request.user
 
 
 class AthleteViewSet(viewsets.ModelViewSet):
@@ -159,6 +163,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 def post_splits(request):
     """Receives updates from readers."""
     data = request.POST
+    #print data
+    #return HttpResponse(status.HTTP_200_OK)
     
     # Get the tag and reader associated with the notification. Note that if the
     # tag or reader has not been established in the system, the split will be
@@ -168,7 +174,7 @@ def post_splits(request):
         tag = Tag.objects.get(id_str=data['id'])
     except ObjectDoesNotExist:
         return HttpResponse(status.HTTP_400_BAD_REQUEST)
-
+    
     # Create new TagTime.
     dtime = datetime.datetime.strptime(data['time'], "%Y/%m/%d %H:%M:%S.%f") 
     tt = TagTime(tag_id=tag.id, time=dtime, reader_id=reader.id)
@@ -180,8 +186,8 @@ def post_splits(request):
     # Add the TagTime to all sessions active and having a related reader.
     for s in reader.active_sessions:
         s.tagtimes.add(tt.pk)
-
-    return HttpResponse(status.HTTP_201_CREATED)    
+    
+    return HttpResponse(status.HTTP_201_CREATED)
 
 @api_view(['GET'])
 @permission_classes((AllowAny,))

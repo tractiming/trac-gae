@@ -6,7 +6,7 @@ import datetime
 class Tag(models.Model):
     """An RFID Tag. Has a name and belongs to one user."""
     id_str = models.CharField(max_length=50)
-    user = models.ForeignKey(User, unique=True, null=True, blank=True)
+    user = models.ForeignKey(User, unique=False, null=True, blank=True)
 
     def __unicode__(self):
         return "id=%s, user=%s" %(self.id_str, 
@@ -85,6 +85,8 @@ class TimingSession(models.Model):
             user = tag.user
             if user:
                 name = user.get_full_name()
+                if not name:
+                    name = user.username
             else:
                 name = str(tag_id)
 
