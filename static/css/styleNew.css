@@ -287,13 +287,13 @@ div.parallax {
       div.parallax div#log {
         min-height: 500px; } }
 
-  div.parallax div#log div#notifications {
+  div.parallax div#log #contentleft div#notifications {
   /* Add this class when you want to animate the notification component. */
 }
-div.parallax div#log div#notifications.animatable {
+div.parallax div#log #contentleft div#notifications.animatable {
   display: none;
 }
-div.parallax div#log div#notifications .notification {
+div.parallax div#log #contentleft div#notifications .notification {
   display: none;
   margin-top: 0;
   padding: 15px 15px 15px 44px;
@@ -309,9 +309,9 @@ div.parallax div#log div#notifications .notification {
   background-size: 20px;
   /* Default is the informational message */
 }
-div.parallax div#log div#notifications .notification.notification-critical {
+div.parallax div#log #contentleft div#notifications .notification.notification-critical {
   background-color: #fff7f7;
-  
+  color:black;
   border-color: #c72e2e;
 }
 

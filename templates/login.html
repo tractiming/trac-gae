@@ -168,7 +168,7 @@ function showLoading() {
            error: function(xhr, errmsg, err) {
                  removeLoading();
                   $("p.notification.notification-critical").show();
-               alert("Invalid login.");
+               //alert("Invalid login.");
            }
            
       });
@@ -179,11 +179,11 @@ function showLoading() {
 </script>
 
 <div id="log">
-    <div id="notifications">
-        <p class="notification notification-critical" role="alert">Some information you entered isn't right.</p>
-    </div>
 
 	  <div id="contentleft">
+            <div id="notifications">
+        <p class="notification notification-critical" role="alert">Some information you entered isn't right.</p>
+    </div>
 					<h2> Sign in</h2>
 		<form  id="myform" data-parsley-validate >
 		  <p>
