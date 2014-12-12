@@ -139,9 +139,10 @@
                     success: function(data){
 		      var json = $.parseJSON(data);
 			//alert(json.length);
-			var idjson = json[json.length - 1].id;
+			var idjson = 9;
 			//alert(idjson);
 			repeated_function(idjson);
+			
 			return idjson;
 		    }
 		    
