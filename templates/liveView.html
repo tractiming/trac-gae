@@ -23,7 +23,7 @@
         //When DOM loaded we attach click event to button
         $(document).ready(function() {
             
-	    
+	    $(".modal-animate").show();
 	    
 	    //alert(idjson);
 		    
@@ -52,9 +52,11 @@
 			//$('#results').append('<p> Workout ID: '+ json.workoutID);
 			
 			if (json.runners == "") {
+			    $(".modal-animate").hide();
 			    $("h6.notification.notification-default").show();
 			}
 			else {
+			$(".modal-animate").hide();
 			$('#results').empty();
 			for (var i=0; i < json.runners.length; i++) {
 			  //print names and enter name array
