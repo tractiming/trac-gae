@@ -59,9 +59,11 @@
 			if (json.runners == "") {
 			    $(".modal-animate").hide();
 			    $("h6.notification.notification-default").show();
+			      $("input#submit.gen_btn").show();
 			}
 			else {
 			$(".modal-animate").hide();
+			  $("input#submit.gen_btn").show();
 			$('#results').empty();
 			for (var i=0; i < json.runners.length; i++) {
 			  //print names and enter name array

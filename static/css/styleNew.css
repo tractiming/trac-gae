@@ -685,7 +685,7 @@ div.parallax div#bg2 div#notifications .notification.notification-default {
 }
           
           div.parallax div#bg2 div.content div.button-container{padding:40px 2px 0;}
-    div.parallax div#bg2 div.content div.button-container input{float:none; width:120px; background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
+    div.parallax div#bg2 div.content div.button-container input{display:none; float:none; width:120px; background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
      
      
           
