@@ -31,6 +31,6 @@ handlers:
 
 - url: /.*
   script: main.application
-  secure: always
+  secure: optional
 #  login: required
 

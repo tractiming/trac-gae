@@ -117,6 +117,7 @@ if getenv('SERVER_SOFTWARE', '').startswith('Google App Engine'):
 elif getenv('SETTINGS_MODE') == 'prod':
     # Running in development, but want to access the Google Cloud SQL instance
     # in production.
+    SOUTH_DATABASE_ADAPTERS = {'default': 'south.db.mysql'}
     DATABASES = {
             'default': {
                 'ENGINE': 'google.appengine.ext.django.backends.rdbms',
