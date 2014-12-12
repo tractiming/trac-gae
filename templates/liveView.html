@@ -50,7 +50,10 @@
                         //let's display a few items
                        // $('#results').html('Date: ' + json.date);
 			//$('#results').append('<p> Workout ID: '+ json.workoutID);
-			
+			if (json.runners == undefined) {
+			    $("h6.notification.notification-default").show();
+			}
+			else {
 			$('#results').empty();
 			for (var i=0; i < json.runners.length; i++) {
 			  //print names and enter name array
@@ -121,7 +124,7 @@
 			
 			}
 			
-			
+			}
 			
                     }
                 });}
@@ -136,10 +139,9 @@
                     success: function(data){
 		      var json = $.parseJSON(data);
 			//alert(json.length);
-			var idjson = 9;
+			var idjson = json[json.length - 1].id;
 			//alert(idjson);
 			repeated_function(idjson);
-			
 			return idjson;
 		    }
 		    

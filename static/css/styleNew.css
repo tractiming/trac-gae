@@ -654,6 +654,8 @@ div.parallax div#create div#notifications .notification.notification-success {
           padding-bottom: 80px; } }
           div.parallax div#bg2 div.content#results{}
           div.parallax div#bg2 div#notifications {
+            margin-left:auto;
+            margin-right:auto;
     width: 300px;
   /* Add this class when you want to animate the notification component. */
 }
