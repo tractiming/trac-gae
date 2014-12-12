@@ -653,6 +653,35 @@ div.parallax div#create div#notifications .notification.notification-success {
           padding-top: 80px;
           padding-bottom: 80px; } }
           div.parallax div#bg2 div.content#results{}
+          div.parallax div#bg2 div#notifications {
+    width: 300px;
+  /* Add this class when you want to animate the notification component. */
+}
+div.parallax div#bg2 div#notifications.animatable {
+  display: none;
+}
+div.parallax div#bg2 div#notifications .notification {
+  display: none;
+  margin-top: 0;
+  padding: 15px 15px 15px 44px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  border-radius: 5px;
+  border-width: 1px;
+  border-style: solid;
+  text-align: left;
+  font-size: 1em;
+  background: url("../img/icon_alert_sprite-2x.png") no-repeat;
+  background-size: 20px;
+  /* Default is the informational message */
+}
+div.parallax div#bg2 div#notifications .notification.notification-default {
+  background-color: #f7f9fa;
+  background-position: 12px -788px;
+  border-color: #afabae;
+}
+          
           div.parallax div#bg2 div.content div.button-container{padding:40px 2px 0;}
     div.parallax div#bg2 div.content div.button-container input{float:none; width:120px; background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
      

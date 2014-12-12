@@ -9,6 +9,10 @@
  <h2> Live Results</h2>
     <table id="results" style="width:100%"></table>
     
+    <div id="notifications">
+        <h6 class="notification notification-default" role="alert">There is currently no data for the most recent event.</h6>
+    </div>
+    
 <div class="button-container">
   <input type="submit" name="" class="gen_btn" id="submit" value="Download" />
 </div>
@@ -46,7 +50,10 @@
                         //let's display a few items
                        // $('#results').html('Date: ' + json.date);
 			//$('#results').append('<p> Workout ID: '+ json.workoutID);
-			
+			if (json.runners == null) {
+			    $("h6.notification.notification-default").show();
+			}
+			else {
 			$('#results').empty();
 			for (var i=0; i < json.runners.length; i++) {
 			  //print names and enter name array
@@ -114,9 +121,10 @@
 				$('#results tr:first').append('<td>Final Time</td>');
 			      }
 			//$('#results').append('' );
+			
 			}
 			
-			
+			}
 			
                     }
                 });}
