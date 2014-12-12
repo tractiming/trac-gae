@@ -50,11 +50,13 @@ $(document).ready(function() {
     </script>
   <script>
      $(document).ready(function() {
+      
+      var path = null;
     		    //on click prevent default, going to url normally
 		$(document).on('click','a.fc-day-grid-event',function(event) {
 		 
 		  event.preventDefault();
-		  var path = $(this).attr('href').split('#');
+		  path = $(this).attr('href').split('#');
 		  //alert(path);
 		   $.ajax({
                     url: path,
@@ -146,6 +148,11 @@ $(document).ready(function() {
                     }
                 });
 
+		
+		});
+		
+		
+		
 		$('#submit').click(function(){
 		  $(".modal-animate").show();
 		  
@@ -161,6 +168,10 @@ $(document).ready(function() {
 	$(".modal-animate").hide();
 	}});
     });
+		
+		
+		
+		
 		
 		function JSONToCSVConvertor(JSONData, ReportTitle, ShowLabel) {
     //Data coming in must be json
@@ -262,7 +273,6 @@ $(document).ready(function() {
 		
 		
 		
-		});
      });
   </script>
 
