@@ -76,8 +76,10 @@ $(document).ready(function() {
 			//$('#results').append('<p> Workout ID: '+ json.workoutID);
 			if (json.runners == "") {
 			  $(".modal-animate").hide();
+			  $('#results').empty();
 			    $("h6.notification.notification-default").show();
 			      $("input#submit.gen_btn").show();
+			      
 			}
 			else {
 			  $(".modal-animate").hide();
