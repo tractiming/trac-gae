@@ -56,7 +56,7 @@ $(document).ready(function() {
 		$(document).on('click','a.fc-day-grid-event',function(event) {
 		 
 		  event.preventDefault();
-		  $("input#submit.gen_btn").show();
+		  
 		  path = $(this).attr('href').split('#');
 		  //alert(path);
 		   $.ajax({
@@ -74,7 +74,12 @@ $(document).ready(function() {
                         //let's display a few items
                        // $('#results').html('Date: ' + json.date);
 			//$('#results').append('<p> Workout ID: '+ json.workoutID);
-			
+			if (json.runners == "") {
+			    $("h6.notification.notification-default").show();
+			      $("input#submit.gen_btn").show();
+			}
+			else {
+			  $("input#submit.gen_btn").show();
 			  $('#results').empty();
 			for (var i=0; i < json.runners.length; i++) {
 			  //print names and enter name array
@@ -144,7 +149,7 @@ $(document).ready(function() {
 			//$('#results').append('' );
 			}
 			
-			
+			}
 			
                     }
                 });
@@ -291,6 +296,9 @@ $(document).ready(function() {
      
      <div id="contentright">
        <table id="results" style="width:100%"></table>
+           <div id="notifications">
+        <h6 class="notification notification-default" role="alert">There is currently no data for this event.</h6>
+    </div>
        <div class="button-container">
   <input type="submit" name="" class="gen_btn" id="submit" value="Download" />
 </div>
