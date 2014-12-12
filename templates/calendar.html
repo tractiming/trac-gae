@@ -54,7 +54,7 @@ $(document).ready(function() {
       var path = null;
     		    //on click prevent default, going to url normally
 		$(document).on('click','a.fc-day-grid-event',function(event) {
-		 
+		 $(".modal-animate").show();
 		  event.preventDefault();
 		  
 		  path = $(this).attr('href').split('#');
@@ -75,10 +75,13 @@ $(document).ready(function() {
                        // $('#results').html('Date: ' + json.date);
 			//$('#results').append('<p> Workout ID: '+ json.workoutID);
 			if (json.runners == "") {
+			  $(".modal-animate").hide();
 			    $("h6.notification.notification-default").show();
 			      $("input#submit.gen_btn").show();
 			}
 			else {
+			  $(".modal-animate").hide();
+			  $("h6.notification.notification-default").hide();
 			  $("input#submit.gen_btn").show();
 			  $('#results').empty();
 			for (var i=0; i < json.runners.length; i++) {
