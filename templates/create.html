@@ -54,13 +54,16 @@
            // Login was successful.
            success: function(data) {
 		    $(".modal-animate").hide();
+		    $("h6.notification.notification-critical").hide();
 		    $("h6.notification.notification-success").show();
+		    $("#myform")[0].reset();
                    
            },
 
            // Login request failed.
            error: function(xhr, errmsg, err) {
 	    $(".modal-animate").hide();
+	    $("h6.notification.notification-success").hide();
                $("h6.notification.notification-critical").show();
            }
            
