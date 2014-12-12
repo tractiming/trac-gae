@@ -35,6 +35,45 @@ src: url("../fonts/GothamHTF-Book.eot?#iefix") format("embedded-opentype"), url(
   font-family: 'GothamHTF-Medium';
   src: url("../fonts/GothamHTF-Medium.eot?#iefix") format("embedded-opentype"), url("../fonts/GothamHTF-Medium.ttf") format("truetype"), url("../fonts/GothamHTF-Medium.svg#GothamHTF-Medium") format("svg"); }
 
+@-webkit-keyframes rotation {
+  from {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+@-moz-keyframes rotation {
+  from {
+    -moz-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -moz-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+@-o-keyframes rotation {
+  from {
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -o-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
+}
+
 /* Base */
 body {
   font-family: 'GothamHTF-Medium', 'Helvetica', 'Arial', sans;
@@ -280,6 +319,53 @@ div.parallax {
       margin: 0 auto;
       max-width: 960px; }
   
+      div.parallax .modal-animate {
+z-index: 17;
+position: absolute;
+width: 100px;
+margin-left: -50px;
+top: 24%;
+left: 50%;
+min-height: 100px;
+overflow: hidden;
+display:none;
+}
+
+div.parallax .modal-animate .rotate {
+  content: "";
+  height: 46px;
+  width: 46px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 6;
+  margin-left: -23px;
+  border-left: 8px solid rgba(0, 0, 0, 0.2);
+  border-right: 8px solid rgba(0, 0, 0, 0.2);
+  border-bottom: 8px solid rgba(0, 0, 0, 0.2);
+  border-top: 8px solid #2180c0;
+  border-radius: 100%;
+  -webkit-animation: rotation .7s infinite linear;
+  -moz-animation: rotation .7s infinite linear;
+  -o-animation: rotation .7s infinite linear;
+  animation: rotation .7s infinite linear;
+}
+div.parallax .modal-animate .rotate .lower-than-ie9 .rotate,
+div.parallax .modal-animate .rotate .lower-than-ie10 .rotate {
+  background: transparent url("../images/blue_spinner.gif") top center no-repeat;
+  border-left: 0;
+  border-right: 0;
+  border-bottom: 0;
+  border-top: 0;
+}
+div.parallax .modal-animate .rotate .lower-than-ie10 .rotate {
+  background-size: 100%;
+}
+div.parallax .modal-animate .rotate .lower-than-ie9 .rotate {
+  height: 48px;
+  width: 48px;
+  margin-left: -24px;
+}
   
   
   /* Login */

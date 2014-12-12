@@ -29,7 +29,7 @@
     $(document).ready(function() {
         $("#myform").on('submit', function(e){
             e.preventDefault();
-	    
+	    $(".modal-animate").show();
             var form = $(this);
 
             form.parsley().validate();
@@ -53,13 +53,14 @@
            },
            // Login was successful.
            success: function(data) {
-		    
+		    $(".modal-animate").hide();
                    alert('Successfully Created');
 		  location.href ="/home.html";
            },
 
            // Login request failed.
            error: function(xhr, errmsg, err) {
+	    $(".modal-animate").hide();
                alert("Invalid. Please Resubmit.");
            }
            

@@ -147,14 +147,19 @@ $(document).ready(function() {
                 });
 
 		$('#submit').click(function(){
+		  $(".modal-animate").show();
+		  
         $.ajax({
                     url: path,
 		    headers: {Authorization: "Bearer " + sessionStorage.access_token},
                     //force to handle it as text
                     dataType: "text",
                     success: function(data) {
+		      
         
-        JSONToCSVConvertor(data, "TRAC_Report", true);}});
+        JSONToCSVConvertor(data, "TRAC_Report", true);
+	$(".modal-animate").show();
+	}});
     });
 		
 		function JSONToCSVConvertor(JSONData, ReportTitle, ShowLabel) {
