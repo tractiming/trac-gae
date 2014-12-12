@@ -54,14 +54,14 @@
            // Login was successful.
            success: function(data) {
 		    $(".modal-animate").hide();
-                   alert('Successfully Created');
-		  location.href ="/home.html";
+		    $("h6.notification.notification-success").show();
+                   
            },
 
            // Login request failed.
            error: function(xhr, errmsg, err) {
 	    $(".modal-animate").hide();
-               alert("Invalid. Please Resubmit.");
+               $("h6.notification.notification-critical").show();
            }
            
       });
@@ -94,7 +94,10 @@
 
     <div id="create">  
      <h2>Create</h2>
-	 
+	  <div id="notifications">
+        <h6 class="notification notification-critical" role="alert">Some information you entered isn't right.</h6>
+	<h6 class="notification notification-success" role="alert">You have successfully created a workout!</h6>
+    </div>
 	  
     <div id="contentleft">
 					
