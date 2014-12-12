@@ -164,16 +164,16 @@ def post_splits(request):
     """Receives updates from readers."""
     data = request.POST
     #print data
-    return HttpResponse(status.HTTP_200_OK)
+    #return HttpResponse(status.HTTP_200_OK)
     
     # Get the tag and reader associated with the notification. Note that if the
     # tag or reader has not been established in the system, the split will be
     # ignored here.
-    '''
+    
     try:
         reader = Reader.objects.get(id_str=data['r'])
         tag = Tag.objects.get(id_str=data['id'])
-    except ObjectDoesNotExist:
+    except: #ObjectDoesNotExist:
         return HttpResponse(status.HTTP_400_BAD_REQUEST)
     
     # Create new TagTime.
@@ -189,7 +189,7 @@ def post_splits(request):
         s.tagtimes.add(tt.pk)
     
     return HttpResponse(status.HTTP_201_CREATED)
-    '''
+    
 
 @api_view(['GET'])
 @permission_classes((AllowAny,))
