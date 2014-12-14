@@ -75,6 +75,7 @@ $(document).ready(function() {
                        // $('#results').html('Date: ' + json.date);
 			//$('#results').append('<p> Workout ID: '+ json.workoutID);
 			if (json.runners == "") {
+			  $(".outer").hide();
 			  $(".modal-animate").hide();
 			  $('#results').empty();
 			    $("h6.notification.notification-default").show();
@@ -83,6 +84,7 @@ $(document).ready(function() {
 			}
 			else {
 			  $(".modal-animate").hide();
+			  $(".outer").show();
 			  $("h6.notification.notification-default").hide();
 			  $("input#submit.gen_btn").show();
 			  $('#results').empty();
@@ -300,7 +302,11 @@ $(document).ready(function() {
      </div>
      
      <div id="contentright">
+       <div class ="outer">
+      <div class="inner">
        <table id="results" style="width:100%"></table>
+       </div>
+       </div>
            <div id="notifications">
         <h6 class="notification notification-default" role="alert">There is currently no data for this event.</h6>
     </div>

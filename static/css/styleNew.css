@@ -733,7 +733,37 @@ div.parallax div#bg2 div#notifications .notification.notification-default {
           padding-top: 120px;
           padding-bottom: 80px;
          display: inline-table;} }
-          div.parallax div#calendar #contentright #results{}
+     div.parallax div#calendar #contentright table#results{
+            
+  table-layout: fixed; 
+  width: 100%;
+  *margin-left: -100px;/*ie7*/}
+ div.parallax div#calendar #contentright table#results td {
+  vertical-align: top;
+  
+  padding:10px;
+  width:100px;
+}
+ div.parallax div#calendar #contentright table#results th {
+  vertical-align: top;
+  
+  padding:10px;
+  width:100px;
+  position:absolute;
+  *position: relative; /*ie7*/
+  left:0; 
+  width:100px;
+}
+ div.parallax div#calendar #contentright .outer {display:none; position:relative}
+ div.parallax div#calendar #contentright .inner {
+  overflow-x:scroll;
+  overflow-y:visible;
+  width:550px; 
+  
+}
+          
+          
+          
 div.parallax div#calendar #contentright div#notifications {
             margin-left:auto;
             margin-right:auto;
