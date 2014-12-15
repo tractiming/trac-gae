@@ -754,7 +754,7 @@ div.parallax div#bg2 div#notifications .notification.notification-default {
   left:0; 
   width:100px;
 }
-div.parallax div#calendar #contentright .title {text-align: left;width: 100%}
+div.parallax div#calendar #contentright .title {width: 100%}
 div.parallax div#calendar #contentright .title p{line-height: 20px;
 margin-bottom: 32px;
 width: 95%;
@@ -796,6 +796,7 @@ div.parallax div#calendar #contentright div#notifications .notification {
   /* Default is the informational message */
 }
 div.parallax div#calendar #contentright div#notifications .notification.notification-default {
+  margin-top:30px
   background-color: #f7f9fa;
   background-position: 12px -788px;
   border-color: #afabae;
