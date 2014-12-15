@@ -72,14 +72,15 @@ $(document).ready(function() {
 			//json = $.parseJSON(json.results);
                         //now json variable contains data in json format
                         //let's display a few items
-                       
+                      json = $.parseJSON(prejson.results);
+				
 			if (json.runners == "") {
 			  $(".outer").hide();
 			  $(".modal-animate").hide();
 			  $('#results').empty();
 			  $('.title').css('text-align','center');
 			  $('.title').html('<p>Title: ' + prejson.name);
-			json = $.parseJSON(prejson.results);
+			
 			$('.title').append('<p> Date: ' + json.date);
 			
 			  
@@ -95,7 +96,7 @@ $(document).ready(function() {
 			  
 			  $('.title').css('text-align','left');
 			  $('.title').html('<p>Title: ' + prejson.name);
-			json = $.parseJSON(prejson.results);
+			
 			$('.title').append('<p> Date: ' + json.date);
 			  
 			  
