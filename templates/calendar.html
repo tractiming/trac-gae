@@ -87,6 +87,33 @@ $(document).ready(function() {
 			  $(".outer").show();
 			  $("h6.notification.notification-default").hide();
 			  $("input#submit.gen_btn").show();
+			  
+			  
+			  
+			  
+			  
+			  var longest = 0;
+			var importantRow;
+			for (var ii = 0; ii < json.runners.length; ii++) {
+			  for (var jj = 0; jj < json.runners[ii].interval.length; jj++){
+			    if (jj == 0) {
+			      //initilize temporary variable
+			      var tempLength = json.runners[ii].interval[jj].length;
+			    }
+			    else{
+			      tempLength = tempLength + json.runners[ii].interval[jj].length;
+			    }  
+			 }
+			  if (longest < tempLength) {
+			    longest = tempLength;
+			    importantRow = ii;
+			  } 
+			
+			}
+			  
+			  
+			  
+			  
 			  $('#results').empty();
 			for (var i=0; i < json.runners.length; i++) {
 			  //print names and enter name array
@@ -129,31 +156,31 @@ $(document).ready(function() {
 			      $('#results tr:last').append('<td>'+ min + ':'+ sec +'</td>');
 			      }
 			      finaltime = finaltime + subinterval;
-			      if (i==0) {
+			      if (i==importantRow) {
 				//Puts the word 'split #' on table
-				$('#results tr:first').append('<td>Split '+(k+1)+'</td>');
+				$('#results tr:first').append('<td></td>');
 			      }
 			    }
 			    
 			    
 			  }
 			  
+			  //to implement total time-- not necessary for this moment
 			  
-			  
-			   var minfinal = Math.floor(finaltime/60);
-			   var secfinal = (finaltime-(minfinal*60));
-			   //$('#results').append('<td>');
-			   if (secfinal<10) {
-			    $('#results tr:last').append( minfinal + ':0'+ secfinal );
-			   }
-			   else{
-			   $('#results tr:last').append( minfinal + ':'+ secfinal);
-			   };
-			   if (i==0) {
-				//adds word final time to table header
-				$('#results tr:first').append('<td>Final Time</td>');
-			      }
-			//$('#results').append('' );
+			//   var minfinal = Math.floor(finaltime/60);
+			//   var secfinal = (finaltime-(minfinal*60));
+			//   
+			//   if (secfinal<10) {
+			//    $('#results tr:last').append( minfinal + ':0'+ secfinal );
+			//   }
+			//   else{
+			//   $('#results tr:last').append( minfinal + ':'+ secfinal);
+			//   };
+			//   if (i==0) {
+			//	//adds word final time to table header
+			//	$('#results tr:first').append('<td>Final Time</td>');
+			//      }
+			
 			}
 			
 			}
