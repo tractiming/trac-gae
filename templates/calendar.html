@@ -68,17 +68,21 @@ $(document).ready(function() {
                         
                         //data downloaded so we call parseJSON function 
                         //and pass downloaded data
-                        var json = $.parseJSON(data);
+                        var prejson = $.parseJSON(data);
 			//json = $.parseJSON(json.results);
                         //now json variable contains data in json format
                         //let's display a few items
-                       $('.title').html('<p>Title: ' + json.name);
-			json = $.parseJSON(json.results);
-			$('.title').append('<p> Date: ' + json.date);
+                       
 			if (json.runners == "") {
 			  $(".outer").hide();
 			  $(".modal-animate").hide();
 			  $('#results').empty();
+			  $('.title').css('text-align','center');
+			  $('.title').html('<p>Title: ' + prejson.name);
+			json = $.parseJSON(prejson.results);
+			$('.title').append('<p> Date: ' + json.date);
+			
+			  
 			    $("h6.notification.notification-default").show();
 			      $("input#submit.gen_btn").show();
 			      
@@ -89,7 +93,10 @@ $(document).ready(function() {
 			  $("h6.notification.notification-default").hide();
 			  $("input#submit.gen_btn").show();
 			  
-			  
+			  $('.title').css('text-align','left');
+			  $('.title').html('<p>Title: ' + prejson.name);
+			json = $.parseJSON(prejson.results);
+			$('.title').append('<p> Date: ' + json.date);
 			  
 			  
 			  

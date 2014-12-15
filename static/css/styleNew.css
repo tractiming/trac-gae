@@ -796,7 +796,7 @@ div.parallax div#calendar #contentright div#notifications .notification {
   /* Default is the informational message */
 }
 div.parallax div#calendar #contentright div#notifications .notification.notification-default {
-  margin-top:30px
+  margin-top:30px;
   background-color: #f7f9fa;
   background-position: 12px -788px;
   border-color: #afabae;
