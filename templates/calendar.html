@@ -69,11 +69,12 @@ $(document).ready(function() {
                         //data downloaded so we call parseJSON function 
                         //and pass downloaded data
                         var json = $.parseJSON(data);
-			json = $.parseJSON(json.results);
+			//json = $.parseJSON(json.results);
                         //now json variable contains data in json format
                         //let's display a few items
-                       // $('#results').html('Date: ' + json.date);
-			//$('#results').append('<p> Workout ID: '+ json.workoutID);
+                       $('.title').html('<p>Title: ' + json.name);
+			json = $.parseJSON(json.results);
+			$('.title').append('<p> Date: ' + json.date);
 			if (json.runners == "") {
 			  $(".outer").hide();
 			  $(".modal-animate").hide();
@@ -329,6 +330,7 @@ $(document).ready(function() {
      </div>
      
      <div id="contentright">
+      <div class="title"></div>
        <div class ="outer">
       <div class="inner">
        <table id="results" style="width:100%"></table>

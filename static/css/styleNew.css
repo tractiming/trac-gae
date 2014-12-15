@@ -754,6 +754,12 @@ div.parallax div#bg2 div#notifications .notification.notification-default {
   left:0; 
   width:100px;
 }
+div.parallax div#calendar #contentright .title {text-align: left;width: 100%}
+div.parallax div#calendar #contentright .title p{line-height: 20px;
+margin-bottom: 32px;
+width: 95%;
+margin: 0 auto;
+transition: font-size 0.3s ease;}
  div.parallax div#calendar #contentright .outer {display:none; position:relative}
  div.parallax div#calendar #contentright .inner {
   overflow-x:scroll;
