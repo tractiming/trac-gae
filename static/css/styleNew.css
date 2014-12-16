@@ -35,6 +35,45 @@ src: url("../fonts/GothamHTF-Book.eot?#iefix") format("embedded-opentype"), url(
   font-family: 'GothamHTF-Medium';
   src: url("../fonts/GothamHTF-Medium.eot?#iefix") format("embedded-opentype"), url("../fonts/GothamHTF-Medium.ttf") format("truetype"), url("../fonts/GothamHTF-Medium.svg#GothamHTF-Medium") format("svg"); }
 
+@-webkit-keyframes rotation {
+  from {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+@-moz-keyframes rotation {
+  from {
+    -moz-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -moz-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+@-o-keyframes rotation {
+  from {
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -o-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
+}
+
 /* Base */
 body {
   font-family: 'GothamHTF-Medium', 'Helvetica', 'Arial', sans;
@@ -280,6 +319,53 @@ div.parallax {
       margin: 0 auto;
       max-width: 960px; }
   
+      div.parallax .modal-animate {
+z-index: 17;
+position: absolute;
+width: 100px;
+margin-left: -50px;
+top: 24%;
+left: 50%;
+min-height: 125px;
+overflow: hidden;
+display:none;
+}
+
+div.parallax .modal-animate .rotate {
+  content: "";
+  height: 46px;
+  width: 46px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 6;
+  margin-left: -23px;
+  border-left: 8px solid rgba(0, 0, 0, 0.2);
+  border-right: 8px solid rgba(0, 0, 0, 0.2);
+  border-bottom: 8px solid rgba(0, 0, 0, 0.2);
+  border-top: 8px solid #2180c0;
+  border-radius: 100%;
+  -webkit-animation: rotation .7s infinite linear;
+  -moz-animation: rotation .7s infinite linear;
+  -o-animation: rotation .7s infinite linear;
+  animation: rotation .7s infinite linear;
+}
+div.parallax .modal-animate .rotate .lower-than-ie9 .rotate,
+div.parallax .modal-animate .rotate .lower-than-ie10 .rotate {
+  background: transparent url("../images/blue_spinner.gif") top center no-repeat;
+  border-left: 0;
+  border-right: 0;
+  border-bottom: 0;
+  border-top: 0;
+}
+div.parallax .modal-animate .rotate .lower-than-ie10 .rotate {
+  background-size: 100%;
+}
+div.parallax .modal-animate .rotate .lower-than-ie9 .rotate {
+  height: 48px;
+  width: 48px;
+  margin-left: -24px;
+}
   
   
   /* Login */
@@ -457,6 +543,44 @@ border-color: #c72e2e;
       div.parallax div#create {
         min-height: 800px;
         padding-top:100px;} }
+        
+        div.parallax div#create div#notifications {
+            margin-left:auto;
+            margin-right:auto;
+    width: 300px;
+  /* Add this class when you want to animate the notification component. */
+}
+div.parallax div#create div#notifications.animatable {
+  display: none;
+}
+div.parallax div#create div#notifications .notification {
+  display:none;
+  margin-top: 0;
+  padding: 15px 15px 15px 44px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  border-radius: 5px;
+  border-width: 1px;
+  border-style: solid;
+  text-align: left;
+  font-size: 1em;
+  background: url("../img/icon_alert_sprite-2x.png") no-repeat;
+  background-size: 20px;
+  /* Default is the informational message */
+}
+div.parallax div#create div#notifications .notification.notification-critical {
+  background-color: #fff7f7;
+background-position: 12px -387px;
+border-color: #c72e2e;
+}
+div.parallax div#create div#notifications .notification.notification-success {
+  background-color: #f7fff7;
+  background-position: 12px 12px;
+  border-color: #1b9e1b;
+}
+        
+        
     div.parallax div#create #contentleft {
      
       height:600px;
@@ -529,8 +653,39 @@ border-color: #c72e2e;
           padding-top: 80px;
           padding-bottom: 80px; } }
           div.parallax div#bg2 div.content#results{}
+          div.parallax div#bg2 div#notifications {
+            margin-left:auto;
+            margin-right:auto;
+    width: 300px;
+  /* Add this class when you want to animate the notification component. */
+}
+div.parallax div#bg2 div#notifications.animatable {
+  display: none;
+}
+div.parallax div#bg2 div#notifications .notification {
+  display: none;
+  margin-top: 0;
+  padding: 15px 15px 15px 44px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  border-radius: 5px;
+  border-width: 1px;
+  border-style: solid;
+  text-align: left;
+  font-size: 1em;
+  background: url("../img/icon_alert_sprite-2x.png") no-repeat;
+  background-size: 20px;
+  /* Default is the informational message */
+}
+div.parallax div#bg2 div#notifications .notification.notification-default {
+  background-color: #f7f9fa;
+  background-position: 12px -788px;
+  border-color: #afabae;
+}
+          
           div.parallax div#bg2 div.content div.button-container{padding:40px 2px 0;}
-    div.parallax div#bg2 div.content div.button-container input{float:none; width:120px; background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
+    div.parallax div#bg2 div.content div.button-container input{display:none; float:none; width:120px; background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
      
      
           
@@ -578,9 +733,76 @@ border-color: #c72e2e;
           padding-top: 120px;
           padding-bottom: 80px;
          display: inline-table;} }
-          div.parallax div#calendar #contentright #results{}
+     div.parallax div#calendar #contentright table#results{
+            
+  table-layout: fixed; 
+  width: 100%;
+  *margin-left: -100px;/*ie7*/}
+ div.parallax div#calendar #contentright table#results td {
+  vertical-align: top;
+  
+  padding:10px;
+  width:100px;
+}
+ div.parallax div#calendar #contentright table#results th {
+  vertical-align: top;
+  
+  padding:10px;
+  width:100px;
+  position:absolute;
+  *position: relative; /*ie7*/
+  left:0; 
+  width:100px;
+}
+div.parallax div#calendar #contentright .title {width: 100%}
+div.parallax div#calendar #contentright .title p{line-height: 20px;
+margin-bottom: 32px;
+width: 95%;
+margin: 0 auto;
+transition: font-size 0.3s ease;}
+ div.parallax div#calendar #contentright .outer {display:none; position:relative}
+ div.parallax div#calendar #contentright .inner {
+  overflow-x:scroll;
+  overflow-y:visible;
+  width:550px; 
+  
+}
+          
+          
+          
+div.parallax div#calendar #contentright div#notifications {
+            margin-left:auto;
+            margin-right:auto;
+    width: 300px;
+  /* Add this class when you want to animate the notification component. */
+}
+div.parallax div#calendar #contentright div#notifications.animatable {
+  display: none;
+}
+div.parallax div#calendar #contentright div#notifications .notification {
+  display: none;
+  margin-top: 0;
+  padding: 15px 15px 15px 44px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  border-radius: 5px;
+  border-width: 1px;
+  border-style: solid;
+  text-align: left;
+  font-size: 1em;
+  background: url("../img/icon_alert_sprite-2x.png") no-repeat;
+  background-size: 20px;
+  /* Default is the informational message */
+}
+div.parallax div#calendar #contentright div#notifications .notification.notification-default {
+  margin-top:30px;
+  background-color: #f7f9fa;
+  background-position: 12px -788px;
+  border-color: #afabae;
+}
           div.parallax div#calendar #contentright .button-container{padding:40px 2px 0;}
-    div.parallax div#calendar #contentright .button-container input{float:none; width:120px; background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
+    div.parallax div#calendar #contentright .button-container input{display:none; float:none; width:120px; background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
      
           
           

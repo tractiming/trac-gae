@@ -2,12 +2,21 @@
 {% load staticfiles %}
 
 {% block content %}
+  <div class="modal-animate hide">
+    <div class="rotate"></div>
+
+</div>
+  
   <div id="bg2">  
      
 	  <div class="content">
 
  <h2> Live Results</h2>
     <table id="results" style="width:100%"></table>
+    
+    <div id="notifications">
+        <h6 class="notification notification-default" role="alert">There is currently no data for the most recent event.</h6>
+    </div>
     
 <div class="button-container">
   <input type="submit" name="" class="gen_btn" id="submit" value="Download" />
@@ -19,7 +28,7 @@
         //When DOM loaded we attach click event to button
         $(document).ready(function() {
             
-	    
+	    $(".modal-animate").show();
 	    
 	    //alert(idjson);
 		    
@@ -47,6 +56,14 @@
                        // $('#results').html('Date: ' + json.date);
 			//$('#results').append('<p> Workout ID: '+ json.workoutID);
 			
+			if (json.runners == "") {
+			    $(".modal-animate").hide();
+			    $("h6.notification.notification-default").show();
+			      $("input#submit.gen_btn").show();
+			}
+			else {
+			$(".modal-animate").hide();
+			  $("input#submit.gen_btn").show();
 			$('#results').empty();
 			for (var i=0; i < json.runners.length; i++) {
 			  //print names and enter name array
@@ -114,9 +131,10 @@
 				$('#results tr:first').append('<td>Final Time</td>');
 			      }
 			//$('#results').append('' );
+			
 			}
 			
-			
+			}
 			
                     }
                 });}

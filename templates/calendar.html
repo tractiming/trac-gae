@@ -50,11 +50,14 @@ $(document).ready(function() {
     </script>
   <script>
      $(document).ready(function() {
+      
+      var path = null;
     		    //on click prevent default, going to url normally
 		$(document).on('click','a.fc-day-grid-event',function(event) {
-		 
+		 $(".modal-animate").show();
 		  event.preventDefault();
-		  var path = $(this).attr('href').split('#');
+		  
+		  path = $(this).attr('href').split('#');
 		  //alert(path);
 		   $.ajax({
                     url: path,
@@ -65,13 +68,61 @@ $(document).ready(function() {
                         
                         //data downloaded so we call parseJSON function 
                         //and pass downloaded data
-                        var json = $.parseJSON(data);
-			json = $.parseJSON(json.results);
+                        var prejson = $.parseJSON(data);
+			//json = $.parseJSON(json.results);
                         //now json variable contains data in json format
                         //let's display a few items
-                       // $('#results').html('Date: ' + json.date);
-			//$('#results').append('<p> Workout ID: '+ json.workoutID);
+                      json = $.parseJSON(prejson.results);
+				
+			if (json.runners == "") {
+			  $(".outer").hide();
+			  $(".modal-animate").hide();
+			  $('#results').empty();
+			  $('.title').css('text-align','center');
+			  $('.title').html('<p>Title: ' + prejson.name);
 			
+			$('.title').append('<p> Date: ' + json.date);
+			
+			  
+			    $("h6.notification.notification-default").show();
+			      $("input#submit.gen_btn").show();
+			      
+			}
+			else {
+			  $(".modal-animate").hide();
+			  $(".outer").show();
+			  $("h6.notification.notification-default").hide();
+			  $("input#submit.gen_btn").show();
+			  
+			  $('.title').css('text-align','left');
+			  $('.title').html('<p>Title: ' + prejson.name);
+			
+			$('.title').append('<p> Date: ' + json.date);
+			  
+			  
+			  
+			  var longest = 0;
+			var importantRow;
+			for (var ii = 0; ii < json.runners.length; ii++) {
+			  for (var jj = 0; jj < json.runners[ii].interval.length; jj++){
+			    if (jj == 0) {
+			      //initilize temporary variable
+			      var tempLength = json.runners[ii].interval[jj].length;
+			    }
+			    else{
+			      tempLength = tempLength + json.runners[ii].interval[jj].length;
+			    }  
+			 }
+			  if (longest < tempLength) {
+			    longest = tempLength;
+			    importantRow = ii;
+			  } 
+			
+			}
+			  
+			  
+			  
+			  
 			  $('#results').empty();
 			for (var i=0; i < json.runners.length; i++) {
 			  //print names and enter name array
@@ -114,48 +165,62 @@ $(document).ready(function() {
 			      $('#results tr:last').append('<td>'+ min + ':'+ sec +'</td>');
 			      }
 			      finaltime = finaltime + subinterval;
-			      if (i==0) {
+			      if (i==importantRow) {
 				//Puts the word 'split #' on table
-				$('#results tr:first').append('<td>Split '+(k+1)+'</td>');
+				$('#results tr:first').append('<td>' + 'Split' + '</td>');
 			      }
 			    }
 			    
 			    
 			  }
 			  
+			  //to implement total time-- not necessary for this moment
 			  
-			  
-			   var minfinal = Math.floor(finaltime/60);
-			   var secfinal = (finaltime-(minfinal*60));
-			   //$('#results').append('<td>');
-			   if (secfinal<10) {
-			    $('#results tr:last').append( minfinal + ':0'+ secfinal );
-			   }
-			   else{
-			   $('#results tr:last').append( minfinal + ':'+ secfinal);
-			   };
-			   if (i==0) {
-				//adds word final time to table header
-				$('#results tr:first').append('<td>Final Time</td>');
-			      }
-			//$('#results').append('' );
+			//   var minfinal = Math.floor(finaltime/60);
+			//   var secfinal = (finaltime-(minfinal*60));
+			//   
+			//   if (secfinal<10) {
+			//    $('#results tr:last').append( minfinal + ':0'+ secfinal );
+			//   }
+			//   else{
+			//   $('#results tr:last').append( minfinal + ':'+ secfinal);
+			//   };
+			//   if (i==0) {
+			//	//adds word final time to table header
+			//	$('#results tr:first').append('<td>Final Time</td>');
+			//      }
+			
 			}
 			
-			
+			}
 			
                     }
                 });
 
+		
+		});
+		
+		
+		
 		$('#submit').click(function(){
+		  $(".modal-animate").show();
+		  
         $.ajax({
                     url: path,
 		    headers: {Authorization: "Bearer " + sessionStorage.access_token},
                     //force to handle it as text
                     dataType: "text",
                     success: function(data) {
+		      
         
-        JSONToCSVConvertor(data, "TRAC_Report", true);}});
+        JSONToCSVConvertor(data, "TRAC_Report", true);
+	$(".modal-animate").hide();
+	}});
     });
+		
+		
+		
+		
 		
 		function JSONToCSVConvertor(JSONData, ReportTitle, ShowLabel) {
     //Data coming in must be json
@@ -257,11 +322,13 @@ $(document).ready(function() {
 		
 		
 		
-		});
      });
   </script>
 
+<div class="modal-animate hide">
+    <div class="rotate"></div>
 
+</div>
     
     <div id="calendar">  
      <div id="contentleft">
@@ -271,7 +338,15 @@ $(document).ready(function() {
      </div>
      
      <div id="contentright">
+      <div class="title"></div>
+       <div class ="outer">
+      <div class="inner">
        <table id="results" style="width:100%"></table>
+       </div>
+       </div>
+           <div id="notifications">
+        <h6 class="notification notification-default" role="alert">There is currently no data for this event.</h6>
+    </div>
        <div class="button-container">
   <input type="submit" name="" class="gen_btn" id="submit" value="Download" />
 </div>

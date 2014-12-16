@@ -29,7 +29,7 @@
     $(document).ready(function() {
         $("#myform").on('submit', function(e){
             e.preventDefault();
-	    
+	    $(".modal-animate").show();
             var form = $(this);
 
             form.parsley().validate();
@@ -53,14 +53,18 @@
            },
            // Login was successful.
            success: function(data) {
-		    
-                   alert('Successfully Created');
-		  location.href ="/home.html";
+		    $(".modal-animate").hide();
+		    $("h6.notification.notification-critical").hide();
+		    $("h6.notification.notification-success").show();
+		    $("#myform")[0].reset();
+                   
            },
 
            // Login request failed.
            error: function(xhr, errmsg, err) {
-               alert("Invalid. Please Resubmit.");
+	    $(".modal-animate").hide();
+	    $("h6.notification.notification-success").hide();
+               $("h6.notification.notification-critical").show();
            }
            
       });
@@ -86,11 +90,17 @@
 	
 
 
+<div class="modal-animate hide">
+    <div class="rotate"></div>
 
+</div>
 
     <div id="create">  
      <h2>Create</h2>
-	 
+	  <div id="notifications">
+        <h6 class="notification notification-critical" role="alert">Some information you entered isn't right.</h6>
+	<h6 class="notification notification-success" role="alert">You have successfully created a workout!</h6>
+    </div>
 	  
     <div id="contentleft">
 					
