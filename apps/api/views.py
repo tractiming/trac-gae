@@ -22,6 +22,7 @@ from serializers import ReaderSerializer
 from serializers import AthleteProfileSerializer
 
 import datetime
+from django.utils import timezone
 
 from trac.models import TimingSession, AthleteProfile, CoachProfile
 from trac.models import Tag, Reader, TagTime
@@ -177,8 +178,9 @@ def post_splits(request):
         return HttpResponse(status.HTTP_400_BAD_REQUEST)
     
     # Create new TagTime.
-    dtime = datetime.datetime.strptime(data['time'], "%Y/%m/%d %H:%M:%S.%f") 
-    tt = TagTime(tag_id=tag.id, time=dtime, reader_id=reader.id)
+    dtime = timezone.datetime.strptime(data['time'], "%Y/%m/%d %H:%M:%S.%f") 
+    ms = int(str(dtime.microsecond)[:3])
+    tt = TagTime(tag_id=tag.id, time=dtime, reader_id=reader.id, milliseconds=ms)
     try:
         tt.save()
     except IntegrityError:

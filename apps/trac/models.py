@@ -31,6 +31,7 @@ class TagTime(models.Model):
     """A single split time from one tag."""
     tag = models.ForeignKey(Tag)
     time = models.DateTimeField()
+    milliseconds = models.IntegerField()
     reader = models.ForeignKey(Reader)
 
     class Meta:
@@ -95,7 +96,9 @@ class TimingSession(models.Model):
             times = TagTime.objects.filter(timingsession=self, 
                                            tag=tag).order_by('time')
             for i in range(len(times)-1):
-                dt = times[i+1].time-times[i].time
+                t1 = times[i].time+timezone.timedelta(milliseconds=times[i].milliseconds)
+                t2 = times[i+1].time+timezone.timedelta(milliseconds=times[i+1].milliseconds)
+                dt = t2-t1
                 interval.append([dt.total_seconds()])
             counter = range(1,len(interval)+1)    
 
