@@ -99,7 +99,7 @@ class TimingSession(models.Model):
                 t1 = times[i].time+timezone.timedelta(milliseconds=times[i].milliseconds)
                 t2 = times[i+1].time+timezone.timedelta(milliseconds=times[i+1].milliseconds)
                 dt = t2-t1
-                interval.append([dt.total_seconds()])
+                interval.append([round(dt.total_seconds(), 3)])
             counter = range(1,len(interval)+1)    
 
             # Add the runner's data to the workout. 
