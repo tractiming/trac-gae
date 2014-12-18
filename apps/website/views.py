@@ -23,3 +23,6 @@ def create(request):
 
 def calendar(request):
     return render(request, 'calendar.html', {})
+
+def settings(request):
+    return render(request, 'settings.html', {})

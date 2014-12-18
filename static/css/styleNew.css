@@ -626,6 +626,41 @@ div.parallax div#create div#notifications .notification.notification-success {
           padding-top: 20px;
           padding-bottom: 80px;
          } }
+         
+                   div.parallax div#create #contentright table#results{
+            
+  table-layout: fixed; 
+  width: 100%;
+  *margin-left: -100px;/*ie7*/}
+ div.parallax div#create #contentright table#results td {
+  vertical-align: top;
+  
+  padding:10px;
+  width:100px;
+}
+ div.parallax div#create #contentright table#results th {
+  vertical-align: top;
+  
+  padding:10px;
+  width:100px;
+  position:absolute;
+  *position: relative; /*ie7*/
+  left:0; 
+  width:100px;
+}
+div.parallax div#create #contentright .title {text-align: left;width: 100%}
+div.parallax div#create #contentright .title p{line-height: 20px;
+margin-bottom: 32px;
+width: 95%;
+margin: 0 auto;
+transition: font-size 0.3s ease;}
+ div.parallax div#create #contentright .outer {position:relative}
+ div.parallax div#create #contentright .inner {
+  overflow-x:scroll;
+  overflow-y:visible;
+  width:600px; 
+  
+}
           
           
           

@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+
+
+	<script>
+    $(document).ready(function() {
+        $("#myform").on('submit', function(e){
+            e.preventDefault();
+	    $(".modal-animate").show();
+            var form = $(this);
+
+            form.parsley().validate();
+
+	    
+	    
+            if (form.parsley().isValid()){
+	             var title=$('input[id=title]').val();
+		      var start_date=$('input[id=id_number]').val();
+		    
+
+	      $.ajax({
+           type: "POST",
+           dataType:'json',
+           url: "/api/sessions/",
+	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
+           data: {
+               name: title,
+               start_time: start_date,
+               stop_time: end_date,
+           },
+           // Login was successful.
+           success: function(data) {
+		    $(".modal-animate").hide();
+		    $("h6.notification.notification-critical").hide();
+		    $("h6.notification.notification-success").show();
+		    $("#myform")[0].reset();
+                   
+           },
+
+           // Login request failed.
+           error: function(xhr, errmsg, err) {
+	    $(".modal-animate").hide();
+	    $("h6.notification.notification-success").hide();
+               $("h6.notification.notification-critical").show();
+           }
+           
+      });
+               
+            }
+        });
+    });
+</script>
+	    <script>
+      $(document).ready(function() {
+
+		  //alert(path);
+		  //alert(path);
+		   $.ajax({
+                     url: "/api/sessions/9",
+		     headers: {Authorization: "Bearer " + sessionStorage.access_token},
+                    //force to handle it as text
+                    dataType: "text",
+                    success: function(data) {
+                        
+                        //data downloaded so we call parseJSON function 
+                        //and pass downloaded data
+                        var json = $.parseJSON(data);
+			
+                        //now json variable contains data in json format
+                        //let's display a few items
+			
+			json = $.parseJSON(json.results);
+			
+                       // $('#results').html('Date: ' + json.date);
+			//$('#results').append('<p> Workout ID: '+ json.workoutID);
+			var longest = 0;
+			var importantRow;
+			for (var ii = 0; ii < json.runners.length; ii++) {
+			  for (var jj = 0; jj < json.runners[ii].interval.length; jj++){
+			    if (jj == 0) {
+			      //initilize temporary variable
+			      var tempLength = json.runners[ii].interval[jj].length;
+			    }
+			    else{
+			      tempLength = tempLength + json.runners[ii].interval[jj].length;
+			    }  
+			 }
+			  if (longest < tempLength) {
+			    longest = tempLength;
+			    importantRow = ii;
+			  } 
+			
+			}
+			
+			  
+			  
+			for (var i=0; i < json.runners.length; i++) {
+			  //print names and enter name array
+			  var name = json.runners[i].name;
+			  //prints all splits with no nesting
+			  //var interval = json.runners[i].interval
+			  if (i==0) {
+			    $('#results').append('<tr><td>Name</td></tr>');
+			    $('#results').append('<tr class="odd"><td>'+name+'</td></tr>');
+			  }
+			  else if((i)%2 ==0) {
+			    $('#results').append('<tr class="odd"><td>'+name+'</td></tr>');
+			  }
+			  else{
+			    $('#results').append('<tr><td>'+name+'</td></tr>');
+			  }
+			  
+			  
+			  var finaltime = 0;
+			  
+			  for (var j=0; j < json.runners[i].interval.length; j++) {
+			    //iterate over interval to get to nested time arrays
+			    var interval = json.runners[i].interval[j];
+			    //$('#results').append( "Interval Subset: ")
+			    
+
+			    for (var k=0; k < json.runners[i].interval[j].length; k++) {
+			      //interate over subarrays and pull out each individually and print
+			      var subinterval = json.runners[i].interval[j][k];
+			      var min = Math.floor(subinterval/60);
+			      var sec = (subinterval-(min*60));
+			     // $('#results').append('<td>');
+			      //This if statements adds the preceding 0 to any second less than 10
+			      
+			      if (sec<10) {
+				$('#results tr:last').append('<td>'+ min + ':0'+ sec +'</td>');
+			      }
+			      else
+			      {
+			      $('#results tr:last').append('<td>'+ min + ':'+ sec +'</td>');
+			      }
+			      finaltime = finaltime + subinterval;
+			      if (i==importantRow) {
+				//Puts the word 'split #' on table
+				$('#results tr:first').append('<td></td>');
+			      }
+			    }
+			    
+			    
+			  }
+			  
+		
+			}
+			
+			
+			
+                    }
+		   
+               });
+		    
+		  });
+
+    
+	    </script>
+	
+	
+
+
+<div class="modal-animate hide">
+    <div class="rotate"></div>
+
+</div>
+
+    <div id="create">  
+     <h2>Create</h2>
+	  <div id="notifications">
+        <h6 class="notification notification-critical" role="alert">Some information you entered isn't right.</h6>
+	<h6 class="notification notification-success" role="alert">You have successfully created a workout!</h6>
+    </div>
+	  
+    <div id="contentleft">
+					
+		<form name="tracform" id="myform" method="POST" data-parsley-validate>
+		  <p>
+		      <label for="">Athlete Name:</label> 
+		      <input data-progression="" type="text" data-helper="Title of the workout to help you identify it later" id="title" value="" placeholder="" required data-parsley-group="block1" />
+		  </p>
+		   <p>
+		      <label for="">ID Number:</label> 
+		      <input data-progression="" type="text" data-helper="Date that you plan to start the workout, YYYY-MM-DD" id="id_number" value="" placeholder="" required data-parsley-group="block1" />
+		  </p>
+		
+		     
+		     
+		          <div class="button-container">
+		    <input type="submit" name="" class="validate" id="submit" value="Save" />
+	                         </div>
+		</form>
+		
+				
+					
+					
+					
+					
+				
+    </div>
+                   <div id="contentright">
+			      <div class ="outer">
+      <div class="inner">
+       <table id="results" style="width:100%"></table>
+       </div>
+       </div>
+              </div>
+    
+    
+     
+      </div>
+    {% endblock %} 
+    
+    
+    
+</html>
+
