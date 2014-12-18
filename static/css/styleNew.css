@@ -541,7 +541,7 @@ border-color: #c72e2e;
     }
     @media only screen and (min-width: 960px) {
       div.parallax div#create {
-        min-height: 800px;
+        
         padding-top:100px;} }
         
         div.parallax div#create div#notifications {
@@ -583,7 +583,7 @@ div.parallax div#create div#notifications .notification.notification-success {
         
     div.parallax div#create #contentleft {
      
-      height:600px;
+      
       padding-top: 30px;
       padding-bottom: 135px;
       padding-left:100px;
