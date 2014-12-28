@@ -17,7 +17,7 @@
 	    
             if (form.parsley().isValid()){
 	             var title=$('input[id=title]').val();
-		      var start_date=$('input[id=id_number]').val();
+		      var id_number=$('input[id=id_number]').val();
 		    
 
 	      $.ajax({
@@ -27,8 +27,7 @@
 	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
            data: {
                name: title,
-               start_time: start_date,
-               stop_time: end_date,
+               id_number: id_number,
            },
            // Login was successful.
            success: function(data) {
