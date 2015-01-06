@@ -27,7 +27,7 @@
 
         //When DOM loaded we attach click event to button
         $(document).ready(function() {
-            
+            //show spinner
 	    $(".modal-animate").show();
 	    
 	    //alert(idjson);
@@ -56,12 +56,14 @@
                        // $('#results').html('Date: ' + json.date);
 			//$('#results').append('<p> Workout ID: '+ json.workoutID);
 			
+			//if empty show notification, hide spinner, and show button
 			if (json.runners == "") {
 			    $(".modal-animate").hide();
 			    $("h6.notification.notification-default").show();
 			      $("input#submit.gen_btn").show();
 			}
 			else {
+			    //hide spinner, show button, show results
 			$(".modal-animate").hide();
 			  $("input#submit.gen_btn").show();
 			$('#results').empty();
@@ -158,7 +160,7 @@
 	    });
 		}
 		
-		
+		//refresh the view every 5 seconds to update
 	    lastWorkout();
 	   setInterval(lastWorkout,5000);
 

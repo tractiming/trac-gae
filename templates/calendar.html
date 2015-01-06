@@ -8,6 +8,7 @@
 
 
 $(document).ready(function() {
+  //import 3rd party calendar, but first import events--async call and reformat dates to fit 3rd party calendar
       $.ajax({
                     url: "/api/sessions/",
                     //force to handle it as text
@@ -74,6 +75,8 @@ $(document).ready(function() {
                         //let's display a few items
                       json = $.parseJSON(prejson.results);
 				
+				
+			//if runners is blank show date and name of workout, and display message and button to download blank workout, center everything	
 			if (json.runners == "") {
 			  $(".outer").hide();
 			  $(".modal-animate").hide();
@@ -88,6 +91,7 @@ $(document).ready(function() {
 			      $("input#submit.gen_btn").show();
 			      
 			}
+			// show name and date, dont show message, but show button
 			else {
 			  $(".modal-animate").hide();
 			  $(".outer").show();
@@ -100,7 +104,7 @@ $(document).ready(function() {
 			$('.title').append('<p> Date: ' + json.date);
 			  
 			  
-			  
+			  //then display the workout
 			  var longest = 0;
 			var importantRow;
 			for (var ii = 0; ii < json.runners.length; ii++) {
@@ -200,7 +204,7 @@ $(document).ready(function() {
 		
 		});
 		
-		
+		//if chose to download the workout, show spinner, then ajax call
 		
 		$('#submit').click(function(){
 		  $(".modal-animate").show();
