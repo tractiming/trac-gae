@@ -107,7 +107,7 @@
            $(document).ready(function() {
   $("#myform").on('submit', function(e){
             e.preventDefault();
-	    
+	    $(".modal-animate").show();
             var form = $(this);
 
             form.parsley().validate();
@@ -135,14 +135,20 @@
           
            // Registration was successful.
            success: function(data) {
-                   alert("Registered sucessfully");
-                   location.href="/login.html";
+                   $(".modal-animate").hide();
+		    $("h6.notification.notification-critical").hide();
+                    $("h6.notification.notification-critical2").hide();
+		    $("h6.notification.notification-success").show();
+		    $("#myform")[0].reset();
            },
 
            // Registration failed.
            error: function(xhr, errmsg, err) {
-               //alert(user_type);
-               alert("Invalid registration.");
+               //hide spinner, show error modal
+	    $(".modal-animate").hide();
+	    $("h6.notification.notification-success").hide();
+            $("h6.notification.notification-critical2").hide();
+               $("h6.notification.notification-critical").show();
            }
        });
        
@@ -150,7 +156,10 @@
        
        else
        {
-        alert('Passwords Do Not Match');
+        $(".modal-animate").hide();
+        $("h6.notification.notification-success").hide();
+        $("h6.notification.notification-critical").hide();
+        $("h6.notification.notification-critical2").show();
        }
       
 
@@ -165,6 +174,12 @@
         
 	  <div id="contentleft">
 					<h2> Register</h2>
+    <div id="notifications">
+        <h6 class="notification notification-critical" role="alert">Some information you entered isn't right.</h6>
+        <h6 class="notification notification-critical2" role="alert">Passwords do not match.</h6>
+	<h6 class="notification notification-success" role="alert">You have successfully created a username</h6>
+    </div>
+                                        
 		<form name="tracform" id="myform" data-parsley-validate>
 		  <p>
 		      <label>Username:</label> 
