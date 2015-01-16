@@ -12,8 +12,8 @@ def login(request):
 def live_view(request):
     return render(request, 'liveView.html', {})
 
-#def register(request):
-#    return render(request, 'register.html', {})
+def register(request):
+    return render(request, 'register.html', {})
 
 def home(request):
     return render(request, 'home.html', {})
