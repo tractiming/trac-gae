@@ -1,316 +1,158 @@
 {% extends "base.html" %}
-
 {% load staticfiles %}
-
-
 
 {% block content %}
 
 
-
-
-
 	<script>
-
     $(document).ready(function() {
-
 		load();
-
         $("#myform").on('submit', function(e){
-
             e.preventDefault();
-
 	    $(".modal-animate").show();
-
             var form = $(this);
-
-
 
             form.parsley().validate();
 
-
-
 	    
-
 	    
-
             if (form.parsley().isValid()){
-
 	            // var title=$('input[id=title]').val();
-
 		      var id_number=$('input[id=id_number]').val();
-
 		    
 
-
-
 	      $.ajax({
-
            type: "POST",
-
            dataType:'json',
-
            url: "/api/tags/",
-
 	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
-
            data: {
-
                id_str: id_number,
-
            },
-
            // Login was successful.
-
            success: function(data) {
-
 		    $(".modal-animate").hide();
-
 		    $("h6.notification.notification-critical").hide();
-
 		    $("h6.notification.notification-success").show();
-
 		    $("#myform")[0].reset();
-
 		    load();
-
                    
-
            },
-
-
 
            // Login request failed.
-
            error: function(xhr, errmsg, err) {
-
 	    $(".modal-animate").hide();
-
 	    $("h6.notification.notification-success").hide();
-
                $("h6.notification.notification-critical").show();
-
            }
-
            
-
       });
-
                
-
             }
-
         });
-
     });
-
 </script>
-
 	    <script>
-
 		  function load(){
-
 			 $('#results').empty();
-
 		  //alert(path);
-
 		  //alert(path);
-
 		   $.ajax({
-
                      url: "/api/tags/",
-
 		     headers: {Authorization: "Bearer " + sessionStorage.access_token},
-
                     //force to handle it as text
-
                     dataType: "text",
-
                     success: function(data) {
-
                         //alert(data);
-
                         //data downloaded so we call parseJSON function 
-
                         //and pass downloaded data
-
                         
-
                         var json = $.parseJSON(data);
-
                        //alert(json[0].id_str)
-
                        for (var ii=0;json.length;ii++){
-
 						   //alert(ii);
-
 						   name = json[ii].id_str;
-
 						  if (ii==0) {
-
 			    $('#results').append('<tr><td>Tag ID</td></tr>');
-
 			    $('#results').append('<tr class="odd"><td>'+name+'</td></tr>');
-
 			    //alert(name);
-
 			  }
-
 			  else if((ii)%2 ==0) {
-
 			    $('#results').append('<tr class="odd"><td>'+name+'</td></tr>');
-
 			  }
-
 			  else{
-
 			    $('#results').append('<tr><td>'+name+'</td></tr>');
-
 			    //alert(name);
-
 			  }
-
 						   }
 
-
-
 			}
-
 			
-
 			
-
 			
-
                     });
-
 		   
-
 }
 
 
-
-
-
     
-
 	    </script>
-
 	
-
 	
-
-
-
 
 
 <div class="modal-animate hide">
-
     <div class="rotate"></div>
-
-
 
 </div>
 
-
-
     <div id="create">  
-
      <h2>Settings</h2>
-
 	  <div id="notifications">
-
         <h6 class="notification notification-critical" role="alert">Some information you entered isn't right.</h6>
-
 	<h6 class="notification notification-success" role="alert">You have successfully registered an ID!</h6>
-
     </div>
-
 	  
-
     <div id="contentleft">
-
 					
-
 		<form name="tracform" id="myform" method="POST" data-parsley-validate>
-
 		  <!--<p>
-
 		      <label for="">Athlete Name:</label> 
-
 		      <input data-progression="" type="text" data-helper="Title of the workout to help you identify it later" id="title" value="" placeholder="" required data-parsley-group="block1" />
-
 		  </p>-->
-
 		   <p>
-
 		      <label for="">ID Number:</label> 
-
 		      <input data-progression="" type="text" data-helper="Date that you plan to start the workout, YYYY-MM-DD" id="id_number" value="" placeholder="" required data-parsley-group="block1" />
-
 		  </p>
-
 		
-
 		     
-
 		     
-
 		          <div class="button-container">
-
 		    <input type="submit" name="" class="validate" id="submit" value="Save" />
-
 	                         </div>
-
 		</form>
-
 		
-
 				
-
 					
-
 					
-
 					
-
 					
-
 				
-
     </div>
-
                    <div id="contentright">
-
 			      <div class ="outer">
-
       <div class="inner">
-
        <table id="results" style="width:100%"></table>
-
        </div>
-
        </div>
-
               </div>
-
     
-
     
-
      
-
       </div>
-
     {% endblock %} 
-
     
-
     
-
     
-
 </html>
-
-
 
