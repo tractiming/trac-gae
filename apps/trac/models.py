@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
-import numpy
+#import numpy
 import time
 import datetime
 
@@ -145,15 +145,15 @@ class TimingSession(models.Model):
                 interval.append([round(dt.total_seconds(), 3)])
                 counter = range(1,len(interval)+1)   
             
-            mean = numpy.mean(interval)
-            std = numpy.std(interval)
+            #mean = numpy.mean(interval)
+            #std = numpy.std(interval)
 			# statistics option
-            for i in range(len(times)-1):
-				t1 = times[i].time+timezone.timedelta(milliseconds=times[i].milliseconds)
-				t2 = times[i+1].time+timezone.timedelta(milliseconds=times[i+1].milliseconds)
-				dt = t2-t1
-				if dt > (datetime.timedelta(seconds=mean)-datetime.timedelta(seconds=(2*std))):
-					statistics_interval.append([round(dt.total_seconds(), 3)])   
+            #for i in range(len(times)-1):
+			#	t1 = times[i].time+timezone.timedelta(milliseconds=times[i].milliseconds)
+			#	t2 = times[i+1].time+timezone.timedelta(milliseconds=times[i+1].milliseconds)
+			#	dt = t2-t1
+			#	if dt > (datetime.timedelta(seconds=mean)-datetime.timedelta(seconds=(2*std))):
+			#		statistics_interval.append([round(dt.total_seconds(), 3)])
            
 
             if self.filter_choice == True:
