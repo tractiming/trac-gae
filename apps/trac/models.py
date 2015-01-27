@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+import numpy
+import time
 import datetime
 
 class Tag(models.Model):
@@ -14,8 +16,8 @@ class Tag(models.Model):
 
 class Reader(models.Model):
     """An RFID reader. Has an identifying number and can belong to many workouts."""
-    name = models.CharField(max_length=50)
-    id_str = models.CharField(max_length=50)
+    name = models.CharField(max_length=50,unique=True)
+    id_str = models.CharField(max_length=50,unique=True)
     owner = models.ForeignKey(User)
 
     def __unicode__(self):
@@ -52,10 +54,15 @@ class TimingSession(models.Model):
     name = models.CharField(max_length=50)
     start_time = models.DateTimeField()
     stop_time = models.DateTimeField()
+    comment = models.CharField(max_length=2500,blank=True)
+    rest_time = models.IntegerField()
+    track_size = models.IntegerField()
+    interval_distance = models.IntegerField()
+    interval_number = models.IntegerField()
     manager = models.ForeignKey(User)
     readers = models.ManyToManyField(Reader)
     tagtimes = models.ManyToManyField(TagTime)
-
+    
     def __unicode__(self):
         return "num=%i, start=%s" %(self.id, self.start_time)
 
@@ -93,14 +100,51 @@ class TimingSession(models.Model):
 
             # Calculate the splits for this tag in the current workout.
             interval = []
+            statistics_interval = []
+            
+            #Determine Constant of impossible time for 400m off of distance
+            if self.interval_distance <= 200:
+				constant = 20
+            elif self.interval_distance > 200 and self.interval_distance >= 300:
+				constant = 30
+            elif self.interval_distance > 300 and self.interval_distance >= 400:
+				constant = 50
+            elif self.interval_distance > 400 and self.interval_distance >= 800:
+				constant = 52
+            elif self.interval_distance > 800 and self.interval_distance >= 1200:
+				constant = 55
+            elif  self.interval_distance > 1200 and self.interval_distance >= 1600:
+				constant = 58
+            else:
+				constant = 59
+            #modify constant if on different sized track like 300m or 200m
+            #Dont modify if 200s on 200m track
+            if self.interval_distance >200:
+				modified_constant = constant * (self.track_size/400.0)
+            else:
+				modified_constant = constant
+				
             times = TagTime.objects.filter(timingsession=self, 
                                            tag=tag).order_by('time')
+                    
             for i in range(len(times)-1):
                 t1 = times[i].time+timezone.timedelta(milliseconds=times[i].milliseconds)
                 t2 = times[i+1].time+timezone.timedelta(milliseconds=times[i+1].milliseconds)
                 dt = t2-t1
-                interval.append([round(dt.total_seconds(), 3)])
+                if dt > datetime.timedelta(seconds=modified_constant):
+					interval.append([round(dt.total_seconds(), 3)])
             counter = range(1,len(interval)+1)    
+            mean = numpy.mean(interval)
+            std = numpy.std(interval)
+
+            for i in range(len(times)-1):
+				t1 = times[i].time+timezone.timedelta(milliseconds=times[i].milliseconds)
+				t2 = times[i+1].time+timezone.timedelta(milliseconds=times[i+1].milliseconds)
+				dt = t2-t1
+				if dt > (datetime.timedelta(seconds=mean)-datetime.timedelta(seconds=(2*std))):
+					statistics_interval.append([round(dt.total_seconds(), 3)])   
+           
+
 
             # Add the runner's data to the workout. 
             wdata['runners'].append({'name': name, 'counter': counter,
