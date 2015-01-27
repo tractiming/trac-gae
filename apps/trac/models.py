@@ -59,6 +59,7 @@ class TimingSession(models.Model):
     track_size = models.IntegerField()
     interval_distance = models.IntegerField()
     interval_number = models.IntegerField()
+    filter_choice = models.BooleanField(default=True)
     manager = models.ForeignKey(User)
     readers = models.ManyToManyField(Reader)
     tagtimes = models.ManyToManyField(TagTime)
@@ -100,20 +101,21 @@ class TimingSession(models.Model):
 
             # Calculate the splits for this tag in the current workout.
             interval = []
+            filtered_interval = []
             statistics_interval = []
             
             #Determine Constant of impossible time for 400m off of distance
             if self.interval_distance <= 200:
 				constant = 20
-            elif self.interval_distance > 200 and self.interval_distance >= 300:
+            elif self.interval_distance > 200 and self.interval_distance <= 300:
 				constant = 30
-            elif self.interval_distance > 300 and self.interval_distance >= 400:
+            elif self.interval_distance > 300 and self.interval_distance <= 400:
 				constant = 50
-            elif self.interval_distance > 400 and self.interval_distance >= 800:
+            elif self.interval_distance > 400 and self.interval_distance <= 800:
 				constant = 52
-            elif self.interval_distance > 800 and self.interval_distance >= 1200:
+            elif self.interval_distance > 800 and self.interval_distance <= 1200:
 				constant = 55
-            elif  self.interval_distance > 1200 and self.interval_distance >= 1600:
+            elif  self.interval_distance > 1200 and self.interval_distance <= 1600:
 				constant = 58
             else:
 				constant = 59
@@ -126,17 +128,26 @@ class TimingSession(models.Model):
 				
             times = TagTime.objects.filter(timingsession=self, 
                                            tag=tag).order_by('time')
-                    
+            #filtered option using constants
             for i in range(len(times)-1):
                 t1 = times[i].time+timezone.timedelta(milliseconds=times[i].milliseconds)
                 t2 = times[i+1].time+timezone.timedelta(milliseconds=times[i+1].milliseconds)
                 dt = t2-t1
                 if dt > datetime.timedelta(seconds=modified_constant):
-					interval.append([round(dt.total_seconds(), 3)])
-            counter = range(1,len(interval)+1)    
+					filtered_interval.append([round(dt.total_seconds(), 3)])
+                filtered_counter = range(1,len(filtered_interval)+1)    
+            
+            # non filtered option
+            for i in range(len(times)-1):
+                t1 = times[i].time+timezone.timedelta(milliseconds=times[i].milliseconds)
+                t2 = times[i+1].time+timezone.timedelta(milliseconds=times[i+1].milliseconds)
+                dt = t2-t1
+                interval.append([round(dt.total_seconds(), 3)])
+                counter = range(1,len(interval)+1)   
+            
             mean = numpy.mean(interval)
             std = numpy.std(interval)
-
+			# statistics option
             for i in range(len(times)-1):
 				t1 = times[i].time+timezone.timedelta(milliseconds=times[i].milliseconds)
 				t2 = times[i+1].time+timezone.timedelta(milliseconds=times[i+1].milliseconds)
@@ -145,10 +156,14 @@ class TimingSession(models.Model):
 					statistics_interval.append([round(dt.total_seconds(), 3)])   
            
 
-
-            # Add the runner's data to the workout. 
-            wdata['runners'].append({'name': name, 'counter': counter,
+            if self.filter_choice == True:
+				wdata['runners'].append({'name': name, 'counter': filtered_counter,
+                                     'interval': filtered_interval})
+            else:
+				# Add the runner's data to the workout. 
+				wdata['runners'].append({'name': name, 'counter': counter,
                                      'interval': interval})
+            
 
         return wdata    
 

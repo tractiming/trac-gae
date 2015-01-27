@@ -17,7 +17,7 @@ class TimingSessionForm(forms.ModelForm):
 
     class Meta:
         model = TimingSession
-        fields = ('name', 'start_time', 'stop_time','comment','rest_time','track_size','interval_distance','interval_number','readers', )
+        fields = ('name', 'start_time', 'stop_time','comment','rest_time','track_size','interval_distance','interval_number','filter_choice','readers', )
         widgets = {'start_time': forms.widgets.DateTimeInput(), 
                    'stop_time': forms.widgets.DateTimeInput()}
 
