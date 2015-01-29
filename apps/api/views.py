@@ -14,7 +14,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import (link, api_view, permission_classes,
 detail_route)
 
-from provider.oauth2.models import Client
+from provider.oauth2.models import Client, AccessToken
 
 from serializers import (UserSerializer, RegistrationSerializer, 
                          TagSerializer, TimingSessionSerializer,
@@ -73,6 +73,26 @@ class RegistrationView(views.APIView):
         client.save()
         
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+class verifyLogin(views.APIView):
+	
+	permission_classes = ()
+	
+	def post(self,request):
+		data = request.POST
+		#print data
+		#Does the token exist?
+		try:
+			token = AccessToken.objects.get(token=data['token'])
+		except: #ObjectDoesNotExist:
+			return HttpResponse(status.HTTP_404_NOT_FOUND)
+		
+		#Is the Token Valid?
+		
+		if token.expires < timezone.now():
+			return HttpResponse(status.HTTP_400_BAD_REQUEST)
+		else:
+			return HttpResponse(status.HTTP_200_OK)
 
 class TagViewSet(viewsets.ModelViewSet):
     """
