@@ -217,8 +217,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         """Assigns reader to workout after it saves"""
         user = self.request.user
         t=TimingSession.objects.latest('id')
-        r=Reader.objects.get(owner=user)
-        t.readers.add(r)
+        r=Reader.objects.filter(owner=user)
+        t.readers.add(*r)
         t.save()    
 
 @csrf_exempt
