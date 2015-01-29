@@ -135,7 +135,7 @@ class TimingSession(models.Model):
                 dt = t2-t1
                 if dt > datetime.timedelta(seconds=modified_constant):
 					filtered_interval.append([round(dt.total_seconds(), 3)])
-                filtered_counter = range(1,len(filtered_interval)+1)    
+            filtered_counter = range(1,len(filtered_interval)+1)    
             
             # non filtered option
             for i in range(len(times)-1):

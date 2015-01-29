@@ -136,12 +136,25 @@
            // Login was successful.
           
            success: function(data) {
-            //hide spinner
-                     $(".modal-animate").hide();
                     // Get the access token and store client side.
                     var access_token = data.access_token;
                     sessionStorage.setItem('access_token', access_token);
-                    location.href ="/home.html";
+                     $.ajax({
+                    url: "/api/userType/",
+                    //force to handle it as text
+                    dataType: "text",
+		    headers: {Authorization: "Bearer " + sessionStorage.access_token},
+                    success: function(data) {
+						  //hide spinner
+						 $(".modal-animate").hide();
+						var usertype = data;
+						sessionStorage.setItem('usertype',usertype);
+						 location.href ="/home.html";},
+                    error: function(xhr, errmsg, err) {
+						$(".modal-animate").hide();
+                  $("h6.notification.notification-critical").show();}
+				});
+                   
            },
 
            // Login request failed.
@@ -215,8 +228,8 @@
       </div>
       <div class="col-md-3">
                 <ul class="list-reset">
-                    <li><a href="/#bg3" class="scrollto" rel="bg3">About</a></li>
-                    <li><a href="/#bg4" class="scrollto" rel="bg4">Frequently Asked Questions</a></li>
+                    <li><a href="http://www.trac-us.com/#bg3" class="scrollto" rel="bg3">About</a></li>
+                    <li><a href="http://www.trac-us.com/#bg4" class="scrollto" rel="bg4">Frequently Asked Questions</a></li>
           <li><a href="mailto:info@trac-us.com">Contact us</a></li>
         </ul>
       </div>

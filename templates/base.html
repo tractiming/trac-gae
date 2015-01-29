@@ -50,6 +50,13 @@
 
 </script>
     <!--<script src="{% static "js/jquery-2.1.1.js" %}"></script>-->
+   <script>
+	$(document).ready(function(){
+	if (sessionStorage.usertype == 'athlete'){
+		$("a#create.scrollto").hide();
+		}
+	})
+	</script>
     {% endblock %}
 
     <title>
@@ -88,7 +95,7 @@
       </li>
      
       <li>
-        <a href="/create.html" class="scrollto" rel="bg4">Create</a>
+        <a href="/create.html" class="scrollto" rel="bg4" id="create">Create</a>
       </li>
 
       </li>
