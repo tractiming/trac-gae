@@ -34,6 +34,41 @@ class JSONResponse(HttpResponse):
         kwargs['content_type'] = 'application/json'
         super(JSONResponse, self).__init__(content, **kwargs)
 
+class verifyLogin(views.APIView):
+	permission_classes = ()
+	def post(self,request):
+		data = request.POST
+		print data
+		#Does the token exist?
+		try:
+			token = AccessToken.objects.get(token=data['token'])
+		except: #ObjectDoesNotExist:
+			return HttpResponse(status.HTTP_404_NOT_FOUND)
+		
+		#Is the Token Valid?
+		
+		if token.expires < timezone.now():
+			return HttpResponse(status.HTTP_400_BAD_REQUEST)
+		else:
+			return HttpResponse(status.HTTP_200_OK)
+
+class userType(views.APIView):
+	permission_classes = (permissions.IsAuthenticated,)
+	def get(self,request):
+		data = request.GET
+		#Is the user in the coaches table?
+		user = self.request.user
+		try:
+			cp = CoachProfile.objects.get(user=user)
+		except: #NotCoach:
+			try:
+				ap = AthleteProfile.objects.get(user=user)
+			except: #NotAthlete
+				return HttpResponse(status.HTTP_404_NOT_FOUND)
+			return HttpResponse("athlete")
+		return HttpResponse("coach")
+
+
 class RegistrationView(views.APIView):
     """
     Registers a user and creates server-side client.
@@ -73,26 +108,6 @@ class RegistrationView(views.APIView):
         client.save()
         
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-class verifyLogin(views.APIView):
-	
-	permission_classes = ()
-	
-	def post(self,request):
-		data = request.POST
-		#print data
-		#Does the token exist?
-		try:
-			token = AccessToken.objects.get(token=data['token'])
-		except: #ObjectDoesNotExist:
-			return HttpResponse(status.HTTP_404_NOT_FOUND)
-		
-		#Is the Token Valid?
-		
-		if token.expires < timezone.now():
-			return HttpResponse(status.HTTP_400_BAD_REQUEST)
-		else:
-			return HttpResponse(status.HTTP_200_OK)
 
 class TagViewSet(viewsets.ModelViewSet):
     """
