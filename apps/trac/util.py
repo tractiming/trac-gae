@@ -6,18 +6,18 @@ from django.contrib.auth.models import User, Group
 def is_athlete(user):
     """Checks if the user is an athlete."""
     try:
-        user.athleteprofile
+        user.athlete
         return True
-    except:
+    except ObjectDoesNotExist:
         return False
 
 def is_coach(user):
     """Checks if the user "Athlete profile with this User already exists."
     ] is a coach."""
     try:
-        user.coachprofile
+        user.coach
         return True
-    except:
+    except ObjectDoesNotExist:
         return False
 
 def user_type(user):

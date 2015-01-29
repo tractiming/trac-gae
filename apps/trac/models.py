@@ -126,7 +126,7 @@ class TimingSession(models.Model):
             return names
 
 class AthleteProfile(models.Model):
-    user = models.OneToOneField(User)
+    user = models.OneToOneField(User, related_name='athlete')
 
     def __unicode__(self):
         return "name=%s" %self.user.username
@@ -135,7 +135,7 @@ class AthleteProfile(models.Model):
         """Returns a list of sessions in which this user has participated."""
         return TimingSession.objects.filter(
                 tagtimes__tag__user=self.user).distinct()
-    
+        
     def get_tags(self, json_data=True):
         """Returns a list of tags registered to the athlete."""
         tags = Tag.objects.filter(user=self.user)
@@ -147,7 +147,7 @@ class AthleteProfile(models.Model):
         return {'count': len(ids), 'ids': ids}    
 
 class CoachProfile(models.Model):
-    user = models.OneToOneField(User)
+    user = models.OneToOneField(User, related_name='coach')
     organization = models.CharField(max_length=50)
     athletes = models.ManyToManyField(AthleteProfile)
 

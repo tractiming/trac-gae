@@ -1,28 +1,24 @@
+import datetime
+
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
-from rest_framework import viewsets
-from rest_framework import permissions
-from rest_framework import renderers
-from rest_framework import status
+from django.utils import timezone
+
+from rest_framework import (viewsets, permissions, renderers, 
+                            status, serializers, views)
 from rest_framework.response import Response
 from rest_framework.decorators import (link, api_view, permission_classes,
 detail_route)
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.views import APIView
+
 from provider.oauth2.models import Client
 
-from permissions import IsOwner, IsManager, IsCoachOf
-from serializers import UserSerializer, RegistrationSerializer
-from serializers import TagSerializer, TimingSessionSerializer
-from serializers import ReaderSerializer
-from serializers import AthleteProfileSerializer
-
-import datetime
-from django.utils import timezone
+from serializers import (UserSerializer, RegistrationSerializer, 
+                         TagSerializer, TimingSessionSerializer,
+                         ReaderSerializer, UserSerializer)
 
 from trac.models import TimingSession, AthleteProfile, CoachProfile
 from trac.models import Tag, Reader, TagTime
@@ -38,7 +34,7 @@ class JSONResponse(HttpResponse):
         kwargs['content_type'] = 'application/json'
         super(JSONResponse, self).__init__(content, **kwargs)
 
-class RegistrationView(APIView):
+class RegistrationView(views.APIView):
     """
     Registers a user and creates server-side client.
     """
@@ -48,7 +44,6 @@ class RegistrationView(APIView):
         serializer = RegistrationSerializer(data=request.DATA)
 
         if not serializer.is_valid():
-            print 'bad serializer'
             return HttpResponse(serializer.errors,
                     status=status.HTTP_400_BAD_REQUEST)
         data = serializer.data
@@ -83,38 +78,64 @@ class TagViewSet(viewsets.ModelViewSet):
     """
     Returns a list of tags associated with the current user.
     """
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated,)
     serializer_class = TagSerializer
 
     def get_queryset(self):
-        user = self.request.user
-        tags = Tag.objects.filter(user=user)
-        return tags
 
-    def pre_save(self, obj):
-        obj.user = self.request.user
+        user = self.request.user
+
+        # If the user is an athlete, display the tags he owns.
+        if is_athlete(user):
+            tags = user.tag_set.all()
+
+        # If the user is a coach, list the tags owned by any of his athletes.
+        elif is_coach(user):
+            tags = []
+            for athlete in user.coach.athletes.all():
+                tags.extend(athlete.user.tag_set.all())
+        
+        return tags
 
 
 class AthleteViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsCoachOf, )
-    serializer_class = AthleteProfileSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    # Note that we are using the user serializer to make it easier to create
+    # both the user and the athlete at the same time.
+    serializer_class = UserSerializer
 
     def get_queryset(self):
+        """
+        Overrides the default method to return the users that are associated
+        with an athlete belonging to this coach.
+        """
         user = self.request.user
         try:
             cp = CoachProfile.objects.get(user=user)
         except ObjectDoesNotExist:
             return []
 
-        return cp.athletes.all()
+        return [a.user for a in cp.athletes.all()]
+    
+    def post_save(self, obj, **kwargs):
+        """
+        After the user object has been saved, we create an athlete and add him
+        to the coach's roster.
+        """
+        athlete = AthleteProfile()
+        athlete.user = obj
+        athlete.save()
 
-    def pre_save(self, obj):
         if is_coach(self.request.user):
             cp = CoachProfile.objects.get(user=self.request.user)
-            obj.coachprofile_set.append(cp.pk)
+            cp.athletes.add(athlete.pk)
 
 class ReaderViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsOwner, )
+    """
+    The set of readers the coach owns.
+    """
+    permission_classes = (permissions.IsAuthenticated, )
     serializer_class = ReaderSerializer
 
     def get_queryset(self):
@@ -125,13 +146,12 @@ class ReaderViewSet(viewsets.ModelViewSet):
     def pre_save(self, obj):
         obj.owner = self.request.user
 
-
 class TimingSessionViewSet(viewsets.ModelViewSet):
     """
     Returns a list of all sessions associated with the user.
     """
     serializer_class = TimingSessionSerializer
-    permission_classes = (IsManager,)
+    permission_classes = (permissions.IsAuthenticated,)
 
 
     def get_queryset(self):
@@ -160,13 +180,11 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
 @csrf_exempt
 @api_view(['POST'])
-@permission_classes((AllowAny,))
+@permission_classes((permissions.AllowAny,))
 def post_splits(request):
     """Receives updates from readers."""
     data = request.POST
-    #print data
-    #return HttpResponse(status.HTTP_200_OK)
-    
+
     # Get the tag and reader associated with the notification. Note that if the
     # tag or reader has not been established in the system, the split will be
     # ignored here.
@@ -192,9 +210,8 @@ def post_splits(request):
     
     return HttpResponse(status.HTTP_201_CREATED)
     
-
 @api_view(['GET'])
-@permission_classes((AllowAny,))
+@permission_classes((permissions.AllowAny,))
 def verify_login(request):
     """
     Checks if the user is logged in. Returns a JSON response.
