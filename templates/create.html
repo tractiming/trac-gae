@@ -5,6 +5,7 @@
 
 
 <script>
+  //step by step jquery plugin that explains each box of form
 	jQuery(document).ready(function($) {
 
 		$("#myform").progression({
@@ -27,14 +28,15 @@
 	</script>
 	<script>
     $(document).ready(function() {
+      //on submit prevent default of form and show spinner, 
         $("#myform").on('submit', function(e){
             e.preventDefault();
 	    $(".modal-animate").show();
             var form = $(this);
-
+	    //validate that form is correclty filled out
             form.parsley().validate();
 
-	    
+	    //if valid perform ajax request
 	    
             if (form.parsley().isValid()){
 	             var title=$('input[id=title]').val();
@@ -53,6 +55,7 @@
            },
            // Login was successful.
            success: function(data) {
+		    //hide spinner, success modal, and reset form
 		    $(".modal-animate").hide();
 		    $("h6.notification.notification-critical").hide();
 		    $("h6.notification.notification-success").show();
@@ -62,6 +65,7 @@
 
            // Login request failed.
            error: function(xhr, errmsg, err) {
+	    //hide spinner, show error modal
 	    $(".modal-animate").hide();
 	    $("h6.notification.notification-success").hide();
                $("h6.notification.notification-critical").show();

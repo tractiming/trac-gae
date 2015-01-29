@@ -12,8 +12,8 @@ def login(request):
 def live_view(request):
     return render(request, 'liveView.html', {})
 
-#def register(request):
-#    return render(request, 'register.html', {})
+def register(request):
+    return render(request, 'register.html', {})
 
 def home(request):
     return render(request, 'home.html', {})
@@ -23,3 +23,6 @@ def create(request):
 
 def calendar(request):
     return render(request, 'calendar.html', {})
+
+def settings(request):
+    return render(request, 'settings.html', {})

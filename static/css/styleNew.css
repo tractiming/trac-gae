@@ -436,8 +436,8 @@ border-color: #c72e2e;
    div.parallax div#regi {
             padding-top:200px;
             padding-bottom:50px;
-    background: url("../img/registration.JPG") no-repeat center;
-    background-size:100%;
+    background: url("../img/startup.jpg") no-repeat center;
+    background-size:cover;
     text-align: center; }
     @media only screen and (min-width: 960px) {
       div.parallax div#log {
@@ -460,6 +460,47 @@ border-color: #c72e2e;
           ;
  
           display: inline-table} }
+          
+            div.parallax div#create #contentleft div#notifications {
+            margin-left:auto;
+            margin-right:auto;
+    width: 300px;
+  /* Add this class when you want to animate the notification component. */
+}
+div.parallax div#regi #contentleft div#notifications.animatable {
+  display: none;
+}
+div.parallax div#regi #contentleft div#notifications .notification {
+  display:none;
+  margin-top: 0;
+  padding: 15px 15px 15px 44px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  border-radius: 5px;
+  border-width: 1px;
+  border-style: solid;
+  text-align: left;
+  font-size: 1em;
+  background: url("../img/icon_alert_sprite-2x.png") no-repeat;
+  background-size: 20px;
+  /* Default is the informational message */
+}
+div.parallax div#regi #contentleft div#notifications .notification.notification-critical {
+  background-color: #fff7f7;
+background-position: 12px -387px;
+border-color: #c72e2e;
+}
+div.parallax div#regi #contentleft div#notifications .notification.notification-critical2 {
+  background-color: #fff7f7;
+background-position: 12px -387px;
+border-color: #c72e2e;
+}
+div.parallax div#regi #contentleft div#notifications .notification.notification-success {
+  background-color: #f7fff7;
+  background-position: 12px 12px;
+  border-color: #1b9e1b;
+}      
     /*div.parallax div#create #contentleft div.form-row{font-size:17px; color:#ffffff; overflow:hidden; margin:10px 0 12px 0;}
     div.parallax div#create #contentleft div.form-row label{float:left; color:#ffffff; margin:0 10px 0 0;}
     div.parallax div#create #contentleft div.form-row  span{float:left;}*/
@@ -541,7 +582,7 @@ border-color: #c72e2e;
     }
     @media only screen and (min-width: 960px) {
       div.parallax div#create {
-        min-height: 800px;
+        
         padding-top:100px;} }
         
         div.parallax div#create div#notifications {
@@ -583,7 +624,7 @@ div.parallax div#create div#notifications .notification.notification-success {
         
     div.parallax div#create #contentleft {
      
-      height:600px;
+      
       padding-top: 30px;
       padding-bottom: 135px;
       padding-left:100px;
@@ -626,6 +667,41 @@ div.parallax div#create div#notifications .notification.notification-success {
           padding-top: 20px;
           padding-bottom: 80px;
          } }
+         
+                   div.parallax div#create #contentright table#results{
+            
+  table-layout: fixed; 
+  width: 100%;
+  *margin-left: -100px;/*ie7*/}
+ div.parallax div#create #contentright table#results td {
+  vertical-align: top;
+  
+  padding:10px;
+  width:100px;
+}
+ div.parallax div#create #contentright table#results th {
+  vertical-align: top;
+  
+  padding:10px;
+  width:100px;
+  position:absolute;
+  *position: relative; /*ie7*/
+  left:0; 
+  width:100px;
+}
+div.parallax div#create #contentright .title {text-align: left;width: 100%}
+div.parallax div#create #contentright .title p{line-height: 20px;
+margin-bottom: 32px;
+width: 95%;
+margin: 0 auto;
+transition: font-size 0.3s ease;}
+ div.parallax div#create #contentright .outer {position:relative}
+ div.parallax div#create #contentright .inner {
+  overflow-x:scroll;
+  overflow-y:visible;
+  width:600px; 
+  
+}
           
           
           
@@ -835,6 +911,46 @@ div.parallax div#calendar #contentright div#notifications .notification.notifica
  div.parallax div#footer div.content .bottom span a:first-child {border-left:medium none;}
   div.parallax div#footer div.content .contactModule .copyright {float:left;}
  
+ 
+
+
+
+/*alernative footer*/
+
+div.parallax div#footer2 {
+  width:100%;
+  height:125px;
+  margin:0 auto;
+  display:block;
+  color: #222;
+padding-top:42px;
+}
+div.parallax div#footer2 div.row { 
+display:block;
+ color: #222;}
+  div.parallax div#footer2 div.row div.left {width:25%;
+  padding-left: 30px;
+  position: relative;
+min-height: 1px;
+padding-right: 15px;
+box-sizing: border-box;
+float:left;
+}
+div.parallax div#footer2 div.row div.col-md-3 {width:25%;
+  position: relative;
+min-height: 1px;
+padding-left: 15px;
+padding-right: 15px;
+box-sizing: border-box;
+float:left;
+}
+div.parallax div#footer2 div.row div.col-md-3 ul.list-reset a{color:#3577A8; text-decoration: none;}
+div.parallax div#footer2 div.row div.col-md-3 ul.list-reset a:hover{color:#F0B922; text-decoration: none;}
+
+
+
+ 
+
  
 
 

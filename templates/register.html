@@ -40,7 +40,20 @@
 <script src="{% static "js/fullcalendar.js" %}"></script>
 <script type="text/javascript" src="{% static "js/jquery.serializeJSON.min.js" %}"></script>
 <script type="text/javascript" src="{% static "js/parsley.min.js" %}"></script>
-<script type="text/javascript" src="{% static "js/progression.min.js" %}"></script>
+<script type="text/javascript" src="{% static "js/progression.min.js" %}"></script
+
+<!--Google Analytics-->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-57985584-1', 'auto');
+  ga('require', 'displayfeatures');
+  ga('send', 'pageview');
+
+</script>
     <!--<script src="{% static "js/jquery-2.1.1.js" %}"></script>-->
     {% endblock %}
 
@@ -94,7 +107,7 @@
            $(document).ready(function() {
   $("#myform").on('submit', function(e){
             e.preventDefault();
-	    
+	    $(".modal-animate").show();
             var form = $(this);
 
             form.parsley().validate();
@@ -122,14 +135,20 @@
           
            // Registration was successful.
            success: function(data) {
-                   alert("Registered sucessfully");
-                   location.href="/login.html";
+                   $(".modal-animate").hide();
+		    $("h6.notification.notification-critical").hide();
+                    $("h6.notification.notification-critical2").hide();
+		    $("h6.notification.notification-success").show();
+		    $("#myform")[0].reset();
            },
 
            // Registration failed.
            error: function(xhr, errmsg, err) {
-               //alert(user_type);
-               alert("Invalid registration.");
+               //hide spinner, show error modal
+	    $(".modal-animate").hide();
+	    $("h6.notification.notification-success").hide();
+            $("h6.notification.notification-critical2").hide();
+               $("h6.notification.notification-critical").show();
            }
        });
        
@@ -137,7 +156,10 @@
        
        else
        {
-        alert('Passwords Do Not Match');
+        $(".modal-animate").hide();
+        $("h6.notification.notification-success").hide();
+        $("h6.notification.notification-critical").hide();
+        $("h6.notification.notification-critical2").show();
        }
       
 
@@ -152,6 +174,12 @@
         
 	  <div id="contentleft">
 					<h2> Register</h2>
+    <div id="notifications">
+        <h6 class="notification notification-critical" role="alert">Some information you entered isn't right.</h6>
+        <h6 class="notification notification-critical2" role="alert">Passwords do not match.</h6>
+	<h6 class="notification notification-success" role="alert">You have successfully created a username</h6>
+    </div>
+                                        
 		<form name="tracform" id="myform" data-parsley-validate>
 		  <p>
 		      <label>Username:</label> 
@@ -185,26 +213,42 @@
             </div>
     </div>
 
-    <div id="footer">
-        <div class="content">
-	        <a href="/en/home.html">
-                <img alt="Logo" title="traclogo" class="cq-dd-image" 
-                     src="{% static "img/traclogo_small.png" %}">
-			</a>
-            <br><br>
+<!--Footer Addition -->
+ <div id="footer2">
+    <div class="row">
 
-			<div class="contactModule bottom">
-			    <span class="copyright">&copy; 2014 Timing and Racing Around the Clock LLC. All rights reserved.</span>
-				<span class="links">
-				    <a href="" target="_new">Locations</a>
-					<a href="l" target="_new">Legal &amp; Privacy Notices</a>
-					<a href="" target="_new">Contact Us</a>
-				</span>
-			</div>
-        </div>
+      <div class="left">
+        <img class="footer-img" src={% static "img/trac_small.gif" %} alt="TRAC" aria-hidden="true" >
+       
+      </div>
+      <div class="col-md-3">
+              
+        <ul class="list-reset">
+
+<a href="https://www.facebook.com/timingracing"><img src={% static "img/facebook.png" %}></a>
+           <a href="http://youtu.be/9OxhM_fiHWo"><img src={% static "img/youtube.png" %} width="50px"></a>
+              <a href="https://angel.co/timing-and-racing-around-the-clock"><img src={% static "img/angellist.png" %}></a>
+       </ul>
+      </div>
+      <div class="col-md-3">
+                <ul class="list-reset">
+                    <li><a href="/#bg3" class="scrollto" rel="bg3">About</a></li>
+                    <li><a href="/#bg4" class="scrollto" rel="bg4">Frequently Asked Questions</a></li>
+          <li><a href="mailto:info@trac-us.com">Contact us</a></li>
+        </ul>
+      </div>
+
+      <div class="col-md-3">
+        
+        <address>
+          Timing and Racing Around the Clock<br>
+          1871<br>
+          222 W. Merchandise Mart Plaza<br>
+          Chicago, IL 60654<br><br>
+        </address>
+      </div>
+
     </div>
-          
-  </div>
 
     
 </body>

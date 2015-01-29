@@ -178,6 +178,13 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         """Assigns a manager to the workout before it is saved."""
         obj.manager = self.request.user
 
+    def post_save(self, obj, created):
+        """Assigns reader to workout after it saves"""
+        t=TimingSession.objects.latest('id')
+        r=Reader.objects.all()
+        t.readers.add(*r)
+        t.save()    
+
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))

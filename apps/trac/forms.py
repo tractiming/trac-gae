@@ -4,7 +4,12 @@ from django import forms
 
 class TimingSessionForm(forms.ModelForm):
     name = forms.CharField()
-
+    comment = forms.CharField()
+    rest_time = forms.IntegerField()
+    track_size = forms.IntegerField()
+    interval_distance= forms.IntegerField()
+    interval_number = forms.IntegerField()
+    
     def __init__(self, user, *args, **kwargs):
         super(TimingSessionForm, self).__init__(*args, **kwargs)
         self.fields['readers'] = forms.ModelMultipleChoiceField(
@@ -12,7 +17,7 @@ class TimingSessionForm(forms.ModelForm):
 
     class Meta:
         model = TimingSession
-        fields = ('name', 'start_time', 'stop_time', 'readers', )
+        fields = ('name', 'start_time', 'stop_time','comment','rest_time','track_size','interval_distance','interval_number','filter_choice','readers', )
         widgets = {'start_time': forms.widgets.DateTimeInput(), 
                    'stop_time': forms.widgets.DateTimeInput()}
 
