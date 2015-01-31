@@ -35,7 +35,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'username', 'tags',)
+        fields = ('first_name', 'last_name', 'username', 'tags', 'id')
 
 class TagSerializer(FilterRelatedMixin, serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
