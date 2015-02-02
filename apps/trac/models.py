@@ -136,7 +136,7 @@ class TimingSession(models.Model):
                 t2 = times[i+1].time+timezone.timedelta(milliseconds=times[i+1].milliseconds)
                 dt = t2-t1
                 if dt > datetime.timedelta(seconds=modified_constant):
-					filtered_interval.append([decimal.Decimal(dt.total_seconds()).quantize(THREEPLACES)])
+					filtered_interval.append([float(decimal.Decimal(dt.total_seconds()).quantize(THREEPLACES))])
             filtered_counter = range(1,len(filtered_interval)+1)    
             
             # non filtered option
@@ -144,7 +144,7 @@ class TimingSession(models.Model):
                 t1 = times[i].time+timezone.timedelta(milliseconds=times[i].milliseconds)
                 t2 = times[i+1].time+timezone.timedelta(milliseconds=times[i+1].milliseconds)
                 dt = t2-t1
-                interval.append([decimal.Decimal(dt.total_seconds()).quantize(THREEPLACES)])
+                interval.append([float(decimal.Decimal(dt.total_seconds()).quantize(THREEPLACES))])
                 counter = range(1,len(interval)+1)   
             
             #mean = numpy.mean(interval)
