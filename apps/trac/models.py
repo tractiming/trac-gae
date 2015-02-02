@@ -4,6 +4,8 @@ from django.utils import timezone
 #import numpy
 import time
 import datetime
+import decimal
+THREEPLACES = (decimal.Decimal(10)**(-3))
 
 class Tag(models.Model):
     """An RFID Tag. Has a name and belongs to one user."""
@@ -134,7 +136,7 @@ class TimingSession(models.Model):
                 t2 = times[i+1].time+timezone.timedelta(milliseconds=times[i+1].milliseconds)
                 dt = t2-t1
                 if dt > datetime.timedelta(seconds=modified_constant):
-					filtered_interval.append([round(dt.total_seconds(), 3)])
+					filtered_interval.append([decimal.Decimal(dt.total_seconds()).quantize(THREEPLACES)])
             filtered_counter = range(1,len(filtered_interval)+1)    
             
             # non filtered option
@@ -142,7 +144,7 @@ class TimingSession(models.Model):
                 t1 = times[i].time+timezone.timedelta(milliseconds=times[i].milliseconds)
                 t2 = times[i+1].time+timezone.timedelta(milliseconds=times[i+1].milliseconds)
                 dt = t2-t1
-                interval.append([round(dt.total_seconds(), 3)])
+                interval.append([decimal.Decimal(dt.total_seconds()).quantize(THREEPLACES)])
                 counter = range(1,len(interval)+1)   
             
             #mean = numpy.mean(interval)
