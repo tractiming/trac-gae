@@ -1,30 +1,16 @@
 from django.contrib.auth.models import User
 from django.utils import simplejson as json
 from rest_framework import serializers
-import decimal
 
 from trac.models import (TimingSession, Tag, Reader, AthleteProfile,
                          CoachProfile)
 from trac.util import is_coach, is_athlete
 
-class fakefloat(float):
-    
-    def __init__(self, value):
-        self._value = value
-
-    def __repr__(self):
-        return str(self._value)
-
-def defaultencode(o):
-    if isinstance(o, decimal.Decimal):
-        return fakefloat(o)
-    raise TypeError(repr(o)+" is not JSON serializable")
-
 class JSONReadOnlyField(serializers.Field):
     """A custom serializer for rendering JSON."""
 
     def to_native(self, obj):
-        return json.dumps(obj, encoding="utf8", default=defaultencode)
+        return json.dumps(obj, encoding="utf8")
 
     def from_native(self, value):
         return json.loads(value)
