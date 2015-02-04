@@ -54,6 +54,7 @@
 	$(document).ready(function(){
 	if (sessionStorage.usertype == 'athlete'){
 		$("a#create.scrollto").hide();
+		$("li.readers").hide();
 		}
 	})
 	</script>
@@ -136,6 +137,7 @@
   <div id="dropdown-1" class="dropdown dropdown-tip">
     <ul class="dropdown-menu">
       <li><a class="settings" href="/settings.html">Settings</a></li>
+      <li class="readers"><a class="readers" href="/readers.html">Readers</a></li>
       <li class="dropdown-divider"></li>
       <li><a class="logout">Log Out</a></li>
     </ul>

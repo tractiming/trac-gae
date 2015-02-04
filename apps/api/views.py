@@ -23,6 +23,7 @@ from serializers import (UserSerializer, RegistrationSerializer,
 from trac.models import TimingSession, AthleteProfile, CoachProfile
 from trac.models import Tag, Reader, TagTime
 from trac.util import is_athlete, is_coach
+from django.http import Http404
 
 
 class JSONResponse(HttpResponse):
@@ -43,12 +44,12 @@ class verifyLogin(views.APIView):
 		try:
 			token = AccessToken.objects.get(token=data['token'])
 		except: #ObjectDoesNotExist:
-			return HttpResponse(status.HTTP_404_NOT_FOUND)
+			return Http404
 		
 		#Is the Token Valid?
 		
 		if token.expires < timezone.now():
-			return HttpResponse(status.HTTP_400_BAD_REQUEST)
+			return Http404
 		else:
 			return HttpResponse(status.HTTP_200_OK)
 

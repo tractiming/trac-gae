@@ -139,6 +139,7 @@
                     // Get the access token and store client side.
                     var access_token = data.access_token;
                     sessionStorage.setItem('access_token', access_token);
+                    sessionStorage.setItem('username',username);
                      $.ajax({
                     url: "/api/userType/",
                     //force to handle it as text

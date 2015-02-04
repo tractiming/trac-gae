@@ -176,7 +176,7 @@ form textarea {
   box-shadow: inset 1px 1px 0 0 rgba(0, 0, 0, 0.1);
   border: 1px solid #aaa;
   font-size: 15px;
-  padding: 5px 3px;
+  padding: 0px 0px 6px 0px;
   width: 100%; }
 form input[type=submit] {
   cursor: pointer; }
@@ -411,7 +411,7 @@ border-color: #c72e2e;
           
      div.parallax div#log #contentleft {
      background-color: #F0B922;
-     border-radius: 15px;
+     border-radius: 5px;
      border: 2px solid;
      opacity:.9;
       height:300px;
@@ -448,7 +448,7 @@ border-color: #c72e2e;
           
      div.parallax div#regi #contentleft {
      background-color: #F0B922;
-     border-radius: 15px;
+     border-radius: 5px;
      border: 2px solid;
      opacity:.95;
       height:500px;
@@ -554,6 +554,7 @@ div.parallax div#regi #contentleft div#notifications .notification.notification-
 
           div.parallax div#home div.content .pictures .right{
             float:right;
+            padding-top:20px;
             width: 89px;
             height: 100px;
           }
@@ -588,6 +589,7 @@ div.parallax div#regi #contentleft div#notifications .notification.notification-
       div.parallax div#create {
         
         padding-top:100px;} }
+              div.parallax div#create select#choice{border-radius:5px;}
         
         div.parallax div#create div#notifications {
             margin-left:auto;
@@ -649,8 +651,13 @@ div.parallax div#create div#notifications .notification.notification-success {
     div.parallax div#create #contentleft #myform .button-container{padding:40px 2px 0;}
     div.parallax div#create #contentleft #myform .button-container input{float:none; width:80px; background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
      
+       div.parallax div#create #contentleft #coachform .button-container{padding:40px 2px 0;}
+    div.parallax div#create #contentleft #coachform .button-container input{float:none; width:80px; background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
      
-     
+        
+       div.parallax div#create #contentleft #readerform .button-container{padding:40px 2px 0;}
+    div.parallax div#create #contentleft #readerform .button-container input{float:none; width:80px; background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
+       
      
           div.parallax div#create #contentright {
             display: inline-table;
