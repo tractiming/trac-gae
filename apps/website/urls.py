@@ -11,4 +11,5 @@ urlpatterns = patterns('',
     url(r'^create', views.create, name='create'),
     url(r'^home', views.home, name='home'),
     url(r'^settings', views.settings, name='settings'),
+    url(r'^readers', views.readers, name='readers'),
 )
