@@ -739,7 +739,31 @@ transition: font-size 0.3s ease;}
         div.parallax div#bg2 div.content {
           padding-top: 80px;
           padding-bottom: 80px; } }
-          div.parallax div#bg2 div.content#results{}
+          div.parallax div#bg2 div.content div.inner{ 
+          width:100%;
+          overflow-x:scroll;
+  overflow-y:visible;
+ 
+  }
+          div.parallax div#bg2 div.content div.inner table#results{  table-layout: fixed; 
+}
+ div.parallax div#bg2 div.content div.inner table#results td {
+  vertical-align: top;
+  
+  padding:10px;
+  width:100px;
+}
+ div.parallax div#bg2 div.content div.inner table#results th {
+  vertical-align: top;
+  
+  padding:10px;
+  width:100px;
+  position:absolute;
+  *position: relative; /*ie7*/
+  left:0; 
+  width:100px;
+}
+
           div.parallax div#bg2 div#notifications {
             margin-left:auto;
             margin-right:auto;

@@ -12,8 +12,9 @@
 	  <div class="content">
 
  <h2> Live Results</h2>
+ <div class="inner">
     <table id="results" style="width:100%"></table>
-    
+    </div>
     <div id="notifications">
         <h6 class="notification notification-default" role="alert">There is currently no data for the most recent event.</h6>
     </div>
@@ -99,18 +100,18 @@
 			      var sec = (subinterval-(min*60));
 			     // $('#results').append('<td>');
 			      //This if statements adds the preceding 0 to any second less than 10
-			      
-			      if (sec<10) {
-				$('#results tr:last').append('<td>'+ min + ':0'+ sec +'</td>');
-			      }
-			      else
-			      {
-			      $('#results tr:last').append('<td>'+ min + ':'+ sec +'</td>');
-			      }
+			      $('#results tr:last').append('<td>'+subinterval+'</td>');
+			      //if (sec<10) {
+				//$('#results tr:last').append('<td>'+ min + ':0'+ sec +'</td>');
+			      //}
+			      //else
+			      //{
+			      //$('#results tr:last').append('<td>'+ min + ':'+ sec +'</td>');
+			      //}
 			      finaltime = finaltime + subinterval;
 			      if (i==0) {
 				//Puts the word 'split #' on table
-				$('#results tr:first').append('<td>Split '+(k+1)+'</td>');
+				$('#results tr:first').append('<td>Split</td>');
 			      }
 			    }
 			    
@@ -119,19 +120,19 @@
 			  
 			  
 			  
-			   var minfinal = Math.floor(finaltime/60);
-			   var secfinal = (finaltime-(minfinal*60));
-			   //$('#results').append('<td>');
-			   if (secfinal<10) {
-			    $('#results tr:last').append( minfinal + ':0'+ secfinal );
-			   }
-			   else{
-			   $('#results tr:last').append( minfinal + ':'+ secfinal);
-			   };
-			   if (i==0) {
-				//adds word final time to table header
-				$('#results tr:first').append('<td>Final Time</td>');
-			      }
+			   //var minfinal = Math.floor(finaltime/60);
+			   //var secfinal = (finaltime-(minfinal*60));
+			   ////$('#results').append('<td>');
+			   //if (secfinal<10) {
+			    //$('#results tr:last').append( minfinal + ':0'+ secfinal );
+			   //}
+			   //else{
+			   //$('#results tr:last').append( minfinal + ':'+ secfinal);
+			   //};
+			   //if (i==0) {
+				////adds word final time to table header
+				//$('#results tr:first').append('<td>Final Time</td>');
+			      //}
 			//$('#results').append('' );
 			
 			}
@@ -245,15 +246,15 @@ function JSONToCSVConvertor(JSONData, ReportTitle, ShowLabel) {
 			      var subinterval = json.runners[i].interval[j][k];
 			      var min = Math.floor(subinterval/60);
 			      var sec = (subinterval-(min*60));
-			      
+			      	CSV += subinterval+',';
 			      //This if statements adds the preceding 0 to any second less than 10
-			      if (sec<10) {
-				CSV += min + ':0'+sec+',';
-			      }
-			      else
-			      {
-			      CSV += min + ':'+sec+',';
-			      }
+			      //if (sec<10) {
+				//CSV += min + ':0'+sec+',';
+			      //}
+			      //else
+			      //{
+			      //CSV += min + ':'+sec+',';
+			      //}
 			      
 			    }
 			  }

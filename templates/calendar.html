@@ -160,14 +160,14 @@ $(document).ready(function() {
 			      var sec = (subinterval-(min*60));
 			     // $('#results').append('<td>');
 			      //This if statements adds the preceding 0 to any second less than 10
-			      
-			      if (sec<10) {
-				$('#results tr:last').append('<td>'+ min + ':0'+ sec +'</td>');
-			      }
-			      else
-			      {
-			      $('#results tr:last').append('<td>'+ min + ':'+ sec +'</td>');
-			      }
+			      $('#results tr:last').append('<td>'+ subinterval +'</td>');
+			      //if (sec<10) {
+				//$('#results tr:last').append('<td>'+ min + ':0'+ sec +'</td>');
+			      //}
+			      //else
+			      //{
+			      //$('#results tr:last').append('<td>'+ min + ':'+ sec +'</td>');
+			      //}
 			      finaltime = finaltime + subinterval;
 			      if (i==importantRow) {
 				//Puts the word 'split #' on table
@@ -265,17 +265,17 @@ $(document).ready(function() {
 			      //interate over subarrays and pull out each individually and print
 			      //do a little math to move from seconds to minutes and seconds
 			      var subinterval = json.runners[i].interval[j][k];
-			      var min = Math.floor(subinterval/60);
-			      var sec = (subinterval-(min*60));
-			      
+			     // var min = Math.floor(subinterval/60);
+			      //var sec = (subinterval-(min*60));
+			      CSV += subinterval+',';
 			      //This if statements adds the preceding 0 to any second less than 10
-			      if (sec<10) {
-				CSV += min + ':0'+sec+',';
-			      }
-			      else
-			      {
-			      CSV += min + ':'+sec+',';
-			      }
+			      //if (sec<10) {
+				//CSV += min + ':0'+sec+',';
+			      //}
+			      //else
+			      //{
+			      //CSV += min + ':'+sec+',';
+			      //}
 			      
 			    }
 			  }
