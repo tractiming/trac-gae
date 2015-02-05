@@ -28,6 +28,7 @@
 	</script>
 	<script>
     $(document).ready(function() {
+		loadworkouts();
       //on submit prevent default of form and show spinner, 
         $("#myform").on('submit', function(e){
             e.preventDefault();
@@ -42,7 +43,10 @@
 	             var title=$('input[id=title]').val();
 		      var start_date=$('input[id=start_date]').val();
 		     var end_date=$('input[id=end_date]').val();
-
+		     var distance=$('input[id=distance]').val();
+		      var size=$('input[id=size]').val();
+		     var filter=$('#filter option:selected').val();
+			alert(filter);
 	      $.ajax({
            type: "POST",
            dataType:'json',
@@ -52,6 +56,12 @@
                name: title,
                start_time: start_date,
                stop_time: end_date,
+               rest_time: '0',
+               track_size: size,
+               interval_distance: distance,
+               interval_number:'0',
+               filter_choice:filter,
+               
            },
            // Login was successful.
            success: function(data) {
@@ -60,6 +70,7 @@
 		    $("h6.notification.notification-critical").hide();
 		    $("h6.notification.notification-success").show();
 		    $("#myform")[0].reset();
+		    loadworkouts();
                    
            },
 
@@ -77,7 +88,57 @@
         });
     });
 </script>
+	<script>
 	
+	function loadworkouts(){
+			 $('#results').empty();
+		  //alert(path);
+		  //alert(path);
+		   $.ajax({
+                     url: "/api/sessions/",
+		     headers: {Authorization: "Bearer " + sessionStorage.access_token},
+                    //force to handle it as text
+                    dataType: "text",
+                    success: function(data) {
+                        //alert(data);
+                        //data downloaded so we call parseJSON function 
+                        //and pass downloaded data
+                        
+                        var json = $.parseJSON(data);
+                       //alert(json[0].id_str)
+                       for (var ii=0;json.length;ii++){
+						   //alert(ii);
+						   name = json[ii].name;
+						   time = json[ii].start_time;
+						   distance = json[ii].interval_distance;
+						   track = json[ii].track_size;
+						   time = time.slice(0,10);
+						   filter= json[ii].filter_choice;
+						  if (ii==0) {
+			    $('#results').append('<tr><td>Workout Name</td><td>Date</td><td>Distance</td><td>Track</td><td>Filtered</td></tr>');
+			    $('#results').append('<tr class="odd"><td>'+name+'</td><td>'+time+'</td><td>'+distance+'</td><td>'+track+'</td><td>'+filter+'</td></tr>');
+			    //alert(name);
+			  }
+			  else if((ii)%2 ==0) {
+			    $('#results').append('<tr class="odd"><td>'+name+'</td><td>'+time+'</td><td>'+distance+'</td><td>'+track+'</td><td>'+filter+'</td></tr>');
+			  }
+			  else{
+			    $('#results').append('<tr><td>'+name+'</td><td>'+time+'</td><td>'+distance+'</td><td>'+track+'</td><td>'+filter+'</td></tr>');
+			    //alert(name);
+			  }
+						   }
+
+			}
+			
+			
+			
+                    });
+		   
+}
+
+	
+	
+	</script>
 	
   	<style>
 		#myform{
@@ -123,32 +184,25 @@
 		  </p>
 		     <p>
 		      <label for="">Interval Distance:</label> 
-		      <input data-progression="" type="text" data-helper="Distance (in miles) of the repeat being run. I.E. in 4x400, put .25 " id="distance" value="" placeholder=""/>
+		      <input data-progression="" type="text" data-helper="Distance (in meters) of the repeat being run. I.E. in 4x400, put 400 " id="distance" value="" placeholder=""/>
 		  </p>
 		     <p>
-		      <label for="">Number of Repeats:</label> 
-		      <input data-progression="" type="text" data-helper="Quantity of thee repeat being run. I.E. in 4x400, put 4 " id="repeats" value="" placeholder=""/>
+		      <label for="">Track Size:</label> 
+		      <input data-progression="" type="text" data-helper="Size of the track you are using, I.E. 200, 300, 400" id="size" value="" placeholder=""/>
 		  </p>
 		     
 		     <p>
 		      
-		      <label>Reader #:</label>
+		      <label>Filter Splits?</label>
 						<span>
-							<select>
-									<option>Reader 1 (ID# XXXX)</option>
+							<select id="filter">
+									<option value="true">Yes</option>
+									<option value="false">No</option>
 							</select>
 						</span>
 		     </p>
 		    <br>
-		     <p>
-		      <label>Reader Position:</label>
-						<span>
-							<select>
-									<option>Start/Finish</option>
-									<option>Finish</option>
-							</select>
-						</span>
-		     </p>
+		    
 		     
 		          <div class="button-container">
 		    <input type="submit" name="" class="validate" id="submit" value="Save" />
@@ -163,9 +217,12 @@
 				
     </div>
                    <div id="contentright">
-We currently only support single reader workouts. <br><br> Readers need to be positioned on either a start/finish line or a finish line.
-<br><br>
-<img src="{% static "img/track1.png" %}" width="100%">
+					   Recent Workouts
+				 <div class ="outer">
+      <div class="inner">
+       <table id="results" style="width:100%"></table>
+       </div>
+       </div>
               </div>
     
     
