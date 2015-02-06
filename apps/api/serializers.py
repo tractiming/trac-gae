@@ -42,7 +42,7 @@ class TagSerializer(FilterRelatedMixin, serializers.ModelSerializer):
 
     class Meta:
         model = Tag
-        fields = ('id_str', 'user', 'username')
+        fields = ('id', 'id_str', 'user', 'username')
 
     def filter_user(self, queryset):
         # Only show the users belonging to the current user,

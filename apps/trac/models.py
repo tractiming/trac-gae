@@ -8,7 +8,7 @@ import datetime
 class Tag(models.Model):
     """An RFID Tag. Has a name and belongs to one user."""
     id_str = models.CharField(max_length=50)
-    user = models.ForeignKey(User, unique=False, null=True, blank=True)
+    user = models.ForeignKey(User)
 
     def __unicode__(self):
         return "id=%s, user=%s" %(self.id_str, 

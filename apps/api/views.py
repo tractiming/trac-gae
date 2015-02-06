@@ -133,6 +133,11 @@ class TagViewSet(viewsets.ModelViewSet):
         
         return tags
 
+    def create(self, request, *args, **kwargs):
+        if is_athlete(self.request.user):
+            request.DATA[u'user'] = self.request.user.pk
+        return super(TagViewSet, self).create(request, *args, **kwargs)
+
 
 class AthleteViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
