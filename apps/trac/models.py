@@ -115,7 +115,7 @@ class TimingSession(models.Model):
                 # Convert the number to a string to prevent round-off error.
                 str_dt = str(round(dt.total_seconds(), 3))
                 interval.append([str_dt])
-                counter = range(1,len(interval)+1)   
+            counter = range(1,len(interval)+1)   
 
             # Filtering algorithm.
             if self.filter_choice:
