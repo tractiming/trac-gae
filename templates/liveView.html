@@ -65,32 +65,10 @@
 			}
 			else {
 			    //hide spinner, show button, show results
+			    $("div.inner").show();
 			$(".modal-animate").hide();
+			$("h6.notification.notification-default").hide();
 			  $("input#submit.gen_btn").show();
-			  
-			   
-			  //then display the workout
-			  var longest = 0;
-			var importantRow;
-			for (var ii = 0; ii < json.runners.length; ii++) {
-			  for (var jj = 0; jj < json.runners[ii].interval.length; jj++){
-			    if (jj == 0) {
-			      //initilize temporary variable
-			      var tempLength = json.runners[ii].interval[jj].length;
-			    }
-			    else{
-			      tempLength = tempLength + json.runners[ii].interval[jj].length;
-			    }  
-			 }
-			  if (longest < tempLength) {
-			    longest = tempLength;
-			    importantRow = ii;
-			  } 
-			
-			}
-			  
-
-			  
 			$('#results').empty();
 			for (var i=0; i < json.runners.length; i++) {
 			  //print names and enter name array
@@ -133,9 +111,9 @@
 			      //$('#results tr:last').append('<td>'+ min + ':'+ sec +'</td>');
 			      //}
 			      finaltime = finaltime + subinterval;
-			      if (i==importantRow) {
+			      if (i==0) {
 				//Puts the word 'split #' on table
-				$('#results tr:first').append('<td>' + 'Split' + '</td>');
+				$('#results tr:first').append('<td>Split</td>');
 			      }
 			    }
 			    

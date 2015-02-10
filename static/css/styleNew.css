@@ -626,7 +626,20 @@ div.parallax div#create div#notifications .notification.notification-success {
   background-position: 12px 12px;
   border-color: #1b9e1b;
 }
-        
+div.parallax div#create div#notifications .notification.update-success {
+  background-color: #f7fff7;
+  background-position: 12px 12px;
+  border-color: #1b9e1b;
+}
+div.parallax div#create div#notifications .notification.delete-success {
+  background-color: #f7fff7;
+  background-position: 12px 12px;
+  border-color: #1b9e1b;
+}
+
+div.parallax div#create div#notifications .notification.notification-warning{background-color:#fffcf7;background-position:12px -188px;border-color:#f8981f}
+div.parallax div#create div#notifications .notification.notification-warning .container {padding-left:10px; padding-top:10px; width:175px;}
+div.parallax div#create div#notifications .notification.notification-warning .container button{width:60px; background:#f8981f; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; }
         
     div.parallax div#create #contentleft {
      
@@ -648,9 +661,16 @@ div.parallax div#create div#notifications .notification.notification-success {
     /*div.parallax div#create #contentleft div.form-row{font-size:17px; color:#ffffff; overflow:hidden; margin:10px 0 12px 0;}
     div.parallax div#create #contentleft div.form-row label{float:left; color:#ffffff; margin:0 10px 0 0;}
     div.parallax div#create #contentleft div.form-row  span{float:left;}*/
-    div.parallax div#create #contentleft #myform .button-container{padding:40px 2px 0;}
-    div.parallax div#create #contentleft #myform .button-container input{float:none; width:80px; background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
-     
+      div.parallax div#create #contentleft #myform p#idnumber{display:none; }
+    div.parallax div#create #contentleft #myform .button-container{padding:40px 2px 0; padding-bottom:35px;}
+        div.parallax div#create #contentleft #myform .button-container-two{display:none; padding:40px 2px 0; padding-bottom:35px;}
+        div.parallax div#create #contentleft #myform .button-container-two input#create{float:left; width:150px; background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
+
+    div.parallax div#create #contentleft #myform .button-container input#submit{float:none; width:80px; background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
+         div.parallax div#create #contentleft #myform .button-container input#delete{display:none; float:left; width:80px; background:#c72e2e; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
+
+    div.parallax div#create #contentleft #myform .button-container input#update{display:none; float:right; width:80px; background:#1b9e1b; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
+
        div.parallax div#create #contentleft #coachform .button-container{padding:40px 2px 0;}
     div.parallax div#create #contentleft #coachform .button-container input{float:none; width:80px; background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
      
@@ -658,6 +678,8 @@ div.parallax div#create div#notifications .notification.notification-success {
        div.parallax div#create #contentleft #readerform .button-container{padding:40px 2px 0;}
     div.parallax div#create #contentleft #readerform .button-container input{float:none; width:80px; background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
        
+     
+     
      
           div.parallax div#create #contentright {
             display: inline-table;
@@ -743,6 +765,7 @@ transition: font-size 0.3s ease;}
           width:100%;
           overflow-x:scroll;
   overflow-y:visible;
+  display:none;
  
   }
           div.parallax div#bg2 div.content div.inner table#results{  table-layout: fixed; 

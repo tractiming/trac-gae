@@ -27,7 +27,7 @@
 
 	</script>
 	<script>
-    $(document).ready(function() {
+$(document).ready(function() {
 		loadworkouts();
       //on submit prevent default of form and show spinner, 
         $("#myform").on('submit', function(e){
@@ -35,11 +35,11 @@
 	    $(".modal-animate").show();
             var form = $(this);
 	    //validate that form is correclty filled out
-            form.parsley().validate();
+           
 
 	    //if valid perform ajax request
 	    
-            if (form.parsley().isValid()){
+            
 	             var title=$('input[id=title]').val();
 		      var start_date=$('input[id=start_date]').val();
 		     var end_date=$('input[id=end_date]').val();
@@ -68,6 +68,8 @@
 		    //hide spinner, success modal, and reset form
 		    $(".modal-animate").hide();
 		    $("h6.notification.notification-critical").hide();
+		    $("h6.notification.update-success").hide();
+		    $("h6.notification.delete-success").hide();
 		    $("h6.notification.notification-success").show();
 		    $("#myform")[0].reset();
 		    loadworkouts();
@@ -79,12 +81,14 @@
 	    //hide spinner, show error modal
 	    $(".modal-animate").hide();
 	    $("h6.notification.notification-success").hide();
+	     $("h6.notification.update-success").hide();
+		    $("h6.notification.delete-success").hide();
                $("h6.notification.notification-critical").show();
            }
            
       });
                
-            }
+            
         });
     });
 </script>
@@ -108,22 +112,24 @@
                        //alert(json[0].id_str)
                        for (var ii=0;json.length;ii++){
 						   //alert(ii);
+						   id = json[ii].id;
 						   name = json[ii].name;
-						   time = json[ii].start_time;
+						   start = json[ii].start_time;
+						   end = json[ii].stop_time;
 						   distance = json[ii].interval_distance;
 						   track = json[ii].track_size;
-						   time = time.slice(0,10);
+						  // time = time.slice(0,10);
 						   filter= json[ii].filter_choice;
 						  if (ii==0) {
-			    $('#results').append('<tr><td>Workout Name</td><td>Date</td><td>Distance</td><td>Track</td><td>Filtered</td></tr>');
-			    $('#results').append('<tr class="odd"><td>'+name+'</td><td>'+time+'</td><td>'+distance+'</td><td>'+track+'</td><td>'+filter+'</td></tr>');
+			    $('#results').append('<tr><td>ID</td><td>Workout Name</td><td>Start Date</td><td>End Date</td><td>Distance</td><td>Track</td><td>Filtered</td></tr>');
+			    $('#results').append('<tr class="odd"><td>'+id+'</td><td>'+name+'</td><td>'+start+'</td><td>'+end+'</td><td>'+distance+'</td><td>'+track+'</td><td>'+filter+'</td></tr>');
 			    //alert(name);
 			  }
 			  else if((ii)%2 ==0) {
-			    $('#results').append('<tr class="odd"><td>'+name+'</td><td>'+time+'</td><td>'+distance+'</td><td>'+track+'</td><td>'+filter+'</td></tr>');
+			    $('#results').append('<tr class="odd"><td>'+id+'</td><td>'+name+'</td><td>'+start+'</td><td>'+end+'</td><td>'+distance+'</td><td>'+track+'</td><td>'+filter+'</td></tr>');
 			  }
 			  else{
-			    $('#results').append('<tr><td>'+name+'</td><td>'+time+'</td><td>'+distance+'</td><td>'+track+'</td><td>'+filter+'</td></tr>');
+			    $('#results').append('<tr><td>'+id+'</td><td>'+name+'</td><td>'+start+'</td><td>'+end+'</td><td>'+distance+'</td><td>'+track+'</td><td>'+filter+'</td></tr>');
 			    //alert(name);
 			  }
 						   }
@@ -152,12 +158,215 @@
 			width:75%;
 		}
 	</style>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script>
+	  
+$("body").on('click', 'tr',function(){
+	//alert($(this).html());
+	var value = $(this).html();
+	$("input#delete").show();
+	$("input#update").show();
+	$("div.button-container-two").show();
+	$("input#create").show();
+	$("p#idnumber").show();
+	$("input#submit").hide();
+	$(value).each(function(index){
+		//alert( $(this).html() );
+		console.log( index+ ":"+ $(this).html());
+		if (index ==0)
+		{
+			var input =$('input#idnumber');
+			input.val($(this).html() );
+		}
+		else if (index ==1)
+		{
+			var input =$('input#title');
+			input.val($(this).html() );
+			}
+		else if (index ==2)
+		{
+			var input =$('input#start_date');
+			input.val($(this).html() );
+			}
+			else if (index ==3)
+		{
+			var input =$('input#end_date');
+			input.val($(this).html() );
+			}
+		else if (index ==4){
+			var input =$('input#distance');
+	input.val($(this).html() );
+	}
+		else if (index ==5){
+			var input =$('input#size');
+	input.val($(this).html() );}
+	
+	else if (index ==6){
+			var input =$('select#filter');
+	input.val($(this).html() );}
+
+	});
+	
 	
 
+	
+	
+	});
+	
+	
+	$("body").on('click', 'input#create',function(e){
+	//alert($(this).html());
+	  e.preventDefault();
+	  $("#myform")[0].reset();
+	var value = $(this).html();
+	$("input#delete").hide();
+	$("input#update").hide();
+	$("input#submit").show();
+	$("p#idnumber").hide();
+	$("input#create").hide();
+
+	});
+
+
+
+	$("body").on('click', 'input#delete',function(f){
+	//alert($(this).html());
+	  f.preventDefault();
+	  $("h6.notification.notification-warning").show();
+	  $("h6.notification.notification-critical").hide();
+	  		    $("h6.notification.notification-critical").hide();
+		    $("h6.notification.notification-success").hide();
+		     $("h6.notification.update-success").hide();
+	  
+	   $("body").on('click','button',function(event){
+	console.log("On:", event.target);
+	var value = $(this).html();
+	if (value == 'Yes'){ $(".modal-animate").show();
+	  
+	 var id=$('input[id=idnumber]').val();
+	//alert(id);
+	
+		//alert(filter);
+	      $.ajax({
+           type: "DELETE",
+           dataType:'json',
+           url: "/api/sessions/"+id,
+	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
+         
+           // Login was successful.
+           success: function(data) {
+		    //hide spinner, success modal, and reset form
+		    $(".modal-animate").hide();
+		    $("h6.notification.notification-critical").hide();
+		    $("h6.notification.notification-success").hide();
+		     $("h6.notification.update-success").hide();
+		    $("h6.notification.delete-success").show();
+		     $("h6.notification.notification-warning").hide();
+		    $("#myform")[0].reset();
+		    	$("input#delete").hide();
+	$("input#update").hide();
+	$("input#submit").show();
+	$("p#idnumber").hide();
+	$("input#create").hide();
+		    loadworkouts();
+                   
+           },
+
+           // Login request failed.
+           error: function(xhr, errmsg, err) {
+	    //hide spinner, show error modal
+	    $(".modal-animate").hide();
+	    $("h6.notification.notification-success").hide();
+	     $("h6.notification.notification-warning").hide();
+	      $("h6.notification.update-success").hide();
+		    $("h6.notification.delete-success").hide();
+               $("h6.notification.notification-critical").show();
+           }
+           
+      });}
+	else if(value =='Cancel'){
+		$(".modal-animate").hide();
+	    $("h6.notification.notification-success").hide();
+	    $("h6.notification.notification-warning").hide();
+              
+		}
+	
+	 });
+	  
+	  
+	
+	});
+	
+	
+		$("body").on('click', 'input#update',function(f){
+	//alert($(this).html());
+	  f.preventDefault();
+	   $(".modal-animate").show();
+	 var id=$('input[id=idnumber]').val();
+	 var title=$('input[id=title]').val();
+		      var start_date=$('input[id=start_date]').val();
+		     var end_date=$('input[id=end_date]').val();
+		     var distance=$('input[id=distance]').val();
+		      var size=$('input[id=size]').val();
+		     var filter=$('#filter option:selected').val();
+	
+		//alert(filter);
+	      $.ajax({
+           type: "PUT",
+           dataType:'json',
+           url: "/api/sessions/"+id,
+	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
+	   data: {
+               name: title,
+               start_time: start_date,
+               stop_time: end_date,
+               rest_time: '0',
+               track_size: size,
+               interval_distance: distance,
+               interval_number:'0',
+               filter_choice:filter,
+               
+           },
+
+           // Login was successful.
+           success: function(data) {
+		    //hide spinner, success modal, and reset form
+		    $(".modal-animate").hide();
+		    $("h6.notification.notification-critical").hide();
+		    $("h6.notification.notification-success").hide();
+		    $("h6.notification.delete-success").hide();
+		    $("h6.notification.update-success").show();
+		    $("#myform")[0].reset();
+		    	$("input#delete").hide();
+	$("input#update").hide();
+	$("input#submit").show();
+	$("p#idnumber").hide();
+	$("input#create").hide();
+		    loadworkouts();
+                   
+           },
+
+           // Login request failed.
+           error: function(xhr, errmsg, err) {
+	    //hide spinner, show error modal
+	    $(".modal-animate").hide();
+	    $("h6.notification.notification-success").hide();
+	     $("h6.notification.notification-warning").hide();
+	      $("h6.notification.update-success").hide();
+		    $("h6.notification.delete-success").hide();
+               $("h6.notification.notification-critical").show();
+           }
+           
+      });
+	
+	});
+
+
+</script>
 
 <div class="modal-animate hide">
     <div class="rotate"></div>
-
+	
 </div>
 
     <div id="create">  
@@ -165,11 +374,21 @@
 	  <div id="notifications">
         <h6 class="notification notification-critical" role="alert">Some information you entered isn't right.</h6>
 	<h6 class="notification notification-success" role="alert">You have successfully created a workout!</h6>
+	<h6 class="notification update-success" role="alert">You have successfully updated a workout!</h6>
+	<h6 class="notification delete-success" role="alert">You have successfully deleted a workout!</h6>
+	<h6 class="notification notification-warning" role="alert">Are you sure? <div class="container" id="screen-selector"><button href="#" type="button" id="warning-yes">Yes</button><button id="warning-no" href="#" type="button" style="float:right">Cancel</button></div></h6>
     </div>
 	  
     <div id="contentleft">
 					
 		<form name="tracform" id="myform" method="POST" data-parsley-validate>
+			<div class="button-container-two">
+		    <input type="submit" name="" class="validate" id="create" value="+ Create New" />
+		    </div>
+		    <p id="idnumber">
+		      <label for="">Workout ID:</label> 
+		      <input type="text" id="idnumber" value="" placeholder="" required data-parsley-group="block1" readonly/>
+		  </p>
 		  <p>
 		      <label for="">Workout Title:</label> 
 		      <input data-progression="" type="text" data-helper="Title of the workout to help you identify it later" id="title" value="" placeholder="" required data-parsley-group="block1" />
@@ -205,8 +424,11 @@
 		    
 		     
 		          <div class="button-container">
+			<input type="submit" name="" class="validate" id="delete" value="Delete" />
 		    <input type="submit" name="" class="validate" id="submit" value="Save" />
+		    <input type="submit" name="" class="validate" id="update" value="Update" />
 	                         </div>
+	                         
 		</form>
 		
 				
