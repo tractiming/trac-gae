@@ -8,6 +8,7 @@
 
 
 $(document).ready(function() {
+  $(".modal-animate").show();
   //import 3rd party calendar, but first import events--async call and reformat dates to fit 3rd party calendar
       $.ajax({
                     url: "/api/sessions/",
@@ -36,7 +37,7 @@ $(document).ready(function() {
 		});
 		   
 
-
+		$(".modal-animate").hide();
 
                
             
