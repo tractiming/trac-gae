@@ -6,16 +6,11 @@
 //ajax for reader information
 $(document).ready(function() {
 		loadreader();
-        $("#readerform").on('submit', function(e){
+        $("#myform").on('click','#submit', function(e){
             e.preventDefault();
 	    $(".modal-animate").show();
-            var form = $(this);
 
-            form.parsley().validate();
 
-	    
-	    
-            if (form.parsley().isValid()){
 	            // var title=$('input[id=title]').val();
 	           var name=$('input[id=readername]').val();
 		      var idstr=$('input[id=readernum]').val();
@@ -38,7 +33,7 @@ $(document).ready(function() {
 		    $(".modal-animate").hide();
 		    $("h6.notification.notification-critical").hide();
 		    $("h6.notification.notification-success").show();
-		    $("#readerform")[0].reset();
+		    $("#myform")[0].reset();
 			   loadreader();
            },
 
@@ -51,7 +46,7 @@ $(document).ready(function() {
            
       });
                
-            }
+            
         });
     });
 
@@ -59,6 +54,184 @@ $(document).ready(function() {
 </script>
 	    <script>
 
+
+$("body").on('click', 'tr',function(){
+	//alert($(this).html());
+	var value = $(this).html();
+	$("input#delete").show();
+	$("input#update").show();
+	$("div.button-container-two").show();
+	$("input#create").show();
+	$("p#idnumber").show();
+	$("input#submit").hide();
+	$(value).each(function(index){
+		//alert( $(this).html() );
+		console.log( index+ ":"+ $(this).html());
+		if (index ==0)
+		{
+			var input =$('input#idnumber');
+			input.val($(this).html() );
+		}
+		else if (index ==1)
+		{
+			var input =$('input#readername');
+			input.val($(this).html() );
+			}
+		else if (index ==2)
+		{
+			var input =$('input#readernum');
+			input.val($(this).html() );
+			}
+
+	});
+	
+	
+
+	
+	
+	});
+	
+	$("body").on('click', 'input#create',function(e){
+	//alert($(this).html());
+	  e.preventDefault();
+	  $("#myform")[0].reset();
+	var value = $(this).html();
+	$("input#delete").hide();
+	$("input#update").hide();
+	$("input#submit").show();
+	$("p#idnumber").hide();
+	$("input#create").hide();
+
+	});
+
+
+
+	$("body").on('click', 'input#delete',function(f){
+	//alert($(this).html());
+	  f.preventDefault();
+	  $("h6.notification.notification-warning").show();
+	  $("h6.notification.notification-critical").hide();
+	  $("h6.notification.delete-success").hide();
+	  		    $("h6.notification.notification-critical").hide();
+		    $("h6.notification.notification-success").hide();
+		     $("h6.notification.update-success").hide();
+	  
+	   $("body").on('click','button',function(event){
+	console.log("On:", event.target);
+	var value = $(this).html();
+	if (value == 'Yes'){ $(".modal-animate").show();
+	  
+	 var id=$('input[id=idnumber]').val();
+	//alert(id);
+	
+		//alert(filter);
+	      $.ajax({
+           type: "DELETE",
+           dataType:'json',
+           url: "/api/readers/"+id,
+	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
+         
+           // Login was successful.
+           success: function(data) {
+		    //hide spinner, success modal, and reset form
+		    $(".modal-animate").hide();
+		    $("h6.notification.notification-critical").hide();
+		    $("h6.notification.notification-success").hide();
+		     $("h6.notification.update-success").hide();
+		    $("h6.notification.delete-success").show();
+		     $("h6.notification.notification-warning").hide();
+		    $("#myform")[0].reset();
+		    	$("input#delete").hide();
+	$("input#update").hide();
+	$("input#submit").show();
+	$("p#idnumber").hide();
+	$("input#create").hide();
+		    loadreader();
+                   
+           },
+
+           // Login request failed.
+           error: function(xhr, errmsg, err) {
+	    //hide spinner, show error modal
+	    $(".modal-animate").hide();
+	    $("h6.notification.notification-success").hide();
+	     $("h6.notification.notification-warning").hide();
+	      $("h6.notification.update-success").hide();
+		    $("h6.notification.delete-success").hide();
+               $("h6.notification.notification-critical").show();
+           }
+           
+      });
+      }
+	else if(value =='Cancel'){
+		$(".modal-animate").hide();
+	    $("h6.notification.notification-success").hide();
+	    $("h6.notification.notification-warning").hide();
+              
+		}
+	
+	 });
+	  
+	  
+	
+	});
+	
+	
+		$("body").on('click', 'input#update',function(f){
+	//alert($(this).html());
+	  f.preventDefault();
+	   $(".modal-animate").show();
+	 var id=$('input[id=idnumber]').val();
+	           var name=$('input[id=readername]').val();
+		      var idstr=$('input[id=readernum]').val();
+
+	
+		//alert(filter);
+	      $.ajax({
+           type: "PUT",
+           dataType:'json',
+           url: "/api/readers/"+id,
+	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
+	   data: {
+               name: name,
+               id_str:idstr,
+               
+           },
+
+           // Login was successful.
+           success: function(data) {
+		    //hide spinner, success modal, and reset form
+		    $(".modal-animate").hide();
+		    $("h6.notification.notification-critical").hide();
+		    $("h6.notification.notification-success").hide();
+		    $("h6.notification.delete-success").hide();
+		    $("h6.notification.update-success").show();
+		    $("#myform")[0].reset();
+		    	$("input#delete").hide();
+	$("input#update").hide();
+	$("input#submit").show();
+	$("p#idnumber").hide();
+	$("input#create").hide();
+		    loadreader();
+                   
+           },
+
+           // Login request failed.
+           error: function(xhr, errmsg, err) {
+	    //hide spinner, show error modal
+	    $(".modal-animate").hide();
+	    $("h6.notification.notification-success").hide();
+	     $("h6.notification.notification-warning").hide();
+	      $("h6.notification.update-success").hide();
+		    $("h6.notification.delete-success").hide();
+               $("h6.notification.notification-critical").show();
+           }
+           
+      });
+	
+	});
+	
+	
 //function to load reader info
 function loadreader(){
 			 $('#results').empty();
@@ -78,18 +251,19 @@ function loadreader(){
                        //alert(json[0].id_str)
                        for (var ii=0;json.length;ii++){
 						   //alert(ii);
+						   id = json[ii].id;
 						   name = json[ii].name;
 						   id_str = json[ii].id_str;
 						  if (ii==0) {
-			    $('#results').append('<tr><td>Reader Name</td><td>ID Number</td></tr>');
-			    $('#results').append('<tr class="odd"><td>'+name+'</td><td>'+id_str+'</td></tr>');
+			    $('#results').append('<tr><td>ID</td><td>Name</td><td>ID Number</td></tr>');
+			    $('#results').append('<tr class="odd"><td>'+id+'</td><td>'+name+'</td><td>'+id_str+'</td></tr>');
 			    //alert(name);
 			  }
 			  else if((ii)%2 ==0) {
-			    $('#results').append('<tr class="odd"><td>'+name+'</td><td>'+id_str+'</td></tr>');
+			    $('#results').append('<tr class="odd"><td>'+id+'</td><td>'+name+'</td><td>'+id_str+'</td></tr>');
 			  }
 			  else{
-			    $('#results').append('<tr><td>'+name+'</td><td>'+id_str+'</td></tr>');
+			    $('#results').append('<tr><td>'+id+'</td><td>'+name+'</td><td>'+id_str+'</td></tr>');
 			    //alert(name);
 			  }
 						   }
@@ -118,15 +292,21 @@ function loadreader(){
 	  <div id="notifications">
         <h6 class="notification notification-critical" role="alert">Some information you entered isn't right.</h6>
 	<h6 class="notification notification-success" role="alert">You have successfully registered a reader!</h6>
+	<h6 class="notification update-success" role="alert">You have successfully updated a reader!</h6>
+	<h6 class="notification delete-success" role="alert">You have successfully deleted a reader!</h6>
+	<h6 class="notification notification-warning" role="alert">Are you sure? <div class="container" id="screen-selector"><button href="#" type="button" id="warning-yes">Yes</button><button id="warning-no" href="#" type="button" style="float:right">Cancel</button></div></h6>
     </div>
 	  
     <div id="contentleft">
 					
-		<form name="tracform" id="readerform" method="POST" data-parsley-validate>
-		  <!--<p>
-		      <label for="">Athlete Name:</label> 
-		      <input data-progression="" type="text" data-helper="Title of the workout to help you identify it later" id="title" value="" placeholder="" required data-parsley-group="block1" />
-		  </p>-->
+		<form name="tracform"  id="myform" method="POST" data-parsley-validate>
+			<div class="button-container-two">
+		    <input type="submit" name="" class="validate" id="create" value="+ Create New" />
+		    </div>
+		    <p id="idnumber">
+		      <label for="">Reference ID:</label> 
+		      <input type="text" id="idnumber" value="" placeholder="" required data-parsley-group="block1" readonly/>
+		  </p>
 		   <p>
 		      <label for="">Reader Name:</label> 
 		      <input data-progression="" type="text" data-helper="" id="readername" value="" placeholder="" required data-parsley-group="block1" />
@@ -139,7 +319,9 @@ function loadreader(){
 		     
 		     
 		          <div class="button-container">
+			<input type="submit" name="" class="validate" id="delete" value="Delete" />
 		    <input type="submit" name="" class="validate" id="submit" value="Save" />
+		    <input type="submit" name="" class="validate" id="update" value="Update" />
 	                         </div>
 		</form>
 				

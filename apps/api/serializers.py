@@ -65,7 +65,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
 class ReaderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reader
-        fields = ('name', 'id_str')
+        fields = ('id','name', 'id_str')
 
 class TimingSessionSerializer(serializers.ModelSerializer):
     manager = serializers.Field(source='manager.username')
