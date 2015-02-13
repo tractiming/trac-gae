@@ -708,7 +708,7 @@ div.parallax div#create div#notifications .notification.notification-warning .co
   *margin-left: -100px;/*ie7*/}
  div.parallax div#create #contentright table#results td {
   vertical-align: top;
-  
+  cursor: pointer;
   padding:10px;
   width:100px;
 }

@@ -28,7 +28,9 @@
 	</script>
 	<script>
 $(document).ready(function() {
+		$(".modal-animate").show();
 		loadworkouts();
+		$(".modal-animate").hide();
       //on submit prevent default of form and show spinner, 
         $("#myform").on('submit', function(e){
             e.preventDefault();
