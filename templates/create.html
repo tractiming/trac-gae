@@ -28,9 +28,9 @@
 	</script>
 	<script>
 $(document).ready(function() {
-		$(".modal-animate").show();
+	$(".modal-animate").show();
 		loadworkouts();
-		
+
       //on submit prevent default of form and show spinner, 
         $("#myform").on('submit', function(e){
             e.preventDefault();
@@ -134,8 +134,8 @@ $(document).ready(function() {
 			    $('#results').append('<tr><td>'+id+'</td><td>'+name+'</td><td>'+start+'</td><td>'+end+'</td><td>'+distance+'</td><td>'+track+'</td><td>'+filter+'</td></tr>');
 			    //alert(name);
 			  }
+			  		$(".modal-animate").hide();
 						   }
-						   $(".modal-animate").hide();
 
 			}
 			
