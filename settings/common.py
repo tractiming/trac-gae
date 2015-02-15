@@ -114,6 +114,7 @@ if getenv('SERVER_SOFTWARE', '').startswith('Google App Engine'):
                 'USER': 'root',
             }
     }
+
 elif getenv('SETTINGS_MODE') == 'prod':
     # Running in development, but want to access the Google Cloud SQL instance
     # in production.
@@ -137,14 +138,23 @@ else:
     }
 ############################################
 
-########## CACHE CONFIGURATION ##########
-#CACHES = {
-#        'default': {
-#            'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-#            'LOCATION': '127.0.0.1:11211',
-#        }
-#}
-#########################################
+########## CACHE CONFIGURATION ############
+if getenv('SERVER_SOFTWARE', '').startswith('Google App Engine'):
+    CACHES = {
+            'default': {
+                'BACKEND': 'backends.gae_cache.GaeMemcachedCache',
+                #'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+                #'LOCATION': '127.0.0.1:11211',
+            }
+    }
+
+else:
+    CACHES = {
+            'default': {
+                'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+            }
+    }
+###########################################
 
 ########## GENERAL CONFIGURATION ##########
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
