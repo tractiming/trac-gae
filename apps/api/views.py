@@ -194,7 +194,6 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
     serializer_class = TimingSessionSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
-
     def get_queryset(self):
         """
         Overrides default method to filter sessions by user.

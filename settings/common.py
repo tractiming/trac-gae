@@ -139,17 +139,22 @@ else:
 ############################################
 
 ########## CACHE CONFIGURATION ############
+# If running on appengine, use the custom cache backend that uses google's api
+# with django's caching interface.
 if getenv('SERVER_SOFTWARE', '').startswith('Google App Engine'):
     CACHES = {
             'default': {
                 'BACKEND': 'backends.gae_cache.GaeMemcachedCache',
+                'TIMEOUT': 300
             }
     }
 
+# If running locally, use the dummy cache.
 else:
     CACHES = {
             'default': {
                 'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+                'TIMEOUT': 300
             }
     }
 ###########################################

@@ -1,9 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
-#import numpy
+from django.core.cache import cache
 import time
 import datetime
+from util import filter_splits
 
 class Tag(models.Model):
     """An RFID Tag. Has a name and belongs to one user."""
@@ -80,100 +81,78 @@ class TimingSession(models.Model):
     def get_results(self, user=None, force_update=False):
         """Gets the current splits for the session."""
         
-        wdata = {}
-        wdata['date'] = self.start_time.strftime('%m.%d.%Y')
-        wdata['workoutID'] = self.id
-        wdata['runners'] = []
+        wdata = cache.get(('ts_%i_results'))
 
-        tag_ids = self.tagtimes.values_list('tag_id',flat=True).distinct()
+        if not wdata:
+            wdata = {}
+            wdata['date'] = self.start_time.strftime('%m.%d.%Y')
+            wdata['workoutID'] = self.id
+            wdata['runners'] = []
 
-        for tag_id in tag_ids:
+            tag_ids = self.tagtimes.values_list('tag_id',flat=True).distinct()
+            for tag_id in tag_ids:
 
-            # Get the name of the tag's owner.
-            tag = Tag.objects.get(id=tag_id)
-            user = tag.user
-            if user:
-                name = user.get_full_name()
-                if not name:
-                    name = user.username
-            else:
-                name = str(tag_id)
-
-            # Calculate the splits for this tag in the current workout.
-            times = TagTime.objects.filter(timingsession=self, 
-                                           tag=tag).order_by('time')
-            
-            interval = []
-            for i in range(len(times)-1):
-                t1 = times[i].time+timezone.timedelta(
-                        milliseconds=times[i].milliseconds)
-                t2 = times[i+1].time+timezone.timedelta(
-                        milliseconds=times[i+1].milliseconds)
-
-                dt = t2-t1
-
-                # Convert the number to a string to prevent round-off error.
-                str_dt = str(round(dt.total_seconds(), 3))
-                interval.append([str_dt])
-            counter = range(1,len(interval)+1)   
-
-            # Filtering algorithm.
-            if self.filter_choice:
-                filtered_interval = []
-                statistics_interval = []
-            
-                #Determine Constant of impossible time for 400m off of distance
-                if self.interval_distance <= 200:
-                    constant = 20
-                elif self.interval_distance > 200 and self.interval_distance <= 300:
-                    constant = 30
-                elif self.interval_distance > 300 and self.interval_distance <= 400:
-                    constant = 50
-                elif self.interval_distance > 400 and self.interval_distance <= 800:
-                    constant = 52
-                elif self.interval_distance > 800 and self.interval_distance <= 1200:
-                    constant = 55
-                elif  self.interval_distance > 1200 and self.interval_distance <= 1600:
-                    constant = 58
+                # Get the name of the tag's owner.
+                tag = Tag.objects.get(id=tag_id)
+                user = tag.user
+                if user:
+                    name = user.get_full_name()
+                    if not name:
+                        name = user.username
                 else:
-                    constant = 59
+                    name = str(tag_id)
 
-                #modify constant if on different sized track like 300m or 200m
-                #Dont modify if 200s on 200m track
-                if self.interval_distance >200:
-                    modified_constant = constant * (self.track_size/400.0)
-                else:
-                    modified_constant = constant
-
-                dt_sec = datetime.timedelta(seconds=modified_constant).total_seconds()
-                filtered_interval = [dt for dt in interval if float(dt[0])>dt_sec]    
-                filtered_counter = range(1,len(filtered_interval)+1)    
+                # Calculate the splits for this tag in the current workout.
+                times = TagTime.objects.filter(timingsession=self, 
+                                               tag=tag).order_by('time')
                 
-                counter = filtered_counter
-                interval = filtered_interval
-                    
-			# Add the runner's data to the workout. 
-            wdata['runners'].append({'name': name, 'counter': counter,
-                                     'interval': interval})
+                interval = []
+                for i in range(len(times)-1):
+                    t1 = times[i].time+timezone.timedelta(
+                            milliseconds=times[i].milliseconds)
+                    t2 = times[i+1].time+timezone.timedelta(
+                            milliseconds=times[i+1].milliseconds)
+                    dt = t2-t1
+
+                    # Convert the number to a string to prevent round-off error.
+                    str_dt = str(round(dt.total_seconds(), 3))
+                    interval.append([str_dt])
+
+                counter = range(1,len(interval)+1)   
+
+                # Filtering algorithm.
+                if self.filter_choice:
+                    interval, counter = filter_splits(interval, 
+                                                      self.interval_distance,
+                                                      self.track_size)
+
+                # Add the runner's data to the workout. 
+                wdata['runners'].append({'name': name, 'counter': counter,
+                             'interval': interval})
+
+            cache.set(('ts_%i_results'), wdata)    
 
         return wdata    
 
-    def get_athletes(self, names_only=True):
+    def get_athlete_names(self):
         """Returns a list of all users that are registered in the session."""
-        user_list = []
-        tag_ids = self.tagtimes.values_list('tag', flat=True).distinct()
+
+        names = cache.get(('ts_%i_athlete_names' %self.id))
+
+        if not names:
+            user_list = []
+            tag_ids = self.tagtimes.values_list('tag', flat=True).distinct()
+            
+            for tag_id in tag_ids:
+                user = Tag.objects.get(id=tag_id).user
         
-        for tag_id in tag_ids:
-            user = Tag.objects.get(id=tag_id).user
-    
-            if (user) and (user not in user_list):
-                user_list.append(user)
-        
-        if not names_only:
-            return user_list
-        else:
+                if (user) and (user not in user_list):
+                    user_list.append(user)
+            
             names = [u.username for u in user_list]
-            return names
+            cache.set(('ts_%i_athlete_names' %self.id), names)
+        
+        return names
 
 class AthleteProfile(models.Model):
     user = models.OneToOneField(User, related_name='athlete')
@@ -206,28 +185,4 @@ class CoachProfile(models.Model):
 
 class RaceDirectorProfile(models.Model):
     user = models.OneToOneField(User)
-
-
-
-                
-                
-#mean = numpy.mean(interval)
-#std = numpy.std(interval)
-# statistics option
-#for i in range(len(times)-1):
-#	t1 = times[i].time+timezone.timedelta(milliseconds=times[i].milliseconds)
-#	t2 = times[i+1].time+timezone.timedelta(milliseconds=times[i+1].milliseconds)
-#	dt = t2-t1
-#	if dt > (datetime.timedelta(seconds=mean)-datetime.timedelta(seconds=(2*std))):
-#		statistics_interval.append([round(dt.total_seconds(), 3)])
-           
-#filtered option using constants
-#for i in range(len(times)-1):
-#    t1 = times[i].time+timezone.timedelta(milliseconds=
-#            times[i].milliseconds)
-#    t2 = times[i+1].time+timezone.timedelta(milliseconds=
-#            times[i+1].milliseconds)
-#    dt = t2-t1
-#    if dt > datetime.timedelta(seconds=modified_constant):
-#        filtered_interval.append([decimal.Decimal(dt.total_seconds()).quantize(THREEPLACES)])
 

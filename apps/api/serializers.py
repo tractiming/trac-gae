@@ -70,7 +70,7 @@ class ReaderSerializer(serializers.ModelSerializer):
 class TimingSessionSerializer(serializers.ModelSerializer):
     manager = serializers.Field(source='manager.username')
     results = JSONReadOnlyField(source='get_results')
-    athletes = JSONReadOnlyField(source='get_athletes')
+    athletes = JSONReadOnlyField(source='get_athlete_names')
 
     class Meta:
         model = TimingSession
