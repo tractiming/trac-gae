@@ -24,7 +24,7 @@ from trac.models import TimingSession, AthleteProfile, CoachProfile
 from trac.models import Tag, Reader, TagTime
 from trac.util import is_athlete, is_coach
 from django.http import Http404
-
+from django.core.cache import cache
 
 class JSONResponse(HttpResponse):
     """
@@ -236,7 +236,6 @@ def post_splits(request):
     # Get the tag and reader associated with the notification. Note that if the
     # tag or reader has not been established in the system, the split will be
     # ignored here.
-    
     try:
         reader = Reader.objects.get(id_str=data['r'])
         tag = Tag.objects.get(id_str=data['id'])
@@ -255,6 +254,8 @@ def post_splits(request):
     # Add the TagTime to all sessions active and having a related reader.
     for s in reader.active_sessions:
         s.tagtimes.add(tt.pk)
+        cache.delete(('ts_%i_results' %s.id))
+        cache.delete(('ts_%i_athlete_names' %s.id))
     
     return HttpResponse(status.HTTP_201_CREATED)
     
