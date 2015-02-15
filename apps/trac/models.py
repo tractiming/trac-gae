@@ -81,7 +81,7 @@ class TimingSession(models.Model):
     def get_results(self, user=None, force_update=False):
         """Gets the current splits for the session."""
         
-        wdata = cache.get(('ts_%i_results'))
+        wdata = cache.get(('ts_%i_results' %self.id))
 
         if not wdata:
             wdata = {}
@@ -130,7 +130,7 @@ class TimingSession(models.Model):
                 wdata['runners'].append({'name': name, 'counter': counter,
                              'interval': interval})
 
-            cache.set(('ts_%i_results'), wdata)    
+            cache.set(('ts_%i_results' %self.id), wdata)    
 
         return wdata    
 
