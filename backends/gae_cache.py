@@ -1,11 +1,11 @@
-from django.core.backends.memcached import BaseMemcachedCache
+from django.core.cache.backends.memcached import BaseMemcachedCache
 import pickle
 
 class GaeMemcachedCache(BaseMemcachedCache):
     def __init__(self, server, params):
         from google.appengine.api import memcache
 
-        super(BaseMemcachedCache, self).__init__(self, server, params,
+        BaseMemcachedCache.__init__(self, server, params,
                 library=memcache, value_not_found_exception=ValueError)
 
     @property

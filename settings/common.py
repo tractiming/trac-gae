@@ -143,8 +143,6 @@ if getenv('SERVER_SOFTWARE', '').startswith('Google App Engine'):
     CACHES = {
             'default': {
                 'BACKEND': 'backends.gae_cache.GaeMemcachedCache',
-                #'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-                #'LOCATION': '127.0.0.1:11211',
             }
     }
 
