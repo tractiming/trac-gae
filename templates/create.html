@@ -2,7 +2,11 @@
 {% load staticfiles %}
 
 {% block content %}
-
+<script>
+		if (sessionStorage.usertype == 'athlete') {
+				location.href="/home.html";
+		}
+</script>
 
 <script>
   //step by step jquery plugin that explains each box of form

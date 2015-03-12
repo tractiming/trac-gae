@@ -226,7 +226,7 @@ div#bowtruss-header {
       height: 0; }
     @media only screen and (min-width: 720px) and (max-width: 959px) {
       div#bowtruss-header ul {
-        width: 720px; } }
+        } }
     div#bowtruss-header ul li {
       float: left;
       height: 60px;
