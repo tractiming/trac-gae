@@ -68,7 +68,7 @@ $(document).ready(function() {
 		    $("h6.notification.notification-critical").hide();
 		    $("h6.notification.notification-success").show();
 		    $("#coachform")[0].reset();
-		    //load();
+		    loadtags();
 			   },
 			   error:function(xhr,errmsg,err){
 				   //created the username but not the tag to user
@@ -105,26 +105,17 @@ $(document).ready(function() {
         $("#myform").on('submit', function(e){
             e.preventDefault();
 	    $(".modal-animate").show();
-            var form = $(this);
-
-            form.parsley().validate();
-
-	    
-	    
-            if (form.parsley().isValid()){
-	            // var title=$('input[id=title]').val();
+           
 		      var id_number=$('input[id=id_number]').val();
-		    
+		    JSONObject = {'id_str':id_number};
 
 	      $.ajax({
            type: "POST",
            dataType:'json',
+	   contentType:'application/json',
            url: "/api/tags/",
 	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
-           data: {
-               id_str: id_number,
-	       user: null
-           },
+           data: JSON.stringify(JSONObject),
            // Login was successful.
            success: function(data) {
 		    $(".modal-animate").hide();
@@ -144,7 +135,7 @@ $(document).ready(function() {
            
       });
                
-            }
+            
         });
     });
 </script>
