@@ -13,6 +13,7 @@
 <script>
 //ajax for reader information
 $(document).ready(function() {
+	$(".modal-animate").show();
 		loadreader();
         $("#myform").on('click','#submit', function(e){
             e.preventDefault();
@@ -257,6 +258,21 @@ function loadreader(){
                         
                         var json = $.parseJSON(data);
                        //alert(json[0].id_str)
+                       
+                       if (json == "") {
+			  $(".outer").hide();
+			  $(".modal-animate").hide();
+			  $('#results').empty();
+			  
+			  
+			    $("h6.notification.notification-default").show();
+
+			}
+			// show name and date, dont show message, but show notificatin
+			else {
+                       $(".outer").show();
+                        $("h6.notification.notification-default").hide();
+                       
                        for (var ii=0;json.length;ii++){
 						   //alert(ii);
 						   id = json[ii].id;
@@ -275,6 +291,8 @@ function loadreader(){
 			    //alert(name);
 			  }
 						   }
+						   $(".modal-animate").hide();
+					   }
 
 			}
 			
@@ -345,6 +363,10 @@ function loadreader(){
        <table id="results" style="width:100%"></table>
        </div>
        </div>
+       
+        <div id="notifications">
+        <h6 class="notification notification-default" role="alert">There are currently no workouts to show.</h6>
+    </div>
               </div>
     
     
