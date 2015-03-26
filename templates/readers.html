@@ -3,9 +3,12 @@
 
 {% block content %}
 <script>
-		if (sessionStorage.usertype == 'athlete') {
-				location.href="/home.html";
+
+	if (sessionStorage.usertype == 'athlete'){
+			    location.href="/home.html";
 		}
+	
+
 </script>
 <script>
 //ajax for reader information
@@ -260,7 +263,7 @@ function loadreader(){
 						   name = json[ii].name;
 						   id_str = json[ii].id_str;
 						  if (ii==0) {
-			    $('#results').append('<tr><td>ID</td><td>Name</td><td>ID Number</td></tr>');
+			    $('#results').append('<tr><th>ID</th><th>Name</th><th>ID Number</th></tr>');
 			    $('#results').append('<tr class="odd"><td>'+id+'</td><td>'+name+'</td><td>'+id_str+'</td></tr>');
 			    //alert(name);
 			  }
@@ -309,8 +312,8 @@ function loadreader(){
 		    <input type="submit" name="" class="validate" id="create" value="+ Create New" />
 		    </div>
 		    <p id="idnumber">
-		      <label for="">Reference ID:</label> 
-		      <input type="text" id="idnumber" value="" placeholder="" required data-parsley-group="block1" readonly/>
+		      
+		      <input type="hidden" id="idnumber" value="" placeholder="" required data-parsley-group="block1" readonly/>
 		  </p>
 		   <p>
 		      <label for="">Reader Name:</label> 

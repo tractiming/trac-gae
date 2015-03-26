@@ -3,9 +3,11 @@
 
 {% block content %}
 <script>
-		if (sessionStorage.usertype == 'athlete') {
-				location.href="/home.html";
+
+	if (sessionStorage.usertype == 'athlete'){
+			    location.href="/home.html";
 		}
+
 </script>
 
 <script>
@@ -78,6 +80,8 @@ $(document).ready(function() {
 		    $("h6.notification.delete-success").hide();
 		    $("h6.notification.notification-success").show();
 		    $("#myform")[0].reset();
+		    $(".outer").show();
+            $("h6.notification.notification-default").hide();
 		    loadworkouts();
                    
            },
@@ -116,30 +120,47 @@ $(document).ready(function() {
                         
                         var json = $.parseJSON(data);
                        //alert(json[0].id_str)
+                       
+                       if (json == "") {
+			  $(".outer").hide();
+			  $(".modal-animate").hide();
+			  $('#results').empty();
+			  
+			  
+			    $("h6.notification.notification-default").show();
+
+			}
+			// show name and date, dont show message, but show button
+			else {
+                       $(".outer").show();
+                        $("h6.notification.notification-default").hide();
                        for (var ii=0;json.length;ii++){
 						   //alert(ii);
 						   id = json[ii].id;
 						   name = json[ii].name;
-						   start = json[ii].start_time;
-						   end = json[ii].stop_time;
+						   start = json[ii].start_time.slice(0,10);
+						   start2 = json[ii].start_time.slice(11,16);
+						   end = json[ii].stop_time.slice(0,10);
+						   end2 = json[ii].stop_time.slice(11,16);
 						   distance = json[ii].interval_distance;
 						   track = json[ii].track_size;
 						  // time = time.slice(0,10);
 						   filter= json[ii].filter_choice;
 						  if (ii==0) {
-			    $('#results').append('<tr><td>ID</td><td>Workout Name</td><td>Start Date</td><td>End Date</td><td>Distance</td><td>Track</td><td>Filtered</td></tr>');
-			    $('#results').append('<tr class="odd"><td>'+id+'</td><td>'+name+'</td><td>'+start+'</td><td>'+end+'</td><td>'+distance+'</td><td>'+track+'</td><td>'+filter+'</td></tr>');
+			    $('#results').append('<tr><th>ID</th><th>Workout Name</th><th>Start Date</th><th>End Date</th><th>Distance</th><th>Track</th><th>Filtered</th></tr>');
+			    $('#results').append('<tr class="odd"><td>'+id+'</td><td>'+name+'</td><td>'+start+' ' + start2+'</td><td>'+end+' '+end2+'</td><td>'+distance+'</td><td>'+track+'</td><td>'+filter+'</td></tr>');
 			    //alert(name);
 			  }
 			  else if((ii)%2 ==0) {
-			    $('#results').append('<tr class="odd"><td>'+id+'</td><td>'+name+'</td><td>'+start+'</td><td>'+end+'</td><td>'+distance+'</td><td>'+track+'</td><td>'+filter+'</td></tr>');
+			    $('#results').append('<tr class="odd"><td>'+id+'</td><td>'+name+'</td><td>'+start+' ' + start2+'</td><td>'+end+' '+end2+'</td><td>'+distance+'</td><td>'+track+'</td><td>'+filter+'</td></tr>');
 			  }
 			  else{
-			    $('#results').append('<tr><td>'+id+'</td><td>'+name+'</td><td>'+start+'</td><td>'+end+'</td><td>'+distance+'</td><td>'+track+'</td><td>'+filter+'</td></tr>');
+			    $('#results').append('<tr><td>'+id+'</td><td>'+name+'</td><td>'+start+' ' + start2+'</td><td>'+end+' '+end2+'</td><td>'+distance+'</td><td>'+track+'</td><td>'+filter+'</td></tr>');
 			    //alert(name);
 			  }
 			  		$(".modal-animate").hide();
 						   }
+					   }
 
 			}
 			
@@ -393,8 +414,8 @@ $("body").on('click', 'tr',function(){
 		    <input type="submit" name="" class="validate" id="create" value="+ Create New" />
 		    </div>
 		    <p id="idnumber">
-		      <label for="">Workout ID:</label> 
-		      <input type="text" id="idnumber" value="" placeholder="" required data-parsley-group="block1" readonly/>
+		       
+		      <input type="hidden" id="idnumber" value="" placeholder="" required data-parsley-group="block1" readonly/>
 		  </p>
 		  <p>
 		      <label for="">Workout Title:</label> 
@@ -452,6 +473,10 @@ $("body").on('click', 'tr',function(){
        <table id="results" style="width:100%"></table>
        </div>
        </div>
+       <div id="notifications">
+        <h6 class="notification notification-default" role="alert">There are currently no workouts to show.</h6>
+    </div>
+       
               </div>
     
     

@@ -10,7 +10,7 @@ address, caption, cite, code, dfn, em, strong, th, var {font-style: normal; font
 
 ol, ul { list-style: none; }
 
-caption, th { text-align: left; }
+caption { text-align: left; }
 
 h1, h2, h3, h4, h5, h6 { font-size: 100%; font-weight: normal; }
 
@@ -226,7 +226,7 @@ div#bowtruss-header {
       height: 0; }
     @media only screen and (min-width: 720px) and (max-width: 959px) {
       div#bowtruss-header ul {
-        } }
+         } }
     div#bowtruss-header ul li {
       float: left;
       height: 60px;
@@ -706,6 +706,9 @@ div.parallax div#create div#notifications .notification.notification-warning .co
   table-layout: fixed; 
   width: 100%;
   *margin-left: -100px;/*ie7*/}
+   div.parallax div#create #contentright table#results tr *:nth-child(1){
+   display:none;}
+  
  div.parallax div#create #contentright table#results td {
   vertical-align: top;
   cursor: pointer;
@@ -714,13 +717,10 @@ div.parallax div#create div#notifications .notification.notification-warning .co
 }
  div.parallax div#create #contentright table#results th {
   vertical-align: top;
-  
+  cursor: auto;
   padding:10px;
   width:100px;
-  position:absolute;
-  *position: relative; /*ie7*/
-  left:0; 
-  width:100px;
+  
 }
 div.parallax div#create #contentright .title {text-align: left;width: 100%}
 div.parallax div#create #contentright .title p{line-height: 20px;
@@ -737,6 +737,39 @@ transition: font-size 0.3s ease;}
 }
           
           
+          div.parallax div#calendar #contentright div#notifications {
+            margin-left:auto;
+            margin-right:auto;
+    width: 300px;
+    padding-left:150px;
+    padding-right:150px;
+  /* Add this class when you want to animate the notification component. */
+}
+ div.parallax div#create #contentright div#notifications.animatable {
+  display: none;
+}
+div.parallax div#create #contentright div#notifications .notification {
+  display: none;
+  margin-top: 0;
+  padding: 15px 15px 15px 44px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  border-radius: 5px;
+  border-width: 1px;
+  border-style: solid;
+  text-align: left;
+  font-size: 1em;
+  background: url("../img/icon_alert_sprite-2x.png") no-repeat;
+  background-size: 20px;
+  /* Default is the informational message */
+}
+div.parallax div#create #contentright div#notifications .notification.notification-default {
+  margin-top:30px;
+  background-color: #f7f9fa;
+  background-position: 12px -788px;
+  border-color: #afabae;
+}
           
           
           
