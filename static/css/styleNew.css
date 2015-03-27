@@ -722,6 +722,30 @@ div.parallax div#create div#notifications .notification.notification-warning .co
   width:100px;
   
 }
+
+                   div.parallax div#create #contentright table#tagresults{
+            
+  table-layout: fixed; 
+  width: 100%;
+  *margin-left: -100px;/*ie7*/}
+   div.parallax div#create #contentright table#tagresults tr *:nth-child(1){
+   display:none;}
+      div.parallax div#create #contentright table#tagresults tr *:nth-child(3){
+   display:none;}
+  
+ div.parallax div#create #contentright table#tagresults td {
+  vertical-align: top;
+  cursor: pointer;
+  padding:10px;
+  width:100px;
+}
+ div.parallax div#create #contentright table#tagresults th {
+  vertical-align: top;
+  cursor: auto;
+  padding:10px;
+  width:100px;
+  
+}
 div.parallax div#create #contentright .title {text-align: left;width: 100%}
 div.parallax div#create #contentright .title p{line-height: 20px;
 margin-bottom: 32px;

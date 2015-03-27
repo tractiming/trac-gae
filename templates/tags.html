@@ -10,6 +10,7 @@
 		}
 		//if a coach
 	else {
+		location.href="/home.html";
 }
 	});
 	</script>
@@ -48,6 +49,8 @@
 		    $(".modal-animate").hide();
 		    $("h6.notification.notification-critical").hide();
 		    $("h6.notification.notification-success").show();
+		    $("h6.notification.update-success").hide();
+		    $("h6.notification.delete-success").hide();
 		    $("#myform")[0].reset();
 		    load();
                    
@@ -58,6 +61,8 @@
 			   $(".modal-animate").hide();
 	    $("h6.notification.notification-success").hide();
                $("h6.notification.notification-critical").show();
+               $("h6.notification.update-success").hide();
+               $("h6.notification.delete-success").hide();
            }
            
       });
@@ -92,6 +97,11 @@ $("body").on('click', 'tr',function(){
 			var input =$('input#id_number');
 			input.val($(this).html() );
 			}
+		else if (index ==2)
+		{
+			var input =$('input#userid');
+			input.val($(this).html() );
+			}
 
 	});
 	
@@ -107,7 +117,7 @@ $("body").on('click', 'tr',function(){
 	  $("#myform")[0].reset();
 	var value = $(this).html();
 	$("input#delete").hide();
-
+	$("input#update").hide();
 	$("input#submit").show();
 	$("p#idnumber").hide();
 	$("input#create").hide();
@@ -115,12 +125,67 @@ $("body").on('click', 'tr',function(){
 	});
 
 
+		$("body").on('click', 'input#update',function(f){
+	//alert($(this).html());
+	  f.preventDefault();
+	   $(".modal-animate").show();
+	 var id=$('input[id=idnumber]').val();
+	           var refnum=$('input[id=idnumber]').val();
+		      var rfidnum=$('input[id=id_number]').val();
+		      var user_id=$('input[id=userid]').val();
+
+	
+		//alert(filter);
+	      $.ajax({
+           type: "PUT",
+           dataType:'json',
+           url: "/api/tags/"+id,
+	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
+	   data: {
+               id: refnum,
+               id_str:rfidnum,
+               user:user_id
+               
+           },
+
+           // Login was successful.
+           success: function(data) {
+		    //hide spinner, success modal, and reset form
+		    $(".modal-animate").hide();
+		    $("h6.notification.notification-critical").hide();
+		    $("h6.notification.notification-success").hide();
+		    $("h6.notification.delete-success").hide();
+		    $("h6.notification.update-success").show();
+		    $("#myform")[0].reset();
+		    	$("input#delete").hide();
+	$("input#update").hide();
+	$("input#submit").show();
+	$("p#idnumber").hide();
+	$("input#create").hide();
+		    load();
+                   
+           },
+
+           // Login request failed.
+           error: function(xhr, errmsg, err) {
+	    //hide spinner, show error modal
+	    $(".modal-animate").hide();
+	    $("h6.notification.notification-success").hide();
+	     $("h6.notification.notification-warning").hide();
+	      $("h6.notification.update-success").hide();
+		    $("h6.notification.delete-success").hide();
+               $("h6.notification.notification-critical").show();
+           }
+           
+      });
+	
+	});
+
+
+
 
 	$("body").on('click', 'input#delete',deleteTags);
-	
-	
-
-			
+		
 			function deleteTags(f){
 	//alert($(this).html());
 	
@@ -156,7 +221,7 @@ $("body").on('click', 'tr',function(){
 		    $(".modal-animate").hide();
 		    $("h6.notification.notification-critical").hide();
 		    $("h6.notification.notification-success").hide();
-		
+		$("h6.notification.update-success").hide();
 		    $("h6.notification.delete-success").show();
 		     $("h6.notification.notification-warning").hide();
 		    $("#myform")[0].reset();
@@ -176,7 +241,7 @@ $("body").on('click', 'tr',function(){
 	    $(".modal-animate").hide();
 	    $("h6.notification.notification-success").hide();
 	     $("h6.notification.notification-warning").hide();
-	
+	$("h6.notification.update-success").hide();
 		    $("h6.notification.delete-success").hide();
                $("h6.notification.notification-critical").show();
            }
@@ -199,7 +264,7 @@ $("body").on('click', 'tr',function(){
 			
 			//loads info for personal tag
 		  function load(){
-			 $('#results').empty();
+			 $('#tagresults').empty();
 		  //alert(path);
 		  //alert(path);
 		   $.ajax({
@@ -218,16 +283,17 @@ $("body").on('click', 'tr',function(){
 						   //alert(ii);
 						   id = json[ii].id;
 						   name = json[ii].id_str;
+						   userid = json[ii].user;
 						  if (ii==0) {
-			    $('#results').append('<tr><td>ID</td><td>Tag ID</td></tr>');
-			    $('#results').append('<tr class="odd"><td>'+id+'</td><td>'+name+'</td></tr>');
+			    $('#tagresults').append('<tr><th>ID</th><th>Tag ID</th><th>UserID</th></tr>');
+			    $('#tagresults').append('<tr class="odd"><td>'+id+'</td><td>'+name+'</td><td>'+userid+'</td></tr>');
 			    //alert(name);
 			  }
 			  else if((ii)%2 ==0) {
-			    $('#results').append('<tr class="odd"><td>'+id+'</td><td>'+name+'</td></tr>');
+			    $('#tagresults').append('<tr class="odd"><td>'+id+'</td><td>'+name+'</td><td>'+userid+'</td></tr>');
 			  }
 			  else{
-			    $('#results').append('<tr><td>'+id+'</td><td>'+name+'</td></tr>');
+			    $('#tagresults').append('<tr><td>'+id+'</td><td>'+name+'</td><td>'+userid+'</td></tr>');
 			    //alert(name);
 			  }
 						   }
@@ -258,6 +324,7 @@ $("body").on('click', 'tr',function(){
 	  <div id="notifications">
         <h6 class="notification notification-critical" role="alert">Some information you entered isn't right.</h6>
 	<h6 class="notification notification-success" role="alert">You have successfully registered an ID!</h6>
+			<h6 class="notification update-success" role="alert">You have successfully updated a tag!</h6>
 		<h6 class="notification delete-success" role="alert">You have successfully deleted an ID!</h6>
 	<h6 class="notification notification-warning" role="alert">Are you sure? <div class="container" id="screen-selector"><button href="#" type="button" id="warning-yes">Yes</button><button id="warning-no" href="#" type="button" style="float:right">Cancel</button></div></h6>
     </div>
@@ -276,12 +343,17 @@ $("body").on('click', 'tr',function(){
 		      <label for="">ID Number:</label> 
 		      <input data-progression="" type="text" data-helper="" id="id_number" value="" placeholder="" required data-parsley-group="block1" />
 		  </p>
+		  <p id="userid">
+		      
+		      <input type="hidden" id="userid" value="" placeholder="" required data-parsley-group="block1" readonly/>
+		  </p>
 		
 		     
 		     
 		          <div class="button-container">
 			<input type="submit" name="" class="validate" id="delete" value="Delete" />
 		    <input type="submit" name="" class="validate" id="submit" value="Save" />
+		    <input type="submit" name="" class="validate" id="update" value="Update" />
 	                         </div>
 		</form>
 		
@@ -293,7 +365,7 @@ $("body").on('click', 'tr',function(){
                    <div id="contentright">
 			      <div class ="outer">
       <div class="inner">
-       <table id="results" style="width:100%"></table>
+       <table id="tagresults" style="width:100%"></table>
        </div>
        </div>
               </div>
