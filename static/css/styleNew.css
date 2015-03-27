@@ -874,6 +874,11 @@ div.parallax div#bg2 div#notifications .notification.notification-default {
   background-position: 12px -788px;
   border-color: #afabae;
 }
+div.parallax div#bg2 div#notifications .notification.notification-default2 {
+  background-color: #f7f9fa;
+  background-position: 12px -788px;
+  border-color: #afabae;
+}
           
           div.parallax div#bg2 div.content div.button-container{padding:40px 2px 0;}
     div.parallax div#bg2 div.content div.button-container input{display:none; float:none; width:120px; background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
@@ -987,6 +992,13 @@ div.parallax div#calendar #contentright div#notifications .notification {
   /* Default is the informational message */
 }
 div.parallax div#calendar #contentright div#notifications .notification.notification-default {
+  margin-top:30px;
+  background-color: #f7f9fa;
+  background-position: 12px -788px;
+  border-color: #afabae;
+}
+
+div.parallax div#calendar #contentright div#notifications .notification.notification-default2 {
   margin-top:30px;
   background-color: #f7f9fa;
   background-position: 12px -788px;

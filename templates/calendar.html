@@ -9,6 +9,7 @@
 
 $(document).ready(function() {
   $(".modal-animate").show();
+  
   //import 3rd party calendar, but first import events--async call and reformat dates to fit 3rd party calendar
       $.ajax({
                     url: "/api/sessions/",
@@ -38,7 +39,7 @@ $(document).ready(function() {
 		   
 
 		$(".modal-animate").hide();
-
+		$("h6.notification.notification-default2").show();
                
             
         
@@ -75,7 +76,8 @@ $(document).ready(function() {
                         //now json variable contains data in json format
                         //let's display a few items
                       json = $.parseJSON(prejson.results);
-				
+			  
+			    $("h6.notification.notification-default2").hide();
 				
 			//if runners is blank show date and name of workout, and display message and button to download blank workout, center everything	
 			if (json.runners == "") {
@@ -351,10 +353,13 @@ $(document).ready(function() {
        </div>
            <div id="notifications">
         <h6 class="notification notification-default" role="alert">There is currently no data for this event.</h6>
+        <h6 class="notification notification-default2" role="alert">Please select a workout.</h6>
     </div>
        <div class="button-container">
   <input type="submit" name="" class="gen_btn" id="submit" value="Download" />
 </div>
+
+
      </div>
       </div>
     

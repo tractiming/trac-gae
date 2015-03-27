@@ -17,6 +17,8 @@
     </div>
     <div id="notifications">
         <h6 class="notification notification-default" role="alert">There is currently no data for the most recent event.</h6>
+        <h6 class="notification notification-default2" role="alert">No recent events to show.</h6>
+
     </div>
     
 <div class="button-container">
@@ -154,10 +156,17 @@
                     success: function(data){
 		      var json = $.parseJSON(data);
 			//alert(json.length);
+			if (json.length==0){ 
+				$("h6.notification.notification-default2").show();
+				$(".modal-animate").hide();
+				}
+			else{
+				 $("h6.notification.notification-default2").hide();
 			var idjson = json[json.length - 1].id;
 			//alert(idjson);
 			repeated_function(idjson);
 			return idjson;
+		}
 		    }
 		    
 	    });

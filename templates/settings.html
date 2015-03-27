@@ -161,7 +161,7 @@ $("body").on('click', 'tr',function(){
 	$("div.button-container-two").show();
 	$("input#create").show();
 	$("p#idnumber").show();
-	$("input#submit").hide();
+	//$("input#submit").hide();
 	$(value).each(function(index){
 		//alert( $(this).html() );
 		console.log( index+ ":"+ $(this).html());
@@ -283,7 +283,7 @@ $("body").on('click', 'tr',function(){
 
 //functon to load tags
 function loadtags(){
-			 $('#results').empty();
+			 $('#tagresults').empty();
 		  //alert(path);
 		  //alert(path);
 		   $.ajax({
@@ -300,18 +300,21 @@ function loadtags(){
                        //alert(json[0].id_str)
                        for (var ii=0;json.length;ii++){
 						   //alert(ii);
-						   name = json[ii].username;
-						   id_str = json[ii].id_str;
+						   firstname = json[ii].first_name;
+						   lastname = json[ii].last_name;
+						   userid= json[ii].user;
+						   referenceid = json[ii].id;
+						   rfidnum = json[ii].id_str;
 						  if (ii==0) {
-			    $('#results').append('<tr><td>Username</td><td>ID Number</td></tr>');
-			    $('#results').append('<tr class="odd"><td>'+name+'</td><td>'+id_str+'</td></tr>');
+			    $('#tagresults').append('<tr><th>Reference ID</th><th>ID Number</th><th>User Number</th><th>First Name</th><th>Last Name</th></tr>');
+			    $('#tagresults').append('<tr class="odd"><td>'+referenceid+'</td><td>'+rfidnum+'</td><td>'+userid+'</td><td>'+firstname+'</td><td>'+lastname+'</td></tr>');
 			    //alert(name);
 			  }
 			  else if((ii)%2 ==0) {
-			    $('#results').append('<tr class="odd"><td>'+name+'</td><td>'+id_str+'</td></tr>');
+			    $('#tagresults').append('<tr class="odd"><td>'+referenceid+'</td><td>'+rfidnum+'</td><td>'+userid+'</td><td>'+firstname+'</td><td>'+lastname+'</td></tr>');
 			  }
 			  else{
-			    $('#results').append('<tr><td>'+name+'</td><td>'+id_str+'</td></tr>');
+			    $('#tagresults').append('<tr><td>'+referenceid+'</td><td>'+rfidnum+'</td><td>'+userid+'</td><td>'+firstname+'</td><td>'+lastname+'</td></tr>');
 			    //alert(name);
 			  }
 						   }
@@ -353,6 +356,7 @@ function loadtags(){
 		
 		<form name="tracform" id="coachform" method="POST" data-parsley-validate>
 
+		
 		   <p>
 		      <label for="">First Name:</label> 
 		      <input data-progression="" type="text" data-helper="" id="first" value="" placeholder="" required data-parsley-group="block1" />
@@ -381,7 +385,7 @@ function loadtags(){
                    <div id="contentright">
 			      <div class ="outer">
       <div class="inner">
-       <table id="results" style="width:100%"></table>
+       <table id="tagresults" style="width:100%"></table>
        </div>
        </div>
               </div>
