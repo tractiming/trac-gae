@@ -10,93 +10,10 @@
 		}
 		//if a coach
 	else {
-		$("form#myform").hide();
-		loadtags();}
+}
 	});
 	</script>
-<script>
-//coaches jquery to call athletes and idnumbers
-$(document).ready(function() {
-		//load();
 
-        $("#coachform").on('submit', function(e){
-            e.preventDefault();
-	    $(".modal-animate").show();
-            var form = $(this);
-
-            form.parsley().validate();
-
-	    
-	    
-            if (form.parsley().isValid()){
-	            // var title=$('input[id=title]').val();
-	           var first=$('input[id=first]').val();
-	            var last=$('input[id=last]').val();  
-		      var id_number=$('input[id=number]').val();
-		    
-
-	      $.ajax({
-           type: "POST",
-           dataType:'json',
-           invokedata:{data1:id_number,},
-           url: "/api/athletes/",
-	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
-           data: {
-               first_name: first,
-               last_name:last,
-               username:first+""+last,
-           },
-           // Login was successful.
-           success: function(data) {
-			   var userid = data.id;
-			   var id_number = this.invokedata.data1;
-			   //alert(id_number);
-			   $.ajax({
-           type: "POST",
-           dataType:'json',
-           url: "/api/tags/",
-	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
-           data: {
-              id_str:id_number,
-              user:userid,
-               
-           },
-           // create athlete
-           success: function(data) {
-
-		    $(".modal-animate").hide();
-		    $("h6.notification.notification-critical").hide();
-		    $("h6.notification.notification-success").show();
-		    $("#coachform")[0].reset();
-		    loadtags();
-			   },
-			   error:function(xhr,errmsg,err){
-				   //created the username but not the tag to user
-				    $(".modal-animate").hide();
-	    $("h6.notification.notification-success").hide();
-               $("h6.notification.notification-critical").show();
-				   }
-			   
-			   });
-			   
-			   
-           },
-
-           // create athlete failed.
-           error: function(xhr, errmsg, err) {
-	    $(".modal-animate").hide();
-	    $("h6.notification.notification-success").hide();
-               $("h6.notification.notification-critical").show();
-           }
-           
-      });
-               
-            }
-        });
-    });
-
-
-</script>
 
 	<script>
 		//for athlete load their personal tags
@@ -279,10 +196,9 @@ $("body").on('click', 'tr',function(){
 	
 	}
 			
-
-
-//functon to load tags
-function loadtags(){
+			
+			//loads info for personal tag
+		  function load(){
 			 $('#results').empty();
 		  //alert(path);
 		  //alert(path);
@@ -300,18 +216,18 @@ function loadtags(){
                        //alert(json[0].id_str)
                        for (var ii=0;json.length;ii++){
 						   //alert(ii);
-						   name = json[ii].username;
-						   id_str = json[ii].id_str;
+						   id = json[ii].id;
+						   name = json[ii].id_str;
 						  if (ii==0) {
-			    $('#results').append('<tr><td>Username</td><td>ID Number</td></tr>');
-			    $('#results').append('<tr class="odd"><td>'+name+'</td><td>'+id_str+'</td></tr>');
+			    $('#results').append('<tr><td>ID</td><td>Tag ID</td></tr>');
+			    $('#results').append('<tr class="odd"><td>'+id+'</td><td>'+name+'</td></tr>');
 			    //alert(name);
 			  }
 			  else if((ii)%2 ==0) {
-			    $('#results').append('<tr class="odd"><td>'+name+'</td><td>'+id_str+'</td></tr>');
+			    $('#results').append('<tr class="odd"><td>'+id+'</td><td>'+name+'</td></tr>');
 			  }
 			  else{
-			    $('#results').append('<tr><td>'+name+'</td><td>'+id_str+'</td></tr>');
+			    $('#results').append('<tr><td>'+id+'</td><td>'+name+'</td></tr>');
 			    //alert(name);
 			  }
 						   }
@@ -323,6 +239,7 @@ function loadtags(){
                     });
 		   
 }
+
 
     
 	    </script>
@@ -336,7 +253,7 @@ function loadtags(){
 </div>
 
     <div id="create">  
-     <h2>Settings</h2>
+     <h2>Tags</h2>
      
 	  <div id="notifications">
         <h6 class="notification notification-critical" role="alert">Some information you entered isn't right.</h6>
@@ -347,34 +264,29 @@ function loadtags(){
 	  
     <div id="contentleft">
 					
-
-		
-		
-		
-		<form name="tracform" id="coachform" method="POST" data-parsley-validate>
-
-		   <p>
-		      <label for="">First Name:</label> 
-		      <input data-progression="" type="text" data-helper="" id="first" value="" placeholder="" required data-parsley-group="block1" />
-		  </p>
-		   <p>
-		      <label for="">Last Name:</label> 
-		      <input data-progression="" type="text" data-helper="" id="last" value="" placeholder="" required data-parsley-group="block1" />
+		<form name="tracform" id="myform" method="POST" data-parsley-validate>
+						<div class="button-container-two">
+		    <input type="submit" name="" class="validate" id="create" value="+ Create New" />
+		    </div>
+		    <p id="idnumber">
+		      
+		      <input type="hidden" id="idnumber" value="" placeholder="" required data-parsley-group="block1" readonly/>
 		  </p>
 		   <p>
 		      <label for="">ID Number:</label> 
-		      <input data-progression="" type="text" data-helper="" id="number" value="" placeholder="" required data-parsley-group="block1" />
+		      <input data-progression="" type="text" data-helper="" id="id_number" value="" placeholder="" required data-parsley-group="block1" />
 		  </p>
 		
 		     
 		     
 		          <div class="button-container">
+			<input type="submit" name="" class="validate" id="delete" value="Delete" />
 		    <input type="submit" name="" class="validate" id="submit" value="Save" />
 	                         </div>
 		</form>
+		
+		
 
-			
-					
 					
 				
     </div>

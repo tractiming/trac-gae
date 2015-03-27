@@ -29,3 +29,6 @@ def settings(request):
 
 def readers(request):
     return render(request, 'readers.html', {})
+    
+def tags(request):
+    return render(request, 'tags.html', {})
