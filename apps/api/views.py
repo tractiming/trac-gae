@@ -39,7 +39,7 @@ class verifyLogin(views.APIView):
 	permission_classes = ()
 	def post(self,request):
 		data = request.POST
-		print data
+		# print data
 		#Does the token exist?
 		try:
 			token = AccessToken.objects.get(token=data['token'])
@@ -186,6 +186,28 @@ class ReaderViewSet(viewsets.ModelViewSet):
 
     def pre_save(self, obj):
         obj.owner = self.request.user
+
+class TimingSessionReset(views.APIView):
+	serializer_class = TimingSessionSerializer
+	permission_classes = (permissions.IsAuthenticated,)
+	def post(self,request):
+		data = request.POST
+		# print data
+		user = self.request.user
+
+		# If the user is an athlete do not allow them to edit.
+		if is_athlete(user):
+			return HttpResponse(status.HTTP_403_FORBIDDEN)
+
+		elif is_coach(user):
+			try:
+				sessions = TimingSession.objects.filter(manager=user)
+				t = sessions.get(id=data['id'])
+				t.tagtimes.clear()
+				# print t
+				return HttpResponse(status.HTTP_202_ACCEPTED)
+			except:
+				return HttpResponse(status.HTTP_404_NOT_FOUND)
 
 class TimingSessionViewSet(viewsets.ModelViewSet):
     """
