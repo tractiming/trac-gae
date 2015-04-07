@@ -13,6 +13,7 @@ urlpatterns = [
         url(r'^register/$', views.RegistrationView.as_view()),
         url(r'^verifyLogin/$', views.verifyLogin.as_view()),
         url(r'^TimingSessionReset/$', views.TimingSessionReset.as_view()),
+        url(r'^IndividualTimes/$', views.IndividualTimes.as_view()),
         url(r'^userType/$', views.userType.as_view()),
         url(r'^updates/$', views.post_splits, name='updates'),
         url(r'^auth_verify/$', views.verify_login, name='auth_verify'),

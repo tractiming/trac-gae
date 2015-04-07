@@ -187,6 +187,40 @@ class ReaderViewSet(viewsets.ModelViewSet):
     def pre_save(self, obj):
         obj.owner = self.request.user
 
+class IndividualTimes(views.APIView):
+    serializer_class = TimingSessionSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self, request, format=None):
+        
+        user = self.request.user
+        # print user
+        final_array = []
+        # If the user is an athlete, list all the workouts he has run.
+        if is_athlete(user):
+            ap = AthleteProfile.objects.get(user=user)
+            sessions = ap.get_completed_sessions()
+		#Iterate through each session
+            for s in sessions:
+			    primary_key = s.pk
+			    t = TimingSession.objects.get(id=primary_key)
+			    num = t.get_athlete_names().index('%s' %(user))
+			    temp_name = t.name
+			    temp_time = t.start_time
+			    temp_results = t.get_results().get('runners')[num]
+			    temp_array = [{'Name': temp_name, 'Date': temp_time, 'Runner': temp_results}]
+			    final_array = final_array + temp_array
+			    final_array = final_array[::-1]
+            return Response(final_array)
+            sessions = final_array
+            return Response(sessions)
+        elif is_coach(user):
+            return HttpResponse(status.HTTP_404_NOT_FOUND)
+
+        # If not a user or coach, no results can be found.
+        else:
+            return HttpResponse(status.HTTP_404_NOT_FOUND)
+
+        
 class TimingSessionReset(views.APIView):
 	serializer_class = TimingSessionSerializer
 	permission_classes = (permissions.IsAuthenticated,)
@@ -226,10 +260,10 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         if is_athlete(user):
             ap = AthleteProfile.objects.get(user=user)
             sessions = ap.get_completed_sessions()
-
+            sessions = sessions[::-1]
         elif is_coach(user):
             sessions = TimingSession.objects.filter(manager=user)
-
+            sessions = sessions[::-1]
         # If not a user or coach, no results can be found.
         else:
             sessions = []
