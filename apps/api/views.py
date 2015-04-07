@@ -260,10 +260,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         if is_athlete(user):
             ap = AthleteProfile.objects.get(user=user)
             sessions = ap.get_completed_sessions()
-            sessions = sessions[::-1]
         elif is_coach(user):
             sessions = TimingSession.objects.filter(manager=user)
-            sessions = sessions[::-1]
         # If not a user or coach, no results can be found.
         else:
             sessions = []
