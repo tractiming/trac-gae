@@ -238,6 +238,11 @@ class TimingSessionReset(views.APIView):
 				sessions = TimingSession.objects.filter(manager=user)
 				t = sessions.get(id=data['id'])
 				t.tagtimes.clear()
+
+                # Clear the cache for the session.
+                cache.delete(('ts_%i_results' %t.id))
+                cache.delete(('ts_%i_athlete_names' %t.id))
+
 				# print t
 				return HttpResponse(status.HTTP_202_ACCEPTED)
 			except:

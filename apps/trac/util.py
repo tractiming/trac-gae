@@ -4,7 +4,9 @@ import datetime
 from django.contrib.auth.models import User, Group
 
 def is_athlete(user):
-    """Checks if the user is an athlete."""
+    """
+    Returns True if the user is an athlete, False otherwise.
+    """
     try:
         user.athlete
         return True
@@ -12,8 +14,9 @@ def is_athlete(user):
         return False
 
 def is_coach(user):
-    """Checks if the user "Athlete profile with this User already exists."
-    ] is a coach."""
+    """
+    Returns True if the user is a coach, False otherwise.
+    """
     try:
         user.coach
         return True
@@ -21,6 +24,9 @@ def is_coach(user):
         return False
 
 def user_type(user):
+    """
+    Gives the type of user: coach, athlete, or generic user.
+    """
     if is_athlete(user):
         return 'athlete'
     elif is_coach(user):
@@ -29,7 +35,10 @@ def user_type(user):
         return 'user'
 
 def parse_raw_msg(string):
-    """Extracts split data from reader notification message."""
+    """
+    DEPRECATED
+    Extracts split data from reader notification message.
+    """
     # Check that tag contains good information.
     if ('Tag:' not in string) or ('Last:' not in string) or ('Ant:' not in string):
         return None
@@ -50,8 +59,10 @@ def parse_raw_msg(string):
     return msg_info
 
 def parse_formatted_msg(msg):
-    """Extracts time data from a formatted reader message."""
-
+    """
+    DEPRECATED
+    Extracts time data from a formatted reader message.
+    """
     # Ensure that the message contains valid info.
     for token in ['ant', 'r', 'id', 'time']:
         if token not in msg:
@@ -61,9 +72,10 @@ def parse_formatted_msg(msg):
             }
 
 def filter_splits(unfiltered_splits, interval_distance, track_size):    
-    """Filters splits based on interval type."""
-
-    #Determine Constant of impossible time for 400m off of distance
+    """
+    Filters splits based on interval type and track size.
+    """
+    # Determine constant of impossible time for 400m off of distance.
     if interval_distance <= 200:
         constant = 20
     elif interval_distance > 200 and interval_distance <= 300:
@@ -79,8 +91,8 @@ def filter_splits(unfiltered_splits, interval_distance, track_size):
     else:
         constant = 59
 
-    #modify constant if on different sized track like 300m or 200m
-    #Dont modify if 200s on 200m track
+    # Modify constant if on different sized track like 300m or 200m.
+    # (Don't modify if 200s on 200m track.)
     if interval_distance >200:
         modified_constant = constant * (track_size/400.0)
     else:
@@ -92,4 +104,3 @@ def filter_splits(unfiltered_splits, interval_distance, track_size):
     
     return filtered_interval, filtered_counter
         
-

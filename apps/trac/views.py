@@ -1,3 +1,4 @@
+'''
 from django.shortcuts import render
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required, permission_required
@@ -95,4 +96,4 @@ def create_workout(request):
     return render(request, 'common/createworkout.html', 
             {'session_form': session_form})    
 
-
+'''

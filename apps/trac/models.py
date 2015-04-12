@@ -7,7 +7,9 @@ import datetime
 from util import filter_splits
 
 class Tag(models.Model):
-    """An RFID Tag. Has a name and belongs to one user."""
+    """
+    An RFID Tag. Has a name and belongs to one user.
+    """
     id_str = models.CharField(max_length=50)
     user = models.ForeignKey(User)
 
@@ -16,7 +18,9 @@ class Tag(models.Model):
                                   self.user.username if self.user else "")
 
 class Reader(models.Model):
-    """An RFID reader. Has an identifying number and can belong to many workouts."""
+    """
+    An RFID reader. Has an identifying number and belongs to one user.
+    """
     name = models.CharField(max_length=50,unique=True)
     id_str = models.CharField(max_length=50,unique=True)
     owner = models.ForeignKey(User)
@@ -26,12 +30,16 @@ class Reader(models.Model):
 
     @property
     def active_sessions(self):
-        """Returns a list of all active sessions the reader belongs to."""
+        """
+        Returns a list of all active sessions the reader belongs to.
+        """
         now = timezone.now()
         return self.timingsession_set.filter(start_time__lte=now, stop_time__gte=now)
 
 class TagTime(models.Model):
-    """A single split time from one tag."""
+    """
+    A single split time from one tag.
+    """
     tag = models.ForeignKey(Tag)
     time = models.DateTimeField()
     milliseconds = models.IntegerField()
@@ -51,25 +59,30 @@ class TagTime(models.Model):
         return name
 
 class TimingSession(models.Model):
-    """A timing session, for example, a workout or race."""
+    """
+    A timing session is, for example, a workout or race.
+    """
     name = models.CharField(max_length=50)
     start_time = models.DateTimeField()
     stop_time = models.DateTimeField()
+    manager = models.ForeignKey(User)
+    readers = models.ManyToManyField(Reader)
+    tagtimes = models.ManyToManyField(TagTime)
+
     comment = models.CharField(max_length=2500,blank=True)
     rest_time = models.IntegerField()
     track_size = models.IntegerField()
     interval_distance = models.IntegerField()
     interval_number = models.IntegerField()
     filter_choice = models.BooleanField(default=True)
-    manager = models.ForeignKey(User)
-    readers = models.ManyToManyField(Reader)
-    tagtimes = models.ManyToManyField(TagTime)
     
     def __unicode__(self):
         return "num=%i, start=%s" %(self.id, self.start_time)
 
     def is_active(self, time=None):
-        """Returns True if the current time is between the start and stop times."""
+        """
+        Returns True if the current time is between the start and stop times.
+        """
         if time is None:
             current_time = timezone.now()
         else:
@@ -78,12 +91,14 @@ class TimingSession(models.Model):
             return True
         return False
 
-    def get_results(self, user=None, force_update=False):
-        """Gets the current splits for the session."""
-        
+    def get_results(self, force_update=False):
+        """
+        Gets the current splits for the session. The force_update argument
+        ensures splits are recalculated and not read from cache.
+        """
         wdata = cache.get(('ts_%i_results' %self.id))
 
-        if not wdata:
+        if (not wdata) or (force_update):
             wdata = {}
             wdata['date'] = self.start_time.strftime('%m.%d.%Y')
             wdata['workoutID'] = self.id
@@ -135,8 +150,9 @@ class TimingSession(models.Model):
         return wdata    
 
     def get_athlete_names(self):
-        """Returns a list of all users that are registered in the session."""
-
+        """
+        Returns a list of all users that are registered in the session.
+        """
         names = cache.get(('ts_%i_athlete_names' %self.id))
 
         if not names:
@@ -154,7 +170,15 @@ class TimingSession(models.Model):
         
         return names
 
+    def clear_results(self):
+        """Removes all the tagtimes that currently exist in the session."""
+        return
+
 class AthleteProfile(models.Model):
+    """
+    An athlete is a type of user that owns tags and appears in workout
+    results.
+    """
     user = models.OneToOneField(User, related_name='athlete')
 
     def __unicode__(self):
@@ -176,6 +200,10 @@ class AthleteProfile(models.Model):
         return {'count': len(ids), 'ids': ids}    
 
 class CoachProfile(models.Model):
+    """
+    A coach is a type of user who is associated with a group of athletes,
+    creates workouts, and owns readers.
+    """
     user = models.OneToOneField(User, related_name='coach')
     organization = models.CharField(max_length=50)
     athletes = models.ManyToManyField(AthleteProfile)
@@ -184,5 +212,8 @@ class CoachProfile(models.Model):
         return "name=%s" %self.user.username
 
 class RaceDirectorProfile(models.Model):
+    """
+    A race director is a type of user.
+    """
     user = models.OneToOneField(User)
 
