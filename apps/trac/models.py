@@ -75,6 +75,8 @@ class TimingSession(models.Model):
     interval_distance = models.IntegerField()
     interval_number = models.IntegerField()
     filter_choice = models.BooleanField(default=True)
+
+    start_button_time = models.DateTimeField()
     
     def __unicode__(self):
         return "num=%i, start=%s" %(self.id, self.start_time)

@@ -222,31 +222,49 @@ class IndividualTimes(views.APIView):
 
         
 class TimingSessionReset(views.APIView):
-	serializer_class = TimingSessionSerializer
-	permission_classes = (permissions.IsAuthenticated,)
-	def post(self,request):
-		data = request.POST
-		# print data
-		user = self.request.user
-
-		# If the user is an athlete do not allow them to edit.
-		if is_athlete(user):
-			return HttpResponse(status.HTTP_403_FORBIDDEN)
-
-		elif is_coach(user):
-			try:
-				sessions = TimingSession.objects.filter(manager=user)
-				t = sessions.get(id=data['id'])
-				t.tagtimes.clear()
+    serializer_class = TimingSessionSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self,request):
+        data = request.POST 
+        user = self.request.user
+        
+        # If the user is an athlete do not allow them to edit.
+        if is_athlete(user):
+            return HttpResponse(status.HTTP_403_FORBIDDEN)
+        
+        elif is_coach(user):
+            try:
+                sessions = TimingSession.objects.filter(manager=user)
+                t = sessions.get(id=data['id'])
+                t.tagtimes.clear()
 
                 # Clear the cache for the session.
                 cache.delete(('ts_%i_results' %t.id))
                 cache.delete(('ts_%i_athlete_names' %t.id))
-
-				# print t
-				return HttpResponse(status.HTTP_202_ACCEPTED)
-			except:
+                return HttpResponse(status.HTTP_202_ACCEPTED)
+            
+            except:
 				return HttpResponse(status.HTTP_404_NOT_FOUND)
+
+class TimingSessionStartButton(views.APIView):
+    serializer_class = TimingSessionSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        """Sets the start button time to now."""
+        current_time = timezone.now() 
+        data = request.POST
+
+        try:
+            sessions = TimingSession.objects.filter(manager=self.request.user)
+            ts = sessions.get(id=data['id'])
+            ts.start_button_time = current_time
+            ts.save()
+            return HttpResponse(status.HTTP_202_ACCEPTED)
+
+        except:
+			return HttpResponse(status.HTTP_404_NOT_FOUND)
+
 
 class TimingSessionViewSet(viewsets.ModelViewSet):
     """
@@ -303,6 +321,7 @@ def post_splits(request):
     
     # Create new TagTime.
     dtime = timezone.datetime.strptime(data['time'], "%Y/%m/%d %H:%M:%S.%f") 
+    dtime = timezone.pytz.utc.localize(dtime)
     ms = int(str(dtime.microsecond)[:3])
     tt = TagTime(tag_id=tag.id, time=dtime, reader_id=reader.id, milliseconds=ms)
     try:
