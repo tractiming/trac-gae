@@ -26,6 +26,8 @@ from trac.util import is_athlete, is_coach
 from django.http import Http404
 from django.core.cache import cache
 
+import ast
+
 class JSONResponse(HttpResponse):
     """
     Renders contents to JSON.
@@ -222,7 +224,7 @@ class IndividualTimes(views.APIView):
 
         
 class TimingSessionReset(views.APIView):
-    serializer_class = TimingSessionSerializer
+    #serializer_class = TimingSessionSerializer
     permission_classes = (permissions.IsAuthenticated,)
     def post(self,request):
         data = request.POST 
@@ -303,21 +305,19 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         t.readers.add(*r)
         t.save()    
 
-@csrf_exempt
-@api_view(['POST'])
-@permission_classes((permissions.AllowAny,))
-def post_splits(request):
-    """Receives updates from readers."""
-    data = request.POST
+def create_split(reader_id, tag_id, time):
+    """Creates a new tagtime based on an incoming split."""
 
     # Get the tag and reader associated with the notification. Note that if the
     # tag or reader has not been established in the system, the split will be
     # ignored here.
     try:
-        reader = Reader.objects.get(id_str=data['r'])
-        tag = Tag.objects.get(id_str=data['id'])
-    except: #ObjectDoesNotExist:
-        return HttpResponse(status.HTTP_400_BAD_REQUEST)
+        reader = Reader.objects.get(id_str=reader_id)
+        tag = Tag.objects.get(id_str=tag_id)
+    except:
+        print 'in except' 
+        return -1
+    print 'reader, tag found'
     
     # Create new TagTime.
     dtime = timezone.datetime.strptime(data['time'], "%Y/%m/%d %H:%M:%S.%f") 
@@ -327,7 +327,7 @@ def post_splits(request):
     try:
         tt.save()
     except IntegrityError:
-        return HttpResponse(status.HTTP_400_BAD_REQUEST)
+        return -1
 
     # Add the TagTime to all sessions active and having a related reader.
     for s in reader.active_sessions:
@@ -335,7 +335,29 @@ def post_splits(request):
         cache.delete(('ts_%i_results' %s.id))
         cache.delete(('ts_%i_athlete_names' %s.id))
     
-    return HttpResponse(status.HTTP_201_CREATED)
+    return 0
+
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes((permissions.AllowAny,))
+def post_splits(request):
+    """Receives updates from readers."""
+    data = request.POST
+    reader_name = data['r']
+    split_list = ast.literal_eval(data['s'])
+    
+    split_status = 0
+    for split in split_list:
+        if create_split(reader_name, split[0], split[1]):
+            split_status = -1
+
+    if split_status:
+        return HttpResponse(status.HTTP_400_BAD_REQUEST)
+    else:
+        return HttpResponse(status.HTTP_201_CREATED)
+
+
     
 @api_view(['GET'])
 @permission_classes((permissions.AllowAny,))

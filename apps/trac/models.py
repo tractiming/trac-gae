@@ -76,7 +76,7 @@ class TimingSession(models.Model):
     interval_number = models.IntegerField()
     filter_choice = models.BooleanField(default=True)
 
-    start_button_time = models.DateTimeField()
+    start_button_time =models.DateTimeField(default=timezone.datetime(1,1,1,1,1,1))
     
     def __unicode__(self):
         return "num=%i, start=%s" %(self.id, self.start_time)
@@ -122,6 +122,9 @@ class TimingSession(models.Model):
                 # Calculate the splits for this tag in the current workout.
                 times = TagTime.objects.filter(timingsession=self, 
                                                tag=tag).order_by('time')
+                if self.start_button_time.year > 1:
+                    s_tt = TagTime(time=self.start_button_time, milliseconds=0)
+                    times = [s_tt]+list(times)
                 
                 interval = []
                 for i in range(len(times)-1):
