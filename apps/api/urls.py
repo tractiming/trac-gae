@@ -17,6 +17,8 @@ urlpatterns = [
         url(r'^start_timer/$', views.TimingSessionStartButton.as_view()),
         url(r'^userType/$', views.userType.as_view()),
         url(r'^updates/$', views.post_splits, name='updates'),
+        url(r'^raceregistration/$', views.RaceRegistrationView.as_view(),
+            name='racereg'),
         url(r'^auth_verify/$', views.verify_login, name='auth_verify'),
         url(r'^api-auth/', include('rest_framework.urls',
             namespace='rest_framework'))

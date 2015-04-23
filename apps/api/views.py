@@ -13,12 +13,13 @@ from rest_framework import (viewsets, permissions, renderers,
 from rest_framework.response import Response
 from rest_framework.decorators import (link, api_view, permission_classes,
 detail_route)
+from rest_framework.parsers import MultiPartParser, FormParser
 
 from provider.oauth2.models import Client, AccessToken
 
 from serializers import (UserSerializer, RegistrationSerializer, 
                          TagSerializer, TimingSessionSerializer,
-                         ReaderSerializer, UserSerializer)
+                         ReaderSerializer, UserSerializer, CSVSerializer)
 
 from trac.models import TimingSession, AthleteProfile, CoachProfile
 from trac.models import Tag, Reader, TagTime
@@ -315,9 +316,7 @@ def create_split(reader_id, tag_id, time):
         reader = Reader.objects.get(id_str=reader_id)
         tag = Tag.objects.get(id_str=tag_id)
     except:
-        print 'in except' 
         return -1
-    print 'reader, tag found'
     
     # Create new TagTime.
     dtime = timezone.datetime.strptime(data['time'], "%Y/%m/%d %H:%M:%S.%f") 
@@ -344,6 +343,7 @@ def create_split(reader_id, tag_id, time):
 def post_splits(request):
     """Receives updates from readers."""
     data = request.POST
+    print data
     reader_name = data['r']
     split_list = ast.literal_eval(data['s'])
     
@@ -367,3 +367,16 @@ def verify_login(request):
     """
     print request.user
     return HttpResponse()
+
+
+class RaceRegistrationView(views.APIView):
+    parser_classes = ()
+    permission_classes = (permissions.AllowAny,)
+
+    def put(self, request, filename, format=None):
+        file_obj = request.FILES['file']
+
+        return HttpResponse(status.HTTP_204_NO_CONTENT)
+
+
+

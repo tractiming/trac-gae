@@ -85,3 +85,6 @@ class CreateTimingSessionSerializer(serializers.ModelSerializer):
         model = TimingSession
         fields = ('name', 'start_time', 'stop_time', 'manager')
         
+
+class CSVSerializer(serializers.Serializer):
+    csv_file = serializers.FileField(max_length=1000, allow_empty_file=False)
