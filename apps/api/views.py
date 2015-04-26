@@ -312,6 +312,10 @@ def create_split(reader_id, tag_id, time):
     # Get the tag and reader associated with the notification. Note that if the
     # tag or reader has not been established in the system, the split will be
     # ignored here.
+    print reader_id
+    print tag_id
+    print time
+
     try:
         reader = Reader.objects.get(id_str=reader_id)
         tag = Tag.objects.get(id_str=tag_id)
