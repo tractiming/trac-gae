@@ -349,6 +349,8 @@ def post_splits(request):
         print data
         reader_name = data['r']
         split_list = ast.literal_eval(data['s'])
+        print reader_name
+        print split_list
         
         split_status = 0
         for split in split_list:
