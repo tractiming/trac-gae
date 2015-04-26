@@ -330,6 +330,7 @@ def create_split(reader_id, tag_id, time):
     dtime = timezone.now()
     ms = 0
     tt = TagTime(tag_id=tag.id, time=dtime, reader_id=reader.id, milliseconds=ms)
+    print 'tag time initialized'
     try:
         tt.save()
     except:
