@@ -330,10 +330,10 @@ def create_split(reader_id, tag_id, time):
 
     # Add the TagTime to all sessions active and having a related reader.
     for s in reader.active_sessions:
-        if s.registered_tags.all() and (tag.timingsession_set.filter(id=s.id)):
-            s.tagtimes.add(tt.pk)
-            cache.delete(('ts_%i_results' %s.id))
-            cache.delete(('ts_%i_athlete_names' %s.id))
+        #if s.registered_tags.all() and (tag.timingsession_set.filter(id=s.id)):
+        s.tagtimes.add(tt.pk)
+        cache.delete(('ts_%i_results' %s.id))
+        cache.delete(('ts_%i_athlete_names' %s.id))
     
     return 0
 
