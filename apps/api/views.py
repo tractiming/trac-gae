@@ -330,7 +330,7 @@ def create_split(reader_id, tag_id, time):
     tt = TagTime(tag_id=tag.id, time=dtime, reader_id=reader.id, milliseconds=ms)
     try:
         tt.save()
-    except IntegrityError:
+    except:
         return -1
 
     print 'tagtime created'
