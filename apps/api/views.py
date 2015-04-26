@@ -317,7 +317,8 @@ def create_split(reader_id, tag_id, time):
         tag = Tag.objects.get(id_str=tag_id)
     except:
         return -1
-    
+   
+    print 'tag, reader found'
     # Create new TagTime.
     dtime = timezone.datetime.strptime(data['time'], "%Y/%m/%d %H:%M:%S.%f") 
     dtime = timezone.pytz.utc.localize(dtime)
@@ -328,12 +329,16 @@ def create_split(reader_id, tag_id, time):
     except IntegrityError:
         return -1
 
+    print 'tagtime created'
+
     # Add the TagTime to all sessions active and having a related reader.
     for s in reader.active_sessions:
         #if s.registered_tags.all() and (tag.timingsession_set.filter(id=s.id)):
         s.tagtimes.add(tt.pk)
         cache.delete(('ts_%i_results' %s.id))
         cache.delete(('ts_%i_athlete_names' %s.id))
+        print 'added to active session'
+        
     
     return 0
 
