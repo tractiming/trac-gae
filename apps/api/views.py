@@ -324,11 +324,11 @@ def create_split(reader_id, tag_id, time):
    
     print 'tag, reader found'
     # Create new TagTime.
-    #dtime = timezone.datetime.strptime(time, "%Y/%m/%d %H:%M:%S.%f") 
-    #dtime = timezone.pytz.utc.localize(dtime)
-    #ms = int(str(dtime.microsecond)[:3])
-    dtime = timezone.now()
-    ms = 0
+    dtime = timezone.datetime.strptime(time, "%Y/%m/%d %H:%M:%S.%f") 
+    dtime = timezone.pytz.utc.localize(dtime)
+    ms = int(str(dtime.microsecond)[:3])
+    #dtime = timezone.now()
+    #ms = 0
     tt = TagTime(tag_id=tag.id, time=dtime, reader_id=reader.id, milliseconds=ms)
     print 'tag time initialized'
     try:
