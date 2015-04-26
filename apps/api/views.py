@@ -330,32 +330,39 @@ def create_split(reader_id, tag_id, time):
 
     # Add the TagTime to all sessions active and having a related reader.
     for s in reader.active_sessions:
-        s.tagtimes.add(tt.pk)
-        cache.delete(('ts_%i_results' %s.id))
-        cache.delete(('ts_%i_athlete_names' %s.id))
+        if s.registered_tags.all() and (tag.timingsession_set.filter(id=s.id)):
+            s.tagtimes.add(tt.pk)
+            cache.delete(('ts_%i_results' %s.id))
+            cache.delete(('ts_%i_athlete_names' %s.id))
     
     return 0
 
 
 @csrf_exempt
-@api_view(['POST'])
+@api_view(['POST','GET'])
 @permission_classes((permissions.AllowAny,))
 def post_splits(request):
     """Receives updates from readers."""
-    data = request.POST
-    print data
-    reader_name = data['r']
-    split_list = ast.literal_eval(data['s'])
-    
-    split_status = 0
-    for split in split_list:
-        if create_split(reader_name, split[0], split[1]):
-            split_status = -1
 
-    if split_status:
-        return HttpResponse(status.HTTP_400_BAD_REQUEST)
-    else:
-        return HttpResponse(status.HTTP_201_CREATED)
+    if request.method == 'POST':
+        data = request.POST
+        print data
+        reader_name = data['r']
+        split_list = ast.literal_eval(data['s'])
+        
+        split_status = 0
+        for split in split_list:
+            if create_split(reader_name, split[0], split[1]):
+                split_status = -1
+
+        if split_status:
+            return HttpResponse(status.HTTP_400_BAD_REQUEST)
+        else:
+            return HttpResponse(status.HTTP_201_CREATED)
+
+    elif request.method == 'GET':
+        return Response({str(timezone.now())}, status.HTTP_200_OK)
+
 
 
     
@@ -378,5 +385,9 @@ class RaceRegistrationView(views.APIView):
 
         return HttpResponse(status.HTTP_204_NO_CONTENT)
 
-
+@csrf_exempt
+@api_view(['GET'])
+@permission_classes((permissions.AllowAny,))
+def current_time(request):
+    return Response({str(timezone.now())}, status.HTTP_200_OK)
 

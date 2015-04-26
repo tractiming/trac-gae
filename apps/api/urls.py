@@ -19,6 +19,7 @@ urlpatterns = [
         url(r'^updates/$', views.post_splits, name='updates'),
         url(r'^raceregistration/$', views.RaceRegistrationView.as_view(),
             name='racereg'),
+        url(r'^ctime/$', views.current_time, name='ctime'),
         url(r'^auth_verify/$', views.verify_login, name='auth_verify'),
         url(r'^api-auth/', include('rest_framework.urls',
             namespace='rest_framework'))

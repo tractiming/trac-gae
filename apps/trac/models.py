@@ -76,7 +76,8 @@ class TimingSession(models.Model):
     interval_number = models.IntegerField()
     filter_choice = models.BooleanField(default=True)
 
-    start_button_time =models.DateTimeField(default=timezone.datetime(1,1,1,1,1,1))
+    start_button_time = models.DateTimeField(default=timezone.datetime(1,1,1,1,1,1))
+    registered_tags = models.ManyToManyField(Tag)
     
     def __unicode__(self):
         return "num=%i, start=%s" %(self.id, self.start_time)
