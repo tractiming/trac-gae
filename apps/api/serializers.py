@@ -78,7 +78,7 @@ class TimingSessionSerializer(serializers.ModelSerializer):
         model = TimingSession
         lookup_field = 'session'
         fields = ('id', 'name', 'start_time', 'stop_time','comment','rest_time','track_size','interval_distance','interval_number', 'filter_choice', 'manager',
-                'results', 'athletes')
+                'results', 'athletes', 'start_button_time')
 
 class CreateTimingSessionSerializer(serializers.ModelSerializer):
     class Meta:
