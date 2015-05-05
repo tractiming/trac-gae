@@ -251,7 +251,7 @@ class TimingSessionReset(views.APIView):
 
 class TimingSessionStartButton(views.APIView):
     serializer_class = TimingSessionSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.AllowAny,)#permissions.IsAuthenticated,)
 
     def post(self, request):
         """Sets the start button time to now."""
