@@ -10,7 +10,7 @@ def is_athlete(user):
     try:
         user.athlete
         return True
-    except ObjectDoesNotExist:
+    except:
         return False
 
 def is_coach(user):
@@ -20,7 +20,7 @@ def is_coach(user):
     try:
         user.coach
         return True
-    except ObjectDoesNotExist:
+    except:
         return False
 
 def user_type(user):
