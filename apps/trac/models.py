@@ -6,7 +6,6 @@ from django.db.models import Q
 import time
 import datetime
 from util import filter_splits
-import numpy
 import datetime
 from django.db import models
 from jsonfield import JSONField
