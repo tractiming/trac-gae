@@ -257,10 +257,13 @@ class TimingSessionStartButton(views.APIView):
         """Sets the start button time to now."""
         current_time = timezone.now() 
         data = request.POST
+        print data
 
         try:
-            sessions = TimingSession.objects.filter(manager=self.request.user)
-            ts = sessions.get(id=data['id'])
+            #sessions = TimingSession.objects.filter(manager=self.request.user)
+            #ts = sessions.get(id=data['id'])
+            ts = TimingSession.objects.get(id=data['id'])
+            #print ts
             ts.start_button_time = current_time
             ts.save()
             return HttpResponse(status.HTTP_202_ACCEPTED)
@@ -390,14 +393,64 @@ def verify_login(request):
     return HttpResponse()
 
 
-class RaceRegistrationView(views.APIView):
-    parser_classes = ()
-    permission_classes = (permissions.AllowAny,)
+@api_view(['POST'])
+@permission_classes((permissions.AllowAny,))
+def create_race(request):
+    """
+    Creates a race by making a timing session and registering runners/tags.
+    Posted data should be in the form:
+        {race_name: '', 
+         race_date: 'yyyy/mm/dd', 
+         director_username: '',
+         athletes: [{first_name: '', last_name: '', tag: '', team: ''}, ...]
+        }
+    """
+    data = request.POST
 
-    def put(self, request, filename, format=None):
-        file_obj = request.FILES['file']
+    # Create the timing session.
+    name = data['race_name']
+    start_time = timezone.datetime.strptime(data['race_date'], "%Y/%m/%d") 
+    stop_time = start_time+timezone.timedelta(1)
+    ts = TimingSession.objects.create(name=name, start_time=start_time,
+                                      stop_time=stop_time)
 
-        return HttpResponse(status.HTTP_204_NO_CONTENT)
+    # Assign the session to a coach.
+    uc = User.objects.get_or_create(username=data['director_username'])
+    c = CoachProfile.objects.get_or_create(user=uc)
+    ts.manager = uc
+    ts.save()
+
+    # Get a list of all the teams in the race and register each one.
+    team_list = []
+    for athlete in data['athletes']:
+        team_name = athletes['team']
+        if team_name not in team_list:
+            team_list.append(team)
+
+    # Add each athlete to the race.
+    for athlete in data['athletes']:
+
+        # Create the user and athlete profile.
+        first_name = athlete['first_name']
+        last_name = athlete['last_name']
+        username = first_name + last_name
+        user = User.objects.create(first_name=first_name,
+                                   last_name=last_name,
+                                   username=username)
+        a = AthleteProfile.objects.create(user=user)
+
+        # Create the rfid tag object and add to session.
+        tag_id = athlete['tag']
+        tag = Tag.objects.create(id_str=tag_id, user=user)
+        ts.registered_tags.add(tag.pk)
+
+
+
+
+
+
+
+
 
 @csrf_exempt
 @api_view(['GET'])
