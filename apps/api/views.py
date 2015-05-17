@@ -19,7 +19,7 @@ from provider.oauth2.models import Client, AccessToken
 
 from serializers import (UserSerializer, RegistrationSerializer, 
                          TagSerializer, TimingSessionSerializer,
-                         ReaderSerializer, UserSerializer, CSVSerializer)
+                         ReaderSerializer, UserSerializer, CSVSerializer, ScoringSerializer)
 
 from trac.models import TimingSession, AthleteProfile, CoachProfile
 from trac.models import Tag, Reader, TagTime
@@ -271,13 +271,40 @@ class TimingSessionStartButton(views.APIView):
         except:
 			return HttpResponse(status.HTTP_404_NOT_FOUND)
 
+class ScoringViewSet(viewsets.ModelViewSet):
+    """
+    Returns list of scored sessions
+    """
+    serializer_class = ScoringSerializer
+    permission_classes = (permissions.AllowAny,)
 
+    def get_queryset(self):
+        """
+        Overrides default method to filter sessions by user.
+        """
+        user = self.request.user
+
+        # If the user is an athlete, list all the workouts he has run.
+        if is_athlete(user):
+            ap = AthleteProfile.objects.get(user=user)
+            sessions = ap.get_completed_sessions()
+            #sessions = sessions.reverse()
+        elif is_coach(user):
+            sessions = TimingSession.objects.filter(manager=user)
+            #sessions = sessions.reverse()
+        # If not a user or coach, no results can be found.
+        else:
+           sessions = TimingSession.objects.filter(private=False)
+           
+
+        return sessions  
+        
 class TimingSessionViewSet(viewsets.ModelViewSet):
     """
     Returns a list of all sessions associated with the user.
     """
     serializer_class = TimingSessionSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.AllowAny,)
 
     def get_queryset(self):
         """
@@ -293,7 +320,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             sessions = TimingSession.objects.filter(manager=user)
         # If not a user or coach, no results can be found.
         else:
-            sessions = []
+            sessions = TimingSession.objects.filter(private=False)
 
         return sessions    
 

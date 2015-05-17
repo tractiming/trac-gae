@@ -2,9 +2,13 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.core.cache import cache
+from django.db.models import Q
 import time
 import datetime
 from util import filter_splits
+import datetime
+from django.db import models
+from jsonfield import JSONField
 
 class Tag(models.Model):
     """
@@ -75,12 +79,17 @@ class TimingSession(models.Model):
     interval_distance = models.IntegerField()
     interval_number = models.IntegerField()
     filter_choice = models.BooleanField(default=True)
+    private = models.BooleanField(default=True)
+    number_scoring=models.IntegerField(default=5)
+    gender_scoring=models.CharField(max_length=50,blank=True,default='male')
+    age_scoring=JSONField(blank=True,default={})
+    grade_scoring=JSONField(max_length=50,blank=True,default={})
 
     start_button_time = models.DateTimeField(default=timezone.datetime(1,1,1,1,1,1))
     registered_tags = models.ManyToManyField(Tag)
     
     def __unicode__(self):
-        return "num=%i, start=%s" %(self.id, self.start_time)
+        return "num=%i, start=%s, gender=%i, age=%i,grade=%i,scoring=%i" %(self.id, self.start_time,self.gender_scoring,self.age_scoring,self.grade_scoringself.number_scoring)
 
     def is_active(self, time=None):
         """
@@ -94,6 +103,128 @@ class TimingSession(models.Model):
             return True
         return False
 
+    def get_final_results(self, user=None, force_update=False):
+        """Gets the current splits for the session."""
+        
+        wdata = cache.get(('ts_%i_results' %self.id))
+
+        if not wdata:
+            name_array = []
+            time_array=[]
+            school = []
+            q_objects=Q()
+            
+            #Filter by gender, age, grade. Note that age and grade are json arrays
+            #TODO: Filter by team
+            			
+            if self.age_scoring:
+			    for age in self.age_scoring:
+				    q_objects |= Q(tag__user__athlete__age=age)
+			
+            if self.grade_scoring:
+			    for grade in self.grade_scoring:
+				    q_objects |= Q(tag__user__athlete__grade=grade)
+		    
+            if self.gender_scoring:
+				q_objects &= Q(tag__user__athlete__gender=self.gender_scoring)
+			
+				
+            tag_ids = self.tagtimes.filter(q_objects).values_list('tag_id',flat=True).distinct()
+            for tag_id in tag_ids:
+
+                # Get the name of the tag's owner.
+                tag = Tag.objects.get(id=tag_id)
+                user = tag.user
+                if user:
+                    name = user.get_full_name()
+                    if not name:
+                        name = user.username
+                else:
+                    name = str(tag_id)
+                
+                try:
+                    team = user.groups.values_list('name',flat=True)[0]
+                except:
+                    team = None
+                
+                # Calculate the splits for this tag in the current workout.
+                times = TagTime.objects.filter(timingsession=self, 
+                                               tag=tag).order_by('time')
+                
+                interval = []
+                scoring_time = []
+                for i in range(len(times)-1):
+                    t1 = times[i].time+timezone.timedelta(
+                            milliseconds=times[i].milliseconds)
+                    t2 = times[i+1].time+timezone.timedelta(
+                            milliseconds=times[i+1].milliseconds)
+                    dt = t2-t1
+
+                    # Convert the number to a string to prevent round-off error.
+                    str_dt = str(round(dt.total_seconds(), 3))
+                    interval.append([str_dt])
+                    scoring_time.append(round(dt.total_seconds(), 3))
+
+                counter = range(1,len(interval)+1)   
+
+                # Filtering algorithm.
+                if self.filter_choice:
+                    interval, counter = filter_splits(interval, 
+                                                      self.interval_distance,
+                                                      self.track_size)
+
+                # Add the runner's data to the workout. 
+                #Insure that scoring_time[-1] is the same array length if reader misses runner
+
+                name_array.append(name)
+                time_array.append(scoring_time[-1])
+                school.append(team)
+        
+        #TODO: Better JSON Sorted by time?
+        self.participating_schools = set(school)   
+        #sort arrays by fastest time, print name and time in order
+        sorted_results = [sorted(zip(time_array,name_array,school))]
+        self.sorted_results = sorted_results
+        return (sorted_results)
+    
+    def get_score(self):
+		"""
+		Calculate score from data fed from get_final_results
+		"""
+		scored_array=[]
+		schools = []
+		scoring_runners=[]
+		score_breakdown=[]
+		score=[]
+		#compare registered schools to schools of runners
+		for t in self.participating_schools:
+			count=0
+			points = 0
+			r = 0
+			team_scorers=[]
+			team_score_breakdown=[]
+			while r<len(self.sorted_results[0]) and count < self.number_scoring: #change to scoring_runners
+				
+				if(self.sorted_results[0][r][2] == t):
+				    count = count + 1
+				    points = points + r + 1
+				    team_scorers.append(self.sorted_results[0][r][1])
+				    team_score_breakdown.append(r+1)
+				r = r + 1
+			#compare team to scoring standard, if less than standard set to null	
+			if count < self.number_scoring:#change to scoring_runners
+				points= None
+			
+			# if we need individual arrays,or json format will need to redo and order json
+			score_breakdown.append(team_score_breakdown)	
+			scoring_runners.append(team_scorers)
+			scored_array.append(points)
+			schools.append(t)
+			#score.append({'team': team_score_breakdown, 'team scoreres': team_scorers, 'points': points,'school':t})
+			
+		zipped_scores = [sorted(zip(scored_array,schools,scoring_runners,score_breakdown))]
+		return zipped_scores
+    
     def get_results(self, force_update=False):
         """
         Gets the current splits for the session. The force_update argument
