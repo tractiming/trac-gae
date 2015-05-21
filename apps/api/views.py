@@ -429,30 +429,36 @@ def create_race(request):
         {race_name: '', 
          race_date: 'yyyy/mm/dd', 
          director_username: '',
-         athletes: [{first_name: '', last_name: '', tag: '', team: ''}, ...]
+         readers = [id1, id2, ...],
+         athletes: [{first_name: '', last_name: '', tag: '', 
+                     team: '', age: '', gender: ''}, ...]
         }
     """
     data = request.POST
 
+    # Assign the session to a coach.
+    uc, created = User.objects.get_or_create(username=data['director_username'])
+    c, created = CoachProfile.objects.get_or_create(user=uc)
+    
     # Create the timing session.
     name = data['race_name']
     start_time = timezone.datetime.strptime(data['race_date'], "%Y/%m/%d") 
     stop_time = start_time+timezone.timedelta(1)
     ts = TimingSession.objects.create(name=name, start_time=start_time,
-                                      stop_time=stop_time)
+                                      stop_time=stop_time, manager=uc)
 
-    # Assign the session to a coach.
-    uc = User.objects.get_or_create(username=data['director_username'])
-    c = CoachProfile.objects.get_or_create(user=uc)
-    ts.manager = uc
-    ts.save()
+    # Create readers and add to the race.
+    for r_id in ast.literal_eval(data['readers']):
+        r, created = Reader.objects.get_or_create(id_str=r_id, owner=uc,
+                name=r_id)
+        ts.readers.add(r.pk)
+    ts.save()    
 
     # Get a list of all the teams in the race and register each one.
-    team_list = []
-    for athlete in data['athletes']:
-        team_name = athletes['team']
-        if team_name not in team_list:
-            team_list.append(team)
+    athlete_list = ast.literal_eval(data['athletes'])
+    teams = set([a['team'] for a in athlete_list if (a['team'] is not None)])
+    for team in teams:
+        Group.objects.create(name='%s-%s' %(data['race_name'], team))
 
     # Add each athlete to the race.
     for athlete in data['athletes']:
@@ -461,10 +467,13 @@ def create_race(request):
         first_name = athlete['first_name']
         last_name = athlete['last_name']
         username = first_name + last_name
-        user = User.objects.create(first_name=first_name,
-                                   last_name=last_name,
-                                   username=username)
-        a = AthleteProfile.objects.create(user=user)
+        user, created = User.objects.get_or_create(first_name=first_name,
+                                                   last_name=last_name,
+                                                   username=username)
+        a, created = AthleteProfile.objects.create_or_create(user=user)
+        a.age = athlete['age']
+        a.gender = athlete['gender']
+        a.save()
 
         # Create the rfid tag object and add to session.
         tag_id = athlete['tag']

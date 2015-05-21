@@ -100,7 +100,27 @@ def filter_splits(unfiltered_splits, interval_distance, track_size):
 
     dt_sec = datetime.timedelta(seconds=modified_constant).total_seconds()
     filtered_interval = [dt for dt in unfiltered_splits if float(dt[0])>dt_sec]    
-    filtered_counter = range(1,len(filtered_interval)+1)    
+    #filtered_counter = range(1,len(filtered_interval)+1)    
     
-    return filtered_interval, filtered_counter
-        
+    return filtered_interval#, filtered_counter
+       
+
+class RaceReport:
+    """A summary of a race's results."""
+
+    age_brackets = [(0,17), (18, 21), (22, 30), (31, 40), (41, 50)]
+    results = {}
+
+    def __init__(self, session_id):
+        self.ts = TimingSession.objects.get(id=session_id)
+        self.results = {}
+        pass
+
+    def get_results(self):
+        pass
+
+    def write_csv(self):
+        pass
+
+
+

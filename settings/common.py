@@ -94,6 +94,11 @@ REST_FRAMEWORK = {
         ),
 }
 
+################ SOUTH ################
+SOUTH_TESTS_MIGRATE = False
+SKIP_SOUTH_TESTS = True
+#######################################
+
 ########## URL CONFIGURATION ##########
 ROOT_URLCONF = 'trac.urls'
 #######################################

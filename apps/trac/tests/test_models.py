@@ -1,18 +1,17 @@
 from django.test import TestCase
 from django.utils import timezone
-from django.contrib.auth.models import User
-from common.models import TimingSession, Tag, Reader, TagTime
+from trac.models import *
 
 
 class ReaderTest(TestCase):
 
-    def create_reader(self, *args, **kwargs):
-        user = User.objects.create(username='Test User')
-        return Reader.objects.create(name='Alien Reader', id_str='A101',
-                owner=user)
+    def create_reader(self, user_name="Test User", reader_name="Alien", 
+                      reader_str="A123"):
+        user = User.objects.create(username=user_name)
+        return Reader.objects.create(name=reader_name, id_str=reader_str, owner=user)
 
     def create_session(self, coach_name, start_time, stop_time):
-        user = User.objects.create(username=coach_name)
+        user, created = User.objects.get_or_create(username=coach_name)
         return TimingSession.objects.create(start_time=start_time,
                                             stop_time=stop_time,
                                             manager=user)
@@ -27,7 +26,7 @@ class ReaderTest(TestCase):
         inactive_stop = timezone.now()+timezone.timedelta(-1)
         active_stop = timezone.now()+timezone.timedelta(1)
         
-        r = self.create_reader()
+        r = self.create_reader("T")
         inactive_session = self.create_session('Coach1', start, inactive_stop)
         active_session = self.create_session('Coach2', start, active_stop)
         inactive_session.readers.add(r)
@@ -43,7 +42,8 @@ class TagTimeTest(TestCase):
         coach = User.objects.create(username='Coach')
         tag = Tag.objects.create(id_str='A128 12G4', user=athlete)
         reader = Reader.objects.create(id_str='A102', owner=coach)
-        return TagTime.objects.create(tag=tag, time=timezone.now(), reader=reader)
+        return TagTime.objects.create(tag=tag, time=timezone.now(),
+                reader=reader, milliseconds=145)
 
     def test_tagtime_creation(self):
         tt = self.create_tagtime('Test Athlete')
@@ -54,7 +54,7 @@ class TagTimeTest(TestCase):
 
     def test_owner_name(self):
         tt = self.create_tagtime('mo')
-        self.assertTrue(tt.owner_name == 'Unknown')
+        self.assertTrue(tt.owner_name == '')
         tt.tag.user.first_name = 'Mo'
         tt.tag.user.last_name = 'Farah'
         self.assertTrue(tt.owner_name == 'Mo Farah')
