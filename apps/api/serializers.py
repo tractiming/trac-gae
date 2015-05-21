@@ -77,8 +77,10 @@ class TimingSessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = TimingSession
         lookup_field = 'session'
-        fields = ('id', 'name', 'start_time', 'stop_time','comment','rest_time','track_size','interval_distance','interval_number', 'filter_choice', 'manager',
-                'results', 'athletes', 'start_button_time', 'private','gender_scoring','age_scoring','grade_scoring')
+        fields = ('id', 'name', 'start_time', 'stop_time',
+                  'comment', 'rest_time', 'track_size', 'interval_distance', 
+                  'interval_number', 'filter_choice', 'manager',
+                  'results', 'athletes', 'start_button_time', 'private')
 
 class ScoringSerializer(serializers.ModelSerializer):
     final_results = JSONReadOnlyField(source='get_final_results')
