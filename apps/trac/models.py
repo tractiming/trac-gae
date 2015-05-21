@@ -73,7 +73,8 @@ class TimingSession(models.Model):
     readers = models.ManyToManyField(Reader)
     tagtimes = models.ManyToManyField(TagTime)
     
-    start_button_time = models.DateTimeField(default=timezone.datetime(1,1,1,1,1,1))
+    start_button_time = models.DateTimeField(default=timezone.datetime(1,1,1,1,1,1), 
+            blank=True)
     registered_tags = models.ManyToManyField(Tag)
 
     comment = models.CharField(max_length=2500, null=True, blank=True)
