@@ -133,6 +133,9 @@ class TagViewSet(viewsets.ModelViewSet):
             tags = []
             for athlete in user.coach.athletes.all():
                 tags.extend(athlete.user.tag_set.all())
+
+        else:
+            tags = []
         
         return tags
 
@@ -455,7 +458,7 @@ def create_race(request):
     ts.save()    
 
     # Get a list of all the teams in the race and register each one.
-    athlete_list = ast.literal_eval(data['athletes'])
+    athlete_list = data['athletes']#ast.literal_eval(data['athletes'])
     teams = set([a['team'] for a in athlete_list if (a['team'] is not None)])
     for team in teams:
         Group.objects.create(name='%s-%s' %(data['race_name'], team))
