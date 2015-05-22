@@ -345,9 +345,7 @@ def create_split(reader_id, tag_id, time):
     # Get the tag and reader associated with the notification. Note that if the
     # tag or reader has not been established in the system, the split will be
     # ignored here.
-    print reader_id
-    print tag_id
-    print time
+    print reader_id, tag_id, time
 
     try:
         reader = Reader.objects.get(id_str=reader_id)
@@ -355,29 +353,26 @@ def create_split(reader_id, tag_id, time):
     except:
         return -1
    
-    print 'tag, reader found'
     # Create new TagTime.
     dtime = timezone.datetime.strptime(time, "%Y/%m/%d %H:%M:%S.%f") 
     #dtime = timezone.pytz.utc.localize(dtime)
     ms = int(str(dtime.microsecond)[:3])
-    #dtime = timezone.now()
-    #ms = 0
     tt = TagTime(tag_id=tag.id, time=dtime, reader_id=reader.id, milliseconds=ms)
-    print 'tag time initialized'
     try:
         tt.save()
     except:
         return -1
 
-    print 'tagtime created'
-
     # Add the TagTime to all sessions active and having a related reader.
     for s in reader.active_sessions:
-        #if s.registered_tags.all() and (tag.timingsession_set.filter(id=s.id)):
-        s.tagtimes.add(tt.pk)
+        
+        reg_tags = s.registered_tags.all()
+        if (not reg_tags) or (tt.tag in reg_tags):
+            s.tagtimes.add(tt.pk)
+
         cache.delete(('ts_%i_results' %s.id))
         cache.delete(('ts_%i_athlete_names' %s.id))
-        print 'added to active session'
+        #print 'added to active session'
         
     
     return 0
