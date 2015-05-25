@@ -127,20 +127,17 @@ class TagViewSet(viewsets.ModelViewSet):
 
         # If the user is a coach, list the tags owned by any of his athletes.
         elif is_coach(user):
-            tags = []
-            for athlete in user.coach.athletes.all():
-                tags.extend(athlete.user.tag_set.all())
+            tags = Tag.objects.filter(user__in=[a.user for a in
+                user.coach.athletes.all()])
 
         else:
-            tags = []
-        
+            tags = Tag.objects.none()
         return tags
 
     def create(self, request, *args, **kwargs):
         if is_athlete(self.request.user):
             request.DATA[u'user'] = self.request.user.pk
         return super(TagViewSet, self).create(request, *args, **kwargs)
-
 
 class AthleteViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
@@ -448,7 +445,7 @@ def create_race(request):
                                                    last_name=last_name,
                                                    username=username)
         a, created = AthleteProfile.objects.get_or_create(user=user)
-        a.age = athlete['age']
+        a.age = int(athlete['age'])
         a.gender = athlete['gender']
         a.save()
 
