@@ -2,18 +2,12 @@ from django.db import models
 from django.contrib.auth.models import User, Group
 from django.utils import timezone
 from django.core.cache import cache
-from django.db.models import Q
-import time
-import datetime
 from util import filter_splits
-import datetime
-from django.db import models
 from operator import itemgetter
-#from jsonfield import JSONField
 
 class Tag(models.Model):
     """
-    An RFID Tag. Has a name and belongs to one user.
+    An RFID tag that is worn by an athlete.
     """
     id_str = models.CharField(max_length=50)
     user = models.ForeignKey(User)
@@ -23,7 +17,7 @@ class Tag(models.Model):
 
 class Reader(models.Model):
     """
-    An RFID reader. Has an identifying number and belongs to one user.
+    An RFID reader that streams splits.
     """
     name = models.CharField(max_length=50,unique=True)
     id_str = models.CharField(max_length=50,unique=True)
@@ -64,7 +58,7 @@ class TagTime(models.Model):
 
 class TimingSession(models.Model):
     """
-    A timing session is, for example, a workout or race.
+    A collection of timing information, e.g. a workout or race.
     """
     name = models.CharField(max_length=50)
     manager = models.ForeignKey(User)
@@ -84,6 +78,7 @@ class TimingSession(models.Model):
     interval_number = models.IntegerField(null=True, blank=True)
     filter_choice = models.BooleanField(default=True)
     private = models.BooleanField(default=True)
+    
     #number_scoring=models.IntegerField(default=5)
     #gender_scoring=models.CharField(max_length=50,blank=True,default='male')
     #age_scoring=JSONField(blank=True,default={})
@@ -207,33 +202,33 @@ class TimingSession(models.Model):
 
     def get_filtered_results(self, teams=[], genders=[], age_ranges=[], grades=[]):
         """Gets a filtered list of tag ids."""
-        q_obj = Q()
+        q_obj = models.Q()
         
         # Filter by gender.
         if genders:
-            gd = Q()
+            gd = models.Q()
             for gender in genders:
-                gd |= Q(tag__user__athlete__gender=gender)
+                gd |= models.Q(tag__user__athlete__gender=gender)
             q_obj &= gd    
 
         # Filter by grade.
         if grades:
-            gr = Q()
+            gr = models.Q()
             for grade in grades:
-                gr |= Q(tag__user__athlete__grade=grade)
+                gr |= models.Q(tag__user__athlete__grade=grade)
             q_obj &= gr   
 
         # Filter by age.
         if age_ranges:
-            ag = Q()
+            ag = models.Q()
             for age_range in age_ranges:
-                ag |= (Q(tag__user__athlete__age__lte=age_range[1]) &
-                       Q(tag__user__athlete__age__gte=age_range[0]))
+                ag |= (models.Q(tag__user__athlete__age__lte=age_range[1]) &
+                       models.Q(tag__user__athlete__age__gte=age_range[0]))
             q_obj &= ag    
        
         # Filter by team.
         if teams:
-            q_obj &= Q(tag__user__groups__name__in=teams)
+            q_obj &= models.Q(tag__user__groups__name__in=teams)
 
         tags = self.tagtimes.filter(q_obj).values_list('tag_id',flat=True).distinct()
         return self.calc_results(tag_ids=tags)

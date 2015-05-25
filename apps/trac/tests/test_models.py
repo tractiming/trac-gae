@@ -32,8 +32,8 @@ class ReaderTest(TestCase):
         inactive_session.readers.add(r)
         active_session.readers.add(r)
 
-        assert active_session in r.active_sessions
-        assert inactive_session not in r.active_sessions
+        self.assertIn(active_session, r.active_sessions)
+        self.assertNotIn(inactive_session, r.active_sessions)
 
 class TagTimeTest(TestCase):
 
@@ -62,30 +62,29 @@ class TagTimeTest(TestCase):
 class TimingSessionTest(TestCase):
 
     def create_timingsession(self):
-        athlete1 = User.objects.create(username='a1')
-        athlete2 = User.objects.create(username='a2')
-        athlete3 = User.objects.create(username='a3')
+        u = User.objects.create(username='Test Coach')
+        c = CoachProfile.objects.create(user=u)
+        return TimingSession.objects.create(name='Test Session', manager=u)
 
-        tag1 = Tag.objects.create(user=athlete1, id_str='T001')
-        tag2 = Tag.objects.create(user=athlete2, id_str='T002')
-        tag3 = Tag.objects.create(user=athlete3, id_str='T003')
-
-        time1 = timezone.now()+timezone.timedelta(0,1,1)
-        time2 = timezone.now()+timezone.timedelta(0,1,2)
-        time3 = timezone.now()+timezone.timedelta(0,1,3)
-
-        coach = User.objects.create(username='bhudson')
-        ts = TimingSession()
-        ts. manager = coach
-        ts.name = 'Mile Repeats'
-        ts.start_time = timezone.now()
-        ts.stop_time = timezone.now()+timezone.timedelta(1)
+    def create_tagtime(self, username='A1', time=timezone.now(), tagid='0001'):
+        u = User.objects.get_or_create(username=username)
+        a = AthleteProfile.objects.get_or_create(user=u)
+        return tagtime.objects.create(user=u, id_str=tagid)
         
     def test_timingsession_creation(self):
-        pass
+        ts = self.create_timingsession() 
+        self.assertIsInstance(ts, TimingSession)
 
     def test_is_active(self):
-        pass
+        ts = self.create_timingsession()
+        ts.start_time = timezone.now()
+        ts.stop_time = timezone.now()+timezone.timedelta(1)
+        ts.save()
+
+        self.assertTrue(ts.is_active)
+        ts.start_time = ts.stop_time
+        ts.save()
+        self.assertFalse(ts.is_active)
 
     def test_results(self):
         pass

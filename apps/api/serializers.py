@@ -1,9 +1,7 @@
 from django.contrib.auth.models import User
 from django.utils import simplejson as json
 from rest_framework import serializers
-
-from trac.models import (TimingSession, Tag, Reader, AthleteProfile,
-                         CoachProfile)
+from trac.models import TimingSession, Tag, Reader, AthleteProfile, CoachProfile
 from trac.util import is_coach, is_athlete
 
 class JSONReadOnlyField(serializers.Field):

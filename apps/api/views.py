@@ -1,10 +1,11 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from django.utils import timezone
+from django.core.cache import cache
 
 from rest_framework import viewsets, permissions, renderers, status, serializers, views
 from rest_framework.response import Response
@@ -20,8 +21,6 @@ from serializers import (UserSerializer, RegistrationSerializer, TagSerializer,
 from trac.models import (TimingSession, AthleteProfile, CoachProfile, 
                          Tag, Reader, TagTime)
 from trac.util import is_athlete, is_coach
-from django.http import Http404
-from django.core.cache import cache
 
 import json
 import ast
