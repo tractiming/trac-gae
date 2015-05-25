@@ -34,6 +34,56 @@ def user_type(user):
     else:
         return 'user'
 
+def filter_splits(unfiltered_splits, interval_distance, track_size):    
+    """
+    Filters splits based on interval type and track size.
+    """
+    # Determine constant of impossible time for 400m off of distance.
+    if interval_distance <= 200:
+        constant = 20
+    elif interval_distance > 200 and interval_distance <= 300:
+        constant = 30
+    elif interval_distance > 300 and interval_distance <= 400:
+        constant = 50
+    elif interval_distance > 400 and interval_distance <= 800:
+        constant = 52
+    elif interval_distance > 800 and interval_distance <= 1200:
+        constant = 55
+    elif  interval_distance > 1200 and interval_distance <= 1600:
+        constant = 58
+    else:
+        constant = 59
+
+    # Modify constant if on different sized track like 300m or 200m.
+    # (Don't modify if 200s on 200m track.)
+    if interval_distance >200:
+        modified_constant = constant * (track_size/400.0)
+    else:
+        modified_constant = constant
+
+    dt_sec = datetime.timedelta(seconds=modified_constant).total_seconds()
+    filtered_interval = [dt for dt in unfiltered_splits if float(dt[0])>dt_sec]    
+    #filtered_counter = range(1,len(filtered_interval)+1)    
+    
+    return filtered_interval#, filtered_counter
+       
+class RaceReport:
+    """A summary of a race's results."""
+
+    age_brackets = [(0,17), (18, 21), (22, 30), (31, 40), (41, 50)]
+    results = {}
+
+    def __init__(self, session_id):
+        self.ts = TimingSession.objects.get(id=session_id)
+        self.results = {}
+        pass
+
+    def get_results(self):
+        pass
+
+    def write_csv(self):
+        pass
+
 def parse_raw_msg(string):
     """
     DEPRECATED
@@ -68,59 +118,4 @@ def parse_formatted_msg(msg):
         if token not in msg:
             return None
     
-    msg_info = {'name': msg['ant'] 
-            }
-
-def filter_splits(unfiltered_splits, interval_distance, track_size):    
-    """
-    Filters splits based on interval type and track size.
-    """
-    # Determine constant of impossible time for 400m off of distance.
-    if interval_distance <= 200:
-        constant = 20
-    elif interval_distance > 200 and interval_distance <= 300:
-        constant = 30
-    elif interval_distance > 300 and interval_distance <= 400:
-        constant = 50
-    elif interval_distance > 400 and interval_distance <= 800:
-        constant = 52
-    elif interval_distance > 800 and interval_distance <= 1200:
-        constant = 55
-    elif  interval_distance > 1200 and interval_distance <= 1600:
-        constant = 58
-    else:
-        constant = 59
-
-    # Modify constant if on different sized track like 300m or 200m.
-    # (Don't modify if 200s on 200m track.)
-    if interval_distance >200:
-        modified_constant = constant * (track_size/400.0)
-    else:
-        modified_constant = constant
-
-    dt_sec = datetime.timedelta(seconds=modified_constant).total_seconds()
-    filtered_interval = [dt for dt in unfiltered_splits if float(dt[0])>dt_sec]    
-    #filtered_counter = range(1,len(filtered_interval)+1)    
-    
-    return filtered_interval#, filtered_counter
-       
-
-class RaceReport:
-    """A summary of a race's results."""
-
-    age_brackets = [(0,17), (18, 21), (22, 30), (31, 40), (41, 50)]
-    results = {}
-
-    def __init__(self, session_id):
-        self.ts = TimingSession.objects.get(id=session_id)
-        self.results = {}
-        pass
-
-    def get_results(self):
-        pass
-
-    def write_csv(self):
-        pass
-
-
-
+    msg_info = {'name': msg['ant']}

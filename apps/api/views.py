@@ -1,32 +1,29 @@
-import datetime
-
 from django.shortcuts import render
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from django.utils import timezone
 
-from rest_framework import (viewsets, permissions, renderers, 
-                            status, serializers, views)
+from rest_framework import viewsets, permissions, renderers, status, serializers, views
 from rest_framework.response import Response
-from rest_framework.decorators import (link, api_view, permission_classes,
-detail_route)
+from rest_framework.decorators import link, api_view, permission_classes, detail_route
 from rest_framework.parsers import MultiPartParser, FormParser
 
 from provider.oauth2.models import Client, AccessToken
 
-from serializers import (UserSerializer, RegistrationSerializer, 
-                         TagSerializer, TimingSessionSerializer,
-                         ReaderSerializer, UserSerializer, CSVSerializer, ScoringSerializer)
+from serializers import (UserSerializer, RegistrationSerializer, TagSerializer, 
+                         TimingSessionSerializer, ReaderSerializer, UserSerializer,
+                         CSVSerializer, ScoringSerializer)
 
-from trac.models import TimingSession, AthleteProfile, CoachProfile
-from trac.models import Tag, Reader, TagTime
+from trac.models import (TimingSession, AthleteProfile, CoachProfile, 
+                         Tag, Reader, TagTime)
 from trac.util import is_athlete, is_coach
 from django.http import Http404
 from django.core.cache import cache
 
+import json
 import ast
 
 class JSONResponse(HttpResponse):
@@ -299,7 +296,6 @@ class ScoringViewSet(viewsets.ModelViewSet):
         else:
            sessions = TimingSession.objects.filter(private=False)
            
-
         return sessions  
         
 class TimingSessionViewSet(viewsets.ModelViewSet):
@@ -372,25 +368,21 @@ def create_split(reader_id, tag_id, time):
 
         cache.delete(('ts_%i_results' %s.id))
         cache.delete(('ts_%i_athlete_names' %s.id))
-        #print 'added to active session'
-        
     
     return 0
-
 
 @csrf_exempt
 @api_view(['POST','GET'])
 @permission_classes((permissions.AllowAny,))
 def post_splits(request):
-    """Receives updates from readers."""
-
+    """
+    Interacts with the readers. Readers post new splits and can get the
+    current time. Readers don't handle permissions or csrf.
+    """
     if request.method == 'POST':
         data = request.POST
-        print data
         reader_name = data['r']
         split_list = ast.literal_eval(data['s'])
-        print reader_name
-        print split_list
         
         split_status = 0
         for split in split_list:
@@ -404,19 +396,6 @@ def post_splits(request):
 
     elif request.method == 'GET':
         return Response({str(timezone.now())}, status.HTTP_200_OK)
-
-
-
-    
-@api_view(['GET'])
-@permission_classes((permissions.AllowAny,))
-def verify_login(request):
-    """
-    Checks if the user is logged in. Returns a JSON response.
-    """
-    print request.user
-    return HttpResponse()
-
 
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))
@@ -432,7 +411,7 @@ def create_race(request):
                      team: '', age: '', gender: ''}, ...]
         }
     """
-    data = request.POST
+    data = json.loads(request.body)
 
     # Assign the session to a coach.
     uc, created = User.objects.get_or_create(username=data['director_username'])
@@ -440,23 +419,23 @@ def create_race(request):
     
     # Create the timing session.
     name = data['race_name']
-    start_time = timezone.datetime.strptime(data['race_date'], "%Y/%m/%d") 
-    stop_time = start_time+timezone.timedelta(1)
-    ts = TimingSession.objects.create(name=name, start_time=start_time,
-                                      stop_time=stop_time, manager=uc)
+    ts, created = TimingSession.objects.get_or_create(name=name, manager=uc)
+    if not created:
+        return HttpResponse(status.HTTP_400_BAD_REQUEST)
 
     # Create readers and add to the race.
-    for r_id in ast.literal_eval(data['readers']):
-        r, created = Reader.objects.get_or_create(id_str=r_id, owner=uc,
-                name=r_id)
+    for r_id in data['readers']:
+        try:
+            r = Reader.objects.get(id_str=r_id)
+        except ObjectDoesNotExist:
+            r = Reader.objects.create(id_str=r_id, owner=uc, name=r_id)
         ts.readers.add(r.pk)
     ts.save()    
 
     # Get a list of all the teams in the race and register each one.
-    athlete_list = data['athletes']#ast.literal_eval(data['athletes'])
-    teams = set([a['team'] for a in athlete_list if (a['team'] is not None)])
+    teams = set([a['team'] for a in data['athletes'] if (a['team'] is not None)])
     for team in teams:
-        Group.objects.create(name='%s-%s' %(data['race_name'], team))
+        Group.objects.get_or_create(name='%s-%s' %(data['race_name'], team))
 
     # Add each athlete to the race.
     for athlete in data['athletes']:
@@ -468,23 +447,30 @@ def create_race(request):
         user, created = User.objects.get_or_create(first_name=first_name,
                                                    last_name=last_name,
                                                    username=username)
-        a, created = AthleteProfile.objects.create_or_create(user=user)
+        a, created = AthleteProfile.objects.get_or_create(user=user)
         a.age = athlete['age']
         a.gender = athlete['gender']
         a.save()
 
         # Create the rfid tag object and add to session.
         tag_id = athlete['tag']
-        tag = Tag.objects.create(id_str=tag_id, user=user)
+        tag, created = Tag.objects.get_or_create(id_str=tag_id, user=user)
         ts.registered_tags.add(tag.pk)
+    
+    return HttpResponse(status.HTTP_201_CREATED)
 
 
 
 
-
-
-
-
+######################### Do we need these? ###########################
+@api_view(['GET'])
+@permission_classes((permissions.AllowAny,))
+def verify_login(request):
+    """
+    Checks if the user is logged in. Returns a JSON response.
+    """
+    print request.user
+    return HttpResponse()
 
 @csrf_exempt
 @api_view(['GET'])

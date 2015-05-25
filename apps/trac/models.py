@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.utils import timezone
 from django.core.cache import cache
 from django.db.models import Q
@@ -67,14 +67,14 @@ class TimingSession(models.Model):
     A timing session is, for example, a workout or race.
     """
     name = models.CharField(max_length=50)
-    start_time = models.DateTimeField()
-    stop_time = models.DateTimeField()
     manager = models.ForeignKey(User)
     readers = models.ManyToManyField(Reader)
     tagtimes = models.ManyToManyField(TagTime)
     
-    start_button_time = models.DateTimeField(default=timezone.datetime(1,1,1,1,1,1), 
-            blank=True)
+    start_time = models.DateTimeField(blank=True, default=timezone.now())
+    stop_time = models.DateTimeField(blank=True, default=timezone.now())
+    start_button_time = models.DateTimeField(blank=True, 
+            default=timezone.datetime(1,1,1,1,1,1))
     registered_tags = models.ManyToManyField(Tag)
 
     comment = models.CharField(max_length=2500, null=True, blank=True)
@@ -110,8 +110,7 @@ class TimingSession(models.Model):
         """
         # Filter times by tag id.
         tag = Tag.objects.get(id=tag_id)
-        times = TagTime.objects.filter(timingsession=self, 
-                                       tag=tag).order_by('time')
+        times = TagTime.objects.filter(timingsession=self, tag=tag).order_by('time')
 
         # Offset for start time if needed.
         if self.start_button_time.year > 1:
@@ -313,7 +312,9 @@ class TimingSession(models.Model):
 
     def clear_results(self):
         """Removes all the tagtimes that currently exist in the session."""
-        return
+        self.tagtimes.clear()
+        cache.delete(('ts_%i_results' %self.id))
+        cache.delete(('ts_%i_athlete_names' %self.id))
 
 class AthleteProfile(models.Model):
     """
