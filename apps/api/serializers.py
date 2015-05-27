@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from django.utils import simplejson as json
+from django.utils import timezone, simplejson as json
 from rest_framework import serializers
 from trac.models import TimingSession, Tag, Reader, AthleteProfile, CoachProfile
 from trac.util import is_coach, is_athlete
@@ -71,6 +71,7 @@ class TimingSessionSerializer(serializers.ModelSerializer):
     manager = serializers.Field(source='manager.username')
     results = JSONReadOnlyField(source='get_results')
     athletes = JSONReadOnlyField(source='get_athlete_names')
+    #start_time = serializers.DateTimeField(allow_blank=True, required=False)
 
     class Meta:
         model = TimingSession
@@ -79,6 +80,12 @@ class TimingSessionSerializer(serializers.ModelSerializer):
                   'comment', 'rest_time', 'track_size', 'interval_distance', 
                   'interval_number', 'filter_choice', 'manager',
                   'results', 'athletes', 'start_button_time', 'private')
+    
+    #def get_validation_exclusions(self, instance=None):    
+    #    exclusions = super(TimingSessionSerializer,
+    #            self).get_validation_exclusions(instance)
+    #    ex = exclusions + ['start_time']
+    #    return ex
 
 class ScoringSerializer(serializers.ModelSerializer):
     final_results = JSONReadOnlyField(source='get_final_results')

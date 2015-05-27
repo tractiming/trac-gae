@@ -65,8 +65,8 @@ class TimingSession(models.Model):
     readers = models.ManyToManyField(Reader)
     tagtimes = models.ManyToManyField(TagTime)
     
-    start_time = models.DateTimeField(blank=True, default=timezone.now())
-    stop_time = models.DateTimeField(blank=True, default=timezone.now())
+    start_time = models.DateTimeField(default=timezone.now, blank=True)
+    stop_time = models.DateTimeField(default=timezone.now, blank=True)
     start_button_time = models.DateTimeField(blank=True, 
             default=timezone.datetime(1,1,1,1,1,1))
     registered_tags = models.ManyToManyField(Tag)
@@ -123,7 +123,7 @@ class TimingSession(models.Model):
             interval.append(round(dt.total_seconds(), 3))
         
         # Filtering algorithm.
-        if filter_s:
+        if self.filter_choice:
             interval = filter_splits(interval, self.interval_distance, self.track_size)
 
         return interval
