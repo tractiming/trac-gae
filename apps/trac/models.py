@@ -123,7 +123,7 @@ class TimingSession(models.Model):
             interval.append(round(dt.total_seconds(), 3))
         
         # Filtering algorithm.
-        if self.filter_choice:
+        if filter_s:
             interval = filter_splits(interval, self.interval_distance, self.track_size)
 
         return interval
