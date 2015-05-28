@@ -123,7 +123,7 @@ class TimingSession(models.Model):
             interval.append(round(dt.total_seconds(), 3))
         
         # Filtering algorithm.
-        if self.filter_choice:
+        if filter_s:
             interval = filter_splits(interval, self.interval_distance, self.track_size)
 
         return interval
@@ -240,7 +240,7 @@ class TimingSession(models.Model):
         wdata['date'] = self.start_time.strftime('%m.%d.%Y')
         wdata['workoutID'] = self.id
         wdata['runners'] = [{'name': r[1], 'counter': range(1,len(r[3])+1),
-                            'interval': map(str, r[3])} for r in results]
+                            'interval': [[str(s)] for s in r[3]]} for r in results]
         return wdata
     
     def get_score(self):
