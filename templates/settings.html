@@ -14,6 +14,139 @@
 		loadtags();}
 	});
 	</script>
+	<script>
+		var stepped = 0, rowCount = 0, errorCount = 0, firstError;
+		var inputType = "string";
+		$(document).ready(function(){
+	    
+	    $('#upload').click(function(){
+			
+			var config = buildConfig();
+			
+$('#file').parse({
+			config:config,
+			before: function(file, inputElem)
+				{
+					start = now();
+					console.log("Parsing file...", file);
+				},
+				error: function(err, file)
+				{
+					console.log("ERROR:", err, file);
+					firstError = firstError || err;
+					errorCount++;
+				},
+			
+			complete: function(){
+				end = now();
+				printStats("Done with all files");
+				
+
+				
+				
+			}
+		});
+	});
+});
+	function now()
+{
+	return typeof window.performance !== 'undefined'
+			? window.performance.now()
+			: 0;
+}
+
+function buildConfig()
+{
+	return {
+		delimiter: '',
+		header: true,
+		dynamicTyping: true, //turn numbers into numbers or strings? yes no to boolean?
+		skipEmptyLines:true,
+		preview: parseInt($('#preview').val() || 0),
+		step: $('#stream').prop('checked') ? stepFn : undefined,
+		encoding: '',
+		worker: true, //run on separate thread--slower but wont lock webpage
+		comments: $('#comments').val(),
+		complete: completeFn,
+		error: errorFn,
+		download: inputType == "remote"
+	};
+}
+
+function stepFn(results, parser)
+{
+	stepped++;
+	if (results)
+	{
+		if (results.data)
+			rowCount += results.data.length;
+		if (results.errors)
+		{
+			errorCount += results.errors.length;
+			firstError = firstError || results.errors[0];
+		}
+	}
+}
+
+function completeFn(results)
+{
+	end = now();
+
+	if (results && results.errors)
+	{
+		if (results.errors)
+		{
+			errorCount = results.errors.length;
+			firstError = results.errors[0];
+		}
+		if (results.data && results.data.length > 0)
+			rowCount = results.data.length;
+			
+	}
+
+	printStats("Parse complete");
+	console.log("    Results:", JSON.stringify(results.data));
+	var date = "2015/05/28";
+	var reads = "[A1010]";
+	var workoutName = "Test";
+	var username = "alsal"
+	var json = '{"race_name":"April ttest","race_date":"2015/05/29","director_username":"alsal","readers":["A1010"],"athletes":'+JSON.stringify(results.data)+'}';
+	$.ajax({
+           type: "POST",
+           dataType:'json',
+           url: "/api/raceregistration/",
+	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
+           data:json,
+           // Login was successful.
+           success: function(data) {alert('yes')},
+           error: function(xhr, errmsg, err) {alert('error')}
+	   });
+			
+			$('#file').val('');
+	// icky hack
+	//setTimeout(enableButton, 100);
+}
+
+function errorFn(err, file)
+{
+	end = now();
+	console.log("ERROR:", err, file);
+	//enableButton();
+}
+function printStats(msg)
+{
+	if (msg)
+		console.log(msg);
+	console.log("       Time:", (end-start || "(Unknown; your browser does not support the Performance API)"), "ms");
+	console.log("  Row count:", rowCount);
+	if (stepped)
+		console.log("    Stepped:", stepped);
+	console.log("     Errors:", errorCount);
+	if (errorCount)
+		console.log("First error:", firstError);
+}
+</script>
+	
 <script>
 //coaches jquery to call athletes and idnumbers
 $(document).ready(function() {
@@ -388,6 +521,12 @@ function loadtags(){
        <table id="tagresults" style="width:100%"></table>
        </div>
        </div>
+       <br><br>
+       Upload CSV File:
+       <div class="button-container">
+				<input type="file" id="file" name="myfile" value="Choose File">
+				<input type="submit" class="gen_btn" id="upload" name ="upload" value="Upload">
+		  </div>
               </div>
     
     

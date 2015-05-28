@@ -794,8 +794,11 @@ div.parallax div#create #contentright div#notifications .notification.notificati
   background-position: 12px -788px;
   border-color: #afabae;
 }
-          
-          
+
+div.parallax div#create #contentright div.button-container{padding:40px 2px 0;}
+div.parallax div#create #contentright div.button-container input#upload{float:none; width:120px; background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
+     
+     
           
           
           
@@ -1006,7 +1009,7 @@ div.parallax div#calendar #contentright div#notifications .notification.notifica
 }
           div.parallax div#calendar #contentright .button-container{padding:40px 2px 0;}
     div.parallax div#calendar #contentright .button-container input{display:none; float:none; width:120px; background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
-     
+     div.parallax div#calendar #contentright .button-container button{float:none; width:120px; background:#1b9e1b; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
           
           
 

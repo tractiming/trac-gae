@@ -408,6 +408,7 @@ def create_race(request):
         }
     """
     data = json.loads(request.body)
+    print(data)
 
     # Assign the session to a coach.
     uc, created = User.objects.get_or_create(username=data['director_username'])
@@ -415,6 +416,7 @@ def create_race(request):
     
     # Create the timing session.
     name = data['race_name']
+    print(name)
     ts, created = TimingSession.objects.get_or_create(name=name, manager=uc)
     if not created:
         return HttpResponse(status.HTTP_400_BAD_REQUEST)
