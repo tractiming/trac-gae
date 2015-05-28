@@ -99,7 +99,7 @@ class TimingSession(models.Model):
             return True
         return False
 
-    def calc_splits_by_tag(self, tag_id, filter_s=False):
+    def calc_splits_by_tag(self, tag_id, filter_s=None):
         """
         Calculates the splits for a given tag in the current session.
         """
@@ -123,6 +123,8 @@ class TimingSession(models.Model):
             interval.append(round(dt.total_seconds(), 3))
         
         # Filtering algorithm.
+        if filter_s is None:
+            filter_s = self.filter_choice
         if filter_s:
             interval = filter_splits(interval, self.interval_distance, self.track_size)
 

@@ -62,7 +62,7 @@ def filter_splits(unfiltered_splits, interval_distance, track_size):
         modified_constant = constant
 
     dt_sec = datetime.timedelta(seconds=modified_constant).total_seconds()
-    filtered_interval = [dt for dt in unfiltered_splits if float(dt[0])>dt_sec]    
+    filtered_interval = [dt for dt in unfiltered_splits if dt>dt_sec]    
     #filtered_counter = range(1,len(filtered_interval)+1)    
     
     return filtered_interval#, filtered_counter
