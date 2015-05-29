@@ -143,6 +143,7 @@ pdf.fromHTML(
 			  
 			    $("h6.notification.notification-default").show();
 			      $("input#submit.gen_btn").show();
+                $("button.pdfbutton").show();
 			      
 			}
 			// show name and date, dont show message, but show button
@@ -151,6 +152,7 @@ pdf.fromHTML(
 			  $(".outer").show();
 			  $("h6.notification.notification-default").hide();
 			  $("input#submit.gen_btn").show();
+              $("button.pdfbutton").show();
 			  
 			  $('.title').css('text-align','left');
 			  $('.title').html('<p>Title: ' + prejson.name);
@@ -408,7 +410,7 @@ pdf.fromHTML(
     </div>
        <div class="button-container">
   <input type="submit" name="" class="gen_btn" id="submit" value="Download" />
-  <button onclick="javascript:demoFromHTML();">PDF</button>
+  <button class="pdfbutton"onclick="javascript:demoFromHTML();">PDF</button>
 </div>
 
 

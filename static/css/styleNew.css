@@ -658,6 +658,11 @@ div.parallax div#create div#notifications .notification.notification-warning .co
           padding-top: 20px;
           padding-bottom: 80px;
           display: inline-table} }
+
+
+div.parallax div#create #contentleft button{float:none; width:140px; float:left; background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; border-radius:3px; border:none; margin:0 auto; cursor:pointer;padding:4px 0px 4px;}
+div.parallax div#create #contentleft button#individualbutton{display:none;}
+div.parallax div#create #contentleft button#example{background:#1b9e1b;display:none;float:right;width:100px}
     /*div.parallax div#create #contentleft div.form-row{font-size:17px; color:#ffffff; overflow:hidden; margin:10px 0 12px 0;}
     div.parallax div#create #contentleft div.form-row label{float:left; color:#ffffff; margin:0 10px 0 0;}
     div.parallax div#create #contentleft div.form-row  span{float:left;}*/
@@ -671,14 +676,19 @@ div.parallax div#create div#notifications .notification.notification-warning .co
 
     div.parallax div#create #contentleft #myform .button-container input#update{display:none; float:right; width:80px; background:#1b9e1b; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
 
-       div.parallax div#create #contentleft #coachform .button-container{padding:40px 2px 0;}
+div.parallax div#create #contentleft #coachform{padding-top:30px;}       
+div.parallax div#create #contentleft #coachform .button-container{padding:40px 2px 0;}
     div.parallax div#create #contentleft #coachform .button-container input{float:none; width:80px; background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
      
         
        div.parallax div#create #contentleft #readerform .button-container{padding:40px 2px 0;}
     div.parallax div#create #contentleft #readerform .button-container input{float:none; width:80px; background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
-       
-     
+    
+ div.parallax div#create #contentleft #csvform{display:none;padding-top:30px;}
+     div.parallax div#create #contentleft #csvform div.button-container{padding:10px 2px 0;}
+div.parallax div#create #contentleft #csvform div.button-container input#file{padding-bottom:20px;padding-top:10px;}
+div.parallax div#create #contentleft #csvform div.button-container input#upload{float:none;  background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
+    
      
      
           div.parallax div#create #contentright {
@@ -795,12 +805,8 @@ div.parallax div#create #contentright div#notifications .notification.notificati
   border-color: #afabae;
 }
 
-div.parallax div#create #contentright div.button-container{padding:40px 2px 0;}
-div.parallax div#create #contentright div.button-container input#upload{float:none; width:120px; background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
-     
-     
-          
-          
+
+
           
           
           /* Live Split Page */
@@ -1009,7 +1015,7 @@ div.parallax div#calendar #contentright div#notifications .notification.notifica
 }
           div.parallax div#calendar #contentright .button-container{padding:40px 2px 0;}
     div.parallax div#calendar #contentright .button-container input{display:none; float:none; width:120px; background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
-     div.parallax div#calendar #contentright .button-container button{float:none; width:120px; background:#1b9e1b; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
+     div.parallax div#calendar #contentright .button-container button{float:none; width:120px; background:#1b9e1b; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer; display:none}
           
           
 
