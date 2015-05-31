@@ -103,7 +103,6 @@ SKIP_SOUTH_TESTS = True
 ROOT_URLCONF = 'trac.urls'
 #######################################
 
-
 ########## DATABASE CONFIGURATION ##########
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 # Here we choose the backend based on whether we are running locally or in
@@ -133,8 +132,10 @@ elif getenv('SETTINGS_MODE') == 'prod':
             }
     }
 else:
-    # Running in development, so use a local MySQL database.
-    # Note: not implemented yet.
+    # Running in development, so use a local sqlite database. Need to let gae
+    # sandbox to allow us to import sqlite3.
+    from google.appengine.tools.devappserver2.python import sandbox
+    sandbox._WHITE_LIST_C_MODULES += ['_sqlite3']
     DATABASES = {
             'default': {
                 'ENGINE': 'django.db.backends.sqlite3',

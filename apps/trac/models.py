@@ -72,10 +72,10 @@ class TimingSession(models.Model):
     registered_tags = models.ManyToManyField(Tag)
 
     comment = models.CharField(max_length=2500, null=True, blank=True)
-    rest_time = models.IntegerField(null=True, blank=True)
-    track_size = models.IntegerField(null=True, blank=True)
-    interval_distance = models.IntegerField(null=True, blank=True)
-    interval_number = models.IntegerField(null=True, blank=True)
+    rest_time = models.IntegerField(default=0, blank=True)
+    track_size = models.IntegerField(default=400, blank=True)
+    interval_distance = models.IntegerField(default=200, blank=True)
+    interval_number = models.IntegerField(default=0, blank=True)
     filter_choice = models.BooleanField(default=True)
     private = models.BooleanField(default=True)
     

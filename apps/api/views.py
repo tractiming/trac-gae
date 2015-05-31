@@ -251,7 +251,7 @@ class TimingSessionStartButton(views.APIView):
 
     def post(self, request):
         """Sets the start button time to now."""
-        current_time = timezone.now() 
+        current_time = timezone.now()-timezone.timedelta(seconds=8)
         data = request.POST
         print data
 
