@@ -367,6 +367,7 @@ def create_split(reader_id, tag_id, time):
     
     return 0
 
+
 @csrf_exempt
 @api_view(['POST','GET'])
 @permission_classes((permissions.AllowAny,))

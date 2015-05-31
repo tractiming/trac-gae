@@ -32,3 +32,6 @@ def readers(request):
     
 def tags(request):
     return render(request, 'tags.html', {})
+
+def score(request):
+    return render(request, 'teamscoring.html', {})

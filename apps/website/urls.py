@@ -13,4 +13,5 @@ urlpatterns = patterns('',
     url(r'^settings', views.settings, name='settings'),
     url(r'^readers', views.readers, name='readers'),
     url(r'^tags', views.tags, name='tags'),    
+    url(r'^score', views.score, name='score'),    
 )
