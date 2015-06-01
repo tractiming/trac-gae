@@ -16,8 +16,10 @@ libraries:
 #env_variables:
 #  DJANGO_SETTINGS_MODULE: 'settings.common'
 
-#builtins:
+builtins:
+- remote_api: on
 #- django_wsgi: on
+
 
 
 handlers:
