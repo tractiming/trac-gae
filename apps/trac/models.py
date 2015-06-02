@@ -235,15 +235,25 @@ class TimingSession(models.Model):
         tags = self.tagtimes.filter(q_obj).values_list('tag_id',flat=True).distinct()
         return self.calc_results(tag_ids=tags)
 
-    def get_results(self, force_update=False):
+    def get_results(self, force_update=False, sort=False):
         """Get full results, formatted for mobile."""
         results = self.calc_results(read_cache=(not force_update), save_cache=True)
+
+        if sort:
+            results = sorted(sorted(results, key=lambda x: x[4]), reverse=True,
+                    key=lambda x: len(x[3]))
+
         wdata = {}
         wdata['date'] = self.start_time.strftime('%m.%d.%Y')
         wdata['workoutID'] = self.id
         wdata['runners'] = [{'name': r[1], 'counter': range(1,len(r[3])+1),
                             'interval': [[str(s)] for s in r[3]]} for r in results]
+
         return wdata
+
+    def get_ordered_results(self, force_update=False):
+        """Get the full results, ordered by cumulative time."""
+        return self.get_results(force_update=force_update, sort=True)
     
     def get_score(self):
 		"""

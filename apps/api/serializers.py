@@ -89,7 +89,7 @@ class TimingSessionSerializer(serializers.ModelSerializer):
 
 class ScoringSerializer(serializers.ModelSerializer):
     #final_results = JSONReadOnlyField(source='get_final_results')
-    final_score = JSONReadOnlyField(source='get_team_results')
+    final_score = JSONReadOnlyField(source='get_ordered_results')
     class Meta:
         model = TimingSession
         lookup_field = 'session'
