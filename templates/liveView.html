@@ -2,19 +2,42 @@
 {% load staticfiles %}
 
 {% block content %}
-  <div class="modal-animate hide">
+   <div class="modal-animate hide">
     <div class="rotate"></div>
 
 </div>
-  
+       <nav class="pushy pushy-left">
+    <ul class="menulist">
+        
+        
+    </ul>
+</nav>
+
+<!-- Site Overlay -->
+<div class="site-overlay"></div>
+
+
   <div id="bg2">  
-     
+
+
+
 	  <div class="content">
+		  <!-- Your Content -->
+<div id="container">
+    <!-- Menu Button -->
+    <div class="menu-btn">&#9776; Menu</div>
+
+
 
  <h2> Live Results</h2>
+
  <div class="inner">
+	
+
+
     <table id="results" style="width:100%"></table>
     </div>
+
     <div id="notifications">
         <h6 class="notification notification-default" role="alert">There is currently no data for the most recent event.</h6>
         <h6 class="notification notification-default2" role="alert">No recent events to show.</h6>
@@ -24,10 +47,12 @@
 <div class="button-container">
   <input type="submit" name="" class="gen_btn" id="submit" value="Download" />
 </div>
+</div>
 
 
  <script>
-
+var idArray=[];
+var selectedID;
         //When DOM loaded we attach click event to button
         $(document).ready(function() {
             //show spinner
@@ -45,7 +70,7 @@
                 //start ajax request
                 $.ajax({
                     url: last_url,
-		    headers: {Authorization: "Bearer " + sessionStorage.access_token},
+					headers: {Authorization: "Bearer " + sessionStorage.access_token},
                     //force to handle it as text
                     dataType: "text",
                     success: function(data) {
@@ -64,6 +89,7 @@
 			    $(".modal-animate").hide();
 			    $("h6.notification.notification-default").show();
 			      $("input#submit.gen_btn").show();
+			      $('#results').empty();
 			}
 			else {
 			    //hide spinner, show button, show results
@@ -112,7 +138,7 @@
 			      //{
 			      //$('#results tr:last').append('<td>'+ min + ':'+ sec +'</td>');
 			      //}
-			      finaltime = finaltime + subinterval;
+			      finaltime = parseInt(finaltime,10) + parseInt(subinterval,10);
 			      if (i==0) {
 				//Puts the word 'split #' on table
 				$('#results tr:first').append('<td>Split</td>');
@@ -123,15 +149,15 @@
 			  }
 			  
 			  
-			  
+			  //alert(finaltime)
 			   //var minfinal = Math.floor(finaltime/60);
 			   //var secfinal = (finaltime-(minfinal*60));
 			   ////$('#results').append('<td>');
 			   //if (secfinal<10) {
-			    //$('#results tr:last').append( minfinal + ':0'+ secfinal );
+			    //$('#results tr:last').append('<td>'+ minfinal + ':0'+ secfinal +'</td>');
 			   //}
 			   //else{
-			   //$('#results tr:last').append( minfinal + ':'+ secfinal);
+			   //$('#results tr:last').append('<td>'+ minfinal + ':'+ secfinal)+'</td>';
 			   //};
 			   //if (i==0) {
 				////adds word final time to table header
@@ -150,7 +176,7 @@
 		var lastWorkout = function(){
 		$.ajax({
                     url: "/api/sessions/",
-		    headers: {Authorization: "Bearer " + sessionStorage.access_token},
+					headers: {Authorization: "Bearer " + sessionStorage.access_token},
                     //force to handle it as text
                     dataType: "text",
                     success: function(data){
@@ -163,20 +189,87 @@
 			else{
 				 $("h6.notification.notification-default2").hide();
 			var idjson = json[json.length - 1].id;
-			//alert(idjson);
+			
 			repeated_function(idjson);
-			return idjson;
+			selectedID = idjson;
+			//alert(selectedID);
 		}
 		    }
 		    
 	    });
 		}
 		
+		var lastSelected = function(){
+		$.ajax({
+                    url: "/api/sessions/",
+					headers: {Authorization: "Bearer " + sessionStorage.access_token},
+                    //force to handle it as text
+                    dataType: "text",
+                    success: function(data){
+		      var json = $.parseJSON(data);
+			//alert(json.length);
+			if (json.length==0){ 
+				$("h6.notification.notification-default2").show();
+				$(".modal-animate").hide();
+				}
+			else{
+				 $("h6.notification.notification-default2").hide();
+
+			repeated_function(selectedID);
+
+		}
+		    }
+		    
+	    });
+		}
+		
+		var findScores = function(){
+		$.ajax({
+                    url: "/api/sessions/",
+					headers: {Authorization: "Bearer " + sessionStorage.access_token},
+                    //force to handle it as text
+                    dataType: "text",
+                    success: function(data){
+		      var json = $.parseJSON(data);
+			//alert(json.length);
+			if (json.length==0){ 
+				$("h6.notification.notification-default2").show();
+				$(".modal-animate").hide();
+				}
+			else{
+				 $("h6.notification.notification-default2").hide();
+				 var Array = [];
+				 for (var ii=0; ii < json.length; ii++){
+					$('#linkedlist').append('<tr><td>'+json[ii].name+'</td></tr>');
+					$('ul.menulist').append('<li><a href="#">'+json[ii].name+'</a></li>');
+					Array.push(json[ii].id);
+				}
+				idArray = Array;
+				
+		}
+		    }
+		    
+	    });
+		}
+		
+
+	$("body").on('click', 'ul.menulist li a',function(){
+	//alert($(this).html());
+	var value = $(this).html();
+		console.log( "Index: " + $( "ul.menulist li a" ).index( $(this) ) );
+		var indexClicked= $( "ul.menulist li a" ).index( $(this) );
+	//alert(idArray);
+	//alert(idArray[indexClicked]);
+	selectedID = idArray[indexClicked];
+	repeated_function(idArray[indexClicked]);
+
+
+	});
+	
+	findScores();
 		//refresh the view every 5 seconds to update
 	    lastWorkout();
-	   setInterval(lastWorkout,5000);
-
-	
+	   setInterval(lastSelected ,5000);
 
 
 //Download to Excel Script
@@ -184,7 +277,7 @@
     $('#submit').click(function(){
         $.ajax({
                     url: "/api/sessions/",
-		    headers: {Authorization: "Bearer " + sessionStorage.access_token},
+					headers: {Authorization: "Bearer " + sessionStorage.access_token},
                     //force to handle it as text
                     dataType: "text",
                     success: function(data){

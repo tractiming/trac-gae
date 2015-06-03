@@ -54,6 +54,7 @@ $(document).ready(function() {
 		     var distance=$('input[id=distance]').val();
 		      var size=$('input[id=size]').val();
 		     var filter=$('#filter option:selected').val();
+		     var privateselect=$('#private option:selected').val();
 			//alert(filter);
 	      $.ajax({
            type: "POST",
@@ -69,6 +70,7 @@ $(document).ready(function() {
                interval_distance: distance,
                interval_number:'0',
                filter_choice:filter,
+               private:privateselect,
                
            },
            // Login was successful.
@@ -147,16 +149,17 @@ $(document).ready(function() {
 						   track = json[ii].track_size;
 						  // time = time.slice(0,10);
 						   filter= json[ii].filter_choice;
+						   privateselect = json [ii].private;
 						  if (ii==0) {
-			    $('#results').append('<tr><th>ID</th><th>Workout Name</th><th>Start Date</th><th>End Date</th><th>Distance</th><th>Track</th><th>Filtered</th></tr>');
-			    $('#results').append('<tr class="odd"><td>'+id+'</td><td>'+name+'</td><td>'+start+' ' + start2+'</td><td>'+end+' '+end2+'</td><td>'+distance+'</td><td>'+track+'</td><td>'+filter+'</td></tr>');
+			    $('#results').append('<tr><th>ID</th><th>Workout Name</th><th>Start Date</th><th>End Date</th><th>Distance</th><th>Track</th><th>Filtered</th><th>Private</th></tr>');
+			    $('#results').append('<tr class="odd"><td>'+id+'</td><td>'+name+'</td><td>'+start+' ' + start2+'</td><td>'+end+' '+end2+'</td><td>'+distance+'</td><td>'+track+'</td><td>'+filter+'</td><td>'+privateselect+'</td></tr>');
 			    //alert(name);
 			  }
 			  else if((ii)%2 ==0) {
-			    $('#results').append('<tr class="odd"><td>'+id+'</td><td>'+name+'</td><td>'+start+' ' + start2+'</td><td>'+end+' '+end2+'</td><td>'+distance+'</td><td>'+track+'</td><td>'+filter+'</td></tr>');
+			    $('#results').append('<tr class="odd"><td>'+id+'</td><td>'+name+'</td><td>'+start+' ' + start2+'</td><td>'+end+' '+end2+'</td><td>'+distance+'</td><td>'+track+'</td><td>'+filter+'</td><td>'+privateselect+'</td></tr>');
 			  }
 			  else{
-			    $('#results').append('<tr><td>'+id+'</td><td>'+name+'</td><td>'+start+' ' + start2+'</td><td>'+end+' '+end2+'</td><td>'+distance+'</td><td>'+track+'</td><td>'+filter+'</td></tr>');
+			    $('#results').append('<tr><td>'+id+'</td><td>'+name+'</td><td>'+start+' ' + start2+'</td><td>'+end+' '+end2+'</td><td>'+distance+'</td><td>'+track+'</td><td>'+filter+'</td><td>'+privateselect+'</td></tr>');
 			    //alert(name);
 			  }
 			  		$(".modal-animate").hide();
@@ -232,6 +235,9 @@ $("body").on('click', 'tr',function(){
 	
 	else if (index ==6){
 			var input =$('select#filter');
+	input.val($(this).html() );}
+	else if (index ==7){
+			var input =$('select#private');
 	input.val($(this).html() );}
 
 	});
@@ -338,6 +344,7 @@ $("body").on('click', 'tr',function(){
 		     var distance=$('input[id=distance]').val();
 		      var size=$('input[id=size]').val();
 		     var filter=$('#filter option:selected').val();
+		     var privateselect=$('#private option:selected').val();
 	
 		//alert(filter);
 	      $.ajax({
@@ -354,6 +361,7 @@ $("body").on('click', 'tr',function(){
                interval_distance: distance,
                interval_number:'0',
                filter_choice:filter,
+               private:privateselect,
                
            },
 
@@ -444,6 +452,16 @@ $("body").on('click', 'tr',function(){
 		      <label>Filter Splits?</label>
 						<span>
 							<select id="filter">
+									<option value="true">Yes</option>
+									<option value="false">No</option>
+							</select>
+						</span>
+		     </p>
+		     <p>
+		      
+		      <label>Private?</label>
+						<span>
+							<select id="private">
 									<option value="true">Yes</option>
 									<option value="false">No</option>
 							</select>

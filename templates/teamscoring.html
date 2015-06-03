@@ -1,25 +1,144 @@
-{% extends "base.html" %}
-{% load staticfiles %}
+<!DOCTYPE html>
 
-{% block content %}
+{% load static %}
+
+<html lang="en" class="">
+    
+<head>
+    <meta name="description"  content="A Chicago based startup focusing on simplifying the track and field experience." /> 
+
+    {% block facebook_meta %}
+    <meta property="og:image" content="http://trac-us.com/images/shoes-video.jpg"/>
+    <meta property="og:title" content="TRAC | Timing and Racing Around the Clock "/>
+    <meta property="fb:admins" content="804255640" />
+    <meta property="og:type"   content="website" /> 
+     <meta property="og:site_name" content="Timing and Racing Around the Clock"/>
+    <meta property="og:url"    content="http://www.trac-us.com" /> 
+    <meta property="og:description" content="A Chicago based startup focusing on simplifying the track and field experience." /> 
+    {% endblock %}
+    
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="canonical" href="http://www.trac-us.com"/>
+    <link rel="icon" href="{% static "img/favicon.ico" %}" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" media="all" 
+          href="{% static "css/styleNew.css" %}" />
+    <link rel="stylesheet" href="{% static "css/login_style.css" %}" />
+     <link rel='stylesheet' href="{% static "css/fullcalendar.css" %}" />
+     <link rel='stylesheet' href="{% static "css/pushy.css" %}" />
+     	<link href="{% static "css/progression.min.css" %}" rel='stylesheet' type='text/css'>
+             <link type="text/css" rel="stylesheet" href="{% static "css/jquery.dropdown.css" %}" />
+
+    {% block js_scripts %}
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+   
+    <script type="text/javascript" src="{% static "js/papaparse.min.js" %}"></script>
+
+    <script type="text/javascript" src="{% static "js/jquery.dropdown.js" %}"></script>
+<script src="{% static "js/moment.min.js" %}"></script>
+<script src="{% static "js/fullcalendar.js" %}"></script>
+<script type="text/javascript" src="{% static "js/jquery.serializeJSON.min.js" %}"></script>
+<script type="text/javascript" src="{% static "js/parsley.min.js" %}"></script>
+<script type="text/javascript" src="{% static "js/progression.min.js" %}"></script>
+<script type="text/javascript" src="{% static "js/jspdf.debug.js" %}"></script>
+>
+<script type="text/javascript" src="{% static "js/pushy.min.js" %}"></script>
+<!--Google Analytics-->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-57985584-1', 'auto');
+  ga('require', 'displayfeatures');
+  ga('send', 'pageview');
+
+</script>
+    <!--<script src="{% static "js/jquery-2.1.1.js" %}"></script>-->
+
+    {% endblock %}
+
+    <title>
+        {% block title %}
+        Timing and Racing Around the Clock | Chicago
+        {% endblock %}
+    </title>
+
+    {% block extra_head %}
+    {% endblock %}
+</head>
+
+<body>
+  <div id="bowtruss-header" class="container">
+    <a href="#" id="pull"></a>
+    <ul>
+
+       <li>
+        <a href="/" class="scrollto logo" title="trac">trac</a>
+      </li>
+       
+      <li></li>
+      <li></li>
+      <li></li>
+
+      
+      
+               <li>
+        <a href="/login" class="scrollto" rel="bg2">Login</a>
+        </li>
+
+      <li>
+        <a href="/register" class="scrollto" rel="bg3">Register</a>
+      </li>
+     
+      <li>
+        <a href="http://www.trac-us.com" class="scrollto" rel="bg3">About</a>
+      </li>
+
+      <li>
+        <a href="/score" class="scrollto" rel="bg3">Live Results</a>
+      </li>
+
+    </ul>
+  </div>
+
+  <div class="parallax">
   <div class="modal-animate hide">
     <div class="rotate"></div>
 
 </div>
-  
+       <nav class="pushy pushy-left">
+    <ul class="menulist">
+        
+        
+    </ul>
+</nav>
+
+<!-- Site Overlay -->
+<div class="site-overlay"></div>
+
+
   <div id="bg2">  
-     
+
+
+
 	  <div class="content">
-		  
-		  <input type="file" id="file" name="myfile" value="Choose File">
-		  <input type="submit" class="gen_btn" id="upload" name ="upload" value="Upload">
-		  
+		  <!-- Your Content -->
+<div id="container">
+    <!-- Menu Button -->
+    <div class="menu-btn">&#9776; Heat Menu</div>
+
+
 
  <h2> Live Results</h2>
+
  <div class="inner">
+	
+
+
     <table id="results" style="width:100%"></table>
     </div>
-    <button onclick="javascript:demoFromHTML();">PDF</button>
+
     <div id="notifications">
         <h6 class="notification notification-default" role="alert">There is currently no data for the most recent event.</h6>
         <h6 class="notification notification-default2" role="alert">No recent events to show.</h6>
@@ -29,177 +148,16 @@
 <div class="button-container">
   <input type="submit" name="" class="gen_btn" id="submit" value="Download" />
 </div>
-
-<script>
-
-
-function demoFromHTML() {
-    var pdf = new jsPDF('p', 'pt', 'letter')
-
-// source can be HTML-formatted string, or a reference
-// to an actual DOM element from which the text will be scraped.
-, source = $('.inner')[0]
-
-// we support special element handlers. Register them with jQuery-style
-// ID selector for either ID or node name. ("#iAmID", "div", "span" etc.)
-// There is no support for any other type of selectors
-// (class, of compound) at this time.
-, specialElementHandlers = {
-    // element with id of "bypass" - jQuery style selector
-    '#bypassme': function(element, renderer){
-        // true = "handled elsewhere, bypass text extraction"
-        return true
-    }
-}
-
-margins = {
-    top: 80,
-    bottom: 60,
-    left: 40,
-    width: 522
-  };
-  // all coords and widths are in jsPDF instance's declared units
-  // 'inches' in this case
-pdf.fromHTML(
-    source // HTML string or DOM elem ref.
-    , margins.left // x coord
-    , margins.top // y coord
-    , {
-        'width': margins.width // max width of content on PDF
-        , 'elementHandlers': specialElementHandlers
-    },
-    function (dispose) {
-      // dispose: object with X, Y of the last line add to the PDF
-      //          this allow the insertion of new lines after html
-        pdf.save('Test.pdf');
-      },
-    margins
-  )
-    
-    
-}
+</div>
 
 
-</script>
-<script>
-	    var stepped = 0, rowCount = 0, errorCount = 0, firstError;
-		var inputType = "string";
-	    $('#upload').click(function(){
-			
-			var config = buildConfig();
-			
-$('#file').parse({
-			config:config,
-			before: function(file, inputElem)
-				{
-					start = now();
-					console.log("Parsing file...", file);
-				},
-				error: function(err, file)
-				{
-					console.log("ERROR:", err, file);
-					firstError = firstError || err;
-					errorCount++;
-				},
-			
-			complete: function(){
-				end = now();
-				printStats("Done with all files");
-				
-				
-			}
-		});
-	});
-	
-	function now()
-{
-	return typeof window.performance !== 'undefined'
-			? window.performance.now()
-			: 0;
-}
-
-function buildConfig()
-{
-	return {
-		delimiter: '',
-		header: true,
-		dynamicTyping: $('#dynamicTyping').prop('checked'), //turn numbers into numbers or strings? yes no to boolean?
-		skipEmptyLines:true,
-		preview: parseInt($('#preview').val() || 0),
-		step: $('#stream').prop('checked') ? stepFn : undefined,
-		encoding: '',
-		worker: true, //run on separate thread--slower but wont lock webpage
-		comments: $('#comments').val(),
-		complete: completeFn,
-		error: errorFn,
-		download: inputType == "remote"
-	};
-}
-
-function stepFn(results, parser)
-{
-	stepped++;
-	if (results)
-	{
-		if (results.data)
-			rowCount += results.data.length;
-		if (results.errors)
-		{
-			errorCount += results.errors.length;
-			firstError = firstError || results.errors[0];
-		}
-	}
-}
-
-function completeFn(results)
-{
-	end = now();
-
-	if (results && results.errors)
-	{
-		if (results.errors)
-		{
-			errorCount = results.errors.length;
-			firstError = results.errors[0];
-		}
-		if (results.data && results.data.length > 0)
-			rowCount = results.data.length;
-			$('#file').val('');
-	}
-
-	printStats("Parse complete");
-	console.log("    Results:", results);
-
-	// icky hack
-	//setTimeout(enableButton, 100);
-}
-
-function errorFn(err, file)
-{
-	end = now();
-	console.log("ERROR:", err, file);
-	//enableButton();
-}
-function printStats(msg)
-{
-	if (msg)
-		console.log(msg);
-	console.log("       Time:", (end-start || "(Unknown; your browser does not support the Performance API)"), "ms");
-	console.log("  Row count:", rowCount);
-	if (stepped)
-		console.log("    Stepped:", stepped);
-	console.log("     Errors:", errorCount);
-	if (errorCount)
-		console.log("First error:", firstError);
-}
-</script>
  <script>
-
+var idArray=[];
+var selectedID;
         //When DOM loaded we attach click event to button
         $(document).ready(function() {
             //show spinner
 	    $(".modal-animate").show();
-	    
 	    
 	    //alert(idjson);
 		    
@@ -213,7 +171,7 @@ function printStats(msg)
                 //start ajax request
                 $.ajax({
                     url: last_url,
-		    headers: {Authorization: "Bearer " + sessionStorage.access_token},
+		    
                     //force to handle it as text
                     dataType: "text",
                     success: function(data) {
@@ -221,23 +179,18 @@ function printStats(msg)
                         //data downloaded so we call parseJSON function 
                         //and pass downloaded data
                         var json = $.parseJSON(data);
-                        
-			json = $.parseJSON(json.final_results);
-			
-			var arr = json.toString().split(",");
-			var count = arr.length;
-			
+			json = $.parseJSON(json.final_score);
                         //now json variable contains data in json format
                         //let's display a few items
                        // $('#results').html('Date: ' + json.date);
 			//$('#results').append('<p> Workout ID: '+ json.workoutID);
 			
 			//if empty show notification, hide spinner, and show button
-			
 			if (json.runners == "") {
 			    $(".modal-animate").hide();
 			    $("h6.notification.notification-default").show();
 			      $("input#submit.gen_btn").show();
+			      $('#results').empty();
 			}
 			else {
 			    //hide spinner, show button, show results
@@ -246,45 +199,73 @@ function printStats(msg)
 			$("h6.notification.notification-default").hide();
 			  $("input#submit.gen_btn").show();
 			$('#results').empty();
-			var counter = 0;
-			var counter1 = 1;
-			    $('#results').append('<tr><td>Place</td><td>Time</td><td>Name</td><td>Affiliation</td></tr>');
-			for (var i=0; i < count; i++) {
+			for (var i=0; i < json.runners.length; i++) {
 			  //print names and enter name array
-			  var name = arr[i];
-			  
-			 // alert(i);
+			  var name = json.runners[i].name;
 			  //prints all splits with no nesting
 			  //var interval = json.runners[i].interval
-			  
-			  if ((i)%3 ==0 & counter%2==0) {
-				var tr = $('<tr class="odd">');
-				 tr.append('<td>'+counter1+'</td>');
-			    $('#results').append(tr);
-			    tr.append('<td>'+name+'</td>');
-			    counter1 = counter1 + 1;
+			  if (i==0) {
+			    $('#results').append('<tr><td>Name</td></tr>');
+			    $('#results').append('<tr class="odd"><td>'+name+'</td></tr>');
 			  }
-			  else if ((i)%3 ==0 & counter%2==1) {
-				var tr = $('<tr>');
-				 tr.append('<td>'+counter1+'</td>');
-			    $('#results').append(tr);
-			    tr.append('<td>'+name+'</td>');
-			    counter1 = counter1 + 1;
+			  else if((i)%2 ==0) {
+			    $('#results').append('<tr class="odd"><td>'+name+'</td></tr>');
 			  }
-			  else if((i)%3 ==1) {
-			    tr.append('<td>'+name+'</td>');
-			  }
-			  else if((i)%3 ==2){
-			    tr.append('<td>'+name+'</td>');
+			  else{
+			    $('#results').append('<tr><td>'+name+'</td></tr>');
 			  }
 			  
 			  
-			  counter = counter + 1;
+			  var finaltime = 0;
 			  
+			  for (var j=0; j < json.runners[i].interval.length; j++) {
+			    //iterate over interval to get to nested time arrays
+			    var interval = json.runners[i].interval[j];
+			    //$('#results').append( "Interval Subset: ")
+			    
 
+			    for (var k=0; k < json.runners[i].interval[j].length; k++) {
+			      //interate over subarrays and pull out each individually and print
+			      var subinterval = json.runners[i].interval[j][k];
+			      var min = Math.floor(subinterval/60);
+			      var sec = (subinterval-(min*60));
+			     // $('#results').append('<td>');
+			      //This if statements adds the preceding 0 to any second less than 10
+			      $('#results tr:last').append('<td>'+subinterval+'</td>');
+			      //if (sec<10) {
+				//$('#results tr:last').append('<td>'+ min + ':0'+ sec +'</td>');
+			      //}
+			      //else
+			      //{
+			      //$('#results tr:last').append('<td>'+ min + ':'+ sec +'</td>');
+			      //}
+			      finaltime = parseInt(finaltime,10) + parseInt(subinterval,10);
+			      if (i==0) {
+				//Puts the word 'split #' on table
+				$('#results tr:first').append('<td>Split</td>');
+			      }
+			    }
+			    
+			    
+			  }
 			  
 			  
-
+			  //alert(finaltime)
+			   var minfinal = Math.floor(finaltime/60);
+			   var secfinal = (finaltime-(minfinal*60));
+			   //$('#results').append('<td>');
+			   if (secfinal<10) {
+			    $('#results tr:last').append('<td>'+ minfinal + ':0'+ secfinal +'</td>');
+			   }
+			   else{
+			   $('#results tr:last').append('<td>'+ minfinal + ':'+ secfinal)+'</td>';
+			   };
+			   if (i==0) {
+				//adds word final time to table header
+				$('#results tr:first').append('<td>Final Time</td>');
+			      }
+			$('#results').append('' );
+			
 			}
 			
 			}
@@ -296,7 +277,7 @@ function printStats(msg)
 		var lastWorkout = function(){
 		$.ajax({
                     url: "/api/score/",
-		    headers: {Authorization: "Bearer " + sessionStorage.access_token},
+		   
                     //force to handle it as text
                     dataType: "text",
                     success: function(data){
@@ -309,9 +290,63 @@ function printStats(msg)
 			else{
 				 $("h6.notification.notification-default2").hide();
 			var idjson = json[json.length - 1].id;
-			//alert(idjson);
+			
 			repeated_function(idjson);
-			return idjson;
+			selectedID = idjson;
+			//alert(selectedID);
+		}
+		    }
+		    
+	    });
+		}
+		
+		var lastSelected = function(){
+		$.ajax({
+                    url: "/api/score/",
+		    
+                    //force to handle it as text
+                    dataType: "text",
+                    success: function(data){
+		      var json = $.parseJSON(data);
+			//alert(json.length);
+			if (json.length==0){ 
+				$("h6.notification.notification-default2").show();
+				$(".modal-animate").hide();
+				}
+			else{
+				 $("h6.notification.notification-default2").hide();
+
+			repeated_function(selectedID);
+
+		}
+		    }
+		    
+	    });
+		}
+		
+		var findScores = function(){
+		$.ajax({
+                    url: "/api/score/",
+		   
+                    //force to handle it as text
+                    dataType: "text",
+                    success: function(data){
+		      var json = $.parseJSON(data);
+			//alert(json.length);
+			if (json.length==0){ 
+				$("h6.notification.notification-default2").show();
+				$(".modal-animate").hide();
+				}
+			else{
+				 $("h6.notification.notification-default2").hide();
+				 var Array = [];
+				 for (var ii=0; ii < json.length; ii++){
+					$('#linkedlist').append('<tr><td>'+json[ii].name+'</td></tr>');
+					$('ul.menulist').append('<li><a href="#">'+json[ii].name+'</a></li>');
+					Array.push(json[ii].id);
+				}
+				idArray = Array;
+				
 		}
 		    }
 		    
@@ -319,18 +354,31 @@ function printStats(msg)
 		}
 		
 
-	    lastWorkout();
+	$("body").on('click', 'ul.menulist li a',function(){
+	//alert($(this).html());
+	var value = $(this).html();
+		console.log( "Index: " + $( "ul.menulist li a" ).index( $(this) ) );
+		var indexClicked= $( "ul.menulist li a" ).index( $(this) );
+	//alert(idArray);
+	//alert(idArray[indexClicked]);
+	selectedID = idArray[indexClicked];
+	repeated_function(idArray[indexClicked]);
 
 
+	});
 	
+	findScores();
+		//refresh the view every 5 seconds to update
+	    lastWorkout();
+	   setInterval(lastSelected ,5000);
 
 
 //Download to Excel Script
 
     $('#submit').click(function(){
         $.ajax({
-                    url: "/api/sessions/",
-		    headers: {Authorization: "Bearer " + sessionStorage.access_token},
+                    url: "/api/score/",
+		    
                     //force to handle it as text
                     dataType: "text",
                     success: function(data){
@@ -353,7 +401,7 @@ function printStats(msg)
     //alert(last_url);
      $.ajax({
                     url: last_url,
-		    headers: {Authorization: "Bearer " + sessionStorage.access_token},
+		    
                     //force to handle it as text
                     dataType: "text",
                     success: function(data) {
@@ -377,50 +425,47 @@ function JSONToCSVConvertor(JSONData, ReportTitle, ShowLabel) {
     //Set Report title in first row or line
     
     CSV += ReportTitle + '\r\n\n';
-
+    CSV += 'Date,'+ json.start_time+'\r\n';
+    CSV += 'Workout ID,'+ json.id+'\r\n\n';
+   //alert(CSV);
+   CSV += 'Name \r\n'
    //Uncomment below when using nested json in production
-   json = $.parseJSON(json.final_results);
-   var arr = json.toString().split(",");
-			var count = arr.length;
+   json = $.parseJSON(json.results);
+   
 	      //iterate into name array
-	       var counter = 0;
-			var counter1 = 1;
-			CSV +='Place,Time,Name,Affiliation';
-			CSV += '\r\n'
-			for (var i=0; i < count; i++) {
-			  //print names and enter name array
-			  var name = arr[i];
-			  
-			 // alert(i);
-			  //prints all splits with no nesting
-			  //var interval = json.runners[i].interval
-			  
-			  if ((i)%3 ==0 & counter%2==0) {
-				CSV +=counter1+',';
-			    CSV +=name+',';
-			    counter1 = counter1 + 1;
-			  }
-			  else if ((i)%3 ==0 & counter%2==1) {
-				CSV +=counter1+',';
-			    CSV +=name+',';
-			    counter1 = counter1 + 1;
-			  }
-			  else if((i)%3 ==1) {
-			    CSV +=name+',';
-			  }
-			  else if((i)%3 ==2){
-			    CSV +=name+',';
-			    CSV += '\r\n'
-			  }
-			  
-			  
-			  counter = counter + 1;
-			  
+	       for (var i=0; i < json.runners.length; i++) {
+		  //print names and enter name array
+		  var name = json.runners[i].name; 
+		    CSV +=name+',';
+		  
+		//alert(CSV);
+   
+   
+			for (var j=0; j < json.runners[i].interval.length; j++) {
+			    //iterate over interval to get to nested time arrays
+			    var interval = json.runners[i].interval[j];
 
-			  
-			  
-
-			}
+			    for (var k=0; k < json.runners[i].interval[j].length; k++) {
+			      //interate over subarrays and pull out each individually and print
+			      //do a little math to move from seconds to minutes and seconds
+			      var subinterval = json.runners[i].interval[j][k];
+			      var min = Math.floor(subinterval/60);
+			      var sec = (subinterval-(min*60));
+			      	CSV += subinterval+',';
+			      //This if statements adds the preceding 0 to any second less than 10
+			      //if (sec<10) {
+				//CSV += min + ':0'+sec+',';
+			      //}
+			      //else
+			      //{
+			      //CSV += min + ':'+sec+',';
+			      //}
+			      
+			    }
+			  }
+			  //moves to new row on excel spreadsheet
+			  CSV += '\r\n'
+	       }
    
    //if varaible is empty, alert invalid and return
     if (CSV == '') {        
@@ -463,11 +508,42 @@ function JSONToCSVConvertor(JSONData, ReportTitle, ShowLabel) {
         </div>
      
       </div>
-{% endblock %} 
+<!--Footer Addition -->
+ <div id="footer2">
+    <div class="row">
+
+      <div class="left">
+        <img class="footer-img" src={% static "img/trac_small.gif" %} alt="TRAC" aria-hidden="true" >
+       
+      </div>
+      <div class="col-md-3">
+              
+        <ul class="list-reset">
+
+<a href="https://www.facebook.com/timingracing"><img src={% static "img/facebook.png" %}></a>
+           <a href="http://youtu.be/9OxhM_fiHWo"><img src={% static "img/youtube.png" %} width="50px"></a>
+              <a href="https://angel.co/timing-and-racing-around-the-clock"><img src={% static "img/angellist.png" %}></a>
+       </ul>
+      </div>
+      <div class="col-md-3">
+                <ul class="list-reset">
+                    <li><a href="http://www.trac-us.com/#bg3" class="scrollto" rel="bg3">About</a></li>
+                    <li><a href="http://www.trac-us.com/#bg4" class="scrollto" rel="bg4">Frequently Asked Questions</a></li>
+          <li><a href="mailto:info@trac-us.com">Contact us</a></li>
+        </ul>
+      </div>
+
+      <div class="col-md-3">
+        
+        <address>
+          Timing and Racing Around the Clock<br>
+          1871<br>
+          222 W. Merchandise Mart Plaza<br>
+          Chicago, IL 60654<br><br>
+        </address>
+      </div>
+
+    </div>
     
-    
-    
+</body>
 </html>
-
-
-

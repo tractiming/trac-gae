@@ -419,12 +419,11 @@ border-color: #c72e2e;
       display: inline-table}
       @media only screen and (min-width: 720px) and (max-width: 959px) {
         div.parallax div#log #contentleft {
-          
 
           display: inline-table} }
       @media only screen and (max-width: 719px) {
         div.parallax div#log #contentleft {
-          
+
  
           display: inline-table} }
     /*div.parallax div#create #contentleft div.form-row{font-size:17px; color:#ffffff; overflow:hidden; margin:10px 0 12px 0;}
@@ -812,7 +811,8 @@ div.parallax div#create #contentright div#notifications .notification.notificati
           /* Live Split Page */
   div.parallax div#bg2 {
     background: #3577A8;
-    text-align: center; }
+    text-align: center;
+  }
     @media only screen and (min-width: 960px) {
       div.parallax div#bg2 {
         min-height: 800px; } }
@@ -827,14 +827,17 @@ div.parallax div#create #contentright div#notifications .notification.notificati
         div.parallax div#bg2 div.content {
           padding-top: 80px;
           padding-bottom: 80px; } }
+
+div.parallax div#bg2 div.content div#container div.menu-btn{background:#c9c9c9;border-radius:3px;width:175px; cursor: pointer;}
           div.parallax div#bg2 div.content div.inner{ 
-          width:100%;
+          width:100%%;
           overflow-x:scroll;
   overflow-y:visible;
   display:none;
  
   }
-          div.parallax div#bg2 div.content div.inner table#results{  table-layout: fixed; 
+    
+          div.parallax div#bg2 div.content div.inner table#results{table-layout: fixed; ;
 }
  div.parallax div#bg2 div.content div.inner table#results td {
   vertical-align: top;
