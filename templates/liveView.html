@@ -32,11 +32,8 @@
  <h2> Live Results</h2>
 
  <div class="inner">
-	
-
-
     <table id="results" style="width:100%"></table>
-    </div>
+
 
     <div id="notifications">
         <h6 class="notification notification-default" role="alert">There is currently no data for the most recent event.</h6>
@@ -97,7 +94,29 @@ var selectedID;
 			$(".modal-animate").hide();
 			$("h6.notification.notification-default").hide();
 			  $("input#submit.gen_btn").show();
-			$('#results').empty();
+			 var longest = 0;
+			var importantRow;
+			for (var ii = 0; ii < json.runners.length; ii++) {
+			  for (var jj = 0; jj < json.runners[ii].interval.length; jj++){
+			    if (jj == 0) {
+			      //initilize temporary variable
+			      var tempLength = json.runners[ii].interval[jj].length;
+			    }
+			    else{
+			      tempLength = tempLength + json.runners[ii].interval[jj].length;
+			    }  
+			 }
+			  if (longest < tempLength) {
+			    longest = tempLength;
+			    importantRow = ii;
+			  } 
+			
+			}
+			  
+			  
+			  
+			  
+			  $('#results').empty();
 			for (var i=0; i < json.runners.length; i++) {
 			  //print names and enter name array
 			  var name = json.runners[i].name;
@@ -130,7 +149,7 @@ var selectedID;
 			      var sec = (subinterval-(min*60));
 			     // $('#results').append('<td>');
 			      //This if statements adds the preceding 0 to any second less than 10
-			      $('#results tr:last').append('<td>'+subinterval+'</td>');
+			      $('#results tr:last').append('<td>'+ subinterval +'</td>');
 			      //if (sec<10) {
 				//$('#results tr:last').append('<td>'+ min + ':0'+ sec +'</td>');
 			      //}
@@ -138,34 +157,37 @@ var selectedID;
 			      //{
 			      //$('#results tr:last').append('<td>'+ min + ':'+ sec +'</td>');
 			      //}
-			      finaltime = parseInt(finaltime,10) + parseInt(subinterval,10);
-			      if (i==0) {
+			      finaltime = finaltime + subinterval;
+			      if (i==importantRow) {
 				//Puts the word 'split #' on table
-				$('#results tr:first').append('<td>Split</td>');
+				$('#results tr:first').append('<td>' + 'Split' + '</td>');
 			      }
 			    }
 			    
 			    
 			  }
 			  
+			  //to implement total time-- not necessary for this moment
 			  
-			  //alert(finaltime)
-			   //var minfinal = Math.floor(finaltime/60);
-			   //var secfinal = (finaltime-(minfinal*60));
-			   ////$('#results').append('<td>');
-			   //if (secfinal<10) {
-			    //$('#results tr:last').append('<td>'+ minfinal + ':0'+ secfinal +'</td>');
-			   //}
-			   //else{
-			   //$('#results tr:last').append('<td>'+ minfinal + ':'+ secfinal)+'</td>';
-			   //};
-			   //if (i==0) {
-				////adds word final time to table header
-				//$('#results tr:first').append('<td>Final Time</td>');
-			      //}
-			//$('#results').append('' );
+			//   var minfinal = Math.floor(finaltime/60);
+			//   var secfinal = (finaltime-(minfinal*60));
+			//   
+			//   if (secfinal<10) {
+			//    $('#results tr:last').append( minfinal + ':0'+ secfinal );
+			//   }
+			//   else{
+			//   $('#results tr:last').append( minfinal + ':'+ secfinal);
+			//   };
+			//   if (i==0) {
+			//	//adds word final time to table header
+			//	$('#results tr:first').append('<td>Final Time</td>');
+			//      }
 			
 			}
+			
+			
+			
+			
 			
 			}
 			
