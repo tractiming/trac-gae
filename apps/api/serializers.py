@@ -93,7 +93,7 @@ class ScoringSerializer(serializers.ModelSerializer):
     class Meta:
         model = TimingSession
         lookup_field = 'session'
-        fields = ('id', 'final_score')
+        fields = ('id', 'final_score', 'name')
         
 class CreateTimingSessionSerializer(serializers.ModelSerializer):
     class Meta:
