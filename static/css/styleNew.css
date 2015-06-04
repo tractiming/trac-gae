@@ -856,6 +856,48 @@ div.parallax div#bg2 div.content div#container div.menu-btn{background:#c9c9c9;b
   width:100px;
 }
 
+div.parallax div#bg2 div.content div.outer div.final table#finaltimes{table-layout: fixed; ;
+}
+
+ div.parallax div#bg2 div.content div.outer div.final table#finaltimes td {
+  vertical-align: top;
+  
+  padding:10px;
+  width:100px;
+  height:18px;
+}
+
+ div.parallax div#bg2 div.content div.outer div.final table#finaltimes th {
+  vertical-align: top;
+  
+  padding:10px;
+  width:100px;
+  position:absolute;
+  *position: relative; /*ie7*/
+  left:0; 
+  width:100px;
+}
+div.parallax div#bg2 div.content div.outer div.names table#nametable{table-layout: fixed; ;
+}
+
+ div.parallax div#bg2 div.content div.outer div.names table#nametable td {
+  vertical-align: top;
+  
+  padding:10px;
+  width:100px;
+  height:18px;
+}
+
+ div.parallax div#bg2 div.content div.outer div.names table#nametable th {
+  vertical-align: top;
+  
+  padding:10px;
+  width:100px;
+  position:absolute;
+  *position: relative; /*ie7*/
+  left:0; 
+  width:100px;
+}
           div.parallax div#bg2 div#notifications {
             margin-left:auto;
             margin-right:auto;

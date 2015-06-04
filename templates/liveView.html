@@ -40,11 +40,11 @@
         <h6 class="notification notification-default2" role="alert">No recent events to show.</h6>
 
     </div>
-    
+  </div>  
 <div class="button-container">
   <input type="submit" name="" class="gen_btn" id="submit" value="Download" />
 </div>
-</div>
+
 
 
  <script>
@@ -303,12 +303,10 @@ var selectedID;
                     //force to handle it as text
                     dataType: "text",
                     success: function(data){
-		      var json = $.parseJSON(data);
-			//alert(json.length);
-			var idjson = json[json.length - 1].id;
-			//alert(idjson);
-			urlfn(idjson);
-			return idjson;
+
+			urlfn(selectedID);
+            return selectedID;
+
 		    }
 		    
 	    });
