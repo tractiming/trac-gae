@@ -1,0 +1,65 @@
+{
+    "director_username": "alsal", 
+    "readers": [
+        "A1010",
+        "A1011"
+    ], 
+    "athletes": [
+        {
+            "first_name": "Jessica", 
+            "last_name": "Watychowicz", 
+            "gender": "F", 
+            "age": "0", 
+            "tag": "E200 1AC1 953D EC80 1036 C7B1", 
+            "num": "50", 
+            "team": "Wisonsin"
+        }, 
+        {
+            "first_name": "Kelly", 
+            "last_name": "McShea", 
+            "gender": "F", 
+            "age": "0", 
+            "tag": "E200 1AC1 9542 AD40 1036 DAB4", 
+            "num": "51", 
+            "team": "Unatached"
+        }, 
+        {
+            "first_name": "Alyvia", 
+            "last_name": "Clark", 
+            "gender": "F", 
+            "age": "0", 
+            "tag": "E200 1AC1 9540 53C0 1036 D14E", 
+            "num": "52", 
+            "team": "Unattached"
+        }, 
+        {
+            "first_name": "Hope", 
+            "last_name": "Orvold", 
+            "gender": "F", 
+            "age": "0", 
+            "tag": "0000 AD00 0013 0617 0434 1500", 
+            "num": "53", 
+            "team": "Wisconsin"
+        }, 
+        {
+            "first_name": "Megan", 
+            "last_name": "Janezic", 
+            "gender": "F", 
+            "age": "0", 
+            "tag": "0000 AD00 0013 0617 0434 1202", 
+            "num": "54", 
+            "team": "Unattached"
+        }, 
+        {
+            "first_name": "Rebecca", 
+            "last_name": "Zaiter", 
+            "gender": "F", 
+            "age": "0", 
+            "tag": "0000 AD00 0013 0617 0434 1800", 
+            "num": "55", 
+            "team": "Pacer"
+        }
+    ], 
+    "race_name": "E12 - Elite Women", 
+    "race_date": "2015-06-04"
+}

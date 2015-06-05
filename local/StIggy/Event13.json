@@ -1,0 +1,110 @@
+{
+    "director_username": "alsal", 
+    "readers": [
+        "A1010",
+        "A1011"
+    ], 
+    "athletes": [
+        {
+            "first_name": "Sam", 
+            "last_name": "Penzenstadler", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "0000 AD00 0013 0617 0434 1600", 
+            "num": "56", 
+            "team": "Unattached"
+        }, 
+        {
+            "first_name": "Lex", 
+            "last_name": "Williams", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "0000 AD00 0013 0617 0434 1301", 
+            "num": "57", 
+            "team": "Brooks"
+        }, 
+        {
+            "first_name": "Grzegorz", 
+            "last_name": "Kalinowski", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "0000 AD00 0013 0617 0434 1700", 
+            "num": "58", 
+            "team": "VeryNiceTC"
+        }, 
+        {
+            "first_name": "Will", 
+            "last_name": "Crocker", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "0000 AD00 0013 0617 0434 1913", 
+            "num": "59", 
+            "team": "University"
+        }, 
+        {
+            "first_name": "LelandLater", 
+            "last_name": "UCBerkeley", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "0000 AD00 0013 0617 0434 2013", 
+            "num": "60", 
+            "team": "0"
+        }, 
+        {
+            "first_name": "Juan", 
+            "last_name": "Carillo", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "0000 AD00 0013 0617 0434 2113", 
+            "num": "61", 
+            "team": "RunnersSoul"
+        }, 
+        {
+            "first_name": "Martin", 
+            "last_name": "Grady", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "0000 AD00 0013 0617 0434 1813", 
+            "num": "62", 
+            "team": "NotreDame"
+        }, 
+        {
+            "first_name": "Paul", 
+            "last_name": "Escher", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "0000 AD00 0013 0617 0434 1401", 
+            "num": "63", 
+            "team": "StOlaf"
+        }, 
+        {
+            "first_name": "Andrew", 
+            "last_name": "Nelson", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "E200 680A 0000 0000 0000 0000", 
+            "num": "64", 
+            "team": "GoneWith"
+        }, 
+        {
+            "first_name": "Tony", 
+            "last_name": "Zea", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "E200 1AC1 9645 1940 1039 8464", 
+            "num": "65", 
+            "team": "UofI"
+        }, 
+        {
+            "first_name": "Trevor", 
+            "last_name": "Kuehr", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "0000 AD00 0014 0901 0436 2613", 
+            "num": "66", 
+            "team": "Pacer"
+        }
+    ], 
+    "race_name": "E13 - Elite Men", 
+    "race_date": "2015-06-04"
+}
