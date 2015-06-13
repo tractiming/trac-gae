@@ -1,7 +1,4 @@
-from django.core.exceptions import ObjectDoesNotExist
-#from trac.models import TimingSession, TagTime, Tag, Reader
-import datetime
-from django.contrib.auth.models import User, Group
+from django.utils import timezone
 
 def is_athlete(user):
     """
@@ -61,7 +58,7 @@ def filter_splits(unfiltered_splits, interval_distance, track_size):
     else:
         modified_constant = constant
 
-    dt_sec = datetime.timedelta(seconds=modified_constant).total_seconds()
+    dt_sec = timezone.timedelta(seconds=modified_constant).total_seconds()
     filtered_interval = [dt for dt in unfiltered_splits if dt>dt_sec]    
     #filtered_counter = range(1,len(filtered_interval)+1)    
     
@@ -84,38 +81,43 @@ class RaceReport:
     def write_csv(self):
         pass
 
-def parse_raw_msg(string):
-    """
-    DEPRECATED
-    Extracts split data from reader notification message.
-    """
-    # Check that tag contains good information.
-    if ('Tag:' not in string) or ('Last:' not in string) or ('Ant:' not in string):
-        return None
 
-    msg_info = {}
-    for d in string.split(', '):
-        k = d.split(':')
-        
-        if k[0] == 'Tag':
-            msg_info['name'] = k[1]
-        elif k[0] == 'Last':
-            time_str = d[5:]
-            msg_info['time'] = datetime.datetime.strptime(time_str,
-                                                          "%Y/%m/%d %H:%M:%S.%f") 
-        elif k[0] == 'Ant':
-            msg_info['Ant'] = int(k[1])
 
-    return msg_info
 
-def parse_formatted_msg(msg):
-    """
-    DEPRECATED
-    Extracts time data from a formatted reader message.
-    """
-    # Ensure that the message contains valid info.
-    for token in ['ant', 'r', 'id', 'time']:
-        if token not in msg:
-            return None
-    
-    msg_info = {'name': msg['ant']}
+
+############# old stuff ######################################
+#def parse_raw_msg(string):
+#    """
+#    DEPRECATED
+#    Extracts split data from reader notification message.
+#    """
+#    # Check that tag contains good information.
+#    if ('Tag:' not in string) or ('Last:' not in string) or ('Ant:' not in string):
+#        return None
+#
+#    msg_info = {}
+#    for d in string.split(', '):
+#        k = d.split(':')
+#        
+#        if k[0] == 'Tag':
+#            msg_info['name'] = k[1]
+#        elif k[0] == 'Last':
+#            time_str = d[5:]
+#            msg_info['time'] = datetime.datetime.strptime(time_str,
+#                                                          "%Y/%m/%d %H:%M:%S.%f") 
+#        elif k[0] == 'Ant':
+#            msg_info['Ant'] = int(k[1])
+#
+#    return msg_info
+#
+#def parse_formatted_msg(msg):
+#    """
+#    DEPRECATED
+#    Extracts time data from a formatted reader message.
+#    """
+#    # Ensure that the message contains valid info.
+#    for token in ['ant', 'r', 'id', 'time']:
+#        if token not in msg:
+#            return None
+#    
+#    msg_info = {'name': msg['ant']}

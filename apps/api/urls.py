@@ -11,16 +11,25 @@ router.register(r'score', views.ScoringViewSet, 'Score')
 
 urlpatterns = [
         url(r'^', include(router.urls)),
+
+        # General endpoints.
         url(r'^register/$', views.RegistrationView.as_view()),
         url(r'^verifyLogin/$', views.verifyLogin.as_view()),
-        url(r'^TimingSessionReset/$', views.TimingSessionReset.as_view()),
-        url(r'^IndividualTimes/$', views.IndividualTimes.as_view()),
-        url(r'^start_timer/$', views.TimingSessionStartButton.as_view()),
         url(r'^userType/$', views.userType.as_view()),
-        url(r'^updates/$', views.post_splits, name='updates'),
+        #url(r'^auth_verify/$', views.verify_login, name='auth_verify'),
+
+        # Timing session functionality.
+        url(r'^open_session/$', views.open_session),
+        url(r'^close_session/$', views.close_session),
+        url(r'^start_timer/$', views.start_session),
+        url(r'^TimingSessionReset/$', views.reset_session),
         url(r'^raceregistration/$', views.create_race, name='racereg'),
-        url(r'^ctime/$', views.current_time, name='ctime'),
-        url(r'^auth_verify/$', views.verify_login, name='auth_verify'),
+        #url(r'^IndividualTimes/$', views.IndividualTimes.as_view()),
+
+        # Endpoint for readers.
+        url(r'^updates/$', views.post_splits, name='updates'),
+
+        # Rest framework authentication.
         url(r'^api-auth/', include('rest_framework.urls',
             namespace='rest_framework'))
 ]
