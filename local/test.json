@@ -1,7 +1,7 @@
 {
-    "director_username": "test-director", 
+    "director_username": "alsal", 
     "readers": [
-        "A123"
+        "A1010"
     ], 
     "athletes": [
         {
@@ -51,8 +51,16 @@
             "age": "23", 
             "tag": "0006", 
             "team": "Team3"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "Seven", 
+            "gender": "M", 
+            "age": "22", 
+            "tag": "0001", 
+            "team": "Team3"
         }
     ], 
-    "race_name": "test", 
-    "race_date": "2015-05-25"
+    "race_name": "TestRace", 
+    "race_date": "2015-06-13"
 }

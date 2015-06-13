@@ -453,7 +453,13 @@ def create_race(request):
 
         # Create the rfid tag object and add to session.
         tag_id = athlete['tag']
-        tag, created = Tag.objects.get_or_create(id_str=tag_id, user=user)
+        try:
+            # If the tag already exists in the system, overwrite its user.
+            tag = Tag.objects.get(id_str=tag_id)
+            tag.user = user
+            tag.save()
+        except ObjectDoesNotExist:
+            tag = Tag.objects.create(id_str=tag_id, user=user)
         ts.registered_tags.add(tag.pk)
     
     return HttpResponse(status.HTTP_201_CREATED)
