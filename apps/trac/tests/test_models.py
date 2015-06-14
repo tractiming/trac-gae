@@ -75,16 +75,16 @@ class TimingSessionTest(TestCase):
         ts = self.create_timingsession() 
         self.assertIsInstance(ts, TimingSession)
 
-    def test_is_active(self):
-        ts = self.create_timingsession()
-        ts.start_time = timezone.now()
-        ts.stop_time = timezone.now()+timezone.timedelta(1)
-        ts.save()
-
-        self.assertTrue(ts.is_active)
-        ts.start_time = ts.stop_time
-        ts.save()
-        self.assertFalse(ts.is_active)
+    #def test_is_active(self):
+    #    ts = self.create_timingsession()
+    #    ts.start_time = timezone.now()
+    #    ts.stop_time = timezone.now()+timezone.timedelta(1)
+    #    ts.save()
+#
+ #       self.assertTrue(ts.is_active)
+   #     ts.start_time = ts.stop_time
+   #     ts.save()
+   #     self.assertFalse(ts.is_active)
 
     def test_results(self):
         pass

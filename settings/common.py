@@ -134,8 +134,11 @@ elif getenv('SETTINGS_MODE') == 'prod':
 else:
     # Running in development, so use a local sqlite database. Need to let gae
     # sandbox to allow us to import sqlite3.
-    from google.appengine.tools.devappserver2.python import sandbox
-    sandbox._WHITE_LIST_C_MODULES += ['_sqlite3']
+    try:
+        from google.appengine.tools.devappserver2.python import sandbox
+        sandbox._WHITE_LIST_C_MODULES += ['_sqlite3']
+    except:
+        pass
     DATABASES = {
             'default': {
                 'ENGINE': 'django.db.backends.sqlite3',
