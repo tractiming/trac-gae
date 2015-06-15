@@ -1,7 +1,19 @@
-/* universal */
+@font-face {font-family: 'GothamHTF-Book';
+src: url("../fonts/GothamHTF-Book.eot?#iefix") format("embedded-opentype"), url("../../fonts/GothamHTF-Book.ttf") format("truetype"), url("../fonts/GothamHTF-Book.svg#GothamHTF-Book") format("svg"); }
+
+@font-face {
+  font-family: 'GothamHTF-Medium';
+  src: url("../fonts/GothamHTF-Medium.eot?#iefix") format("embedded-opentype"), url("../../fonts/GothamHTF-Medium.ttf") format("truetype"), url("../fonts/GothamHTF-Medium.svg#GothamHTF-Medium") format("svg"); }
+
+/* Universal */
 html { overflow-y: scroll; }
 
-body { padding-top: 70px; padding-bottom: 10px; }
+body { 
+	padding-top: 60px; 
+	padding-bottom: 10px;
+	font-family: 'GothamHTF-Medium', 'Helvetica', 'Arial', sans;
+  height: 100%;
+}
 
 a {
   text-decoration: none; }
@@ -10,23 +22,34 @@ a {
 
 
 
-/* header */
+/* Header */
+
+.navbar {
+	background-color: white; 
+}
+
+.navbar-nav>li>a {
+	padding-top: 20px;
+	text-transform: uppercase;
+	color: #3577A8 !important; }
+	.navbar-nav>li>a:hover {
+		color: #F0B922 !important;
+}
 
 #logo {
-  float: left;
-  margin-right: 10px;
-  font-size: 1.7em;
-  color: white;
-  text-transform: uppercase;
-  letter-spacing: -1px;
-  padding-top: 9px;
-  font-weight: bold; }
+	background: url("../../img/trac_small.gif") no-repeat;
+	display: inline-block;
+	width: 200px;
+	height: 60px; }
 	#logo:hover {
   	color: white;
   	text-decoration: none;
 }
 
-
-
+/* General */
+.content {
+	background-color: #3577A8;
+	padding-top: 20px;
+}
 
 /* Typography */
