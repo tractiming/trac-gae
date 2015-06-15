@@ -1,0 +1,32 @@
+/* universal */
+html { overflow-y: scroll; }
+
+body { padding-top: 70px; padding-bottom: 10px; }
+
+a {
+  text-decoration: none; }
+  a:hover { text-decoration: none; 
+}
+
+
+
+/* header */
+
+#logo {
+  float: left;
+  margin-right: 10px;
+  font-size: 1.7em;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: -1px;
+  padding-top: 9px;
+  font-weight: bold; }
+	#logo:hover {
+  	color: white;
+  	text-decoration: none;
+}
+
+
+
+
+/* Typography */

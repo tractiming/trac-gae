@@ -17,10 +17,10 @@
     {% endblock %}
     
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
     <link rel="canonical" href="http://www.trac-us.com"/>
     <link rel="icon" href="{% static "img/favicon.ico" %}" type="image/x-icon">
-    <link rel="stylesheet" type="text/css" media="all" 
-          href="{% static "css/styleNew.css" %}" />
+    
     <link rel="stylesheet" href="{% static "css/login_style.css" %}" />
      <link rel='stylesheet' href="{% static "css/fullcalendar.css" %}" />
      <link rel='stylesheet' href="{% static "css/pushy.css" %}" />
@@ -39,7 +39,7 @@
 <script type="text/javascript" src="{% static "js/parsley.min.js" %}"></script>
 <script type="text/javascript" src="{% static "js/progression.min.js" %}"></script>
 <script type="text/javascript" src="{% static "js/jspdf.debug.js" %}"></script>
->
+
 <script type="text/javascript" src="{% static "js/pushy.min.js" %}"></script>
 <!--Google Analytics-->
 <script>
@@ -55,6 +55,16 @@
 </script>
     <!--<script src="{% static "js/jquery-2.1.1.js" %}"></script>-->
 
+
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+
+		<!-- Custom CSS -->
+		<link rel="stylesheet" href="{% static "css/new/main.css" %}" />
+		<link rel="stylesheet" href="{% static "css/new/score.css" %}" />
+
+
+
     {% endblock %}
 
     <title>
@@ -68,6 +78,45 @@
 </head>
 
 <body>
+	<nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Project name</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Dropdown <span class="caret"></span></a>
+              <ul class="dropdown-menu" role="menu">
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li class="divider"></li>
+                <li class="dropdown-header">Nav header</li>
+                <li><a href="#">Separated link</a></li>
+                <li><a href="#">One more separated link</a></li>
+              </ul>
+            </li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="../navbar/">Default</a></li>
+            <li><a href="../navbar-static-top/">Static top</a></li>
+            <li class="active"><a href="./">Fixed top <span class="sr-only">(current)</span></a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+<!--
   <div id="bowtruss-header" class="container">
     <a href="#" id="pull"></a>
     <ul>
@@ -100,36 +149,55 @@
 
     </ul>
   </div>
+-->
 
   <div class="parallax">
   <div class="modal-animate hide">
     <div class="rotate"></div>
 
-</div>
-       <nav class="pushy pushy-left">
+	</div>
+  
+  <nav class="pushy pushy-left">
     <ul class="menulist">
         
         
     </ul>
-</nav>
+	</nav>
 
-<!-- Site Overlay -->
-<div class="site-overlay"></div>
-
-
-  <div id="bg2">  
+	<!-- Site Overlay -->
+	<div class="site-overlay"></div>
 
 
-
-	  <div class="content">
-		  <!-- Your Content -->
-<div id="container">
-    <!-- Menu Button -->
-    <div class="menu-btn">&#9776; Heat Menu</div>
+  	<div id="bg2">  
 
 
 
- <h2> Live Results</h2>
+	  	<div class="content">
+			  <!-- Your Content -->
+				<div id="container">
+	    		<!-- Menu Button -->
+	    		<div class="menu-btn">&#9776; Heat Menu</div>
+
+
+
+ 					<h2> Live Results</h2>
+
+				 	<div class="outer" style="width:100%">
+						<div class="names" style="width:20%;display:inline-block;float:left">
+				    	<table id="nametable" style="width:100%"><tbody><tr><td>Name</td></tr><tr class="odd"><td>Cameron Levins</td></tr><tr><td>Test Runner4</td></tr><tr class="odd"><td>R 1419</td></tr><tr><td>Avery Dennison</td></tr></tbody></table>
+
+				   	</div>
+
+					 	<div class="inner" style="width:70%;display:inline-block;float:left">
+	    				<table id="results" style="width:100%"><tbody><tr><td>Split</td><td>Split</td><td>Split</td><td>Split</td><td>Split</td><td>Split</td></tr><tr class="odd"><td>6</td><td>0</td><td>.</td><td>9</td><td>0</td><td>1</td></tr><tr><td>7</td><td>3</td><td>.</td><td>0</td><td>3</td><td>1</td></tr><tr></tr><tr class="odd"><td>3</td><td>3</td><td>5</td><td>.</td><td>3</td><td>4</td><td>8</td></tr><tr><td>3</td><td>3</td><td>4</td><td>.</td><td>2</td><td>2</td><td>8</td></tr></tbody></table>
+	    			</div>
+
+	 					<div class="final" style="width:10%;display:inline-block;">
+							<table id="finaltimes" style="width:100%"><tbody><tr><td>Final Time</td></tr><tr class="odd"><td>NaN:NaN</td></tr><tr><td>NaN:NaN</td></tr><tr class="odd"><td>NaN:NaN</td></tr><tr><td>NaN:NaN</td></tr></tbody></table>
+						</div>
+					</div>
+
+<!--
 <div class="outer" style="width:100%">
 	 <div class="names" style="width:20%;display:inline-block;float:left">
     <table id="nametable" style="width:100%"></table>
@@ -149,17 +217,18 @@
 
     </div>
 </div>
+-->
 
-    <div id="notifications">
-        <h6 class="notification notification-default" role="alert">There is currently no data for the most recent event.</h6>
-        <h6 class="notification notification-default2" role="alert">No recent events to show.</h6>
+			    <div id="notifications">
+			        <h6 class="notification notification-default" role="alert">There is currently no data for the most recent event.</h6>
+			        <h6 class="notification notification-default2" role="alert">No recent events to show.</h6>
 
-    </div>
+			    </div>
     
-<div class="button-container">
-  <input type="submit" name="" class="gen_btn" id="submit" value="Download" />
-</div>
-</div>
+					<div class="button-container">
+					  <input type="submit" name="" class="gen_btn" id="submit" value="Download" />
+					</div>
+				</div>
 
 
  <script>
