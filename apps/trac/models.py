@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User, Group
 from django.utils import timezone
 from django.core.cache import cache
-from util import filter_splits
+from filters import filter_splits
 from operator import itemgetter
 
 class Tag(models.Model):
@@ -130,14 +130,14 @@ class TimingSession(models.Model):
 
         return interval
 
-    def calc_results(self, tag_ids=[], read_cache=False, save_cache=False):
+    def calc_results(self, tag_ids=None, read_cache=False, save_cache=False):
         """
         Calculates the raw results (user_id, user_name, team_name, splits,
         cumul_time). Can optionally filter by passing a list of tag ids to use.
         """
         
         # By default, use all tags in the workout.
-        if not tag_ids:
+        if tag_ids is None:
             tag_ids = self.tagtimes.values_list('tag_id',flat=True).distinct()
 
         # Try to read from the cache. Be careful using this. Reading from the
@@ -202,37 +202,26 @@ class TimingSession(models.Model):
 
         return scores
 
-    def get_filtered_results(self, teams=[], genders=[], age_ranges=[], grades=[]):
+    def get_filtered_results(self, gender='', age_range=[], teams=[]):
         """Gets a filtered list of tag ids."""
-        q_obj = models.Q()
-        
-        # Filter by gender.
-        if genders:
-            gd = models.Q()
-            for gender in genders:
-                gd |= models.Q(tag__user__athlete__gender=gender)
-            q_obj &= gd    
+        tt = self.tagtimes.all()
 
-        # Filter by grade.
-        if grades:
-            gr = models.Q()
-            for grade in grades:
-                gr |= models.Q(tag__user__athlete__grade=grade)
-            q_obj &= gr   
+        # Filter by gender.
+        if gender:
+            assert gender in ['M', 'F'], "Invalid gender."
+            tt = tt.filter(tag__user__athlete__gender=gender)
 
         # Filter by age.
-        if age_ranges:
-            ag = models.Q()
-            for age_range in age_ranges:
-                ag |= (models.Q(tag__user__athlete__age__lte=age_range[1]) &
-                       models.Q(tag__user__athlete__age__gte=age_range[0]))
-            q_obj &= ag    
-       
+        if age_range:
+            assert (age_range[0]<age_range[1])&(age_range[0]>=0), "Invalid age range"
+            tt = tt.filter(tag__user__athlete__age__lte=age_range[1],
+                           tag__user__athlete__age__gte=age_range[0])
+
         # Filter by team.
         if teams:
-            q_obj &= models.Q(tag__user__groups__name__in=teams)
+            tt = tt.filter(tag__user__groups__name__in=teams)
 
-        tags = self.tagtimes.filter(q_obj).values_list('tag_id',flat=True).distinct()
+        tags = tt.values_list('tag_id',flat=True).distinct()
         return self.calc_results(tag_ids=tags)
 
     def get_results(self, force_update=False, sort=False):
@@ -253,8 +242,12 @@ class TimingSession(models.Model):
 
     def get_ordered_results(self, force_update=False):
         """Get the full results, ordered by cumulative time."""
-        return self.get_results(force_update=force_update, sort=True)
-    
+        res =  self.get_results(force_update=force_update, sort=True)
+        for r in res['runners']:
+            r['interval'] = str(sum([float(t[0]) for t in r['interval']]))
+        return res    
+
+
     def get_score(self):
 		"""
 		Calculate score from data fed from get_final_results

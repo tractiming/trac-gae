@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.utils import timezone
 from trac.models import *
+from trac.util import RaceReport
 
 
 class ReaderTest(TestCase):
@@ -91,4 +92,94 @@ class TimingSessionTest(TestCase):
 
     def test_all_users(self):
         pass
+
+class TestRaceReport(TestCase):
+    """
+    Test the race report class that displays compiled results.
+    """
+
+    def create_athlete(self, name, age, gender):
+        """
+        Create an athlete with a name, age, and gender. Also, create a tag for
+        the runner.
+        """
+        u = User.objects.create(username=name)
+        a = AthleteProfile.objects.create(user=u, age=age, gender=gender)
+        t = Tag.objects.create(id_str=str(self.tag_num), user=u)
+        self.tag_num = self.tag_num+1
+        return a, t
+
+    def create_final_time(self, session, tag, reader, final_time):
+        """
+        Assign a tag a final time in the session.
+        """
+        time = session.start_button_time+final_time
+        tt = TagTime.objects.create(tag=tag, time=time, reader=reader, milliseconds=0)
+        session.tagtimes.add(tt.pk)
+        session.save()
+
+    def setUp(self):
+        """
+        Create sessions, athletes, and results.
+        """
+
+        # Create the timing session.
+        u = User.objects.create(username='Test Coach')
+        c = CoachProfile.objects.create(user=u)
+        self.ts1 = TimingSession.objects.create(name='Test', manager=u)
+        self.ts1.start_button_time = timezone.now()
+        self.ts2 = TimingSession.objects.create(name='Test', manager=u)
+        self.ts2.start_button_time = timezone.now()
+
+        # Create readers and add them to the session.
+        r1 = Reader.objects.create(name='R1', id_str='R1', owner=u)
+        r2 = Reader.objects.create(name='R2', id_str='R2', owner=u)
+        self.ts1.readers.add(r1.pk)
+        self.ts2.readers.add(r2.pk)
+        self.ts1.save()
+        self.ts2.save()
+
+        # Create some athletes, tags, and results.
+        self.tag_num = 1
+        a1, t1 = self.create_athlete("Runner 1", 15, 'M')
+        self.create_final_time(self.ts1, t1, r1, timezone.timedelta(seconds=140))
+        a2, t2 = self.create_athlete("Runner 2", 16, 'M')
+        self.create_final_time(self.ts1, t2, r1, timezone.timedelta(seconds=141))
+        a3, t3 = self.create_athlete("Runner 3", 20, 'M')
+        self.create_final_time(self.ts1, t3, r1, timezone.timedelta(seconds=142))
+        a4, t4 = self.create_athlete("Runner 4", 22, 'M')
+        self.create_final_time(self.ts1, t4, r1, timezone.timedelta(seconds=143))
+        a5, t5 = self.create_athlete("Runner 5", 81, 'M')
+        self.create_final_time(self.ts1, t5, r1, timezone.timedelta(seconds=144))
+        a6, t6 = self.create_athlete("Runner 6", 90, 'M')
+        self.create_final_time(self.ts1, t6, r1, timezone.timedelta(seconds=145))
+        a7, t7 = self.create_athlete("Runner 7", 34, 'M')
+        self.create_final_time(self.ts1, t7, r1, timezone.timedelta(seconds=146))
+        a8, t8 = self.create_athlete("Runner 8", 16, 'M')
+        self.create_final_time(self.ts1, t8, r1, timezone.timedelta(seconds=147))
+
+        a9, t9 = self.create_athlete("Runner 9", 15, 'M')
+        self.create_final_time(self.ts2, t9, r2, timezone.timedelta(seconds=148))
+        a10, t10 = self.create_athlete("Runner 10", 16, 'M')
+        self.create_final_time(self.ts2, t10, r2, timezone.timedelta(seconds=149))
+        a11, t11 = self.create_athlete("Runner 11", 20, 'M')
+        self.create_final_time(self.ts2, t11, r2, timezone.timedelta(seconds=150))
+        a12, t12 = self.create_athlete("Runner 12", 22, 'M')
+        self.create_final_time(self.ts2, t12, r2, timezone.timedelta(seconds=151))
+        a13, t13 = self.create_athlete("Runner 13", 81, 'M')
+        self.create_final_time(self.ts2, t13, r2, timezone.timedelta(seconds=152))
+        a14, t14 = self.create_athlete("Runner 14", 90, 'M')
+        self.create_final_time(self.ts2, t14, r2, timezone.timedelta(seconds=153))
+        a15, t15 = self.create_athlete("Runner 15", 34, 'M')
+        self.create_final_time(self.ts2, t15, r2, timezone.timedelta(seconds=154))
+        a16, t16 = self.create_athlete("Runner 16", 16, 'M')
+        self.create_final_time(self.ts2, t16, r2, timezone.timedelta(seconds=155))
+
+    def test_results(self):
+        ids = [self.ts1.id, self.ts2.id]
+        rr = RaceReport(ids)
+        res = rr.get_results()
+
+        # Put assertions here.
+
 

@@ -340,6 +340,39 @@ def reset_session(request):
         except:
             return HttpResponse(status.HTTP_404_NOT_FOUND)
 
+@api_view(['GET'])
+@permission_classes((permissions.IsAuthenticated,))
+def filtered_results(request):
+    """
+    Get the filtered results for a given session.
+    """
+    data = request.GET
+
+    # Get the session.
+    if 'id' in data:
+        try:
+            session = TimingSession.objects.get(id=data['id'])
+        except ObjectDoesNotExist:
+            return HttpResponse(status.HTTP_404_NOT_FOUND)
+
+    else:
+        return HttpResponse(status.HTTP_404_NOT_FOUND)
+
+    # Filter age.
+    if ('age_lte' in data) and ('age_gte' in data):
+        age_range = [data['age_gte'], data['age_lte']]
+    else:
+        age_range = []
+
+    # Filter gender.
+    if 'gender' in data:
+        g = data['gender']
+    else:
+        g = ''
+
+    results = session.get_filtered_results(gender=g, age_range=age_range)
+    return Response(results, status.HTTP_200_OK)
+
 @csrf_exempt
 @api_view(['POST','GET'])
 @permission_classes((permissions.AllowAny,))

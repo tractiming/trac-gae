@@ -24,6 +24,7 @@ urlpatterns = [
         url(r'^start_timer/$', views.start_session),
         url(r'^TimingSessionReset/$', views.reset_session),
         url(r'^raceregistration/$', views.create_race, name='racereg'),
+        url(r'^filtered_results/$', views.filtered_results),
         #url(r'^IndividualTimes/$', views.IndividualTimes.as_view()),
 
         # Endpoint for readers.
