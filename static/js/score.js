@@ -3,11 +3,12 @@ var selectedID;
 
 //When DOM loaded we attach click event to button
 $(document).ready(function() {
-
-	// hide all notifications
-	$('.notification').hide();
 	
 	(function init(){
+
+		// hide all notifications
+		$('.notification').hide();
+
 		findScores();
 
 		// display most recent table
@@ -54,7 +55,7 @@ $(document).ready(function() {
 					// hide notification and show results
 					$('#notifications .notification-default').hide();
 					$('.button-container').show();
-					$('#results').empty();
+					$('#results').show().empty();
 
 					// table template
 					$('#results').append(
