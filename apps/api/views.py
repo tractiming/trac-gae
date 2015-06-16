@@ -428,7 +428,6 @@ def create_race(request):
 
     # Create readers and add to the race.
     for r_id in data['readers']:
-        print r_id
         try:
             r = Reader.objects.get(id_str=r_id)
         except ObjectDoesNotExist:
