@@ -416,7 +416,6 @@ def create_race(request):
         }
     """
     data = json.loads(request.body)
-
     # Assign the session to a coach.
     uc, created = User.objects.get_or_create(username=data['director_username'])
     c, created = CoachProfile.objects.get_or_create(user=uc)
@@ -429,6 +428,7 @@ def create_race(request):
 
     # Create readers and add to the race.
     for r_id in data['readers']:
+        print r_id
         try:
             r = Reader.objects.get(id_str=r_id)
         except ObjectDoesNotExist:
