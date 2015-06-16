@@ -121,15 +121,17 @@
 			</div>
 			
 			<div id="notifications" class="row">
-				<p class="notification notification-default" role="alert">
-					There is currently no data for the most recent event.
-				</p>
-				<p class="notification notification-default2" role="alert">
-					No recent events to show.
-				</p>
+				<div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-8 col-xs-offset-2">
+					<p class="notification notification-default" role="alert">
+						<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> There is currently no data for this event.
+					</p>
+					<p class="notification notification-default2" role="alert">
+						<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> No recent events to show.
+					</p>
+				</div>
 			</div>
 
-			<div style="display: table; margin: 0 auto;">
+			<div style="display: table; margin: 0 auto; display: none;">
 			  <button id="download" class="btn btn-primary btn-md">Download</button>
 			</div>
 		</div>

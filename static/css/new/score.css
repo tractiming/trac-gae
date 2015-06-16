@@ -6,3 +6,12 @@ h1 {
 	margin-bottom: 20px;
 }
 
+#notifications {
+	text-align: center;
+}
+
+ul.menulist {
+	padding: 0;
+	list-style: none;
+	font-size: 1.2em;
+}
