@@ -1,0 +1,8 @@
+/* All CSS rules pertaining to score view */
+
+h1 {
+	font-family: 'GothamHTF-Book', 'Helvetica', 'Arial', sans;
+	text-transform: uppercase;
+	margin-bottom: 20px;
+}
+

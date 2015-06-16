@@ -13,6 +13,7 @@ body {
 	padding-bottom: 10px;
 	font-family: 'GothamHTF-Medium', 'Helvetica', 'Arial', sans;
   height: 100%;
+  color: #555;
 }
 
 a {
@@ -48,8 +49,11 @@ a {
 
 /* General */
 .content {
-	background-color: #3577A8;
+	background-color: white;
 	padding-top: 20px;
 }
 
 /* Typography */
+h1, h2, h3 {
+	text-align: center;
+}
