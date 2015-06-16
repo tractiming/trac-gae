@@ -416,7 +416,6 @@ def create_race(request):
         }
     """
     data = json.loads(request.body)
-
     # Assign the session to a coach.
     uc, created = User.objects.get_or_create(username=data['director_username'])
     c, created = CoachProfile.objects.get_or_create(user=uc)
