@@ -121,16 +121,16 @@
 			</div>
 			
 			<div id="notifications" class="row">
-				<h6 class="notification notification-default" role="alert">There is currently no data for the most recent event.</h6>
-				<h6 class="notification notification-default2" role="alert">No recent events to show.</h6>
+				<p class="notification notification-default" role="alert">
+					There is currently no data for the most recent event.
+				</p>
+				<p class="notification notification-default2" role="alert">
+					No recent events to show.
+				</p>
 			</div>
 
 			<div style="display: table; margin: 0 auto;">
 			  <button id="download" class="btn btn-primary btn-md">Download</button>
-			</div>
-
-			<div class="button-container row">
-				<input type="submit" name="" class="gen_btn" id="submit" value="Download" />
 			</div>
 		</div>
 	</div>
@@ -255,5 +255,6 @@
     <!-- Custom scripts -->
     <script src="{% static "js/main.js" %}" type="text/javascript"></script>
     <script src="{% static "js/score.js" %}" type="text/javascript"></script>
+    <script src="{% static "js/jquery.tablesorter.js" %}" type="text/javascript" ></script> 
 </body>
 </html>

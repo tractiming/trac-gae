@@ -4,7 +4,7 @@ var selectedID;
 //When DOM loaded we attach click event to button
 $(document).ready(function() {
 	
-	var repeated_function = function(idjson){
+	function update(idjson){
 		var last_url = '/api/score/'+ idjson;
     
 		//start ajax request
@@ -23,24 +23,26 @@ $(document).ready(function() {
 
 				var score = $.parseJSON(json.final_score);
 				
+				score.runners = '';
+
 				// add heat name
 				$('#score-title').empty();
 				$('#score-title').append('Live Results: ' + json.name);
 
 				// if empty, show notification
 				if (score.runners == '') {
-					$('#notifications').show();
+					$('#notifications .notification-default').show();
 					$('.button-container').hide();
 					$('#results').empty().hide();
 				} else {
 					// hide notification and show results
-					$('#notifications').hide();
+					$('#notifications .notification-default').hide();
 					$('.button-container').show();
 					$('#results').empty();
 
 					// table template
 					$('#results').append(
-						'<table id="results" class="table table-striped table-hover tablesorter">' + 
+						'<table id="results-table" class="table table-striped table-hover tablesorter">' + 
 							'<thead>' + 
 								'<tr>' + 
 									'<th>Name</th>' + 
@@ -55,97 +57,93 @@ $(document).ready(function() {
 					// style it with some bootstrap
 					$('#results').addClass('col-md-6 col-md-offset-3');
 
+					// add tablesorter
+					//$('#results-table').tablesorter();
+
 					for (var i=0; i < score.runners.length; i++) {
-						//*
+						var time = formatTime(score.runners[i].interval);
+
 						$('#results tbody').append(
 							'<tr>' + 
 								'<td>' + score.runners[i].name + '</td>' + 
-								'<td>' + score.runners[i].interval + '</td>' + 
+								'<td>' + time + '</td>' + 
 							'</tr>'
 						);
 					}
-					//*/
 				}
 			}
 		});
 	}
 
-			  
-		
-		
-		var lastWorkout = function(){
+	// format time in seconds to mm:ss.mil
+	function formatTime(timeStr) {
+		var time = Number(timeStr);
+		var mins = Math.floor(time / 60);
+		var secs = (time % 60).toFixed(3);
+		secs = Math.floor(secs / 10) == 0 ? '0'+secs : secs;
+		return mins.toString() + ':' + secs.toString();
+	}
+	
+	function lastWorkout(){
 		$.ajax({
-                    url: "/api/score/",
-		   
-                    //force to handle it as text
-                    dataType: "text",
-                    success: function(data){
-		      var json = $.parseJSON(data);
-			//alert(json.length);
-			if (json.length==0){ 
-				$("h6.notification.notification-default2").show();
-				$(".modal-animate").hide();
-				}
-			else{
-				 $("h6.notification.notification-default2").hide();
-			var idjson = json[json.length - 1].id;
+			url: '/api/score/',
+			dataType: 'text',			//force to handle it as text
+			success: function(data){
+				var json = $.parseJSON(data);
 			
-			repeated_function(idjson);
-			selectedID = idjson;
-			//alert(selectedID);
-		}
-		    }
-		    
-	    });
-		}
+				if (json.length==0){ 
+					$("h6.notification.notification-default2").show();
+					$(".modal-animate").hide();
+				} else {
+					$("h6.notification.notification-default2").hide();
+					var idjson = json[json.length - 1].id;
+				
+					update(idjson);
+					selectedID = idjson;
+				}
+			}
+		});
+	}
 		
-		var lastSelected = function(){
+	function lastSelected(){
 		$.ajax({
-                    url: "/api/score/",
-		    
-                    //force to handle it as text
-                    dataType: "text",
-                    success: function(data){
-		      var json = $.parseJSON(data);
-			//alert(json.length);
-			if (json.length==0){ 
-				$("h6.notification.notification-default2").show();
-				$(".modal-animate").hide();
+			url: "/api/score/",
+			dataType: "text",			//force to handle it as text
+			success: function(data){
+				var json = $.parseJSON(data);
+				if (json.length==0){ 
+					$("h6.notification.notification-default2").show();
+					$(".modal-animate").hide();
+				} else {
+					$("h6.notification.notification-default2").hide();
+					update(selectedID);
 				}
-			else{
-				 $("h6.notification.notification-default2").hide();
-
-			repeated_function(selectedID);
-
-		}
-		    }
-		    
-	    });
-		}
-		
-		var findScores = function(){
-			$.ajax({
-				url: "/api/score/",
-				dataType: "text",		//force to handle it as text
-				success: function(data){
-					var json = $.parseJSON(data);
-					//alert(json.length);
-					if (json.length==0){ 
-						$("h6.notification.notification-default2").show();
-						$(".modal-animate").hide();
-					} else {
-						$("h6.notification.notification-default2").hide();
-						var Array = [];
-						for (var ii=0; ii < json.length; ii++){
-							$('#linkedlist').append('<tr><td>'+json[ii].name+'</td></tr>');
-							$('ul.menulist').append('<li><a href="#">'+json[ii].name+'</a></li>');
-							Array.push(json[ii].id);
-						}
-						idArray = Array;
+			}
+		});
+	}
+	
+	function findScores(){
+		$.ajax({
+			url: "/api/score/",
+			dataType: "text",		//force to handle it as text
+			success: function(data){
+				var json = $.parseJSON(data);
+				if (json.length==0){ 
+					$("h6.notification.notification-default2").show();
+					$(".modal-animate").hide();
+				} else {
+					$("h6.notification.notification-default2").hide();
+					var arr = [];
+					for (var i=0; i < json.length; i++){
+						$('#linkedlist').append('<tr><td>'+json[i].name+'</td></tr>');
+						$('ul.menulist').append('<li><a href="#">'+json[i].name+'</a></li>');
+						arr.push(json[i].id);
 					}
+					idArray = arr;
 				}
-			});
-		}
+			}
+		});
+	}
 		
 
 	$("body").on('click', 'ul.menulist li a',function(){
@@ -156,7 +154,7 @@ $(document).ready(function() {
 	//alert(idArray);
 	//alert(idArray[indexClicked]);
 	selectedID = idArray[indexClicked];
-	repeated_function(idArray[indexClicked]);
+	update(idArray[indexClicked]);
 
 
 	});
