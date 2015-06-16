@@ -7,6 +7,19 @@ $(document).ready(function() {
 	// hide all notifications
 	$('.notification').hide();
 	
+	(function init(){
+		findScores();
+
+		// display most recent table
+		lastWorkout();
+
+		//refresh the view every 5 seconds to update
+		setInterval(lastSelected, 5000);
+
+		// add tablesorter
+		$('#results-table').tablesorter();
+	})();
+
 	function update(idjson){
 		var last_url = '/api/score/'+ idjson;
 
@@ -17,7 +30,7 @@ $(document).ready(function() {
 			success: function(data) {
 				var json = $.parseJSON(data);
 
-				//*
+				/*
 				// hardcoded for testing
 				json = {
 			    "id": 29, 
@@ -59,9 +72,6 @@ $(document).ready(function() {
 
 					// style it with some bootstrap
 					$('#results').addClass('col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2');
-
-					// add tablesorter
-					//$('#results-table').tablesorter();
 
 					for (var i=0; i < score.runners.length; i++) {
 						var time = formatTime(score.runners[i].interval);
@@ -156,15 +166,6 @@ $(document).ready(function() {
 		selectedID = idArray[indexClicked];
 		update(selectedID);
 	});
-	
-	findScores();
-
-	// display most recent table
-	lastWorkout();
-
-	//refresh the view every 5 seconds to update
-	setInterval(lastSelected, 5000);
-
 
 	// Download to Excel Script
 	$('#download').click(download);
