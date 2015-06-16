@@ -1,5 +1,10 @@
 /* All CSS rules pertaining to score view */
 
+#cara-logo img {
+	display: block;
+	margin: 0 auto;
+}
+
 h1 {
 	font-family: 'GothamHTF-Book', 'Helvetica', 'Arial', sans;
 	text-transform: uppercase;

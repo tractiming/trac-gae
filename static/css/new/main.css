@@ -38,7 +38,7 @@ a {
 }
 
 #logo {
-	background: url("../../img/trac_small.gif") no-repeat;
+	padding-top: 0;
 	display: inline-block;
 	width: 200px;
 	height: 60px; }
@@ -56,4 +56,24 @@ a {
 /* Typography */
 h1, h2, h3 {
 	text-align: center;
+}
+
+ul {
+	list-style: none;
+}
+
+
+/* Footer */
+footer {
+	border-top: 3px solid #e7e7e7;
+	padding-top: 20px; }
+	footer ul {
+		padding: 0; }
+	footer .footer-item {
+		padding-top: 20px;
+		margin: 0 auto; }
+	footer .internal>li>a {
+		color: #3577A8 !important; }
+		footer .internal>li>a:hover {
+			color: #F0B922 !important;
 }

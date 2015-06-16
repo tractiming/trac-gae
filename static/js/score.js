@@ -17,7 +17,7 @@ $(document).ready(function() {
 			success: function(data) {
 				var json = $.parseJSON(data);
 
-				/*
+				//*
 				// hardcoded for testing
 				json = {
 			    "id": 29, 
@@ -58,7 +58,7 @@ $(document).ready(function() {
 					);
 
 					// style it with some bootstrap
-					$('#results').addClass('col-md-6 col-md-offset-3');
+					$('#results').addClass('col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2');
 
 					// add tablesorter
 					//$('#results-table').tablesorter();
