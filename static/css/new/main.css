@@ -51,6 +51,7 @@ a {
 .content {
 	background-color: white;
 	padding-top: 20px;
+	min-height: 500px;
 }
 
 /* Typography */
