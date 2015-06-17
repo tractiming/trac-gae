@@ -6,6 +6,8 @@ $(document).ready(function() {
 
 	// hide all notifications
 	$('.notification').hide();
+
+	var refresh;
 	
 	(function init(){
 		findScores();
@@ -14,7 +16,10 @@ $(document).ready(function() {
 		lastWorkout();
 
 		//refresh the view every 5 seconds to update
-		setInterval(lastSelected, 5000);
+		refresh = setInterval(lastSelected, 5000);
+
+		// stop refreshing after 20 minutes
+		setTimeout(function(){ idleCheck(refresh, lastSelected, 5000, 1200000, 'http://www.trac-us.com'); }, 1200000);
 
 		// add tablesorter
 		$('#results-table').tablesorter();
@@ -170,7 +175,6 @@ $(document).ready(function() {
 	// Download to Excel Script
 	$('#download').click(download);
 });
-	
 
 function download(){
 	var url = '/api/score/'+ selectedID;
@@ -181,7 +185,6 @@ function download(){
 			JSONToCSVConvertor(data, 'TRAC_Report', true); }
 	});
 }
-
 
 function JSONToCSVConvertor(JSONData, ReportTitle, ShowLabel) {
 		// data coming in must be json
