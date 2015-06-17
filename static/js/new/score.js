@@ -2,7 +2,7 @@ var idArray = [];
 var selectedID;
 
 //When DOM loaded we attach click event to button
-$(document).ready(function() {
+$(function() {
 	
 	(function init(){
 
