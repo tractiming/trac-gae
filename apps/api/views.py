@@ -419,10 +419,10 @@ def create_race(request):
     # Assign the session to a coach.
     uc, created = User.objects.get_or_create(username=data['director_username'])
     c, created = CoachProfile.objects.get_or_create(user=uc)
-    
+    date = timezone.datetime.utcnow()
     # Create the timing session.
     name = data['race_name']
-    ts, created = TimingSession.objects.get_or_create(name=name, manager=uc)
+    ts, created = TimingSession.objects.get_or_create(name=name, manager=uc, start_time=date);
     if not created:
         return HttpResponse(status.HTTP_400_BAD_REQUEST)
 
