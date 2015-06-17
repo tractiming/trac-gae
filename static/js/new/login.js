@@ -1,6 +1,6 @@
 $(function() {
 	//prevent form submission on submit, and instead call ajax
-	$('#myform').on('submit', function(e) {
+	$('#login-form').on('submit', function(e) {
 		e.preventDefault();
 
 		//display spinner 
