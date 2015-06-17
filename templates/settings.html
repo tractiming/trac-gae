@@ -122,7 +122,7 @@ function completeFn(results)
 	}
 	rL = '['+rL+']';
 	rL = rL.replace(/\s/g, '');
-	console.log(rL);
+	console.log(dated);
 	//The manipulated string matches the api conventions and successfully creates new races with the readers that user inputs.
 	var json = '{"race_name":"'+workoutName+'","race_date":"'+dated+'","director_username":"'+username+'","readers":'+rL+',"athletes":'+JSON.stringify(results.data)+'}';
 	console.log(json);

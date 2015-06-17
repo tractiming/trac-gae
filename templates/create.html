@@ -2,6 +2,7 @@
 {% load staticfiles %}
 
 {% block content %}
+<script type="text/javascript" src="{% static "js/timeConversion.js" %}" />
 <script>
 
 	if (sessionStorage.usertype == 'athlete'){
@@ -55,6 +56,8 @@ $(document).ready(function() {
 		      var size=$('input[id=size]').val();
 		     var filter=$('#filter option:selected').val();
 		     var privateselect=$('#private option:selected').val();
+		     var sT = local2UTC(start_date);
+		     var eT = local2UTC(end_date);
 			//alert(filter);
 	      $.ajax({
            type: "POST",
@@ -63,8 +66,8 @@ $(document).ready(function() {
 	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
            data: {
                name: title,
-               start_time: start_date,
-               stop_time: end_date,
+               start_time: sT,
+               stop_time: eT,
                rest_time: '0',
                track_size: size,
                interval_distance: distance,
@@ -105,13 +108,12 @@ $(document).ready(function() {
     });
 </script>
 	<script>
-	
 	function loadworkouts(){
 			 $('#results').empty();
 		  //alert(path);
 		  //alert(path);
 		   $.ajax({
-                     url: "/api/sessions/",
+             url: "/api/sessions/",
 		     headers: {Authorization: "Bearer " + sessionStorage.access_token},
                     //force to handle it as text
                     dataType: "text",
@@ -119,7 +121,7 @@ $(document).ready(function() {
                         //alert(data);
                         //data downloaded so we call parseJSON function 
                         //and pass downloaded data
-                        
+                        //console.log(data);
                         var json = $.parseJSON(data);
                        //alert(json[0].id_str)
                        json = json.reverse();
@@ -150,16 +152,20 @@ $(document).ready(function() {
 						  // time = time.slice(0,10);
 						   filter= json[ii].filter_choice;
 						   privateselect = json [ii].private;
+						   var sTS = UTC2local(start, start2);
+						   sTS = sTS.substring(0, 25);
+						   var sTE = UTC2local(end, end2);
+						   sTE = sTE.substring(0,25);
 						  if (ii==0) {
 			    $('#results').append('<tr><th>ID</th><th>Workout Name</th><th>Start Date</th><th>End Date</th><th>Distance</th><th>Track</th><th>Filtered</th><th>Private</th></tr>');
-			    $('#results').append('<tr class="odd"><td>'+id+'</td><td>'+name+'</td><td>'+start+' ' + start2+'</td><td>'+end+' '+end2+'</td><td>'+distance+'</td><td>'+track+'</td><td>'+filter+'</td><td>'+privateselect+'</td></tr>');
+			    $('#results').append('<tr class="odd"><td>'+id+'</td><td>'+name+'</td><td>'+sTS+'</td><td>'+sTE+'</td><td>'+distance+'</td><td>'+track+'</td><td>'+filter+'</td><td>'+privateselect+'</td></tr>');
 			    //alert(name);
 			  }
 			  else if((ii)%2 ==0) {
-			    $('#results').append('<tr class="odd"><td>'+id+'</td><td>'+name+'</td><td>'+start+' ' + start2+'</td><td>'+end+' '+end2+'</td><td>'+distance+'</td><td>'+track+'</td><td>'+filter+'</td><td>'+privateselect+'</td></tr>');
+			    $('#results').append('<tr class="odd"><td>'+id+'</td><td>'+name+'</td><td>'+sTS+'</td><td>'+sTE+'</td><td>'+distance+'</td><td>'+track+'</td><td>'+filter+'</td><td>'+privateselect+'</td></tr>');
 			  }
 			  else{
-			    $('#results').append('<tr><td>'+id+'</td><td>'+name+'</td><td>'+start+' ' + start2+'</td><td>'+end+' '+end2+'</td><td>'+distance+'</td><td>'+track+'</td><td>'+filter+'</td><td>'+privateselect+'</td></tr>');
+			    $('#results').append('<tr><td>'+id+'</td><td>'+name+'</td><td>'+sTS+'</td><td>'+sTE+'</td><td>'+distance+'</td><td>'+track+'</td><td>'+filter+'</td><td>'+privateselect+'</td></tr>');
 			    //alert(name);
 			  }
 			  		$(".modal-animate").hide();
@@ -218,12 +224,21 @@ $("body").on('click', 'tr',function(){
 		else if (index ==2)
 		{
 			var input =$('input#start_date');
-			input.val($(this).html() );
+			var format = new Date($(this).html());
+			format = format.toISOString();
+			format = localISOString(format);
+			format = format.replace(/T/g,' ');
+			format = format.substring(0,16);
+			input.val(format);
 			}
 			else if (index ==3)
 		{
 			var input =$('input#end_date');
-			input.val($(this).html() );
+			var format = new Date($(this).html());
+			format = format.toISOString();
+			format = format.replace(/T/g,' ');
+			format = format.substring(0,16);
+			input.val(format);
 			}
 		else if (index ==4){
 			var input =$('input#distance');
@@ -345,6 +360,8 @@ $("body").on('click', 'tr',function(){
 		      var size=$('input[id=size]').val();
 		     var filter=$('#filter option:selected').val();
 		     var privateselect=$('#private option:selected').val();
+		     var sT = local2UTC(start_date);
+		     var eT = local2UTC(end_date);
 	
 		//alert(filter);
 	      $.ajax({
@@ -354,8 +371,8 @@ $("body").on('click', 'tr',function(){
 	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
 	   data: {
                name: title,
-               start_time: start_date,
-               stop_time: end_date,
+               start_time: sT,
+               stop_time: eT,
                rest_time: '0',
                track_size: size,
                interval_distance: distance,
