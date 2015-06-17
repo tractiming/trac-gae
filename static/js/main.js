@@ -5,7 +5,7 @@ $(function() {
 	$.ajaxSetup({
 		error: function(jqXHR, exception) {
 			if (jqXHR.status === 0) {
-				console.log('Not connect.\n Verify Network.');
+				console.log('Not connected.\n Verify network.');
 			} else if (jqXHR.status == 404) {
 				console.log('Requested page not found. [404]');
 			} else if (jqXHR.status == 500) {
