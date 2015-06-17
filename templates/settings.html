@@ -2,6 +2,7 @@
 {% load staticfiles %}
 
 {% block content %}
+<script type="text/javascript" src="{% static "js/timeConversion.js" %}" />
    <script>
 	$(document).ready(function(){
 	if (sessionStorage.usertype == 'athlete'){
@@ -109,8 +110,24 @@ function completeFn(results)
 	var dated = $('input[id=date]').val();
 	var reads = $('input[id=readers]').val();
 	var workoutName = $('input[id=name]').val();
-	var username =$('input[id=username]').val()
-	var json = '{"race_name":"'+workoutName+'","race_date":"'+dated+'","director_username":"'+username+'","readers":["A1010"],"athletes":'+JSON.stringify(results.data)+'}';
+	var username =$('input[id=username]').val();
+
+	//I made a manipulated string that allows users to input a list of readers and separates each reader.
+	var readersList = reads.split(",");
+	var rL = "";
+	for(var j = 0; j < readersList.length; j++){
+		rL = rL.concat('"'+readersList[j]+'"');
+		if (j != readersList.length - 1){
+			rL = rL.concat(',');
+		}
+	}
+	rL = '['+rL+']';
+	rL = rL.replace(/\s/g, '');
+	dL = local2UTC(dated);
+	console.log(dL);
+	//The manipulated string matches the api conventions and successfully creates new races with the readers that user inputs.
+	var json = '{"race_name":"'+workoutName+'","race_date":"'+dL+'","director_username":"'+username+'","readers":'+rL+',"athletes":'+JSON.stringify(results.data)+'}';
+	console.log(json);
 	$.ajax({
            type: "POST",
            dataType:'json',
