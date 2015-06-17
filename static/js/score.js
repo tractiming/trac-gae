@@ -18,7 +18,7 @@ $(document).ready(function() {
 		setInterval(lastSelected, 5000);
 
 		// add tablesorter
-		$('#results-table').tablesorter();
+		//$('#results-table').tablesorter();
 	})();
 
 	function update(idjson){
@@ -58,22 +58,6 @@ $(document).ready(function() {
 					$('.button-container').show();
 					$('#results-table tbody').empty();
 					$('#results').show();
-
-					/*
-					// table template
-					$('#results').append(
-						'<table id="results-table" class="table table-striped table-hover tablesorter">' + 
-							'<thead>' + 
-								'<tr>' + 
-									'<th>Name</th>' + 
-									'<th>Final Time</th>' + 
-								'</tr>' + 
-							'</thead>' +
-							'<tbody>' +
-							'</tbody>' +
-						'</table>'
-					);
-					//*/
 
 					// style it with some bootstrap
 					$('#results').addClass('col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2');
