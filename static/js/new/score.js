@@ -4,6 +4,8 @@ var selectedID;
 //When DOM loaded we attach click event to button
 $(function() {
 	
+	var refresh;
+
 	(function init(){
 
 		// hide all notifications
@@ -15,7 +17,10 @@ $(function() {
 		lastWorkout();
 
 		//refresh the view every 5 seconds to update
-		setInterval(lastSelected, 5000);
+		refresh = setInterval(lastSelected, 5000);
+
+		// stop refreshing after 20 minutes
+		setTimeout(function(){ idleCheck(refresh, lastSelected, 5000, 1200000, 'http://www.trac-us.com'); }, 1200000);
 
 		// add tablesorter
 		//$('#results-table').tablesorter();
@@ -161,7 +166,6 @@ $(function() {
 	// Download to Excel Script
 	$('#download').click(download);
 });
-	
 
 function download(){
 	var url = '/api/score/'+ selectedID;
@@ -172,7 +176,6 @@ function download(){
 			JSONToCSVConvertor(data, 'TRAC_Report', true); }
 	});
 }
-
 
 function JSONToCSVConvertor(JSONData, ReportTitle, ShowLabel) {
 		// data coming in must be json

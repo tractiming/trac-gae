@@ -22,3 +22,18 @@ $(function() {
 		}
 	});
 });
+
+// checks for idle pages and responds according to user response
+function idleCheck(handler, resetHandler, resetInterval, resetTimeout, redirectURL){
+	clearInterval(handler);
+	$('#idle-overlay').show();
+	$('#idle-yes').click(function(){
+		$('#idle-overlay').hide();
+		handler = setInterval(resetHandler, resetInterval);
+		setTimeout(function(){ idleCheck(handler, resetHandler, resetInterval, redirectURL); }, resetTimeout);
+	});
+	$('#idle-no').click(function(){
+		$('#idle-overlay').hide();
+		window.location.replace(redirectURL);
+	});
+}
