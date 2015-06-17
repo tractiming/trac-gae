@@ -31,7 +31,7 @@ $(document).ready(function() {
 			success: function(data) {
 				var json = $.parseJSON(data);
 
-				/*
+				//*
 				// hardcoded for testing
 				json = {
 			    "id": 29, 
@@ -50,13 +50,16 @@ $(document).ready(function() {
 				if (score.runners == '') {
 					$('#notifications .notification-default').show();
 					$('.button-container').hide();
-					$('#results').empty().hide();
+					$('#results-table tbody').empty();
+					$('#results-table').hide();
 				} else {
 					// hide notification and show results
 					$('#notifications .notification-default').hide();
 					$('.button-container').show();
-					$('#results').show().empty();
+					$('#results-table tbody').empty();
+					$('#results').show();
 
+					/*
 					// table template
 					$('#results').append(
 						'<table id="results-table" class="table table-striped table-hover tablesorter">' + 
@@ -70,6 +73,7 @@ $(document).ready(function() {
 							'</tbody>' +
 						'</table>'
 					);
+					//*/
 
 					// style it with some bootstrap
 					$('#results').addClass('col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2');
@@ -84,6 +88,8 @@ $(document).ready(function() {
 							'</tr>'
 						);
 					}
+
+					//$('#results-table').tablesorter();
 				}
 			}
 		});
