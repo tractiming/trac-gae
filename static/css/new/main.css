@@ -24,6 +24,9 @@ a {
 
 
 /* Header */
+.navbar-header .navbar-toggle {
+	margin-top: 13px;
+}
 
 .navbar {
 	background-color: white; 
