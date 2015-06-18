@@ -1,3 +1,4 @@
+#sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from django.http import HttpResponse, Http404
