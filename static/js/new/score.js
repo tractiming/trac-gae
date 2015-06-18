@@ -36,7 +36,7 @@ $(function() {
 			success: function(data) {
 				var json = $.parseJSON(data);
 
-				//*
+				/*
 				// hardcoded for testing
 				json = {
 			    "id": 29, 

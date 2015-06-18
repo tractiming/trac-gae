@@ -34,6 +34,6 @@ function idleCheck(handler, resetHandler, resetInterval, resetTimeout, redirectU
 	});
 	$('#idle-no').click(function(){
 		$('#idle-overlay').hide();
-		window.location.replace(redirectURL);
+		window.location.assign(redirectURL);
 	});
 }
