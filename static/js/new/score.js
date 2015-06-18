@@ -5,7 +5,7 @@ var selectedID;
 
 $(function() {
 	
-	var refresh;
+	var updateHandler;
 
 	(function init(){
 
@@ -17,11 +17,11 @@ $(function() {
 		// display most recent table
 		lastWorkout();
 
-		//refresh the view every 5 seconds to update
-		refresh = setInterval(lastSelected, 5000);
+		// refresh the view every 5 seconds to update
+		updateHandler = setInterval(lastSelected, 5000);
 
-		// stop refreshing after 20 minutes
-		setTimeout(function(){ idleCheck(refresh, lastSelected, 5000, 1200000, 'http://www.trac-us.com'); }, 1200000);
+		// idle check after 20 minutes
+		setTimeout(function(){ idleCheck(updateHandler, lastSelected, 5000, 1200000, 'http://www.trac-us.com'); }, 1200000);
 
 		// add tablesorter
 		//$('#results-table').tablesorter();
@@ -100,10 +100,11 @@ $(function() {
 			dataType: 'text',			//force to handle it as text
 			success: function(data){
 				var json = $.parseJSON(data);
-			
 				if (json.length==0){ 
+					$('#results-table').hide();
 					$('p.notification.notification-default2').show();
 				} else {
+					$('#results-table').show();
 					$('p.notification.notification-default2').hide();
 					var idjson = json[json.length - 1].id;
 				
@@ -121,8 +122,10 @@ $(function() {
 			success: function(data){
 				var json = $.parseJSON(data);
 				if (json.length==0){ 
+					$('#results-table').hide();
 					$('p.notification.notification-default2').show();
 				} else {
+					$('#results-table').show();
 					$('p.notification.notification-default2').hide();
 					update(selectedID);
 				}
@@ -138,8 +141,10 @@ $(function() {
 			success: function(data){
 				var json = $.parseJSON(data);
 				if (json.length==0){ 
+					$('#results-table').hide();
 					$('p.notification.notification-default2').show();
 				} else {
+					$('#results-table').show();
 					$('p.notification.notification-default2').hide();
 					var arr = [];
 					for (var i=0; i < json.length; i++){
