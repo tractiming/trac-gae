@@ -3,7 +3,7 @@
 
 {% block content %}
 <script type="text/javascript" src="{% static "js/timeConversion.js" %}" />
-
+<link rel="stylesheet" href="{% static "css/new/create.css" %}" />
 <link rel="stylesheet" href="{% static "css/new/main.css" %}" />
 <link rel="stylesheet" href="{% static "css/new/score.css" %}" />
 
@@ -217,11 +217,11 @@ $(document).ready(function() {
 			width:75%;
 		}
 	</style>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 <script>
 	  
 $("body").on('click', 'tr',function(){
 	//alert($(this).html());
+	$('#myModal').modal('toggle');
 	var value = $(this).html();
 	$("input#delete").show();
 	$("input#update").show();
@@ -286,7 +286,7 @@ $("body").on('click', 'tr',function(){
 	});
 	
 	
-	$("body").on('click', 'input#create',function(e){
+	$("body").on('click', 'button#create',function(e){
 	//alert($(this).html());
 	  e.preventDefault();
 	  $("#myform")[0].reset();
@@ -295,13 +295,13 @@ $("body").on('click', 'tr',function(){
 	$("input#update").hide();
 	$("input#submit").show();
 	$("p#idnumber").hide();
-	$("input#create").hide();
+	//$("input#create").hide();
 
 	});
 
 
 
-	$("body").on('click', 'input#delete',function(f){
+	$("body").on('click', 'button#delete',function(f){
 	//alert($(this).html());
 	  f.preventDefault();
 	  $("h6.notification.notification-warning").show();
@@ -339,7 +339,7 @@ $("body").on('click', 'tr',function(){
 	$("input#update").hide();
 	$("input#submit").show();
 	$("p#idnumber").hide();
-	$("input#create").hide();
+	//$("input#create").hide();
 		    loadworkouts();
                    
            },
@@ -362,14 +362,12 @@ $("body").on('click', 'tr',function(){
 	    $("h6.notification.notification-warning").hide();
               
 		}
-	
 	 });
-	  
-	  
-	
 	});
 	
-	
+		$("body").on('hidden.bs.modal', function(){
+			$("h6.notification.delete-success").hide();
+		});
 		$("body").on('click', 'input#update',function(f){
 	//alert($(this).html());
 	  f.preventDefault();
@@ -417,7 +415,7 @@ $("body").on('click', 'tr',function(){
 	$("input#update").hide();
 	$("input#submit").show();
 	$("p#idnumber").hide();
-	$("input#create").hide();
+	//$("input#create").hide();
 		    loadworkouts();
                    
            },
@@ -440,90 +438,107 @@ $("body").on('click', 'tr',function(){
 
 </script>
 
-<div class="modal-animate hide">
-    <div class="rotate"></div>
-	
+    <div class="container-fluid">  
+    	<div class="row">
+    		<div class="col-md-6">
+     			<h2>Create</h2>
+     		</div>
+     		<div class="col-md-5">
+     		</div class="col-md-5">
+     		<div class="col-md-1">
+     			<button type="button" class="btn btn-default" id="create" data-toggle="modal" data-target="#myModal">
+     				<span class="glyphicon glyphicon-plus" aria-hidden="true"> </span>
+     			</button>
+     		</div>
+     	</div>
+ </div>
+ <div id="create" class="container">
+ 	<div class="modal fade" id="notificationModal" role="dialog">
+ 		<div class="modal-dialog">
+ 			<div class ="modalcontent">
+ 				<div class="modal-body">
+ 					<div id="notifications">
+    					<h6 class="notification notification-critical" role="alert">Some information you entered isn't right.</h6>
+						<h6 class="notification notification-success" role="alert">You have successfully created a workout!</h6>
+						<h6 class="notification update-success" role="alert">You have successfully updated a workout!</h6>
+						<h6 class="notification delete-success" role="alert">You have successfully deleted a workout!</h6>
+						<h6 class="notification notification-warning" role="alert">Are you sure? <div class="container" id="screen-selector"><button href="#" type="button" id="warning-yes">Yes</button><button id="warning-no" href="#" type="button" style="float:right">Cancel</button></div></h6>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
-    <div id="create">  
-     <h2>Create</h2>
-	  <div id="notifications">
-        <h6 class="notification notification-critical" role="alert">Some information you entered isn't right.</h6>
-	<h6 class="notification notification-success" role="alert">You have successfully created a workout!</h6>
-	<h6 class="notification update-success" role="alert">You have successfully updated a workout!</h6>
-	<h6 class="notification delete-success" role="alert">You have successfully deleted a workout!</h6>
-	<h6 class="notification notification-warning" role="alert">Are you sure? <div class="container" id="screen-selector"><button href="#" type="button" id="warning-yes">Yes</button><button id="warning-no" href="#" type="button" style="float:right">Cancel</button></div></h6>
-    </div>
-	  
-    <div id="contentleft">
-					
-		<form name="tracform" id="myform" method="POST" data-parsley-validate>
-			<div class="button-container-two">
-		    <input type="submit" name="" class="validate" id="create" value="+ Create New" />
-		    </div>
-		    <p id="idnumber">
+   <div class="container">
+ <div class="modal fade" id="myModal" role="dialog">
+ 	<div class="modal-dialog">
+ 	<div class="modal-content">
+ 		<div class="modal-header">
+ 		</div>
+    	<div class="modal-body">
+			<form name="tracform" id="myform" method="POST" data-parsley-validate>
+				<div class="button-container-two">
+		    	</div>
+		    	<p id="idnumber">
 		       
-		      <input type="hidden" id="idnumber" value="" placeholder="" required data-parsley-group="block1" readonly/>
-		  </p>
-		  <p>
-		      <label for="">Workout Title:</label> 
-		      <input data-progression="" type="text" data-helper="Title of the workout to help you identify it later" id="title" value="" placeholder="" required data-parsley-group="block1" />
-		  </p>
-		   <p>
-		      <label for="">Start Date:</label> 
-		      <input data-progression="" type="text" data-helper="Date that you plan to start the workout, YYYY-MM-DD" id="start_date" value="" placeholder="" required data-parsley-group="block1" />
-		  </p>
-		    <p>
-		      <label for="">End Date:</label> 
-		      <input data-progression="" type="text" data-helper="Date that you plan to end the workout, YYYY-MM-DD" id="end_date" value="" placeholder="" required data-parsley-group="block1"/>
-		  </p>
-		     <p>
-		      <label for="">Interval Distance:</label> 
-		      <input data-progression="" type="text" data-helper="Distance (in meters) of the repeat being run. I.E. in 4x400, put 400 " id="distance" value="" placeholder=""/>
-		  </p>
-		     <p>
-		      <label for="">Track Size:</label> 
-		      <input data-progression="" type="text" data-helper="Size of the track you are using, I.E. 200, 300, 400" id="size" value="" placeholder=""/>
-		  </p>
+		      	<input type="hidden" id="idnumber" value="" placeholder="" required data-parsley-group="block1" readonly/>
+		  	</p>
+		 	 <p>
+		     	 <label for="">Workout Title:</label> 
+		     	 <input data-progression="" type="text" data-helper="Title of the workout to help you identify it later" id="title" value="" placeholder="" required data-parsley-group="block1" />
+		 	 </p>
+		   	<p>
+		   	   <label for="">Start Date:</label> 
+		   	   <input data-progression="" type="text" data-helper="Date that you plan to start the workout, YYYY-MM-DD" id="start_date" value="" placeholder="" required data-parsley-group="block1" />
+		 	 </p>
+		 	   <p>
+		  	    <label for="">End Date:</label> 
+		  	    <input data-progression="" type="text" data-helper="Date that you plan to end the workout, YYYY-MM-DD" id="end_date" value="" placeholder="" required data-parsley-group="block1"/>
+		  	</p>
+		  	   <p>
+		  	    <label for="">Interval Distance:</label> 
+		   	   <input data-progression="" type="text" data-helper="Distance (in meters) of the repeat being run. I.E. in 4x400, put 400 " id="distance" value="" placeholder=""/>
+		  	</p>
+		  	   <p>
+		  	    <label for="">Track Size:</label> 
+		   	   <input data-progression="" type="text" data-helper="Size of the track you are using, I.E. 200, 300, 400" id="size" value="" placeholder=""/>
+		 	 </p>
 		     
-		     <p>
+		    	 <p>
 		      
-		      <label>Filter Splits?</label>
-						<span>
-							<select id="filter">
-									<option value="true">Yes</option>
-									<option value="false">No</option>
-							</select>
-						</span>
-		     </p>
-		     <p>
+		    	  <label>Filter Splits?</label>
+							<span>
+								<select id="filter">
+										<option value="true">Yes</option>
+										<option value="false">No</option>
+								</select>
+							</span>
+		    	 </p>
+		    	 <p>
 		      
-		      <label>Private?</label>
-						<span>
-							<select id="private">
-									<option value="true">Yes</option>
-									<option value="false">No</option>
-							</select>
-						</span>
-		     </p>
-		    <br>
-		    
+		    	  <label>Private?</label>
+							<span>
+								<select id="private">
+										<option value="true">Yes</option>
+										<option value="false">No</option>
+								</select>
+							</span>
+		   	  </p>
+		  	  <br>
 		     
 		          <div class="button-container">
-			<input type="submit" name="" class="validate" id="delete" value="Delete" />
+			<button name="" class="validate" id="delete" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal">Delete</button>
 		    <input type="submit" name="" class="validate" id="submit" value="Save" />
-		    <input type="submit" name="" class="validate" id="update" value="Update" />
+		    <input type="submit" name="" class="validate" id="update" value="Update" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal" />
 	                         </div>
 	                         
-		</form>
-		
-				
-					
-					
-					
-					
-				
+		</form>		
+		</div>				
     </div>
+</div>
+</div>
+</div>
     <div class= "container-fluid content">
     <div id="container" class="container">
       <div class="row">
@@ -535,12 +550,6 @@ $("body").on('click', 'tr',function(){
        <div id="notifications">
         <h6 class="notification notification-default" role="alert">There are currently no workouts to show.</h6>
     </div>
-       
-              </div>
-    
-    
-     
-      </div>
     {% endblock %} 
     
     

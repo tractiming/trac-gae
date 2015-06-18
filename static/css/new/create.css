@@ -1,0 +1,8 @@
+div.parallax div#create{
+	text-align: center;
+	background: white;
+}
+
+div.parallax > div div.content {
+      margin: 0 auto;
+  }
