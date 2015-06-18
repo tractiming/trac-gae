@@ -174,12 +174,79 @@ class TestRaceReport(TestCase):
         self.create_final_time(self.ts2, t15, r2, timezone.timedelta(seconds=154))
         a16, t16 = self.create_athlete("Runner 16", 16, 'M')
         self.create_final_time(self.ts2, t16, r2, timezone.timedelta(seconds=155))
-
+        a17, t17 = self.create_athlete("Runner 17", 17, 'M')
+        self.create_final_time(self.ts2, t17, r2, timezone.timedelta(seconds=156))
+		
     def test_results(self):
         ids = [self.ts1.id, self.ts2.id]
         rr = RaceReport(ids)
         res = rr.get_results()
 
-        # Put assertions here.
+		# Put assertions here.
 
+        #for key in res: print key
+
+        # Set up correct race report results
+        res_ans0  = {'Gender': 'M', 'Age': '0-14', 'Results': []}
+        res_ans1  = {'Gender': 'F', 'Age': '0-14', 'Results': []}
+        res_ans2  = {'Gender': 'M', 'Age': '15-19', 'Results': [(u'Runner 1', 140.0),(u'Runner 2', 141.0),(u'Runner 8', 147.0),(u'Runner 9', 148.0),(u'Runner 10', 149.0),(u'Runner 16', 155.0),(u'Runner 17', 156.0)]}
+        res_ans3  = {'Gender': 'F', 'Age': '15-19', 'Results': []}
+        res_ans4  = {'Gender': 'M', 'Age': '20-24', 'Results': [(u'Runner 3', 142.0),(u'Runner 4', 143.0),(u'Runner 11', 150.0),(u'Runner 12', 151.0)]}
+        res_ans5  = {'Gender': 'F', 'Age': '20-24', 'Results': []}
+        res_ans6  = {'Gender': 'M', 'Age': '25-29', 'Results': []}
+        res_ans7  = {'Gender': 'F', 'Age': '25-29', 'Results': []}
+        res_ans8  = {'Gender': 'M', 'Age': '30-34', 'Results': [(u'Runner 7', 146.0),(u'Runner 15', 154.0),]}
+        res_ans9  = {'Gender': 'F', 'Age': '30-34', 'Results': []}
+        res_ans10 = {'Gender': 'M', 'Age': '35-39', 'Results': []}
+        res_ans11 = {'Gender': 'F', 'Age': '35-39', 'Results': []}
+        res_ans12 = {'Gender': 'M', 'Age': '40-44', 'Results': []}
+        res_ans13 = {'Gender': 'F', 'Age': '40-44', 'Results': []}
+        res_ans14 = {'Gender': 'M', 'Age': '45-49', 'Results': []}
+        res_ans15 = {'Gender': 'F', 'Age': '45-49', 'Results': []}
+        res_ans16 = {'Gender': 'M', 'Age': '50-54', 'Results': []}
+        res_ans17 = {'Gender': 'F', 'Age': '50-54', 'Results': []}
+        res_ans18 = {'Gender': 'M', 'Age': '55-59', 'Results': []}
+        res_ans19 = {'Gender': 'F', 'Age': '55-59', 'Results': []}
+        res_ans20 = {'Gender': 'M', 'Age': '60-64', 'Results': []}
+        res_ans21 = {'Gender': 'F', 'Age': '60-64', 'Results': []}
+        res_ans22 = {'Gender': 'M', 'Age': '65-69', 'Results': []}
+        res_ans23 = {'Gender': 'F', 'Age': '65-69', 'Results': []}
+        res_ans24 = {'Gender': 'M', 'Age': '70-74', 'Results': []}
+        res_ans25 = {'Gender': 'F', 'Age': '70-74', 'Results': []}
+        res_ans26 = {'Gender': 'M', 'Age': '75-79', 'Results': []}
+        res_ans27 = {'Gender': 'F', 'Age': '75-79', 'Results': []}
+        res_ans28 = {'Gender': 'M', 'Age': '80-120', 'Results': [(u'Runner 5', 144.0),(u'Runner 6', 145.0),(u'Runner 13', 152.0),(u'Runner 14', 153.0)]}
+        res_ans29 = {'Gender': 'F', 'Age': '80-120', 'Results': []}
+
+        # Test assertions
+        self.assertEqual(res[ 0] , res_ans0) 
+        self.assertEqual(res[ 1] , res_ans1) 
+        self.assertEqual(res[ 2] , res_ans2) 
+        self.assertEqual(res[ 3] , res_ans3)
+        self.assertEqual(res[ 4] , res_ans4)
+        self.assertEqual(res[ 5] , res_ans5)
+        self.assertEqual(res[ 6] , res_ans6)
+        self.assertEqual(res[ 7] , res_ans7)
+        self.assertEqual(res[ 8] , res_ans8)
+        self.assertEqual(res[ 9] , res_ans9)
+        self.assertEqual(res[10] , res_ans10)
+        self.assertEqual(res[11] , res_ans11)
+        self.assertEqual(res[12] , res_ans12)
+        self.assertEqual(res[13] , res_ans13)
+        self.assertEqual(res[14] , res_ans14)
+        self.assertEqual(res[15] , res_ans15)
+        self.assertEqual(res[16] , res_ans16)
+        self.assertEqual(res[17] , res_ans17)
+        self.assertEqual(res[18] , res_ans18)
+        self.assertEqual(res[19] , res_ans19)
+        self.assertEqual(res[20] , res_ans20)
+        self.assertEqual(res[21] , res_ans21)
+        self.assertEqual(res[22] , res_ans22)
+        self.assertEqual(res[23] , res_ans23)
+        self.assertEqual(res[24] , res_ans24)
+        self.assertEqual(res[25] , res_ans25)
+        self.assertEqual(res[26] , res_ans26)
+        self.assertEqual(res[27] , res_ans27)
+        self.assertEqual(res[28] , res_ans28)
+        self.assertEqual(res[29] , res_ans29)
 
