@@ -1,109 +1,25 @@
+{% extends "base_new.html" %}
 
 {% load static %}
 
-<html lang="en" class="">
-    
-<head>
-    <meta name="description"  content="A Chicago based startup focusing on simplifying the track and field experience." /> 
+<!-- Head -->
+{% block stylesheets %}
+	<link href="{% static "css/new/score.css" %}" rel='stylesheet' type='text/css'>
+{% endblock %}
 
-    {% block facebook_meta %}
-    <meta property="og:image" content="http://trac-us.com/images/shoes-video.jpg"/>
-    <meta property="og:title" content="TRAC | Timing and Racing Around the Clock "/>
-    <meta property="fb:admins" content="804255640" />
-    <meta property="og:type"   content="website" /> 
-     <meta property="og:site_name" content="Timing and Racing Around the Clock"/>
-    <meta property="og:url"    content="http://www.trac-us.com" /> 
-    <meta property="og:description" content="A Chicago based startup focusing on simplifying the track and field experience." /> 
-    {% endblock %}
-    
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+{% block js_scripts %}
+	<script src="{% static "js/new/score.js" %}" type="text/javascript"></script>
+{% endblock %}
 
-    <link rel="canonical" href="http://www.trac-us.com"/>
-    <link rel="icon" href="{% static "img/favicon.ico" %}" type="image/x-icon">
-    
-     <link rel='stylesheet' href="{% static "css/fullcalendar.css" %}" />
-     <link rel='stylesheet' href="{% static "css/pushy.css" %}" />
-     	<link href="{% static "css/progression.min.css" %}" rel='stylesheet' type='text/css'>
-             <link type="text/css" rel="stylesheet" href="{% static "css/jquery.dropdown.css" %}" />
+<!-- Body -->
+{% block nav-items %}
+  <li><a href="/login">Login</a></li>
+  <li><a href="/register">Register</a></li>
+  <li><a href="http://www.trac-us.com">About</a></li>
+  <li><a href="/score">Live Results</a></li>
+{% endblock %}
 
-    {% block js_scripts %}
-    <!--<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>-->
-   	<script type="text/javascript" src="{% static "js/jquery-2.1.1.js" %}"></script> 
-   
-    <script type="text/javascript" src="{% static "js/papaparse.min.js" %}"></script>
-
-    <script type="text/javascript" src="{% static "js/jquery.dropdown.js" %}"></script>
-<script src="{% static "js/moment.min.js" %}"></script>
-<script src="{% static "js/fullcalendar.js" %}"></script>
-<script type="text/javascript" src="{% static "js/jquery.serializeJSON.min.js" %}"></script>
-<script type="text/javascript" src="{% static "js/parsley.min.js" %}"></script>
-<script type="text/javascript" src="{% static "js/progression.min.js" %}"></script>
-<script type="text/javascript" src="{% static "js/jspdf.debug.js" %}"></script>
-
-<script type="text/javascript" src="{% static "js/pushy.min.js" %}"></script>
-<!--Google Analytics-->
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-57985584-1', 'auto');
-  ga('require', 'displayfeatures');
-  ga('send', 'pageview');
-
-</script>
-    <!--<script src="{% static "js/jquery-2.1.1.js" %}"></script>-->
-
-   <!--
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-	-->
-		<link rel="stylesheet" href="{% static "css/bootstrap.css" %}" />
-		<script type="text/javascript" src="{% static "js/bootstrap.js" %}"></script> 
-
-		<!-- Custom CSS -->
-		<link rel="stylesheet" href="{% static "css/new/main.css" %}" />
-		<link rel="stylesheet" href="{% static "css/new/score.css" %}" />
-
-
-    {% endblock %}
-
-    <title>
-        {% block title %}
-        Timing and Racing Around the Clock | Chicago
-        {% endblock %}
-    </title>
-
-    {% block extra_head %}
-    {% endblock %}
-</head>
-
-<body>
-	<nav class="navbar navbar-default navbar-fixed-top">
-    <div class="container">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a id="logo" class="navbar-brand" href="/">
-        	<img class="footer-img" src={% static "img/trac_small.gif" %} alt="TRAC" aria-hidden="true" >
-        </a>
-      </div>
-      <div id="navbar" class="navbar-collapse collapse">
-        <ul class="nav navbar-nav navbar-right">
-          <li><a href="/login">Login</a></li>
-          <li><a href="/register">Register</a></li>
-          <li><a href="http://www.trac-us.com">About</a></li>
-          <li><a href="/caramile">Live Results</a></li>
-        </ul>
-      </div><!--/.nav-collapse -->
-    </div>
-  </nav>
-
+{% block content %}
 	<nav class="pushy pushy-left">
 		<ul class="menulist">      
 		</ul>
@@ -111,11 +27,25 @@
 
 	<div class="site-overlay"></div>
 
-  <div class="container-fluid content">
-		<div id="container" class="container">
+	<div id="idle-overlay" style="display: none;">
+		<div class="idle-container">
+			<div class="container">
+				<div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-10 col-xs-offset-1 idle-dialog">
+					<p>Are you still using TRAC?</p>
+					<div style="display: table; margin: 0 auto;">
+					  <button id="idle-yes" class="btn btn-primary btn-md" style="margin-right: 10px;">Yes</button>
+					  <button id="idle-no" class="btn btn- btn-md">No</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="content" class="container-fluid">
+		<div class="container">
 			<div class="row">
-				<div class="col-md-12 col-sm-12 col-xs-12">
-					<div class="menu-btn">
+				<div class="col-md-3 col-sm-4 col-xs-6">
+					<div class="menu-btn" style="display: inline-block;">
 						<span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span> Heat Menu
 					</div>
 				</div>
@@ -133,7 +63,16 @@
 			<div class="row">
 				<h1 id="score-title">Live Results</h1>
 				<div id="results">
-
+					<table id="results-table" class="table table-striped table-hover tablesorter">
+							<thead>
+								<tr>
+									<th>Name</th>
+									<th>Final Time</th>
+								</tr>
+							</thead>
+							<tbody>
+							</tbody>
+						</table>
 				</div>
 			</div>
 			
@@ -153,61 +92,4 @@
 			</div>
 		</div>
 	</div>
-
-
-	<footer>
-		<div class="container-fluid">
-			<div class="row">
-				<div class="col-md-3 col-sm-6 footer-item">
-					<img class="footer-img" src={% static "img/trac_small.gif" %} alt="TRAC" aria-hidden="true" >
-				</div>
-
-				<div class="col-md-3 col-sm-6 footer-item">
-					<ul class="external">
-						<a href="https://www.facebook.com/timingracing"><img src={% static "img/facebook.png" %}></a>
-						<a href="http://youtu.be/9OxhM_fiHWo"><img src={% static "img/youtube.png" %} width="50px"></a>
-						<a href="https://angel.co/timing-and-racing-around-the-clock"><img src={% static "img/angellist.png" %}></a>
-					</ul>
-				</div>
-
-				<div class="col-md-3 col-sm-6 hidden-xs footer-item">
-					<ul class="internal">
-						<li><a href="http://www.trac-us.com/#bg3" class="scrollto" rel="bg3">About</a></li>
-						<li><a href="http://www.trac-us.com/#bg4" class="scrollto" rel="bg4">Frequently Asked Questions</a></li>
-						<li><a href="mailto:info@trac-us.com">Contact us</a></li>
-					</ul>
-				</div>
-
-				<div class="col-md-3 col-sm-6 footer-item">
-					<address>
-						Timing and Racing Around the Clock<br>
-						1871<br>
-						222 W. Merchandise Mart Plaza<br>
-						Chicago, IL 60654<br><br>
-					</address>
-				</div>
-			</div>
-		</div>
-	</footer>
-
-    <!-- Custom scripts -->
-    <script src="{% static "js/main.js" %}" type="text/javascript"></script>
-    <script src="{% static "js/score.js" %}" type="text/javascript"></script>
-    <script src="{% static "js/jquery.tablesorter.min.js" %}" type="text/javascript" ></script> 
-
-
-    <div id="idle-overlay" style="display: none;">
-    	<div class="idle-container">
-    		<div class="container">
-	    		<div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-10 col-xs-offset-1 idle-dialog">
-	    			<p>Are you still using TRAC?</p>
-	    			<div style="display: table; margin: 0 auto;">
-	    			  <button id="idle-yes" class="btn btn-primary btn-md" style="margin-right: 10px;">Yes</button>
-	    			  <button id="idle-no" class="btn btn- btn-md">No</button>
-	    			</div>
-	    		</div>
-	    	</div>
-    	</div>
-    </div>
-</body>
-</html>
+{% endblock %}

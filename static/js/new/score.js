@@ -2,13 +2,11 @@ var idArray = [];
 var selectedID;
 
 //When DOM loaded we attach click event to button
-$(document).ready(function() {
 
-	// hide all notifications
-	$('.notification').hide();
-
-	var refresh;
+$(function() {
 	
+	var refresh;
+
 	(function init(){
 
 		// hide all notifications
@@ -26,7 +24,7 @@ $(document).ready(function() {
 		setTimeout(function(){ idleCheck(refresh, lastSelected, 5000, 1200000, 'http://www.trac-us.com'); }, 1200000);
 
 		// add tablesorter
-		$('#results-table').tablesorter();
+		//$('#results-table').tablesorter();
 	})();
 
 	function update(idjson){
@@ -58,26 +56,14 @@ $(document).ready(function() {
 				if (score.runners == '') {
 					$('#notifications .notification-default').show();
 					$('.button-container').hide();
-					$('#results').empty().hide();
+					$('#results-table tbody').empty();
+					$('#results-table').hide();
 				} else {
 					// hide notification and show results
 					$('#notifications .notification-default').hide();
 					$('.button-container').show();
-					$('#results').show().empty();
-
-					// table template
-					$('#results').append(
-						'<table id="results-table" class="table table-striped table-hover tablesorter">' + 
-							'<thead>' + 
-								'<tr>' + 
-									'<th>Name</th>' + 
-									'<th>Final Time</th>' + 
-								'</tr>' + 
-							'</thead>' +
-							'<tbody>' +
-							'</tbody>' +
-						'</table>'
-					);
+					$('#results-table tbody').empty();
+					$('#results').show();
 
 					// style it with some bootstrap
 					$('#results').addClass('col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2');
@@ -92,6 +78,8 @@ $(document).ready(function() {
 							'</tr>'
 						);
 					}
+
+					//$('#results-table').tablesorter();
 				}
 			}
 		});
