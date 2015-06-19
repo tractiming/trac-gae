@@ -33,8 +33,8 @@
             </div>
             <div class="panel-body">
               <div id="notifications">
-                <p class="notification notification-error notification-critical" role="alert">Some information you entered isn't right.</p>
-                <p class="notification notification-error notification-critical" role="alert">Passwords do not match.</p>
+                <p class="notification notification-error notification-critical" role="alert">Username has already been taken.</p>
+                <p class="notification notification-error notification-critical2" role="alert">Passwords do not match.</p>
                 <p class="notification notification-success" role="alert">You have successfully created a username</p>
               </div>
               <form method="POST" id="register-form" name="register-form" data-parsley-validate>
@@ -61,6 +61,9 @@
                   <br>
 
                   <div style="display: table; margin: 0 auto;">
+                    <div class="spinner-container" style="position:relative; top:0px; min-height:50px;">
+                      <div id="spinner"></div>
+                    </div>
                     <button type="submit" id="submit" class="btn btn-primary">Register</button>
                   </div>
                 </div>

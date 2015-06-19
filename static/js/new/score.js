@@ -5,9 +5,35 @@ var selectedID;
 
 $(function() {
 	
-	var updateHandler;
+	var updateHandler, spinner;
 
 	(function init(){
+
+		// initialize spinner
+		var opts = {
+			lines: 13, 							// The number of lines to draw
+		  length: 28, 						// The length of each line
+			width: 14, 							// The line thickness
+			radius: 42, 						// The radius of the inner circle
+			scale: 0.5, 						// Scales overall size of the Spinner
+			corners: 1, 						// Corner roundness (0..1)
+			color: '#3577a8', 			// #rgb or #rrggbb or array of colors
+			opacity: 0.25, 					// Opacity of the lines
+			rotate: 0, 							// The rotation offset
+			direction: 1, 					// 1: clockwise, -1: counterclockwise
+			speed: 1, 							// Rounds per second
+			trail: 60, 							// Afterglow percentage
+			fps: 20, 								// Frames per second when using setTimeout() as a fallback for CSS
+			zIndex: 1,	 						// The z-index (defaults to 2000000000)
+			className: 'spinner', 	// The CSS class to assign to the spinner
+			top: '50%', 						// Top position relative to parent
+			left: '50%', 						// Left position relative to parent
+			shadow: false, 					// Whether to render a shadow
+			hwaccel: false, 				// Whether to use hardware acceleration
+			position: 'absolute'	 	// Element positioning
+		}
+		var target = document.getElementById('spinner');
+		spinner = new Spinner(opts).spin(target);
 
 		// hide all notifications
 		$('.notification').hide();
@@ -52,26 +78,37 @@ $(function() {
 				$('#score-title').empty();
 				$('#score-title').append('Live Results: ' + json.name);
 
-				// if empty, show notification
+				// if empty, hide spinner and show notification
 				if (score.runners == '') {
+					spinner.stop();
 					$('#notifications .notification-default').show();
 					$('.button-container').hide();
-					$('#results-table tbody').empty();
-					$('#results-table').hide();
+					$('#results-table').hide().empty();
 				} else {
-					// hide notification and show results
+					// hide spinner and notification and show results
+					spinner.stop();
 					$('#notifications .notification-default').hide();
 					$('.button-container').show();
-					$('#results-table tbody').empty();
-					$('#results').show();
+					$('#results-table').empty().show();
 
 					// style it with some bootstrap
 					$('#results').addClass('col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2');
 
+					$('#results-table').append(
+						'<thead>' + 
+							'<tr>' +
+								'<th>Name</th>' +
+								'<th>Final Time</th>' +
+							'</tr>' +
+						'</thead>' +
+						'<tbody>' +
+						'</tbody>'
+					);
+
 					for (var i=0; i < score.runners.length; i++) {
 						var time = formatTime(score.runners[i].interval);
 
-						$('#results tbody').append(
+						$('#results-table tbody').append(
 							'<tr>' + 
 								'<td>' + score.runners[i].name + '</td>' + 
 								'<td>' + time + '</td>' + 
@@ -100,7 +137,8 @@ $(function() {
 			dataType: 'text',			//force to handle it as text
 			success: function(data){
 				var json = $.parseJSON(data);
-				if (json.length==0){ 
+				if (json.length == 0){
+					spinner.stop();
 					$('#results-table').hide();
 					$('p.notification.notification-default2').show();
 				} else {
@@ -119,9 +157,10 @@ $(function() {
 		$.ajax({
 			url: '/api/score/',
 			dataType: 'text',			//force to handle it as text
-			success: function(data){
+			success: function(data) {
 				var json = $.parseJSON(data);
-				if (json.length==0){ 
+				if (json.length == 0) {
+					spinner.stop();
 					$('#results-table').hide();
 					$('p.notification.notification-default2').show();
 				} else {
@@ -139,7 +178,8 @@ $(function() {
 			dataType: 'text',			//force to handle it as text
 			success: function(data){
 				var json = $.parseJSON(data);
-				if (json.length==0){ 
+				if (json.length == 0){ 
+					spinner.stop();
 					$('#results-table').hide();
 					$('p.notification.notification-default2').show();
 				} else {
