@@ -1,3 +1,4 @@
+#sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from django.http import HttpResponse, Http404
@@ -25,7 +26,7 @@ from util import create_split
 
 import json
 import ast
-
+import dateutil.parser
 
 class verifyLogin(views.APIView):
 	permission_classes = ()
@@ -419,10 +420,12 @@ def create_race(request):
     # Assign the session to a coach.
     uc, created = User.objects.get_or_create(username=data['director_username'])
     c, created = CoachProfile.objects.get_or_create(user=uc)
-    
+    date = data['race_date']
+    datestart = dateutil.parser.parse(date)
+    dateover = datestart + timezone.timedelta(days=1)
     # Create the timing session.
     name = data['race_name']
-    ts, created = TimingSession.objects.get_or_create(name=name, manager=uc)
+    ts, created = TimingSession.objects.get_or_create(name=name, manager=uc, start_time=datestart, stop_time=dateover);
     if not created:
         return HttpResponse(status.HTTP_400_BAD_REQUEST)
 

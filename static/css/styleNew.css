@@ -317,7 +317,7 @@ div.parallax {
         background-attachment: scroll !important; } }
     div.parallax > div div.content {
       margin: 0 auto;
-      max-width: 960px; }
+      max-width: 960px;}
   
       div.parallax .modal-animate {
 z-index: 17;
