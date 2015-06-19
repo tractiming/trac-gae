@@ -65,7 +65,7 @@ $("li a.logout").click(function(){
   //step by step jquery plugin that explains each box of form
 	jQuery(document).ready(function($) {
 
-		$("#myform").progression({
+		/*$("#myform").progression({
 		  tooltipWidth: '200',
 		  tooltipPosition: 'left',
 		  tooltipOffset: '50',
@@ -78,7 +78,7 @@ $("li a.logout").click(function(){
 		  tooltipBackgroundColor:'F0B922',
 		  tooltipPadding: '10',
 		  tooltipAnimate: true
-		});
+		}); */
 
 	});
 
@@ -487,12 +487,12 @@ $("body").on('click', 'tr',function(){
 
     <div class="container-fluid">  
     	<div class="row">
-    		<div class="col-md-6">
+    		<div class="col-md-6" align="center">
      			<h2>Create</h2>
      		</div>
      		<div class="col-md-5">
      		</div class="col-md-5">
-     		<div class="col-md-1">
+     		<div class="col-md-1" align="center">
      			<button type="button" class="btn btn-default" id="create" data-toggle="modal" data-target="#myModal">
      				<span class="glyphicon glyphicon-plus" aria-hidden="true"> </span>
      			</button>
@@ -533,23 +533,23 @@ $("body").on('click', 'tr',function(){
 		  	</p>
 		 	 <p>
 		     	 <label for="">Workout Title:</label> 
-		     	 <input data-progression="" type="text" data-helper="Title of the workout to help you identify it later" id="title" value="" placeholder="" required data-parsley-group="block1" />
+		     	 <input data-progression="" type="text" id="title" value="" placeholder="" required data-parsley-group="block1" />
 		 	 </p>
 		   	<p>
 		   	   <label for="">Start Date:</label> 
-		   	   <input data-progression="" type="text" data-helper="Date that you plan to start the workout, YYYY-MM-DD" id="start_date" value="" placeholder="" required data-parsley-group="block1" />
+		   	   <input data-progression="" type="text" id="start_date" value="" placeholder="" required data-parsley-group="block1" />
 		 	 </p>
 		 	   <p>
 		  	    <label for="">End Date:</label> 
-		  	    <input data-progression="" type="text" data-helper="Date that you plan to end the workout, YYYY-MM-DD" id="end_date" value="" placeholder="" required data-parsley-group="block1"/>
+		  	    <input data-progression="" type="text" id="end_date" value="" placeholder="" required data-parsley-group="block1"/>
 		  	</p>
 		  	   <p>
 		  	    <label for="">Interval Distance:</label> 
-		   	   <input data-progression="" type="text" data-helper="Distance (in meters) of the repeat being run. I.E. in 4x400, put 400 " id="distance" value="" placeholder=""/>
+		   	   <input data-progression="" type="text" id="distance" value="" placeholder=""/>
 		  	</p>
 		  	   <p>
 		  	    <label for="">Track Size:</label> 
-		   	   <input data-progression="" type="text" data-helper="Size of the track you are using, I.E. 200, 300, 400" id="size" value="" placeholder=""/>
+		   	   <input data-progression="" type="text" id="size" value="" placeholder=""/>
 		 	 </p>
 		     
 		    	 <p>
