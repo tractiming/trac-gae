@@ -1,3 +1,7 @@
+li#dropdown-button{
+    padding-top:12px;
+}
+
 div#create div#notifications .notification.notification-critical {
 	background-color: #fff7f7;
 	background-position: 12px -387px;

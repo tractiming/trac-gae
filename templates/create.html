@@ -10,13 +10,46 @@
 
 {% block js_scripts %}
 <script type="text/javascript" src="{% static "js/timeConversion.js" %}" />
+<script type="text/javascript" src="{% static "js/access_token.js" %}"></script>
+<script>
+if (sessionStorage.access_token == null) {
+    //link to login page
+    location.href="/login";
+}
+else{
+    
+}
+
+    $(document).ready(function() {
+$("li a.logout").click(function(){
+    sessionStorage.clear();
+    location.href="/login";
+});
+    });
+
+</script>
 {% endblock %}
 
 {% block nav-items %}
-  <li><a href="/home">home</a></li>
+  <li><a href="/home">Home</a></li>
   <li><a href="/liveview">Live View</a></li>
   <li><a href="/calendar">Calendar</a></li>
   <li><a href="/create">Create</a></li>
+  <li><a class="hidden-md hidden-lg" href="/readers">Readers</a></li>
+  <li><a class="hidden-md hidden-lg" href="/settings">Settings</a></li>
+  <li><a class="logout hidden-md hidden-lg" href="">Logout</a></li>
+<!-- Single button -->
+  <li id="dropdown-button" class="btn-group hidden-xs hidden-sm">
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>
+    </button>
+    <ul class="dropdown-menu" >
+      <li><a href="/readers">Readers</a></li>
+      <li><a href="/settings">Settings</a></li>
+      <li role="separator" class="divider"></li>
+      <li><a class="logout" href="">Logout</a></li>
+    </ul>
+  </li>
 {% endblock %}
 
 {% block content %}
