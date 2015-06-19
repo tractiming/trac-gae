@@ -4,7 +4,7 @@
 
 <!-- Head -->
 {% block stylesheets %}
-  <link href="{% static "css/new/login.css" %}" rel="stylesheet" type="text/css">
+  <!--<link href="{% static "css/new/login.css" %}" rel="stylesheet" type="text/css">-->
 {% endblock %}
 
 {% block js_scripts %}
@@ -17,7 +17,7 @@
   <li><a href="/login">Login</a></li>
   <li><a href="/register">Register</a></li>
   <li><a href="http://www.trac-us.com">About</a></li>
-  <li><a href="/score">Live Results</a></li>
+  <li><a href="/caramile">Live Results</a></li>
 {% endblock %}
 
 
@@ -33,7 +33,7 @@
 						</div>
 						<div class="panel-body">
 							<div id="notifications">
-								<p class="notification notification-critical" role="alert">Some information you entered isn't right.</p>
+								<p class="notification notification-error notification-critical" role="alert">Some information you entered isn't right.</p>
 							</div>
 							<form method="POST" id="login-form" name="login-form" data-parsley-validate>
 								<div class="form-group">
@@ -47,6 +47,9 @@
 									<br>
 
 									<div style="display: table; margin: 0 auto;">
+										<div class="spinner-container" style="position:relative; top:0px; min-height:50px;">
+											<div id="spinner"></div>
+										</div>
 										<button type="submit" id="submit" class="btn btn-primary">Sign in</button>
 									</div>
 								</div>

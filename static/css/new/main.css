@@ -92,9 +92,14 @@ a {
 }
 
 /* Notifications */
-.notification {
-	color: #b94a48;
-	text-align: center;
+#notifications { text-align: center; }
+.notification-error { color: #b94a48; }
+.notification-success { color: #468847; }
+
+p.parsley-error {
+	color: #B94A48;
+  background-color: #F2DEDE;
+  border: 1px solid #EED3D7;
 }
 
 /* Typography */

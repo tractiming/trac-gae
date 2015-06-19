@@ -16,7 +16,7 @@
   <li><a href="/login">Login</a></li>
   <li><a href="/register">Register</a></li>
   <li><a href="http://www.trac-us.com">About</a></li>
-  <li><a href="/score">Live Results</a></li>
+  <li><a href="/caramile">Live Results</a></li>
 {% endblock %}
 
 {% block content %}
@@ -63,25 +63,21 @@
 			<div class="row">
 				<h1 id="score-title">Live Results</h1>
 				<div id="results">
-					<table id="results-table" class="table table-striped table-hover tablesorter">
-							<thead>
-								<tr>
-									<th>Name</th>
-									<th>Final Time</th>
-								</tr>
-							</thead>
-							<tbody>
-							</tbody>
-						</table>
+					<table id="results-table" class="table table-striped table-hover">
+					</table>
 				</div>
+			</div>
+
+			<div class="spinner-container" style="position:relative; top:50px;">
+				<div id="spinner"></div>
 			</div>
 			
 			<div id="notifications" class="row">
 				<div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-8 col-xs-offset-2">
-					<p class="notification notification-default" role="alert">
+					<p class="notification notification-error notification-default" role="alert">
 						<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> There is currently no data for this event.
 					</p>
-					<p class="notification notification-default2" role="alert">
+					<p class="notification notification-error notification-default2" role="alert">
 						<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> No recent events to show.
 					</p>
 				</div>
