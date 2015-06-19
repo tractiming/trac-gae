@@ -12,6 +12,12 @@
 <script type="text/javascript" src="{% static "js/timeConversion.js" %}" />
 {% endblock %}
 
+{% block nav-items %}
+  <li><a href="/login">Test</a></li>
+  <li><a href="/register">Test</a></li>
+  <li><a href="http://www.trac-us.com">Test</a></li>
+  <li><a href="/caramile">Live Test</a></li>
+{% endblock %}
 
 {% block content %}
 
@@ -155,14 +161,14 @@ $(document).ready(function() {
                         '<table id="results-table" class="table table-striped table-hover">' +
                         	'<thead>' +
 			    				'<tr>' +
-			    					'<th>ID</th>'+
+			    				'<th class="hidden-xs hidden-sm hidden-md hidden-lg">id</th>'+
 			    					'<th>Workout Name</th>'+
 			    					'<th>Start Date</th>'+
-			    					'<th>End Date</th>'+
-			    					'<th>Distance</th>'+
-			    					'<th>Track</th>'+
+			    					'<th class="hidden-xs hidden-sm">End Date</th>'+
+			    					'<th class="hidden-xs hidden-sm">Distance</th>'+
+			    					'<th class="hidden-xs hidden-sm">Track</th>'+
 			    					'<th>Filtered</th>'+
-			    					'<th>Private</th>'+
+			    					'<th class="hidden-xs hidden-sm">Private</th>'+
 			    				'</tr>'+
 			    			'</thead>'+
 			    			'<tbody>'+
@@ -188,14 +194,14 @@ $(document).ready(function() {
 						   sTE = sTE.substring(0,25);
 			    			$('#results tbody').append(
 			    				'<tr>'+
-			    					'<td>'+id+'</td>'+
+			    				'<td class="hidden-xs hidden-sm hidden-md hidden-lg">' + id + '</td>' +
 			    					'<td>'+name+'</td>'+
 			    					'<td>'+sTS+'</td>'+
-			    					'<td>'+sTE+'</td>'+
-			    					'<td>'+distance+'</td>'+
-			    					'<td>'+track+'</td>'+
+			    					'<td class="hidden-xs hidden-sm">'+sTE+'</td>'+
+			    					'<td class="hidden-xs hidden-sm">'+distance+'</td>'+
+			    					'<td class="hidden-xs hidden-sm">'+track+'</td>'+
 			    					'<td>'+filter+'</td>'+
-			    					'<td>'+privateselect+'</td>'+
+			    					'<td class="hidden-xs hidden-sm">'+privateselect+'</td>'+
 			    				'</tr>');
 			  		$(".modal-animate").hide();
 						   }
@@ -348,8 +354,9 @@ $("body").on('click', 'tr',function(){
 	$("input#submit").show();
 	$("p#idnumber").hide();
 	//$("input#create").hide();
+	$("#results").empty();
 		    loadworkouts();
-                   
+		    window.location.reload();      
            },
 
            // Login request failed.
@@ -361,8 +368,6 @@ $("body").on('click', 'tr',function(){
 	      $("div.notification.update-success").hide();
 		    $("div.notification.delete-success").hide();
                $("div.notification.notification-critical").show();
-
-               loadworkouts();
            }
            
       });}
