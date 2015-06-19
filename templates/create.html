@@ -1,10 +1,19 @@
 {% extends "base_new.html" %}
-{% load staticfiles %}
+{% load static %}
 
-{% block content %}
-<script type="text/javascript" src="{% static "js/timeConversion.js" %}" />
+
+{% block stylesheets %}
 <link rel="stylesheet" href="{% static "css/new/main.css" %}" />
 <link rel="stylesheet" href="{% static "css/new/score.css" %}" />
+<link rel="stylesheet" href="{% static "css/new/create.css" %}" />
+{% endblock %}
+
+{% block js_scripts %}
+<script type="text/javascript" src="{% static "js/timeConversion.js" %}" />
+{% endblock %}
+
+
+{% block content %}
 
 <script>
 
@@ -83,13 +92,13 @@ $(document).ready(function() {
            success: function(data) {
 		    //hide spinner, success modal, and reset form
 		    $(".modal-animate").hide();
-		    $("h6.notification.notification-critical").hide();
-		    $("h6.notification.update-success").hide();
-		    $("h6.notification.delete-success").hide();
-		    $("h6.notification.notification-success").show();
+		    $("div.notification.notification-critical").hide();
+		    $("div.notification.update-success").hide();
+		    $("div.notification.delete-success").hide();
+		    $("div.notification.notification-success").show();
 		    $("#myform")[0].reset();
 		    $(".outer").show();
-            $("h6.notification.notification-default").hide();
+            $("div.notification.notification-default").hide();
 		    loadworkouts();
                    
            },
@@ -98,10 +107,10 @@ $(document).ready(function() {
            error: function(xhr, errmsg, err) {
 	    //hide spinner, show error modal
 	    $(".modal-animate").hide();
-	    $("h6.notification.notification-success").hide();
-	     $("h6.notification.update-success").hide();
-		    $("h6.notification.delete-success").hide();
-               $("h6.notification.notification-critical").show();
+	    $("div.notification.notification-success").hide();
+	     $("div.notification.update-success").hide();
+		    $("div.notification.delete-success").hide();
+               $("div.notification.notification-critical").show();
            }
            
       });
@@ -135,13 +144,13 @@ $(document).ready(function() {
 			  $('#results').empty();
 			  
 			  
-			    $("h6.notification.notification-default").show();
+			    $("div.notification.notification-default").show();
 
 			}
 			// show name and date, dont show message, but show button
 			else {
                        $(".outer").show();
-                        $("h6.notification.notification-default").hide();
+                        $("div.notification.notification-default").hide();
                         $('#results').append(
                         '<table id="results-table" class="table table-striped table-hover">' +
                         	'<thead>' +
@@ -222,7 +231,7 @@ $("body").on('click', 'tr',function(){
 	//alert($(this).html());
 	$('#myModal').modal('toggle');
 	var value = $(this).html();
-	$("input#delete").show();
+	$("button#delete").show();
 	$("input#update").show();
 	$("div.button-container-two").show();
 	$("input#create").show();
@@ -290,7 +299,7 @@ $("body").on('click', 'tr',function(){
 	  e.preventDefault();
 	  $("#myform")[0].reset();
 	var value = $(this).html();
-	$("input#delete").hide();
+	$("button#delete").hide();
 	$("input#update").hide();
 	$("input#submit").show();
 	$("p#idnumber").hide();
@@ -303,11 +312,11 @@ $("body").on('click', 'tr',function(){
 	$("body").on('click', 'button#delete',function(f){
 	//alert($(this).html());
 	  f.preventDefault();
-	  $("h6.notification.notification-warning").show();
-	  $("h6.notification.notification-critical").hide();
-	  $("h6.notification.notification-critical").hide();
-	  $("h6.notification.notification-success").hide();
-	  $("h6.notification.update-success").hide();
+	  $("div.notification.notification-warning").show();
+	  $("div.notification.notification-critical").hide();
+	  $("div.notification.notification-critical").hide();
+	  $("div.notification.notification-success").hide();
+	  $("div.notification.update-success").hide();
 	  
 	   $("body").on('click','button',function(event){
 	console.log("On:", event.target);
@@ -328,13 +337,13 @@ $("body").on('click', 'tr',function(){
            success: function(data) {
 		    //hide spinner, success modal, and reset form
 		    $(".modal-animate").hide();
-		    $("h6.notification.notification-critical").hide();
-		    $("h6.notification.notification-success").hide();
-		     $("h6.notification.update-success").hide();
-		    $("h6.notification.delete-success").show();
-		     $("h6.notification.notification-warning").hide();
+		    $("div.notification.notification-critical").hide();
+		    $("div.notification.notification-success").hide();
+		     $("div.notification.update-success").hide();
+		    $("div.notification.delete-success").show();
+		     $("div.notification.notification-warning").hide();
 		    $("#myform")[0].reset();
-		    	$("input#delete").hide();
+		    	$("button#delete").hide();
 	$("input#update").hide();
 	$("input#submit").show();
 	$("p#idnumber").hide();
@@ -347,26 +356,30 @@ $("body").on('click', 'tr',function(){
            error: function(xhr, errmsg, err) {
 	    //hide spinner, show error modal
 	    $(".modal-animate").hide();
-	    $("h6.notification.notification-success").hide();
-	     $("h6.notification.notification-warning").hide();
-	      $("h6.notification.update-success").hide();
-		    $("h6.notification.delete-success").hide();
-               $("h6.notification.notification-critical").show();
+	    $("div.notification.notification-success").hide();
+	     $("div.notification.notification-warning").hide();
+	      $("div.notification.update-success").hide();
+		    $("div.notification.delete-success").hide();
+               $("div.notification.notification-critical").show();
+
+               loadworkouts();
            }
            
       });}
 	else if(value =='Cancel'){
 		$(".modal-animate").hide();
-	    $("h6.notification.notification-success").hide();
-	    $("h6.notification.notification-warning").hide();
+	    $("div.notification.notification-success").hide();
+	    $("div.notification.notification-warning").hide();
               
 		}
 	 });
 	});
 	
-		$("body").on('hidden.bs.modal', function(){
-			$("h6.notification.delete-success").hide();
+		$("body").on('hidden.bs.modal', '#notificationModal', function(){
+			$("div.notification.delete-success").hide();
+			$("div.notification-warning").hide();
 		});
+
 		$("body").on('click', 'input#update',function(f){
 	//alert($(this).html());
 	  f.preventDefault();
@@ -405,12 +418,12 @@ $("body").on('click', 'tr',function(){
            success: function(data) {
 		    //hide spinner, success modal, and reset form
 		    $(".modal-animate").hide();
-		    $("h6.notification.notification-critical").hide();
-		    $("h6.notification.notification-success").hide();
-		    $("h6.notification.delete-success").hide();
-		    $("h6.notification.update-success").show();
+		    $("div.notification.notification-critical").hide();
+		    $("div.notification.notification-success").hide();
+		    $("div.notification.delete-success").hide();
+		    $("div.notification.update-success").show();
 		    $("#myform")[0].reset();
-		    	$("input#delete").hide();
+		    	$("button#delete").hide();
 	$("input#update").hide();
 	$("input#submit").show();
 	$("p#idnumber").hide();
@@ -423,11 +436,11 @@ $("body").on('click', 'tr',function(){
            error: function(xhr, errmsg, err) {
 	    //hide spinner, show error modal
 	    $(".modal-animate").hide();
-	    $("h6.notification.notification-success").hide();
-	     $("h6.notification.notification-warning").hide();
-	      $("h6.notification.update-success").hide();
-		    $("h6.notification.delete-success").hide();
-               $("h6.notification.notification-critical").show();
+	    $("div.notification.notification-success").hide();
+	     $("div.notification.notification-warning").hide();
+	      $("div.notification.update-success").hide();
+		    $("div.notification.delete-success").hide();
+               $("div.notification.notification-critical").show();
            }
            
       });
@@ -457,11 +470,11 @@ $("body").on('click', 'tr',function(){
  			<div class ="modalcontent">
  				<div class="modal-body">
  					<div id="notifications">
-    					<h6 class="notification notification-critical" role="alert">Some information you entered isn't right.</h6>
-						<h6 class="notification notification-success" role="alert">You have successfully created a workout!</h6>
-						<h6 class="notification update-success" role="alert">You have successfully updated a workout!</h6>
-						<h6 class="notification delete-success" role="alert">You have successfully deleted a workout!</h6>
-						<h6 class="notification notification-warning" role="alert">Are you sure? <div class="container" id="screen-selector"><button href="#" type="button" id="warning-yes">Yes</button><button id="warning-no" href="#" type="button" style="float:right">Cancel</button></div></h6>
+    					<div class="notification notification-critical" role="alert">Some information you entered isn't right.</div>
+						<div class="notification notification-success" role="alert">You have successfully created a workout!</div>
+						<div class="notification update-success" role="alert">You have successfully updated a workout!</div>
+						<div class="notification delete-success" role="alert">You have successfully deleted a workout!</div>
+						<div class="notification notification-warning" role="alert">Are you sure? <div id="screen-selector"><button href="#" type="button" id="warning-yes">Yes</button><button id="warning-no" href="#" type="button" style="float:right" data-dismiss="modal" data-toggle="modal" data-target="#myModal">Cancel</button></div></div>
 					</div>
 				</div>
 			</div>
@@ -547,7 +560,7 @@ $("body").on('click', 'tr',function(){
        </div>
    </div>
        <div id="notifications">
-        <h6 class="notification notification-default" role="alert">There are currently no workouts to show.</h6>
+        <div class="notification notification-default" role="alert">There are currently no workouts to show.</div>
     </div>
     {% endblock %} 
     
