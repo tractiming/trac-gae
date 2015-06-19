@@ -13,10 +13,10 @@
 {% endblock %}
 
 {% block nav-items %}
-  <li><a href="/login">Log In</a></li>
-  <li><a href="/register">Register</a></li>
-  <li><a href="http://www.trac-us.com">About</a></li>
-  <li><a href="/caramile">Live Results</a></li>
+  <li><a href="/home">home</a></li>
+  <li><a href="/liveview">Live View</a></li>
+  <li><a href="/calendar">Calendar</a></li>
+  <li><a href="/create">Create</a></li>
 {% endblock %}
 
 {% block content %}
@@ -28,7 +28,6 @@
 		}
 
 </script>
-
 <script>
   //step by step jquery plugin that explains each box of form
 	jQuery(document).ready(function($) {
@@ -57,7 +56,8 @@ $(document).ready(function() {
 		loadworkouts();
 
       //on submit prevent default of form and show spinner, 
-        $("#myform").on('submit', function(e){
+      $("input#save").on('click');
+        $("input#save").click( function(e){
             e.preventDefault();
 	    $(".modal-animate").show();
             var form = $(this);
@@ -242,7 +242,7 @@ $("body").on('click', 'tr',function(){
 	$("div.button-container-two").show();
 	$("input#create").show();
 	$("p#idnumber").show();
-	$("input#submit").hide();
+	$("input#save").hide();
 	$(value).each(function(index){
 		//alert( $(this).html() );
 		console.log( index+ ":"+ $(this).html());
@@ -299,23 +299,21 @@ $("body").on('click', 'tr',function(){
 	
 	});
 	
-	
-	$("body").on('click', 'button#create',function(e){
+	$("body").on('click', 'button#create', function(e){
 	//alert($(this).html());
 	  e.preventDefault();
 	  $("#myform")[0].reset();
 	var value = $(this).html();
 	$("button#delete").hide();
 	$("input#update").hide();
-	$("input#submit").show();
+	$("input#save").show();
 	$("p#idnumber").hide();
 	//$("input#create").hide();
 
 	});
 
-
-
-	$("body").on('click', 'button#delete',function(f){
+	$("button#delete").off('click');
+	$("body").on('click', 'button#delete', function(f){
 	//alert($(this).html());
 	  f.preventDefault();
 	  $("div.notification.notification-warning").show();
@@ -323,11 +321,12 @@ $("body").on('click', 'tr',function(){
 	  $("div.notification.notification-critical").hide();
 	  $("div.notification.notification-success").hide();
 	  $("div.notification.update-success").hide();
+	});
 	  
-	   $("body").on('click','button',function(event){
+	$("body").on('click', 'button#warning-yes', function(event){
 	console.log("On:", event.target);
 	var value = $(this).html();
-	if (value == 'Yes'){ $(".modal-animate").show();
+	 $(".modal-animate").show();
 	  
 	 var id=$('input[id=idnumber]').val();
 	//alert(id);
@@ -351,12 +350,11 @@ $("body").on('click', 'tr',function(){
 		    $("#myform")[0].reset();
 		    	$("button#delete").hide();
 	$("input#update").hide();
-	$("input#submit").show();
+	$("input#save").show();
 	$("p#idnumber").hide();
 	//$("input#create").hide();
 	$("#results").empty();
-		    loadworkouts();
-		    window.location.reload();      
+		    loadworkouts();     
            },
 
            // Login request failed.
@@ -370,19 +368,18 @@ $("body").on('click', 'tr',function(){
                $("div.notification.notification-critical").show();
            }
            
-      });}
-	else if(value =='Cancel'){
+      });
+});
+		$("button#warning-no").click(function(event){
 		$(".modal-animate").hide();
 	    $("div.notification.notification-success").hide();
 	    $("div.notification.notification-warning").hide();
-              
-		}
 	 });
-	});
-	
+
+
 		$("body").on('hidden.bs.modal', '#notificationModal', function(){
 			$("div.notification.delete-success").hide();
-			$("div.notification-warning").hide();
+			$("div.notification.notification-warning").hide();
 		});
 
 		$("body").on('click', 'input#update',function(f){
@@ -430,7 +427,7 @@ $("body").on('click', 'tr',function(){
 		    $("#myform")[0].reset();
 		    	$("button#delete").hide();
 	$("input#update").hide();
-	$("input#submit").show();
+	$("input#save").show();
 	$("p#idnumber").hide();
 	//$("input#create").hide();
 		    loadworkouts();
@@ -546,7 +543,7 @@ $("body").on('click', 'tr',function(){
 		     
 		          <div class="button-container">
 			<button name="" class="validate" id="delete" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal">Delete</button>
-		    <input type="submit" name="" class="validate" id="submit" value="Save" />
+		    <input type="submit" name="" class="validate" id="save" value="Save" />
 		    <input type="submit" name="" class="validate" id="update" value="Update" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal" />
 	                         </div>
 	                         
