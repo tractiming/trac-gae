@@ -125,7 +125,6 @@ $(function() {
 					$('#results-table').hide();
 					$('p.notification.notification-default2').show();
 				} else {
-					$('#results-table').show();
 					$('p.notification.notification-default2').hide();
 					update(selectedID);
 				}
