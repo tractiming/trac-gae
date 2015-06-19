@@ -51,3 +51,7 @@ div#create div#notifications .notification.notification-default {
   background-position: 12px -788px;
   border-color: #afabae;
 }
+
+button#create{
+  margin: 15px;
+}
