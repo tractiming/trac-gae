@@ -24,9 +24,12 @@ a {
 
 
 /* Header */
+<<<<<<< HEAD
 .navbar-header .navbar-toggle {
 	margin-top: 13px;
 }
+=======
+>>>>>>> JRhee
 
 .navbar {
 	background-color: white; 
@@ -89,9 +92,14 @@ a {
 }
 
 /* Notifications */
-.notification {
-	color: #b94a48;
-	text-align: center;
+#notifications { text-align: center; }
+.notification-error { color: #b94a48; }
+.notification-success { color: #468847; }
+
+p.parsley-error {
+	color: #B94A48;
+  background-color: #F2DEDE;
+  border: 1px solid #EED3D7;
 }
 
 /* Typography */
@@ -107,12 +115,17 @@ ul {
 /* Footer */
 footer {
 	border-top: 3px solid #e7e7e7;
+<<<<<<< HEAD
 	padding-top: 20px; 
 	text-align: center; }
+=======
+	padding-top: 20px; }
+>>>>>>> JRhee
 	footer ul {
 		padding: 0; }
 	footer .footer-item {
 		padding-top: 20px;
+<<<<<<< HEAD
 		margin: 0 auto;
 		min-height: 80px; }
 	footer .footer-img {
@@ -133,4 +146,11 @@ footer {
 		display: inline-block;
 		margin: 0 auto;
 		text-align: left; 
+=======
+		margin: 0 auto; }
+	footer .internal>li>a {
+		color: #3577A8 !important; }
+		footer .internal>li>a:hover {
+			color: #F0B922 !important;
+>>>>>>> JRhee
 }
