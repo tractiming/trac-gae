@@ -1,0 +1,95 @@
+{
+    "director_username": "alsal", 
+    "readers": [
+        "A1010",
+        "A1011",
+        "A1012",
+        "A1013",
+        "A1014",
+        "A1015"
+    ], 
+    "athletes": [
+        {
+            "first_name": "Liam", 
+            "last_name": "Gayter", 
+            "gender": "M", 
+            "age": "18", 
+            "tag": "111A 05AE", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Daniel", 
+            "last_name": "Nowak", 
+            "gender": "M", 
+            "age": "33", 
+            "tag": "111A 05B1", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Robert", 
+            "last_name": "Wiegand", 
+            "gender": "M", 
+            "age": "37", 
+            "tag": "111A 05B2", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Carleton", 
+            "last_name": "Smith", 
+            "gender": "M", 
+            "age": "28", 
+            "tag": "111A 05B3", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Jason", 
+            "last_name": "Ream", 
+            "gender": "M", 
+            "age": "33", 
+            "tag": "111A 05B4", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Matthew", 
+            "last_name": "Stanesby", 
+            "gender": "M", 
+            "age": "33", 
+            "tag": "111A 05B5", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Dan", 
+            "last_name": "Regalado", 
+            "gender": "M", 
+            "age": "28", 
+            "tag": "111A 05B6", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Emmanuel", 
+            "last_name": "Angomas", 
+            "gender": "M", 
+            "age": "13", 
+            "tag": "111A 05B7", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Jeff", 
+            "last_name": "Thomas", 
+            "gender": "M", 
+            "age": "34", 
+            "tag": "111A 05B8", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Anton", 
+            "last_name": "Sella", 
+            "gender": "M", 
+            "age": "31", 
+            "tag": "111A 05B9", 
+            "team": "None"
+        }
+    ], 
+    "race_name": "Heat 13", 
+    "race_date": "2015-06-19"
+}

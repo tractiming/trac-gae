@@ -1,0 +1,71 @@
+{
+    "director_username": "alsal", 
+    "readers": [
+        "A1010",
+        "A1011",
+        "A1012",
+        "A1013",
+        "A1014",
+        "A1015"
+    ], 
+    "athletes": [
+        {
+            "first_name": "Melissa", 
+            "last_name": "Stockwell", 
+            "gender": "F", 
+            "age": "35", 
+            "tag": "111A 0601", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Marc", 
+            "last_name": "Rosen", 
+            "gender": "M", 
+            "age": "53", 
+            "tag": "111A 0602", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Dash", 
+            "last_name": "Gabryszewski", 
+            "gender": "M", 
+            "age": "13", 
+            "tag": "111A 0603", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Bill", 
+            "last_name": "Dyszel", 
+            "gender": "M", 
+            "age": "60", 
+            "tag": "111A 0604", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Darren", 
+            "last_name": "Dematoff", 
+            "gender": "M", 
+            "age": "47", 
+            "tag": "111A 0605", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "John", 
+            "last_name": "Bowden", 
+            "gender": "M", 
+            "age": "50", 
+            "tag": "111A 0606", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "David", 
+            "last_name": "Lessner", 
+            "gender": "M", 
+            "age": "56", 
+            "tag": "111A 0607", 
+            "team": "None"
+        }
+    ], 
+    "race_name": "Heat 7", 
+    "race_date": "2015-06-19"
+}
