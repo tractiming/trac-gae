@@ -176,6 +176,10 @@ $(document).ready(function() {
 			    		'</tbody>');
 			    		$('#results').addClass('col-md-6 col-md-offset-0 colr-sm-8 col-sm-offset-0');
                        for (var ii=0;json.length;ii++){
+                       		var tableNumber = 1;
+                       		if(ii == 20){
+                       			tableNumber++;
+                       		}
 						   //alert(ii);
 						   id = json[ii].id;
 						   name = json[ii].name;
@@ -192,6 +196,7 @@ $(document).ready(function() {
 						   sTS = sTS.substring(0, 25);
 						   var sTE = UTC2local(end, end2);
 						   sTE = sTE.substring(0,25);
+						   $('#results tbody').attr('id', ''+tableNumber+'')
 			    			$('#results tbody').append(
 			    				'<tr>'+
 			    				'<td class="hidden-xs hidden-sm hidden-md hidden-lg">' + id + '</td>' +
@@ -541,10 +546,10 @@ $("body").on('click', 'tr',function(){
 		   	  </p>
 		  	  <br>
 		     
-		          <div class="button-container">
-			<button name="" class="validate" id="delete" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal">Delete</button>
-		    <input type="submit" name="" class="validate" id="save" value="Save" />
-		    <input type="submit" name="" class="validate" id="update" value="Update" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal" />
+		          <div class="button-container modal-footer">
+			<button name="" class="btn btn-primary col-md-3 col-sm-3 col-xs-3" id="delete" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal">Delete</button>
+		    <input type="submit" name="" class="btn btn-primary" id="save" value="Save" />
+		    <input type="submit" name="" class="btn btn-primary col-md-5 col-sm-5 col-xs-5" id="update" value="Update" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal" />
 	                         </div>
 	                         
 		</form>		
@@ -558,6 +563,12 @@ $("body").on('click', 'tr',function(){
       <div class="row">
       	<h1 id="score-title">Recent Workouts</h1>
        <div id="results" class="table"></div>
+       <nav>
+       		<ul class="pagination">
+       			<li><a href='#1'>1</a></li>
+       			<li><a href='#2'>2</a></li>
+       		</ul>
+       	</nav>
        </div>
        </div>
    </div>
