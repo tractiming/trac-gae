@@ -1,0 +1,87 @@
+{
+    "director_username": "alsal", 
+    "readers": [
+        "A1010",
+        "A1011",
+        "A1012",
+        "A1013",
+        "A1014",
+        "A1015"
+    ], 
+    "athletes": [
+        {
+            "first_name": "Jeff", 
+            "last_name": "Weinberg", 
+            "gender": "M", 
+            "age": "51", 
+            "tag": "111A 05DC", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Ben", 
+            "last_name": "Kadlec", 
+            "gender": "M", 
+            "age": "14", 
+            "tag": "111A 05DD", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Akili", 
+            "last_name": "Parekh", 
+            "gender": "M", 
+            "age": "9", 
+            "tag": "111A 05DE", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Regin", 
+            "last_name": "Igloria", 
+            "gender": "M", 
+            "age": "40", 
+            "tag": "111A 05DF", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Mike", 
+            "last_name": "Prest", 
+            "gender": "M", 
+            "age": "52", 
+            "tag": "111A 05E0", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Kevin", 
+            "last_name": "Kernahan", 
+            "gender": "M", 
+            "age": "39", 
+            "tag": "111A 05E1", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Michael", 
+            "last_name": "Brosilow", 
+            "gender": "M", 
+            "age": "58", 
+            "tag": "111A 05E2", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Mac", 
+            "last_name": "Kittrell", 
+            "gender": "M", 
+            "age": "10", 
+            "tag": "111A 05E3", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Ed", 
+            "last_name": "Zylka", 
+            "gender": "M", 
+            "age": "56", 
+            "tag": "111A 05E4", 
+            "team": "None"
+        }
+    ], 
+    "race_name": "Heat 10", 
+    "race_date": "2015-06-19"
+}

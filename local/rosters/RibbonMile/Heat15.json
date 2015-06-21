@@ -1,0 +1,39 @@
+{
+    "director_username": "alsal", 
+    "readers": [
+        "A1010",
+        "A1011",
+        "A1012",
+        "A1013",
+        "A1014",
+        "A1015"
+    ], 
+    "athletes": [
+        {
+            "first_name": "Emil", 
+            "last_name": "Bojanov", 
+            "gender": "M", 
+            "age": "31", 
+            "tag": "111A 05AB", 
+            "team": ""
+        }, 
+        {
+            "first_name": "Sam", 
+            "last_name": "Penzenstadler", 
+            "gender": "M", 
+            "age": "22", 
+            "tag": "111A 05AC", 
+            "team": ""
+        }, 
+        {
+            "first_name": "Abel", 
+            "last_name": "Zerazion", 
+            "gender": "M", 
+            "age": "27", 
+            "tag": "111A 05AD", 
+            "team": ""
+        }
+    ], 
+    "race_name": "Heat 15", 
+    "race_date": "2015-06-19"
+}

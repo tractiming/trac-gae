@@ -1,0 +1,95 @@
+{
+    "director_username": "alsal", 
+    "readers": [
+        "A1010",
+        "A1011",
+        "A1012",
+        "A1013",
+        "A1014",
+        "A1015"
+    ], 
+    "athletes": [
+        {
+            "first_name": "Andrea", 
+            "last_name": "Walton", 
+            "gender": "F", 
+            "age": "26", 
+            "tag": "111A 05F2", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Erika", 
+            "last_name": "Hammer", 
+            "gender": "F", 
+            "age": "32", 
+            "tag": "111A 05F3", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Maryellen", 
+            "last_name": "Hale", 
+            "gender": "F", 
+            "age": "33", 
+            "tag": "111A 05F4", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Lauren", 
+            "last_name": "Dziuban", 
+            "gender": "F", 
+            "age": "39", 
+            "tag": "111A 05F5", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Gordon", 
+            "last_name": "Kane", 
+            "gender": "M", 
+            "age": "56", 
+            "tag": "111A 05F6", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Lou", 
+            "last_name": "Demarco", 
+            "gender": "M", 
+            "age": "58", 
+            "tag": "111A 05F7", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Stephan", 
+            "last_name": "Benzkofer", 
+            "gender": "M", 
+            "age": "46", 
+            "tag": "111A 05F8", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Jake", 
+            "last_name": "Sprouse", 
+            "gender": "M", 
+            "age": "15", 
+            "tag": "111A 05F9", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Jennifer ", 
+            "last_name": "Sirken", 
+            "gender": "F", 
+            "age": "34", 
+            "tag": "111A 05BD", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Heather ", 
+            "last_name": "Baker", 
+            "gender": "F", 
+            "age": "33", 
+            "tag": "111A 063C", 
+            "team": "None"
+        }
+    ], 
+    "race_name": "Heat 8", 
+    "race_date": "2015-06-19"
+}

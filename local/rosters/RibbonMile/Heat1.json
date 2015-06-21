@@ -1,0 +1,103 @@
+{
+    "director_username": "alsal", 
+    "readers": [
+        "A1010",
+        "A1011",
+        "A1012",
+        "A1013",
+        "A1014",
+        "A1015"
+    ], 
+    "athletes": [
+        {
+            "first_name": "Rita", 
+            "last_name": "Mischka", 
+            "gender": "F", 
+            "age": "59", 
+            "tag": "111A 0626", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Sonia", 
+            "last_name": "Buenrostro", 
+            "gender": "F", 
+            "age": "32", 
+            "tag": "111A 0627", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Susan", 
+            "last_name": "Avila", 
+            "gender": "F", 
+            "age": "65", 
+            "tag": "111A 0628", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Kate", 
+            "last_name": "Pastorelli", 
+            "gender": "F", 
+            "age": "40", 
+            "tag": "111A 0629", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Linda ", 
+            "last_name": "Coronado", 
+            "gender": "F", 
+            "age": "66", 
+            "tag": "111A 062A", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Anthea", 
+            "last_name": "Slotar", 
+            "gender": "F", 
+            "age": "69", 
+            "tag": "111A 062B", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Julie", 
+            "last_name": "Colbrese", 
+            "gender": "F", 
+            "age": "56", 
+            "tag": "111A 062C", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Anastasia", 
+            "last_name": "DeLeo", 
+            "gender": "F", 
+            "age": "28", 
+            "tag": "111A 062D", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Beverly", 
+            "last_name": "Price", 
+            "gender": "F", 
+            "age": "62", 
+            "tag": "111A 062E", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Judi", 
+            "last_name": "Harris", 
+            "gender": "F", 
+            "age": "44", 
+            "tag": "111A 062F", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Mary", 
+            "last_name": "Strong", 
+            "gender": "F", 
+            "age": "56", 
+            "tag": "111A 0630", 
+            "team": "None"
+        }
+    ], 
+    "race_name": "Heat 1", 
+    "race_date": "2015-06-19"
+}

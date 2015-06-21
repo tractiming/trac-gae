@@ -10,13 +10,46 @@
 
 {% block js_scripts %}
 <script type="text/javascript" src="{% static "js/timeConversion.js" %}" />
+<script type="text/javascript" src="{% static "js/access_token.js" %}"></script>
+<script>
+if (sessionStorage.access_token == null) {
+    //link to login page
+    location.href="/login";
+}
+else{
+    
+}
+
+    $(document).ready(function() {
+$("li a.logout").click(function(){
+    sessionStorage.clear();
+    location.href="/login";
+});
+    });
+
+</script>
 {% endblock %}
 
 {% block nav-items %}
-  <li><a href="/home">home</a></li>
+  <li><a href="/home">Home</a></li>
   <li><a href="/liveview">Live View</a></li>
   <li><a href="/calendar">Calendar</a></li>
   <li><a href="/create">Create</a></li>
+  <li><a class="hidden-sm hidden-md hidden-lg" href="/readers">Readers</a></li>
+  <li><a class="hidden-sm hidden-md hidden-lg" href="/settings">Settings</a></li>
+  <li><a class="logout hidden-sm hidden-md hidden-lg" href="">Logout</a></li>
+<!-- Single button -->
+  <li id="dropdown-button" class="btn-group hidden-xs">
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>
+    </button>
+    <ul class="dropdown-menu" >
+      <li><a href="/readers">Readers</a></li>
+      <li><a href="/settings">Settings</a></li>
+      <li role="separator" class="divider"></li>
+      <li><a class="logout" href="">Logout</a></li>
+    </ul>
+  </li>
 {% endblock %}
 
 {% block content %}
@@ -32,7 +65,7 @@
   //step by step jquery plugin that explains each box of form
 	jQuery(document).ready(function($) {
 
-		$("#myform").progression({
+		/*$("#myform").progression({
 		  tooltipWidth: '200',
 		  tooltipPosition: 'left',
 		  tooltipOffset: '50',
@@ -45,7 +78,7 @@
 		  tooltipBackgroundColor:'F0B922',
 		  tooltipPadding: '10',
 		  tooltipAnimate: true
-		});
+		}); */
 
 	});
 
@@ -176,6 +209,10 @@ $(document).ready(function() {
 			    		'</tbody>');
 			    		$('#results').addClass('col-md-6 col-md-offset-0 colr-sm-8 col-sm-offset-0');
                        for (var ii=0;json.length;ii++){
+                       		var tableNumber = 1;
+                       		if(ii == 20){
+                       			tableNumber++;
+                       		}
 						   //alert(ii);
 						   id = json[ii].id;
 						   name = json[ii].name;
@@ -192,6 +229,7 @@ $(document).ready(function() {
 						   sTS = sTS.substring(0, 25);
 						   var sTE = UTC2local(end, end2);
 						   sTE = sTE.substring(0,25);
+						   $('#results tbody').attr('id', ''+tableNumber+'')
 			    			$('#results tbody').append(
 			    				'<tr>'+
 			    				'<td class="hidden-xs hidden-sm hidden-md hidden-lg">' + id + '</td>' +
@@ -454,12 +492,12 @@ $("body").on('click', 'tr',function(){
 
     <div class="container-fluid">  
     	<div class="row">
-    		<div class="col-md-6">
+    		<div class="col-md-6" align="center">
      			<h2>Create</h2>
      		</div>
      		<div class="col-md-5">
      		</div class="col-md-5">
-     		<div class="col-md-1">
+     		<div class="col-md-1" align="center">
      			<button type="button" class="btn btn-default" id="create" data-toggle="modal" data-target="#myModal">
      				<span class="glyphicon glyphicon-plus" aria-hidden="true"> </span>
      			</button>
@@ -500,23 +538,23 @@ $("body").on('click', 'tr',function(){
 		  	</p>
 		 	 <p>
 		     	 <label for="">Workout Title:</label> 
-		     	 <input data-progression="" type="text" data-helper="Title of the workout to help you identify it later" id="title" value="" placeholder="" required data-parsley-group="block1" />
+		     	 <input data-progression="" type="text" id="title" value="" placeholder="" required data-parsley-group="block1" />
 		 	 </p>
 		   	<p>
 		   	   <label for="">Start Date:</label> 
-		   	   <input data-progression="" type="text" data-helper="Date that you plan to start the workout, YYYY-MM-DD" id="start_date" value="" placeholder="" required data-parsley-group="block1" />
+		   	   <input data-progression="" type="text" id="start_date" value="" placeholder="" required data-parsley-group="block1" />
 		 	 </p>
 		 	   <p>
 		  	    <label for="">End Date:</label> 
-		  	    <input data-progression="" type="text" data-helper="Date that you plan to end the workout, YYYY-MM-DD" id="end_date" value="" placeholder="" required data-parsley-group="block1"/>
+		  	    <input data-progression="" type="text" id="end_date" value="" placeholder="" required data-parsley-group="block1"/>
 		  	</p>
 		  	   <p>
 		  	    <label for="">Interval Distance:</label> 
-		   	   <input data-progression="" type="text" data-helper="Distance (in meters) of the repeat being run. I.E. in 4x400, put 400 " id="distance" value="" placeholder=""/>
+		   	   <input data-progression="" type="text" id="distance" value="" placeholder=""/>
 		  	</p>
 		  	   <p>
 		  	    <label for="">Track Size:</label> 
-		   	   <input data-progression="" type="text" data-helper="Size of the track you are using, I.E. 200, 300, 400" id="size" value="" placeholder=""/>
+		   	   <input data-progression="" type="text" id="size" value="" placeholder=""/>
 		 	 </p>
 		     
 		    	 <p>
@@ -541,10 +579,10 @@ $("body").on('click', 'tr',function(){
 		   	  </p>
 		  	  <br>
 		     
-		          <div class="button-container">
-			<button name="" class="validate" id="delete" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal">Delete</button>
-		    <input type="submit" name="" class="validate" id="save" value="Save" />
-		    <input type="submit" name="" class="validate" id="update" value="Update" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal" />
+		          <div class="button-container modal-footer">
+			<button name="" class="btn btn-primary col-md-3 col-sm-3 col-xs-3" id="delete" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal">Delete</button>
+		    <input type="submit" name="" class="btn btn-primary" id="save" value="Save" />
+		    <input type="submit" name="" class="btn btn-primary col-md-5 col-sm-5 col-xs-5" id="update" value="Update" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal" />
 	                         </div>
 	                         
 		</form>		
@@ -558,6 +596,12 @@ $("body").on('click', 'tr',function(){
       <div class="row">
       	<h1 id="score-title">Recent Workouts</h1>
        <div id="results" class="table"></div>
+       <nav>
+       		<ul class="pagination">
+       			<li><a href='#1'>1</a></li>
+       			<li><a href='#2'>2</a></li>
+       		</ul>
+       	</nav>
        </div>
        </div>
    </div>

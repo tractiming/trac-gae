@@ -1,0 +1,55 @@
+{
+    "director_username": "alsal", 
+    "readers": [
+        "A1010",
+        "A1011",
+        "A1012",
+        "A1013",
+        "A1014",
+        "A1015"
+    ], 
+    "athletes": [
+        {
+            "first_name": "Megan", 
+            "last_name": "Janezic", 
+            "gender": "F", 
+            "age": "23", 
+            "tag": "111A 05BA", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Rebecca", 
+            "last_name": "Zaiter", 
+            "gender": "F", 
+            "age": "22", 
+            "tag": "111A 05BB", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Columba", 
+            "last_name": "Montes", 
+            "gender": "F", 
+            "age": "36", 
+            "tag": "111A 05BC", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Audrey", 
+            "last_name": "Ernst", 
+            "gender": "F", 
+            "age": "15", 
+            "tag": "111A 05AF", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Mary", 
+            "last_name": "Ballinger", 
+            "gender": "F", 
+            "age": "27", 
+            "tag": "111A 05B0", 
+            "team": "None"
+        }
+    ], 
+    "race_name": "Heat 14", 
+    "race_date": "2015-06-19"
+}

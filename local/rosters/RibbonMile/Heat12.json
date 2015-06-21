@@ -1,0 +1,47 @@
+{
+    "director_username": "alsal", 
+    "readers": [
+        "A1010",
+        "A1011",
+        "A1012",
+        "A1013",
+        "A1014",
+        "A1015"
+    ], 
+    "athletes": [
+        {
+            "first_name": "Matt", 
+            "last_name": "Monroe", 
+            "gender": "M", 
+            "age": "43", 
+            "tag": "111A 05BE", 
+            "team": ""
+        }, 
+        {
+            "first_name": "Joshua", 
+            "last_name": "Duncan", 
+            "gender": "M", 
+            "age": "38", 
+            "tag": "111A 05BF", 
+            "team": ""
+        }, 
+        {
+            "first_name": "Tim", 
+            "last_name": "Conheady", 
+            "gender": "M", 
+            "age": "58", 
+            "tag": "111A 05C0", 
+            "team": ""
+        }, 
+        {
+            "first_name": "Nicholas", 
+            "last_name": "Spanier", 
+            "gender": "M", 
+            "age": "16", 
+            "tag": "111A 05C1", 
+            "team": ""
+        }
+    ], 
+    "race_name": "Heat 12", 
+    "race_date": "2015-06-19"
+}

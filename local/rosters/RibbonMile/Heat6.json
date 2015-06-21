@@ -1,0 +1,71 @@
+{
+    "director_username": "alsal", 
+    "readers": [
+        "A1010",
+        "A1011",
+        "A1012",
+        "A1013",
+        "A1014",
+        "A1015"
+    ], 
+    "athletes": [
+        {
+            "first_name": "Allison", 
+            "last_name": "Schultz", 
+            "gender": "F", 
+            "age": "31", 
+            "tag": "111A 05FA", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Angela", 
+            "last_name": "Hanshaw", 
+            "gender": "F", 
+            "age": "44", 
+            "tag": "111A 05FB", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Sherri", 
+            "last_name": "Schultz", 
+            "gender": "F", 
+            "age": "49", 
+            "tag": "111A 05FC", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Emily", 
+            "last_name": "Lenz", 
+            "gender": "F", 
+            "age": "31", 
+            "tag": "111A 05FD", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Sarah", 
+            "last_name": "Lickus", 
+            "gender": "F", 
+            "age": "31", 
+            "tag": "111A 05FE", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Janel", 
+            "last_name": "Cendak", 
+            "gender": "F", 
+            "age": "37", 
+            "tag": "111A 05FF", 
+            "team": "None"
+        }, 
+        {
+            "first_name": "Ashley", 
+            "last_name": "Lackovich", 
+            "gender": "F", 
+            "age": "31", 
+            "tag": "111A 0600", 
+            "team": "None"
+        }
+    ], 
+    "race_name": "Heat 6", 
+    "race_date": "2015-06-19"
+}
