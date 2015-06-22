@@ -1,4 +1,4 @@
-﻿RaceTab 3 by MileSplit                  Registered to: IPTT, Illinois Prep Top Timing
+RaceTab 3 by MileSplit                  Registered to: IPTT, Illinois Prep Top Timing
 
                      Run The Ribbon Mile - 6/20/2015 9:27:01 PM                      
                            Maggie Daley Park, Chicago, IL                            
@@ -25,91 +25,96 @@
  16 Mary Ballinger           Unnattached            5:19.47 15
  17 Megan Janezic            CARA                   5:20.26 15
  18 Daniel Nowak             Unnattached            5:24.04 14
- 19 Tim Conheady             Elmhurst Running Clu   5:28.50 13
- 20 Matt Monroe              Unnattached            5:40.28  6
- 21 Nicholas Spanier         St Viator              5:40.39 13
- 22 Bob Geiger               Unnattached            5:41.79 12
- 23 Unknown Unknown                                 5:43.30 10
- 24 Samuel Shideler          Unnattached            5:53.70 12
- 25 Nilay Gandhi             Unnattached            5:53.81 12
- 26 Dan O'Connell            Track and Trough Ath   5:55.64  6
- 27 Abel Zerazion            Unnattached            6:02.19 10
- 28 Joseph Waih              Unnattached            6:04.04  9 .40
- 28 Mark Spanier             Unnattached            6:04.04 12 .40
- 30 Michael Brosilow         Oak Park Running Clu   6:05.25 10
- 31 Akili Parekh             Unnattached            6:06.79 10
- 32 Regin Igloria            Unnattached            6:08.90 10
- 33 Jeffery Heath            Unnattached            6:10.89 12
- 34 Mike Prest               Niles West/Oakton Ru   6:11.74  1
- 35 Kevin Kernahan           Unnattached            6:20.41 10
- 36 Reuben Cox               Unnattached            6:25.40  9
- 37 Kathleen Beccavin        Universal Sole         6:25.57  9
- 38 Zach Freeman             Unnattached            6:32.46 12
- 39 Erika Hammer             Unnattached            6:32.59  9
- 40 Alicia Hanus             Unnattached            6:33.18  9
- 41 Michelle Parekh          Unnattached            6:42.31  9
- 42 Mac Kittrell             Unnattached            6:43.80 10
- 43 Ronn Ross                Unnattached            6:46.70  9
- 44 Jennifer Quinn           Unnattached            6:47.39  9
- 45 Stephan Benzkofer        Unnattached            6:47.72  8
- 46 Jake Sprouse             Kenwood Academy        6:47.79  8
- 47 Stacy Nigrelli           Unnattached            6:50.26  9
- 48 Lyndsey McKay            Unnattached            6:57.40  9
- 49 Gordon Kane              Unnattached            6:58.12  8
- 50 David Lessner            Unnattached            7:00.33  2
- 51 Ashley Lackovich         Unnattached            7:00.40  2
- 52 Heather Baker            Unnattached            7:09.75  8
- 53 Jennifer Sirken          Unnattached            7:11.57  8
- 54 Darren Dematoff          Unnattached            7:13.44  7
- 55 John Bowden              Unnattached            7:13.67  7
- 56 Andrea Walton            Unnattached            7:16.52  8
- 57 Allison Schultz          Unnattached            7:16.91  6
- 58 Emily Lenz               Unnattached            7:28.93  6
- 59 Marc Rosen               Unnattached            7:29.05  7
- 60 Maryellen Hale           Unnattached            7:31.95  8
- 61 Gina Rinaldi             Unnattached            7:33.09  5
- 62 Arthur Bresnahan         Courtney Thompson Ru   7:34.52  5
- 63 Payton Schultz           Unnattached            7:38.47  4
- 64 Lauren Dziuban           Unnattached            7:38.49  8
- 65 Gregory Leos             Unnattached            7:41.64 10
- 66 sherri schultz           Unnattached            7:44.10  6
- 67 Lou Demarco              Unnattached            7:45.60  8
- 68 Ania Jarosz              Unnattached            8:08.32  3 .320
- 68 Angela Hanshaw           Unnattached            8:08.32  6 .320
- 70 Dash Gabryszewski        0                      8:12.44  7
- 71 Petra Rose               Unnattached            8:13.23  3
- 72 Samantha Zidek-Zvonar    Unnattached            8:17.00  1
- 73 John Kasimos             Unnattached            8:25.01  3
- 74 Kim Jones                Unnattached            8:32.26  5
- 75 Nabil Wanna              Unnattached            8:33.73  3
- 76 Gregory Itahara          Unnattached            8:39.61  3
- 77 Dawn Barcus              Frontrunners Chicago   8:39.78  2
- 78 Jenny Kittrell           Unnattached            8:40.70  5
- 79 Olivia Kittrell          Unnattached            8:42.80  4
- 80 Stephanie Ferrer         Unnattached            8:42.82  5
- 81 Betsy Kittrell           Unnattached            8:44.62  4
- 82 Curt Hansman             CARA                   8:45.78  4
- 83 Melissa Stockwell        Unnattached            8:48.91  7
- 84 Lee Brown                Unnattached            8:51.26  4
- 85 Matthew Moroko           Unnattached            9:11.88  2
- 86 Janel Cendak             Unnattached            9:18.28  3
- 87 John Meyer               Unnattached            9:18.30  3
- 88 Matthew Wenzel           Unnattached            9:20.95  2
- 89 Sonia Buenrostro         Unnattached            9:22.40  6
- 90 Henry Oconnor            Unnattached            9:25.79  2
- 91 Sean Oconnor             Unnattached            9:25.85  2
- 92 Gigi Warren              Unnattached            9:26.27  3
- 93 Kate Pastorelli          Unnattached            9:52.96  1
- 94 Julie Colbrese           Unnattached           10:18.33  1
- 95 Martha Strong            Unnattached           10:18.84  2
- 96 peter pietrusiewicz      Unnattached           10:36.08  1
- 97 Anastasia DeLeo          Unnattached           10:36.29  1
- 98 Anthea Slotar            Unnattached           10:52.47  1
- 99 chris villa              Unnattached           11:29.93  2
-100 Nicole Turner            Unnattached           11:41.85  2
-101 Linda Coronado           Unnattached           12:07.96  1
-102 Judi Harris              Unnattached           12:15.83  1
-103 Beverly Price            Unnattached           13:03.86  1
+ 19 Tim Conheady             Elmhurst Running Clu   5:28.50 13
+
+ 20 Dallas Coffey            N/A                    5:34.88 10
+ 21 Matt Monroe              Unnattached            5:40.28  6
+ 22 Nicholas Spanier         St Viator              5:40.39 13
+ 23 Bob Geiger               Unnattached            5:41.79 12
+ 24 Unknown Unknown                                 5:43.30 10
+ 25 Samuel Shideler          Unnattached            5:53.70 12
+ 26 Nilay Gandhi             Unnattached            5:53.81 12
+ 27 Dan O'Connell            Track and Trough Ath   5:55.64  6
+
+ 28 Lauren Sykora            N/A                    6:01.34 10
+ 29 Abel Zerazion            Unnattached            6:02.19 10
+ 30 Joseph Waih              Unnattached            6:04.04  9 .40
+ 31 Mark Spanier             Unnattached            6:04.04 12 .40
+ 32 Michael Brosilow         Oak Park Running Clu   6:05.25 10
+ 33 Akili Parekh             Unnattached            6:06.79 10
+ 34 Regin Igloria            Unnattached            6:08.90 10
+ 35 Jeffery Heath            Unnattached            6:10.89 12
+ 36 Mike Prest               Niles West/Oakton Ru   6:11.74  1
+ 37 Kevin Kernahan           Unnattached            6:20.41 10
+ 38 Reuben Cox               Unnattached            6:25.40  9
+ 39 Kathleen Beccavin        Universal Sole         6:25.57  9
+ 40 Zach Freeman             Unnattached            6:32.46 12
+ 41 Erika Hammer             Unnattached            6:32.59  9
+ 42 Alicia Hanus             Unnattached            6:33.18  9
+ 43 Michelle Parekh          Unnattached            6:42.31  9
+ 44 Mac Kittrell             Unnattached            6:43.80 10
+ 45 Ronn Ross                Unnattached            6:46.70  9
+
+ 46 Jennifer Quinn           Unnattached            6:47.39  9
+ 47 Stephan Benzkofer        Unnattached            6:47.72  8
+ 48 Jake Sprouse             Kenwood Academy        6:47.79  8
+ 49 Stacy Nigrelli           Unnattached            6:50.26  9
+ 50 Lyndsey McKay            Unnattached            6:57.40  9
+ 51 Gordon Kane              Unnattached            6:58.12  8
+ 52 David Lessner            Unnattached            7:00.33  2
+ 53 Ashley Lackovich         Unnattached            7:00.40  2
+ 54 Heather Baker            Unnattached            7:09.75  8
+ 55 Jennifer Sirken          Unnattached            7:11.57  8
+ 56 Darren Dematoff          Unnattached            7:13.44  7
+ 57 John Bowden              Unnattached            7:13.67  7
+ 58 Andrea Walton            Unnattached            7:16.52  8
+ 59 Allison Schultz          Unnattached            7:16.91  6
+ 60 Emily Lenz               Unnattached            7:28.93  6
+ 61 Marc Rosen               Unnattached            7:29.05  7
+ 62 Maryellen Hale           Unnattached            7:31.95  8
+ 63 Gina Rinaldi             Unnattached            7:33.09  5
+ 64 Arthur Bresnahan         Courtney Thompson Ru   7:34.52  5
+ 65 Payton Schultz           Unnattached            7:38.47  4
+ 66 Lauren Dziuban           Unnattached            7:38.49  8
+ 67 Gregory Leos             Unnattached            7:41.64 10
+ 68 sherri schultz           Unnattached            7:44.10  6
+ 69 Lou Demarco              Unnattached            7:45.60  8
+ 70 Ania Jarosz              Unnattached            8:08.32  3 .320
+ 71 Angela Hanshaw           Unnattached            8:08.32  6 .320
+ 72 Dash Gabryszewski        0                      8:12.44  7
+ 73 Petra Rose               Unnattached            8:13.23  3
+ 74 Samantha Zidek-Zvonar    Unnattached            8:17.00  1
+ 75 John Kasimos             Unnattached            8:25.01  3
+ 76 Kim Jones                Unnattached            8:32.26  5
+ 77 Nabil Wanna              Unnattached            8:33.73  3
+ 78 Gregory Itahara          Unnattached            8:39.61  3
+ 79 Dawn Barcus              Frontrunners Chicago   8:39.78  2
+ 80 Jenny Kittrell           Unnattached            8:40.70  5
+ 81 Olivia Kittrell          Unnattached            8:42.80  4
+ 82 Stephanie Ferrer         Unnattached            8:42.82  5
+ 83 Betsy Kittrell           Unnattached            8:44.62  4
+ 84 Curt Hansman             CARA                   8:45.78  4
+ 85 Melissa Stockwell        Unnattached            8:48.91  7
+ 86 Lee Brown                Unnattached            8:51.26  4
+ 87 Matthew Moroko           Unnattached            9:11.88  2
+ 88 Janel Cendak             Unnattached            9:18.28  3
+ 89 John Meyer               Unnattached            9:18.30  3
+ 90 Matthew Wenzel           Unnattached            9:20.95  2
+ 91 Sonia Buenrostro         Unnattached            9:22.40  6
+ 92 Henry Oconnor            Unnattached            9:25.79  2
+ 93 Sean Oconnor             Unnattached            9:25.85  2
+ 94 Gigi Warren              Unnattached            9:26.27  3
+ 95 Kate Pastorelli          Unnattached            9:52.96  1
+ 96 Julie Colbrese           Unnattached           10:18.33  1
+ 97 Martha Strong            Unnattached           10:18.84  2
+ 98 peter pietrusiewicz      Unnattached           10:36.08  1
+ 99 Anastasia DeLeo          Unnattached           10:36.29  1
+ 100 Anthea Slotar            Unnattached           10:52.47  1
+ 101 chris villa              Unnattached           11:29.93  2
+102 Nicole Turner            Unnattached           11:41.85  2
+103 Linda Coronado           Unnattached           12:07.96  1
+104 Judi Harris              Unnattached           12:15.83  1
+105 Beverly Price            Unnattached           13:03.86  1
 104 Susan Avila              Unnattached           14:34.02  1
 SCR Rita Mischka             Unnattached                 NT  1
 SCR Mary Strong              Unnattached                 NT  2
