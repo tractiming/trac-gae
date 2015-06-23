@@ -82,13 +82,13 @@ $(function() {
 				if (score.runners == '') {
 					spinner.stop();
 					$('#notifications .notification-default').show();
-					$('.button-container').hide();
+					//$('.button-container').hide();
 					$('#results-table').hide().empty();
 				} else {
 					// hide spinner and notification and show results
 					spinner.stop();
 					$('#notifications .notification-default').hide();
-					$('.button-container').show();
+					//$('.button-container').show();
 					$('#results-table').empty().show();
 
 					// style it with some bootstrap
