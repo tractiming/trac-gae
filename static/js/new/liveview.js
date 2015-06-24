@@ -79,95 +79,77 @@ $(function() {
 				};
 				//*/
 
-				json = $.parseJSON(json.results);
+				var results = $.parseJSON(json.results);
 
-				//if empty show notification, hide spinner, and show button
-				if (json.runners == "") {
-					$(".modal-animate").hide();
-					$("h6.notification.notification-default").show();
-					$("input#submit.gen_btn").show();
-					$('#results').empty();
+				// add heat name
+				$('#results-title').empty();
+				$('#results-title').append('Live Results: ' + json.name);
+
+				// if empty, hide spinner and show notification
+				if (results.runners == '') {
+					spinner.stop();
+					$('#notifications .notification-default').show();
+					//$('#download-container').hide();
+					$('#results-table').hide().empty();
 				} else {
-					//hide spinner, show button, show results
-					$("div.inner").show();
-					$(".modal-animate").hide();
-					$("h6.notification.notification-default").hide();
-					$("input#submit.gen_btn").show();
-					var longest = 0;
-					var importantRow;
+					// hide spinner and notification and show results
+					spinner.stop();
+					$('#notifications .notification-default').hide();
+					//$('#download-container').show();
+					$('#results-table').empty().show();
 
-					for (var ii = 0; ii < json.runners.length; ii++) {
-						for (var jj = 0; jj < json.runners[ii].interval.length; jj++){
-							if (jj == 0) {
-								//initilize temporary variable
-								var tempLength = json.runners[ii].interval[jj].length;
-							} else {
-								tempLength = tempLength + json.runners[ii].interval[jj].length;
-							}
-						}
-						if (longest < tempLength) {
-							longest = tempLength;
-							importantRow = ii;
-						}
-					}
+					// style it with some bootstrap
+					$('#results').addClass('col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2');
 
-					$('#results').empty();
-					for (var i=0; i < json.runners.length; i++) {
-						//print names and enter name array
-						var name = json.runners[i].name;
+					$('#results-table').append(
+						'<thead>' + 
+							'<tr>' +
+								'<th>Name</th>' +
+								'<th>Latest Split</th>' +
+								'<th>Total Time</th>' +
+							'</tr>' +
+						'</thead>' +
+						'<tbody>' +
+						'</tbody>'
+					);
 
-						if (i==0) {
-							$('#results').append('<tr><td>Name</td></tr>');
-							$('#results').append('<tr class="odd"><td>'+name+'</td></tr>');
-						} else if((i)%2 ==0) {
-							$('#results').append('<tr class="odd"><td>'+name+'</td></tr>');
-						} else {
-							$('#results').append('<tr><td>'+name+'</td></tr>');
-						}
+					for (var i=0; i < results.runners.length; i++) {
+						var interval = results.runners[i].interval;
 
-						var finaltime = 0;
+						$('#results-table>tbody').append(
+							'<tr id="results'+i+'" class="accordion-toggle" data-toggle="collapse" data-parent="#results-table" data-target="#collapse'+i+'" aria-expanded="false" aria-controls="collapse'+i+'">' + 
+								'<td>' + results.runners[i].name + '</td>' + 
+								'<td>' + interval[interval.length-1][0] + '</td>' + 
+								'<td>0</td>' + 
+							'</tr>' + 
+							'<tr></tr>'	+		// for correct stripes 
+							'<tr class="splits">' +
+								'<td colspan="3">' +
+									'<div id="collapse'+i+'" class="accordion-body collapse" aria-labelledby="results'+i+'">' + 
+										'<table class="table" style="text-align:center; background-color:transparent">' +
+											/*'<thead>' + 
+												'<tr>' +
+													'<th>Split</th>' +
+													'<th>Time</th>' +
+												'</tr>' +
+											'</thead>' + */
+											'<tbody>' +
+											'</tbody>' +
+										'</table>' +
+									'</div>' + 
+								'</td>' +
+							'</tr>'
+						);
 
-						for (var j=0; j < json.runners[i].interval.length; j++) {
-							//iterate over interval to get to nested time arrays
-							var interval = json.runners[i].interval[j];
-							//$('#results').append( "Interval Subset: ")
+						//*
+						for (var j=0; j < interval.length; j++) {
 
-							for (var k=0; k < json.runners[i].interval[j].length; k++) {
-								//interate over subarrays and pull out each individually and print
-								var subinterval = json.runners[i].interval[j][k];
-								var min = Math.floor(subinterval/60);
-								var sec = (subinterval-(min*60));
-								// $('#results').append('<td>');
-								//This if statements adds the preceding 0 to any second less than 10
-								$('#results tr:last').append('<td>'+ subinterval +'</td>');
-								/*
-								if (sec<10) {
-									$('#results tr:last').append('<td>'+ min + ':0'+ sec +'</td>');
-								} else {
-									$('#results tr:last').append('<td>'+ min + ':'+ sec +'</td>');
-								}
-								//*/
-								finaltime = finaltime + subinterval;
-								if (i==importantRow) {
-									//Puts the word 'split #' on table
-									$('#results tr:first').append('<td>' + 'Split' + '</td>');
-								}
-							}
-						}
-			  		
-			  		/*
-						//to implement total time-- not necessary for this moment
-						var minfinal = Math.floor(finaltime/60);
-						var secfinal = (finaltime-(minfinal*60));
-
-						if (secfinal<10) {
-							$('#results tr:last').append( minfinal + ':0'+ secfinal );
-						} else {
-							$('#results tr:last').append( minfinal + ':'+ secfinal);
-						}
-						if (i==0) {
-							//adds word final time to table header
-							$('#results tr:first').append('<td>Final Time</td>');
+							$('#collapse'+i+' tbody').append(
+								'<tr>' + 
+									'<td>' + (j+1) + '</td>' + 
+									'<td>' + interval[j][0] + '</td>' + 
+								'</tr>'
+							);
 						}
 						//*/
 					}

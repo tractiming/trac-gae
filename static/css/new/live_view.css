@@ -1,0 +1,15 @@
+h1 {
+  font-family: 'GothamHTF-Book', 'Helvetica', 'Arial', sans;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+tr.splits { 
+	color: #666;
+	font-weight: lighter; }
+	tr.splits:hover {
+		background-color: inherit !important; }
+	tr.splits>td {
+		padding: 0 !important; 
+		border-style: none !important;
+	}
