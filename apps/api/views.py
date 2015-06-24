@@ -4,6 +4,7 @@ from django.contrib.auth.models import User, Group
 from django.http import HttpResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
+
 from django.db import IntegrityError
 from django.utils import timezone
 from django.core.cache import cache
@@ -218,6 +219,7 @@ class ScoringViewSet(viewsets.ModelViewSet):
         return sessions  
         
 class TimingSessionViewSet(viewsets.ModelViewSet):
+
     """
     Returns a list of all sessions associated with the user.
     """
@@ -227,7 +229,6 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Overrides default method to filter sessions by user."""
         user = self.request.user
-
         # If the user is an athlete, list all the workouts he has run.
         if is_athlete(user):
             ap = AthleteProfile.objects.get(user=user)
@@ -236,11 +237,10 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         # If the user is a coach, list all sessions he manages.
         elif is_coach(user):
             sessions = TimingSession.objects.filter(manager=user)
-        
+            
         # If not a user or coach, list all public sessions.
         else:
             sessions = TimingSession.objects.filter(private=False)
-
         return sessions    
 
     def pre_save(self, obj):
@@ -256,7 +256,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         t=TimingSession.objects.latest('id')
         r=Reader.objects.filter(owner=user)
         t.readers.add(*r)
-        t.save()    
+        t.save()
 
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))
@@ -401,6 +401,25 @@ def post_splits(request):
     # this same endpoint to retrieve the server time. 
     elif request.method == 'GET':
         return Response({str(timezone.now())}, status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes((permissions.AllowAny,))
+def sessions_paginate(request):
+    begin = int(request.GET.get('i1'))
+    stop = int(request.GET.get('i2'))
+    user = request.user
+    if is_coach(user):
+        table = TimingSession.objects.filter(manager=user).values()
+    else:
+        table = TimingSession.objects.filter(private='false').values()
+    i = 1
+    result = []
+    for instance in table:
+        instance['id'] = i
+        i += 1
+        if instance['id'] >= begin and instance['id'] <= stop:
+            result.append(instance)
+    return Response(result, status.HTTP_200_OK)
 
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))

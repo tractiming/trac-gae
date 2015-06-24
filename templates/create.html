@@ -55,7 +55,9 @@ $("li a.logout").click(function(){
 {% block content %}
 
 <script>
-
+	var mostInstance= 0;
+	var instanceFirst = 1;
+	var instanceLast = 5;
 	if (sessionStorage.usertype == 'athlete'){
 			    location.href="/home.html";
 		}
@@ -64,6 +66,7 @@ $("li a.logout").click(function(){
 <script>
   //step by step jquery plugin that explains each box of form
 	jQuery(document).ready(function($) {
+
 
 		/*$("#myform").progression({
 		  tooltipWidth: '200',
@@ -125,8 +128,8 @@ $(document).ready(function() {
                interval_number:'0',
                filter_choice:filter,
                private:privateselect,
-               
-           },
+           }, 
+
            // Login was successful.
            success: function(data) {
 		    //hide spinner, success modal, and reset form
@@ -164,9 +167,14 @@ $(document).ready(function() {
 		  //alert(path);
 		  //alert(path);
 		   $.ajax({
-             url: "/api/sessions/",
+             url: "/api/session_Pag/",
 		     headers: {Authorization: "Bearer " + sessionStorage.access_token},
                     //force to handle it as text
+                    data: {
+                    	i1: instanceFirst,
+                    	i2: instanceLast,
+
+                    },
                     dataType: "text",
                     success: function(data) {
                         //alert(data);
@@ -210,9 +218,7 @@ $(document).ready(function() {
 			    		$('#results').addClass('col-md-6 col-md-offset-0 colr-sm-8 col-sm-offset-0');
                        for (var ii=0;json.length;ii++){
                        		var tableNumber = 1;
-                       		if(ii == 20){
-                       			tableNumber++;
-                       		}
+                       		mostInstance++;
 						   //alert(ii);
 						   id = json[ii].id;
 						   name = json[ii].name;
@@ -419,7 +425,18 @@ $("body").on('click', 'tr',function(){
 			$("div.notification.delete-success").hide();
 			$("div.notification.notification-warning").hide();
 		});
-
+		$("body").on('click', 'button#prev',function(f){
+			if(instanceFirst != 1){
+				instanceFirst -= 5;
+				instanceLast -= 5;
+			}
+			loadworkouts();
+		});
+		$("body").on('click', 'button#next',function(f){
+			instanceFirst += 5;
+			instanceLast += 5;
+			loadworkouts();
+		});
 		$("body").on('click', 'input#update',function(f){
 	//alert($(this).html());
 	  f.preventDefault();
@@ -596,12 +613,12 @@ $("body").on('click', 'tr',function(){
       <div class="row">
       	<h1 id="score-title">Recent Workouts</h1>
        <div id="results" class="table"></div>
-       <nav>
-       		<ul class="pagination">
-       			<li><a href='#1'>1</a></li>
-       			<li><a href='#2'>2</a></li>
-       		</ul>
-       	</nav>
+     	<button type="button" class="btn btn-default" id="prev">
+     				<span class="glyphicon glyphicon-triangle-left" aria-hidden="true"> </span>
+     			</button>
+     	<button type="button" class="btn btn-default" id="next">
+     				<span class="glyphicon glyphicon-triangle-right" aria-hidden="true"> </span>
+     			</button>
        </div>
        </div>
    </div>
