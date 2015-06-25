@@ -4,12 +4,14 @@
 
 <!-- Head -->
 {% block stylesheets %}
+	<link href="{% static "css/fullcalendar.css" %}" rel="stylesheet" type="text/css">
 	<link href="{% static "css/new/live_view.css" %}" rel='stylesheet' type='text/css'>
 {% endblock %}
 
 {% block js_scripts %}
 	<script type="text/javascript" src="{% static "js/access_token.js" %}"></script>
-	<script type="text/javascript" src="{% static "js/new/liveview.js" %}"></script>
+	<script type="text/javascript" src="{% static "js/new/live_view.js" %}"></script>
+	<script type="text/javascript" src="{% static "js/fullcalendar.js" %}"></script>
 {% endblock %}
 
 <!-- Body -->
@@ -57,12 +59,26 @@
 		</div>
 	</div>
 
+	<div id="calendar-overlay" style="display: none;">
+		<div class="calendar-container col-lg-7 col-md-7 col-sm-9 col-xs-12">
+			<div class="calendar-dialog">
+				<div id="calendar">
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<div id="content" class="container-fluid">
 		<div class="container">
 			<div class="row">
 				<div class="col-md-3 col-sm-4 col-xs-6">
-					<div class="menu-btn" style="display: inline-block;">
+					<div class="menu-btn" style="display:inline-block;">
 						<span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span> Heat Menu
+					</div>
+				</div>
+				<div class="col-md-3 col-md-offset-6 col-sm-4 col-sm-offset-4 col-xs-6" style="text-align:right;">
+					<div id="calendar-btn" style="display:inline-block;">
+						<span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> Calendar
 					</div>
 				</div>
 			</div>

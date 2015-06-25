@@ -3,7 +3,10 @@ var selectedID;
 //When DOM loaded we attach click event to button
 $(function() {
 
-	var updateHandler, spinner;
+	var updateHandler, 
+			spinner,
+			target,
+			calendarEvents;
 
 	(function init(){
 
@@ -30,7 +33,7 @@ $(function() {
 			hwaccel: false, 				// Whether to use hardware acceleration
 			position: 'absolute'	 	// Element positioning
 		}
-		var target = document.getElementById('spinner');
+		target = document.getElementById('spinner');
 		spinner = new Spinner(opts).spin(target);
 
 		// hide all notifications
@@ -60,7 +63,7 @@ $(function() {
 			success: function(data) {
 				var json = $.parseJSON(data);
 
-				//*
+				/*
       	json = {
 					"id": 24, 
 					"name": "E9 - Boys Heat 2", 
@@ -222,13 +225,21 @@ $(function() {
 					spinner.stop();
 				} else {
 					$('#notifications notification-default2').hide();
-					var Array = [];
-					for (var ii=0; ii < json.length; ii++){
-						$('#linkedlist').append('<tr><td>'+json[ii].name+'</td></tr>');
-						$('ul.menulist').append('<li><a href="#">'+json[ii].name+'</a></li>');
-						Array.push(json[ii].id);
+					var arr = [];
+					calendarEvents = [];
+					for (var i=0; i < json.length; i++){
+						// add events to event menu
+						$('#linkedlist').append('<tr><td>'+json[i].name+'</td></tr>');
+						$('ul.menulist').append('<li><a href="#">'+json[i].name+'</a></li>');
+						arr.push(json[i].id);
+
+						// add events to calendar event list
+						var url = json[i].id;
+						var str = json[i].start_time;
+						str = str.slice(0,10);
+						calendarEvents.push({title : json[i].name, url : url, start : str});
 					}
-					idArray = Array;
+					idArray = arr;
 				}
 			}
 		});
@@ -257,6 +268,36 @@ $(function() {
 				return selectedID;
 			}
 		});
+	});
+
+	// attach handler for calendar menu click
+	$('#calendar-btn').click(function(e){
+		e.preventDefault();
+
+		$('#calendar-overlay').show();
+		// Calendar script
+		$('#calendar').fullCalendar({
+			editable: true,
+			eventLimit: true, // allow "more" link when too many events
+			events: calendarEvents //calls list from function above
+		});
+	});
+
+	// attach handler for hiding calendar menu
+	$('#calendar-overlay').click(function(e){
+		//e.preventDefault();
+		var cal = $('.calendar-container');
+		if (!cal.is(e.target) && cal.has(e.target).length === 0)
+			$('#calendar-overlay').hide();
+	});
+
+	// attach handler for calendar event click
+	$('.calendar-container').on('click','a.fc-day-grid-event', function(e) {
+		e.preventDefault();
+		$('#calendar-overlay').hide();
+		spinner.spin(target);
+		selectedID = parseInt($(this).attr('href').split('#'));
+		update(selectedID);
 	});
 });
 
