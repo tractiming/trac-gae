@@ -204,6 +204,7 @@ $(function() {
 		var indexClicked = $( 'ul.menulist li a' ).index( $(this) );
 
 		// set new heat id and update table contents
+		spinner.spin(target);
 		selectedID = idArray[indexClicked];
 		update(selectedID);
 	});

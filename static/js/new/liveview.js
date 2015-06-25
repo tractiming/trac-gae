@@ -35,6 +35,7 @@ $(function() {
 
 		// hide all notifications
 		$('.notification').hide();
+		$('#download-container').hide();
 
 		findScores();
 
@@ -89,13 +90,13 @@ $(function() {
 				if (results.runners == '') {
 					spinner.stop();
 					$('#notifications .notification-default').show();
-					//$('#download-container').hide();
+					$('#download-container').hide();
 					$('#results-table').hide().empty();
 				} else {
 					// hide spinner and notification and show results
 					spinner.stop();
 					$('#notifications .notification-default').hide();
-					//$('#download-container').show();
+					$('#download-container').show();
 					$('#results-table').empty().show();
 
 					// style it with some bootstrap
@@ -120,7 +121,7 @@ $(function() {
 							'<tr id="results'+i+'" class="accordion-toggle" data-toggle="collapse" data-parent="#results-table" data-target="#collapse'+i+'" aria-expanded="false" aria-controls="collapse'+i+'">' + 
 								'<td>' + results.runners[i].name + '</td>' + 
 								'<td>' + interval[interval.length-1][0] + '</td>' + 
-								'<td>0</td>' + 
+								'<td></td>' + 
 							'</tr>' + 
 							'<tr></tr>'	+		// for correct stripes 
 							'<tr class="splits">' +
@@ -142,15 +143,24 @@ $(function() {
 						);
 
 						//*
+						var total = 0;
 						for (var j=0; j < interval.length; j++) {
 
+							// add splits to subtable
 							$('#collapse'+i+' tbody').append(
 								'<tr>' + 
 									'<td>' + (j+1) + '</td>' + 
 									'<td>' + interval[j][0] + '</td>' + 
 								'</tr>'
 							);
+
+							// now calculate total time
+							total += Number(interval[j][0]);
 						}
+
+						// display total time
+						total = formatTime(String(total));
+						$('#results-table>tbody #results'+i+'>td').last().html(total);
 						//*/
 					}
 				}
@@ -160,17 +170,17 @@ $(function() {
 
 	function lastWorkout(){
 		$.ajax({
-			url: "/api/sessions/",
-			headers: {Authorization: "Bearer " + sessionStorage.access_token},
-			dataType: "text",			//force to handle it as text
+			url: '/api/sessions/',
+			headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+			dataType: 'text',			//force to handle it as text
 			success: function(data){
 				var json = $.parseJSON(data);
 				//alert(json.length);
 				if (json.length==0){ 
-					$("h6.notification.notification-default2").show();
-					$(".modal-animate").hide();
+					$('#notifications notification-default2').show();
+					spinner.stop();
 				} else {
-					$("h6.notification.notification-default2").hide();
+					$('#notifications notification-default2').hide();
 					var idjson = json[json.length - 1].id;
 					update(idjson);
 					selectedID = idjson;
@@ -182,17 +192,17 @@ $(function() {
 	
 	function lastSelected(){
 		$.ajax({
-			url: "/api/sessions/",
-			headers: {Authorization: "Bearer " + sessionStorage.access_token},
-			dataType: "text",			//force to handle it as text
+			url: '/api/sessions/',
+			headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+			dataType: 'text',			//force to handle it as text
 			success: function(data){
 				var json = $.parseJSON(data);
 				//alert(json.length);
 				if (json.length==0){ 
-					$("h6.notification.notification-default2").show();
-					$(".modal-animate").hide();
+					$('#notifications notification-default2').show();
+					spinner.stop();
 				} else {
-					$("h6.notification.notification-default2").hide();
+					$('#notifications notification-default2').hide();
 					update(selectedID);
 				}
 			}
@@ -201,17 +211,17 @@ $(function() {
 		
 	function findScores(){
 		$.ajax({
-			url: "/api/sessions/",
-			headers: {Authorization: "Bearer " + sessionStorage.access_token},
-			dataType: "text",			//force to handle it as text
+			url: '/api/sessions/',
+			headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+			dataType: 'text',			//force to handle it as text
 			success: function(data){
 				var json = $.parseJSON(data);
 				//alert(json.length);
 				if (json.length==0){ 
-					$("h6.notification.notification-default2").show();
-					$(".modal-animate").hide();
+					$('#notifications notification-default2').show();
+					spinner.stop();
 				} else {
-					$("h6.notification.notification-default2").hide();
+					$('#notifications notification-default2').hide();
 					var Array = [];
 					for (var ii=0; ii < json.length; ii++){
 						$('#linkedlist').append('<tr><td>'+json[ii].name+'</td></tr>');
@@ -223,24 +233,25 @@ $(function() {
 			}
 		});
 	}
-		
-	$("body").on('click', 'ul.menulist li a',function(){
-		//alert($(this).html());
+
+	// attach handler for heat menu item click
+	$('body').on('click', 'ul.menulist li a', function(){
 		var value = $(this).html();
-		console.log( "Index: " + $( "ul.menulist li a" ).index( $(this) ) );
-		var indexClicked= $( "ul.menulist li a" ).index( $(this) );
-		//alert(idArray);
-		//alert(idArray[indexClicked]);
+		console.log( 'Index: ' + $( 'ul.menulist li a' ).index( $(this) ) );
+		var indexClicked = $( 'ul.menulist li a' ).index( $(this) );
+
+		// set new heat id and update table contents
+		spinner.spin(target);
 		selectedID = idArray[indexClicked];
-		update(idArray[indexClicked]);
+		update(selectedID);
 	});
 	
 	//Download to Excel Script
-	$('#submit').click(function(){
+	$('#download').click(function(){
 		$.ajax({
-			url: "/api/sessions/",
-			headers: {Authorization: "Bearer " + sessionStorage.access_token},
-			dataType: "text",			//force to handle it as text
+			url: '/api/sessions/',
+			headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+			dataType: 'text',			//force to handle it as text
 			success: function(data){
 				urlfn(selectedID);
 				return selectedID;
@@ -249,102 +260,109 @@ $(function() {
 	});
 });
 
-	var urlfn = function(idjson){
-		var last_url = "/api/sessions/"+ idjson;
-		//alert(last_url);
-		$.ajax({
-			url: last_url,
-			headers: {Authorization: "Bearer " + sessionStorage.access_token},
-			dataType: "text",			//force to handle it as text
-			success: function(data) {
-				JSONToCSVConvertor(data, "TRAC_Report", true);
+// format time in seconds to mm:ss.mil
+function formatTime(timeStr) {
+	var time = Number(timeStr);
+	var mins = Math.floor(time / 60);
+	var secs = (time % 60).toFixed(3);
+	secs = Math.floor(secs / 10) == 0 ? '0'+secs : secs;
+	return mins.toString() + ':' + secs.toString();
+}
+
+function urlfn(idjson){
+	var last_url = '/api/sessions/'+ idjson;
+	//alert(last_url);
+	$.ajax({
+		url: last_url,
+		headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+		dataType: 'text',			//force to handle it as text
+		success: function(data) {
+			JSONToCSVConvertor(data, 'TRAC_Report', true);
+		}
+	});
+}
+
+function JSONToCSVConvertor(JSONData, ReportTitle, ShowLabel) {
+	//Data coming in must be json
+	//parse through it
+	var json = $.parseJSON(JSONData);
+	//now json variable contains data in json format
+	//let's display a few items
+	// $('#results').html('Date: ' + json.date);
+	//$('#results').append('<p> Workout ID: '+ json.workoutID);
+
+	var CSV = '';
+	//Set Report title in first row or line
+	CSV += ReportTitle + '\r\n\n';
+	CSV += 'Date,'+ json.start_time+'\r\n';
+	CSV += 'Workout ID,'+ json.id+'\r\n\n';
+
+	CSV += 'Name \r\n'
+	
+	//Uncomment below when using nested json in production
+	json = $.parseJSON(json.results);
+
+	//iterate into name array
+	for (var i=0; i < json.runners.length; i++) {
+		//print names and enter name array
+		var name = json.runners[i].name;
+		CSV +=name+',';
+
+		for (var j=0; j < json.runners[i].interval.length; j++) {
+			//iterate over interval to get to nested time arrays
+			var interval = json.runners[i].interval[j];
+
+			for (var k=0; k < json.runners[i].interval[j].length; k++) {
+				//interate over subarrays and pull out each individually and print
+				//do a little math to move from seconds to minutes and seconds
+				var subinterval = json.runners[i].interval[j][k];
+				var min = Math.floor(subinterval/60);
+				var sec = (subinterval-(min*60));
+				CSV += subinterval+',';
+
+				/*
+				//This if statements adds the preceding 0 to any second less than 10
+				if (sec<10)
+					CSV += min + ':0'+sec+',';
+				else
+					CSV += min + ':'+sec+',';
+				//*/
 			}
-		});
+		}
+
+		// move to new row on excel spreadsheet
+		CSV += '\r\n'
 	}
 
-	function JSONToCSVConvertor(JSONData, ReportTitle, ShowLabel) {
-		//Data coming in must be json
-		//parse through it
-		var json = $.parseJSON(JSONData);
-		//now json variable contains data in json format
-		//let's display a few items
-		// $('#results').html('Date: ' + json.date);
-		//$('#results').append('<p> Workout ID: '+ json.workoutID);
+	//if varaible is empty, alert invalid and return
+	if (CSV == '') {        
+		alert('Invalid data');
+		return;
+	}
 
-		var CSV = '';    
-    //Set Report title in first row or line
-    
-    CSV += ReportTitle + '\r\n\n';
-    CSV += 'Date,'+ json.start_time+'\r\n';
-    CSV += 'Workout ID,'+ json.id+'\r\n\n';
-   //alert(CSV);
-   CSV += 'Name \r\n'
-   //Uncomment below when using nested json in production
-   json = $.parseJSON(json.results);
-   
-	      //iterate into name array
-	       for (var i=0; i < json.runners.length; i++) {
-		  //print names and enter name array
-		  var name = json.runners[i].name; 
-		    CSV +=name+',';
-		  
-		//alert(CSV);
-   
-   
-			for (var j=0; j < json.runners[i].interval.length; j++) {
-			    //iterate over interval to get to nested time arrays
-			    var interval = json.runners[i].interval[j];
-			    for (var k=0; k < json.runners[i].interval[j].length; k++) {
-			      //interate over subarrays and pull out each individually and print
-			      //do a little math to move from seconds to minutes and seconds
-			      var subinterval = json.runners[i].interval[j][k];
-			      var min = Math.floor(subinterval/60);
-			      var sec = (subinterval-(min*60));
-			      	CSV += subinterval+',';
-			      //This if statements adds the preceding 0 to any second less than 10
-			      //if (sec<10) {
-				//CSV += min + ':0'+sec+',';
-			      //}
-			      //else
-			      //{
-			      //CSV += min + ':'+sec+',';
-			      //}
-			      
-			    }
-			  }
-			  //moves to new row on excel spreadsheet
-			  CSV += '\r\n'
-	       }
-   
-   //if varaible is empty, alert invalid and return
-    if (CSV == '') {        
-        alert("Invalid data");
-        return;
-    }
-    
-    //Generate a file name
-    var fileName = "MyReport_";
-    //this will remove the blank-spaces from the title and replace it with an underscore
-    fileName += ReportTitle.replace(/ /g,"_");   
-    
-    //Initialize file format you want csv or xls
-    var uri = 'data:text/csv;charset=utf-8,' + escape(CSV);
-    
-    // Now the little tricky part.
-    // you can use either>> window.open(uri);
-    // but this will not work in some browsers
-    // or you will not get the correct file extension    
-    
-    //this trick will generate a temp <a /> tag
-    var link = document.createElement("a");    
-    link.href = uri;
-    
-    //set the visibility hidden so it will not effect on your web-layout
-    link.style = "visibility:hidden";
-    link.download = fileName + ".csv";
-    
-    //this part will append the anchor tag and remove it after automatic click
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+	//Generate a file name
+	var fileName = 'MyReport_';
+	//this will remove the blank-spaces from the title and replace it with an underscore
+	fileName += ReportTitle.replace(/ /g,'_');
+
+	//Initialize file format you want csv or xls
+	var uri = 'data:text/csv;charset=utf-8,' + escape(CSV);
+
+	// Now the little tricky part.
+	// you can use either>> window.open(uri);
+	// but this will not work in some browsers
+	// or you will not get the correct file extension
+
+	//this trick will generate a temp <a /> tag
+	var link = document.createElement('a');    
+	link.href = uri;
+
+	//set the visibility hidden so it will not effect on your web-layout
+	link.style = 'visibility:hidden';
+	link.download = fileName + '.csv';
+
+	//this part will append the anchor tag and remove it after automatic click
+	document.body.appendChild(link);
+	link.click();
+	document.body.removeChild(link);
 }
