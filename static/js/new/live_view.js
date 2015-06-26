@@ -40,6 +40,7 @@ $(function() {
 		$('.notification').hide();
 		$('#download-container').hide();
 
+		// query for all workout sessions
 		findScores();
 
 		// display most recent table
@@ -76,7 +77,7 @@ $(function() {
 					"interval_number": 0, 
 					"filter_choice": false, 
 					"manager": "alsal", 
-					"results": "{\"date\": \"06.05.2015\", \"runners\": [{\"counter\": [1, 2, 3], \"name\": \"Max Denning\", \"interval\": [[\"64.83\"], [\"65.05\"], [\"140.015\"]]}, {\"counter\": [1, 2, 3, 4], \"name\": \"Michael Ronzone\", \"interval\": [[\"65.477\"], [\"69.653\"], [\"79.168\"], [\"79.696\"]]}], \"workoutID\": 24}", 
+					"results": "{\"date\": \"06.05.2015\", \"runners\": [{\"counter\": [1, 2, 3], \"id\": 22, \"name\": \"Max Denning\", \"interval\": [[\"64.83\"], [\"65.05\"], [\"140.015\"]]}, {\"counter\": [1, 2, 3, 4], \"id\": 18, \"name\": \"Michael Ronzone\", \"interval\": [[\"65.477\"], [\"69.653\"], [\"79.168\"], [\"79.696\"]]}], \"workoutID\": 24}", 
 					"athletes": "[\"MaxDenning\", \"MichaelRonzone\"]", 
 					"start_button_time": "2015-06-06T01:29:29Z", 
 					"private": true
@@ -100,75 +101,184 @@ $(function() {
 					spinner.stop();
 					$('#notifications .notification-default').hide();
 					$('#download-container').show();
-					$('#results-table').empty().show();
+					$('#results-table').show();
 
-					// style it with some bootstrap
-					$('#results').addClass('col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2');
+					//*
+					// add table skeleton if empty
+					if (!$.trim($('#results-table').html())) {
+						$('#results').addClass('col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2');
 
-					$('#results-table').append(
-						'<thead>' + 
-							'<tr>' +
-								'<th>Name</th>' +
-								'<th>Latest Split</th>' +
-								'<th>Total Time</th>' +
-							'</tr>' +
-						'</thead>' +
-						'<tbody>' +
-						'</tbody>'
-					);
+						$('#results-table').append(
+							'<thead>' + 
+								'<tr>' +
+									'<th>Name</th>' +
+									'<th>Latest Split</th>' +
+									'<th>Total Time</th>' +
+								'</tr>' +
+							'</thead>' +
+							'<tbody>' +
+							'</tbody>'
+						);
+					}
 
 					for (var i=0; i < results.runners.length; i++) {
+						var id = results.runners[i].id;
+						var name = results.runners[i].name;
 						var interval = results.runners[i].interval;
 
-						$('#results-table>tbody').append(
-							'<tr id="results'+i+'" class="accordion-toggle" data-toggle="collapse" data-parent="#results-table" data-target="#collapse'+i+'" aria-expanded="false" aria-controls="collapse'+i+'">' + 
-								'<td>' + results.runners[i].name + '</td>' + 
-								'<td>' + interval[interval.length-1][0] + '</td>' + 
-								'<td></td>' + 
-							'</tr>' + 
-							'<tr></tr>'	+		// for correct stripes 
-							'<tr class="splits">' +
-								'<td colspan="3">' +
-									'<div id="collapse'+i+'" class="accordion-body collapse" aria-labelledby="results'+i+'">' + 
-										'<table class="table" style="text-align:center; background-color:transparent">' +
-											/*'<thead>' + 
-												'<tr>' +
-													'<th>Split</th>' +
-													'<th>Time</th>' +
-												'</tr>' +
-											'</thead>' + */
-											'<tbody>' +
-											'</tbody>' +
-										'</table>' +
-									'</div>' + 
-								'</td>' +
-							'</tr>'
+						var row = $('#results-table>tbody>tr#results'+id);
+						// check if row exists
+						if (row.length === 1) {
+							var numDisplayedSplits = $('table#splits'+id+'>tbody>tr').length;
+							// update splits table
+							if (interval.length > numDisplayedSplits) {
+								var totalTime = $('#total-time'+id).html().split(':');
+								var total = Number(totalTime[0])*60 + Number(totalTime[1]);
+								
+								// add the new splits if not already displayed
+								for (var j=numDisplayedSplits; j < interval.length; j++) {
+									var split = String(Number(interval[j][0]).toFixed(3));
+									$('table#splits'+id+'>tbody').append(
+										'<tr>' + 
+											'<td>' + (j+1) + '</td>' + 
+											'<td>' + split + '</td>' + 
+										'</tr>'
+									);
+									total += Number(split);
+								}
+
+								// then update latest split and recalculate total
+								$('#latest-split'+id).html(interval[interval.length-1][0]);
+								$('#total-time'+id).html(formatTime(total));
+							}
+						} else {
+							addNewRow(id, name, interval);
+						}
+					}
+					//*/
+
+					/*
+					var toggled = $('#results-table>tbody>tr.accordion-toggle').map(function(){ return $(this).attr('aria-expanded'); }).get();
+					if (toggled.indexOf('true') > -1) {
+						for (var i=0; i < results.runners.length; i++) {
+							var id = results.runners[i].id;
+							var name = results.runners[i].name;
+							var interval = results.runners[i].interval;
+
+							var row = $('#results-table>tbody>tr#results'+id);
+							// check if row exists
+							if (row.length === 1) {
+								// check if expanded
+								if (row.attr('aria-expanded') === 'true') {
+									var numDisplayedSplits = $('table#splits'+id+'>tbody>tr').length;
+									// update splits table
+									if (interval.length > numDisplayedSplits) {
+										var totalTime = $('#total-time'+id).html().split(':');
+										var total = Number(totalTime[0])*60 + Number(totalTime[1]);
+										
+										// add the new splits if not already displayed
+										for (var j=numDisplayedSplits; j < interval.length; j++) {
+											var split = interval[j][0];
+											$('table#splits'+id+'>tbody').append(
+												'<tr>' + 
+													'<td>' + (j+1) + '</td>' + 
+													'<td>' + split + '</td>' + 
+												'</tr>'
+											);
+											total += Number(split);
+										}
+
+										// then update latest split and recalculate total
+										$('#latest-split'+id).html(interval[interval.length-1][0]);
+										$('#total-time'+id).html(formatTime(total));
+									}
+								} else {
+
+								}
+							} else {
+								addNewRow(id, name, interval);
+							}
+						}
+					} else {
+
+						$('#results-table').empty().show();
+
+						// style it with some bootstrap
+						$('#results').addClass('col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2');
+
+						$('#results-table').append(
+							'<thead>' + 
+								'<tr>' +
+									'<th>Name</th>' +
+									'<th>Latest Split</th>' +
+									'<th>Total Time</th>' +
+								'</tr>' +
+							'</thead>' +
+							'<tbody>' +
+							'</tbody>'
 						);
 
-						//*
-						var total = 0;
-						for (var j=0; j < interval.length; j++) {
+						for (var i=0; i < results.runners.length; i++) {
+							var id = results.runners[i].id;
+							var name = results.runners[i].name;
+							var interval = results.runners[i].interval;
 
-							// add splits to subtable
-							$('#collapse'+i+' tbody').append(
-								'<tr>' + 
-									'<td>' + (j+1) + '</td>' + 
-									'<td>' + interval[j][0] + '</td>' + 
-								'</tr>'
-							);
-
-							// now calculate total time
-							total += Number(interval[j][0]);
+							addNewRow(id, name, interval);
 						}
-
-						// display total time
-						total = formatTime(String(total));
-						$('#results-table>tbody #results'+i+'>td').last().html(total);
-						//*/
 					}
+					//*/
 				}
 			}
 		});
+	}
+
+	function addNewRow(id, name, interval){
+		$('#results-table>tbody').append(
+			'<tr id="results'+id+'" class="accordion-toggle" data-toggle="collapse" data-parent="#results-table" data-target="#collapse'+id+'" aria-expanded="false" aria-controls="collapse'+id+'">' + 
+				'<td>' + name + '</td>' + 
+				'<td id="latest-split'+id+'">' + interval[interval.length-1][0] + '</td>' + 
+				'<td id="total-time'+id+'"></td>' + 
+			'</tr>' + 
+			'<tr></tr>'	+		// for correct stripes 
+			'<tr class="splits">' +
+				'<td colspan="3">' +
+					'<div id="collapse'+id+'" class="accordion-body collapse" aria-labelledby="results'+id+'">' + 
+						'<table id="splits'+id+'" class="table" style="text-align:center; background-color:transparent">' +
+							/*'<thead>' + 
+								'<tr>' +
+									'<th>Split</th>' +
+									'<th>Time</th>' +
+								'</tr>' +
+							'</thead>' + */
+							'<tbody>' +
+							'</tbody>' +
+						'</table>' +
+					'</div>' + 
+				'</td>' +
+			'</tr>'
+		);
+
+		//*
+		var total = 0;
+		for (var j=0; j < interval.length; j++) {
+			var split = String(Number(interval[j][0]).toFixed(3))
+
+			// add splits to subtable
+			$('table#splits'+id+'>tbody').append(
+				'<tr>' + 
+					'<td>' + (j+1) + '</td>' + 
+					'<td>' + split + '</td>' + 
+				'</tr>'
+			);
+
+			// now calculate total time
+			total += Number(split);
+		}
+
+		// display total time
+		total = formatTime(String(total));
+		$('#results-table>tbody #results'+id+'>td#total-time'+id).html(total);
+		//*/
 	}
 
 	function lastWorkout(){
@@ -299,6 +409,8 @@ $(function() {
 		selectedID = parseInt($(this).attr('href').split('#'));
 		update(selectedID);
 	});
+
+	
 });
 
 // format time in seconds to mm:ss.mil
