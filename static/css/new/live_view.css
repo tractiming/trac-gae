@@ -65,3 +65,7 @@ tr.splits {
 		padding: 0 !important; 
 		border-style: none !important;
 	}
+
+#results-graph {
+	margin-bottom: 20px;
+}
