@@ -99,11 +99,10 @@ google.setOnLoadCallback(function(){
 					//*/
 
 					// add heat name
-					$('#results-title').empty();
-					$('#results-title').append('Live Results: ' + json.name);
+					$('#results-title').html('Live Results: ' + json.name);
 
 					// if empty, hide spinner and show notification
-					if (json.results.runners == '') {
+					if ($.parseJSON(json.results).runners == '') {
 						$('#notifications .notification-default').show();
 						$('#download-container').hide();
 						$('#results-nav').hide();
@@ -259,24 +258,6 @@ google.setOnLoadCallback(function(){
 		function drawGraph(json){
 			var results = $.parseJSON(json.results);
 
-			/*
-			// add table skeleton if empty
-			if (!$.trim($('#results-graph').html())) {
-
-				$('#results-graph').append(
-					'<thead>' + 
-						'<tr>' +
-							'<th>Name</th>' +
-							'<th>Latest Split</th>' +
-							'<th>Total Time</th>' +
-						'</tr>' +
-					'</thead>' +
-					'<tbody>' +
-					'</tbody>'
-				);
-			}
-			//*/
-
 			// show graph
 			$('#results-graph').show();
 
@@ -314,15 +295,17 @@ google.setOnLoadCallback(function(){
 			  vAxis: { title: 'Time'},
 			  //hAxis: {title: 'Split', minValue: 0, maxValue: 10},
 			  //vAxis: {title: 'Time', minValue: 50, maxValue: 100},
-			  //legend: { position: 'right' }
-			  series: {
-          0: {axis: 'hours studied'},
-          1: {axis: 'final grade'}
-        }
+			  legend: { position: 'bottom' }
+			  //series: {
+        //  0: {axis: 'hours studied'},
+        //  1: {axis: 'final grade'}
+        //}
 			};
 
 			var chart = new google.visualization.ScatterChart(document.getElementById('results-graph'));
 			chart.draw(data, options);
+
+			spinner.stop();
 		}
 
 		function addNewRow(id, name, interval){
@@ -389,8 +372,7 @@ google.setOnLoadCallback(function(){
 						$('#notifications notification-default2').hide();
 						var idjson = json[json.length - 1].id;
 						update(idjson, currentView);
-						currentID = idjson;
-						//alert(currentID);
+						currentID = idjson;						
 					}
 				}
 			});
@@ -456,7 +438,7 @@ google.setOnLoadCallback(function(){
 
 			// set new heat id and update table contents
 			spinner.spin(target);
-			$('#results-table').empty();
+			$('#results-table').hide().empty();
 			currentID = idArray[indexClicked];
 			update(currentID, currentView);
 		});
@@ -513,8 +495,13 @@ google.setOnLoadCallback(function(){
 			$(this).parent().children().removeClass('active');
 			$(this).addClass('active');
 
+			$('#results-table').hide();
+			$('#results-graph').hide();
+			$('#download-container').hide();
+			spinner.spin(target);
+
 			// update view
-			lastWorkout();
+			lastSelected();
 
 			// clear and reset update handler
 			clearInterval(updateHandler);
