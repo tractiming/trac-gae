@@ -1,134 +1,205 @@
-var idArray=[];
-var selectedID;
-//When DOM loaded we attach click event to button
-$(function() {
+// setup Google charts api
+google.load('visualization', '1', {packages:['corechart']});
+google.setOnLoadCallback(function(){
+	$(function() {
+		var TABLE_VIEW = 0,
+				CAL_VIEW = 1;
 
-	var updateHandler, 
-			spinner,
-			target,
-			calendarEvents;
+		var UPDATE_INTERVAL = 5000, 
+				IDLE_TIMEOUT = 1200000;
 
-	(function init(){
+		var idArray = [],
+				currentID, currentView,
+				updateHandler, idleHandler,
+				spinner,
+				target,
+				calendarEvents,
+				graphToggle;
 
-		// initialize spinner
-		var opts = {
-			lines: 13, 							// The number of lines to draw
-		  length: 28, 						// The length of each line
-			width: 14, 							// The line thickness
-			radius: 42, 						// The radius of the inner circle
-			scale: 0.5, 						// Scales overall size of the Spinner
-			corners: 1, 						// Corner roundness (0..1)
-			color: '#3577a8', 			// #rgb or #rrggbb or array of colors
-			opacity: 0.25, 					// Opacity of the lines
-			rotate: 0, 							// The rotation offset
-			direction: 1, 					// 1: clockwise, -1: counterclockwise
-			speed: 1, 							// Rounds per second
-			trail: 60, 							// Afterglow percentage
-			fps: 20, 								// Frames per second when using setTimeout() as a fallback for CSS
-			zIndex: 1,	 						// The z-index (defaults to 2000000000)
-			className: 'spinner', 	// The CSS class to assign to the spinner
-			top: '50%', 						// Top position relative to parent
-			left: '50%', 						// Left position relative to parent
-			shadow: false, 					// Whether to render a shadow
-			hwaccel: false, 				// Whether to use hardware acceleration
-			position: 'absolute'	 	// Element positioning
-		}
-		target = document.getElementById('spinner');
-		spinner = new Spinner(opts).spin(target);
+		(function init(){
 
-		// hide all notifications
-		$('.notification').hide();
-		$('#download-container').hide();
+			// initialize spinner
+			var opts = {
+				lines: 13, 							// The number of lines to draw
+			  length: 28, 						// The length of each line
+				width: 14, 							// The line thickness
+				radius: 42, 						// The radius of the inner circle
+				scale: 0.5, 						// Scales overall size of the Spinner
+				corners: 1, 						// Corner roundness (0..1)
+				color: '#3577a8', 			// #rgb or #rrggbb or array of colors
+				opacity: 0.25, 					// Opacity of the lines
+				rotate: 0, 							// The rotation offset
+				direction: 1, 					// 1: clockwise, -1: counterclockwise
+				speed: 1, 							// Rounds per second
+				trail: 60, 							// Afterglow percentage
+				fps: 20, 								// Frames per second when using setTimeout() as a fallback for CSS
+				zIndex: 1,	 						// The z-index (defaults to 2000000000)
+				className: 'spinner', 	// The CSS class to assign to the spinner
+				top: '50%', 						// Top position relative to parent
+				left: '50%', 						// Left position relative to parent
+				shadow: false, 					// Whether to render a shadow
+				hwaccel: false, 				// Whether to use hardware acceleration
+				position: 'absolute'	 	// Element positioning
+			}
+			target = document.getElementById('spinner');
+			spinner = new Spinner(opts).spin(target);
 
-		// query for all workout sessions
-		findScores();
+			// default view to table
+			currentView = TABLE_VIEW;
 
-		// display most recent table
-		lastWorkout();
+			// hide all notifications
+			$('.notification').hide();
+			$('#results-nav').hide();
+			$('#results-table').hide();
+			$('#results-graph').hide();
+			$('#download-container').hide();
 
-		// refresh the view every 5 seconds to update
-		updateHandler = setInterval(lastSelected, 5000);
+			// query for all workout sessions
+			findScores();
 
-		// idle check after 20 minutes
-		setTimeout(function(){ idleCheck(updateHandler, lastSelected, 5000, 1200000, 'http://www.trac-us.com'); }, 1200000);
-	})();
+			// display most recent results
+			lastWorkout();
 
-	function update(idjson) {
-		var last_url = '/api/sessions/'+ idjson;
-		
-		//start ajax request
-		$.ajax({
-			url: last_url,
-			headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-			dataType: 'text',			//force to handle it as text
-			success: function(data) {
-				var json = $.parseJSON(data);
+			// refresh the view every 5 seconds to update
+			updateHandler = setInterval(lastSelected, UPDATE_INTERVAL);
 
-				/*
-      	json = {
-					"id": 24, 
-					"name": "E9 - Boys Heat 2", 
-					"start_time": "2015-06-05T18:34:14Z", 
-					"stop_time": "2015-06-06T18:34:14Z", 
-					"comment": null, 
-					"rest_time": 0, 
-					"track_size": 400, 
-					"interval_distance": 200, 
-					"interval_number": 0, 
-					"filter_choice": false, 
-					"manager": "alsal", 
-					"results": "{\"date\": \"06.05.2015\", \"runners\": [{\"counter\": [1, 2, 3], \"id\": 22, \"name\": \"Max Denning\", \"interval\": [[\"64.83\"], [\"65.05\"], [\"140.015\"]]}, {\"counter\": [1, 2, 3, 4], \"id\": 18, \"name\": \"Michael Ronzone\", \"interval\": [[\"65.477\"], [\"69.653\"], [\"79.168\"], [\"79.696\"]]}], \"workoutID\": 24}", 
-					"athletes": "[\"MaxDenning\", \"MichaelRonzone\"]", 
-					"start_button_time": "2015-06-06T01:29:29Z", 
-					"private": true
-				};
-				//*/
+			// idle check after 20 minutes
+			idleHandler = setTimeout(function(){ idleCheck(updateHandler, lastSelected, UPDATE_INTERVAL, IDLE_TIMEOUT, 'http://www.trac-us.com'); }, IDLE_TIMEOUT);
+		})();
 
-				var results = $.parseJSON(json.results);
+		function update(idjson, view) {
+			var last_url = '/api/sessions/'+ idjson;
+			
+			//start ajax request
+			$.ajax({
+				url: last_url,
+				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				dataType: 'text',			//force to handle it as text
+				success: function(data) {
+					var json = $.parseJSON(data);
 
-				// add heat name
-				$('#results-title').empty();
-				$('#results-title').append('Live Results: ' + json.name);
+					/*
+	      	json = {
+						"id": 24, 
+						"name": "E9 - Boys Heat 2", 
+						"start_time": "2015-06-05T18:34:14Z", 
+						"stop_time": "2015-06-06T18:34:14Z", 
+						"comment": null, 
+						"rest_time": 0, 
+						"track_size": 400, 
+						"interval_distance": 200, 
+						"interval_number": 0, 
+						"filter_choice": false, 
+						"manager": "alsal", 
+						"results": "{\"date\": \"06.05.2015\", \"runners\": [{\"counter\": [1, 2, 3], \"id\": 22, \"name\": \"Max Denning\", \"interval\": [[\"64.83\"], [\"65.05\"], [\"140.015\"]]}, {\"counter\": [1, 2, 3, 4], \"id\": 18, \"name\": \"Michael Ronzone\", \"interval\": [[\"65.477\"], [\"69.653\"], [\"79.168\"], [\"79.696\"]]}], \"workoutID\": 24}", 
+						"athletes": "[\"MaxDenning\", \"MichaelRonzone\"]", 
+						"start_button_time": "2015-06-06T01:29:29Z", 
+						"private": true
+					};
+					//*/
 
-				// if empty, hide spinner and show notification
-				if (results.runners == '') {
-					spinner.stop();
-					$('#notifications .notification-default').show();
-					$('#download-container').hide();
-					$('#results-table').hide().empty();
-				} else {
-					// hide spinner and notification and show results
-					spinner.stop();
-					$('#notifications .notification-default').hide();
-					$('#download-container').show();
-					$('#results-table').show();
+					// add heat name
+					$('#results-title').empty();
+					$('#results-title').append('Live Results: ' + json.name);
 
-					//*
-					// add table skeleton if empty
-					if (!$.trim($('#results-table').html())) {
-						$('#results').addClass('col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2');
+					// if empty, hide spinner and show notification
+					if (json.results.runners == '') {
+						$('#notifications .notification-default').show();
+						$('#download-container').hide();
+						$('#results-nav').hide();
+						$('#results-table').hide().empty();
+						$('#results-graph').hide().empty();
+						spinner.stop();
+					} else {
+						$('#notifications .notification-default').hide();
+						$('#download-container').show();
+						$('#results-nav').show();
 
-						$('#results-table').append(
-							'<thead>' + 
-								'<tr>' +
-									'<th>Name</th>' +
-									'<th>Latest Split</th>' +
-									'<th>Total Time</th>' +
-								'</tr>' +
-							'</thead>' +
-							'<tbody>' +
-							'</tbody>'
-						);
+						if (view === TABLE_VIEW) {
+							$('#results-graph').hide().empty();
+							drawTable(json);
+						} else if (view === CAL_VIEW) {
+							$('#results-table').hide().empty();
+							drawGraph(json);
+						}
 					}
+				}
+			});
+		}
 
-					for (var i=0; i < results.runners.length; i++) {
-						var id = results.runners[i].id;
-						var name = results.runners[i].name;
-						var interval = results.runners[i].interval;
+		function drawTable(json){
+			var results = $.parseJSON(json.results);
 
-						var row = $('#results-table>tbody>tr#results'+id);
-						// check if row exists
-						if (row.length === 1) {
+			// show table
+			$('#results-table').show();
+
+			//*
+			// add table skeleton if empty
+			if (!$.trim($('#results-table').html())) {
+
+				$('#results-table').append(
+					'<thead>' + 
+						'<tr>' +
+							'<th>Name</th>' +
+							'<th>Latest Split</th>' +
+							'<th>Total Time</th>' +
+						'</tr>' +
+					'</thead>' +
+					'<tbody>' +
+					'</tbody>'
+				);
+			}
+
+			for (var i=0; i < results.runners.length; i++) {
+				var id = results.runners[i].id;
+				var name = results.runners[i].name;
+				var interval = results.runners[i].interval;
+
+				var row = $('#results-table>tbody>tr#results'+id);
+				// check if row exists
+				if (row.length === 1) {
+					var numDisplayedSplits = $('table#splits'+id+'>tbody>tr').length;
+					// update splits table
+					if (interval.length > numDisplayedSplits) {
+						var totalTime = $('#total-time'+id).html().split(':');
+						var total = Number(totalTime[0])*60 + Number(totalTime[1]);
+						
+						// add the new splits if not already displayed
+						for (var j=numDisplayedSplits; j < interval.length; j++) {
+							var split = String(Number(interval[j][0]).toFixed(3));
+							$('table#splits'+id+'>tbody').append(
+								'<tr>' + 
+									'<td>' + (j+1) + '</td>' + 
+									'<td>' + split + '</td>' + 
+								'</tr>'
+							);
+							total += Number(split);
+						}
+
+						// then update latest split and recalculate total
+						$('#latest-split'+id).html(interval[interval.length-1][0]);
+						$('#total-time'+id).html(formatTime(total));
+					}
+				} else {
+					addNewRow(id, name, interval);
+				}
+			}
+			spinner.stop();
+			//*/
+
+			/*
+			var toggled = $('#results-table>tbody>tr.accordion-toggle').map(function(){ return $(this).attr('aria-expanded'); }).get();
+			if (toggled.indexOf('true') > -1) {
+				for (var i=0; i < results.runners.length; i++) {
+					var id = results.runners[i].id;
+					var name = results.runners[i].name;
+					var interval = results.runners[i].interval;
+
+					var row = $('#results-table>tbody>tr#results'+id);
+					// check if row exists
+					if (row.length === 1) {
+						// check if expanded
+						if (row.attr('aria-expanded') === 'true') {
 							var numDisplayedSplits = $('table#splits'+id+'>tbody>tr').length;
 							// update splits table
 							if (interval.length > numDisplayedSplits) {
@@ -137,7 +208,7 @@ $(function() {
 								
 								// add the new splits if not already displayed
 								for (var j=numDisplayedSplits; j < interval.length; j++) {
-									var split = String(Number(interval[j][0]).toFixed(3));
+									var split = interval[j][0];
 									$('table#splits'+id+'>tbody').append(
 										'<tr>' + 
 											'<td>' + (j+1) + '</td>' + 
@@ -152,265 +223,308 @@ $(function() {
 								$('#total-time'+id).html(formatTime(total));
 							}
 						} else {
-							addNewRow(id, name, interval);
-						}
-					}
-					//*/
 
-					/*
-					var toggled = $('#results-table>tbody>tr.accordion-toggle').map(function(){ return $(this).attr('aria-expanded'); }).get();
-					if (toggled.indexOf('true') > -1) {
-						for (var i=0; i < results.runners.length; i++) {
-							var id = results.runners[i].id;
-							var name = results.runners[i].name;
-							var interval = results.runners[i].interval;
-
-							var row = $('#results-table>tbody>tr#results'+id);
-							// check if row exists
-							if (row.length === 1) {
-								// check if expanded
-								if (row.attr('aria-expanded') === 'true') {
-									var numDisplayedSplits = $('table#splits'+id+'>tbody>tr').length;
-									// update splits table
-									if (interval.length > numDisplayedSplits) {
-										var totalTime = $('#total-time'+id).html().split(':');
-										var total = Number(totalTime[0])*60 + Number(totalTime[1]);
-										
-										// add the new splits if not already displayed
-										for (var j=numDisplayedSplits; j < interval.length; j++) {
-											var split = interval[j][0];
-											$('table#splits'+id+'>tbody').append(
-												'<tr>' + 
-													'<td>' + (j+1) + '</td>' + 
-													'<td>' + split + '</td>' + 
-												'</tr>'
-											);
-											total += Number(split);
-										}
-
-										// then update latest split and recalculate total
-										$('#latest-split'+id).html(interval[interval.length-1][0]);
-										$('#total-time'+id).html(formatTime(total));
-									}
-								} else {
-
-								}
-							} else {
-								addNewRow(id, name, interval);
-							}
 						}
 					} else {
-
-						$('#results-table').empty().show();
-
-						// style it with some bootstrap
-						$('#results').addClass('col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2');
-
-						$('#results-table').append(
-							'<thead>' + 
-								'<tr>' +
-									'<th>Name</th>' +
-									'<th>Latest Split</th>' +
-									'<th>Total Time</th>' +
-								'</tr>' +
-							'</thead>' +
-							'<tbody>' +
-							'</tbody>'
-						);
-
-						for (var i=0; i < results.runners.length; i++) {
-							var id = results.runners[i].id;
-							var name = results.runners[i].name;
-							var interval = results.runners[i].interval;
-
-							addNewRow(id, name, interval);
-						}
+						addNewRow(id, name, interval);
 					}
-					//*/
+				}
+			} else {
+
+				$('#results-table').empty().show();
+
+				$('#results-table').append(
+					'<thead>' + 
+						'<tr>' +
+							'<th>Name</th>' +
+							'<th>Latest Split</th>' +
+							'<th>Total Time</th>' +
+						'</tr>' +
+					'</thead>' +
+					'<tbody>' +
+					'</tbody>'
+				);
+
+				for (var i=0; i < results.runners.length; i++) {
+					var id = results.runners[i].id;
+					var name = results.runners[i].name;
+					var interval = results.runners[i].interval;
+
+					addNewRow(id, name, interval);
 				}
 			}
-		});
-	}
+			//*/
+		}
 
-	function addNewRow(id, name, interval){
-		$('#results-table>tbody').append(
-			'<tr id="results'+id+'" class="accordion-toggle" data-toggle="collapse" data-parent="#results-table" data-target="#collapse'+id+'" aria-expanded="false" aria-controls="collapse'+id+'">' + 
-				'<td>' + name + '</td>' + 
-				'<td id="latest-split'+id+'">' + interval[interval.length-1][0] + '</td>' + 
-				'<td id="total-time'+id+'"></td>' + 
-			'</tr>' + 
-			'<tr></tr>'	+		// for correct stripes 
-			'<tr class="splits">' +
-				'<td colspan="3">' +
-					'<div id="collapse'+id+'" class="accordion-body collapse" aria-labelledby="results'+id+'">' + 
-						'<table id="splits'+id+'" class="table" style="text-align:center; background-color:transparent">' +
-							/*'<thead>' + 
-								'<tr>' +
-									'<th>Split</th>' +
-									'<th>Time</th>' +
-								'</tr>' +
-							'</thead>' + */
-							'<tbody>' +
-							'</tbody>' +
-						'</table>' +
-					'</div>' + 
-				'</td>' +
-			'</tr>'
-		);
+		function drawGraph(json){
+			var results = $.parseJSON(json.results);
 
-		//*
-		var total = 0;
-		for (var j=0; j < interval.length; j++) {
-			var split = String(Number(interval[j][0]).toFixed(3))
+			/*
+			// add table skeleton if empty
+			if (!$.trim($('#results-graph').html())) {
 
-			// add splits to subtable
-			$('table#splits'+id+'>tbody').append(
-				'<tr>' + 
-					'<td>' + (j+1) + '</td>' + 
-					'<td>' + split + '</td>' + 
+				$('#results-graph').append(
+					'<thead>' + 
+						'<tr>' +
+							'<th>Name</th>' +
+							'<th>Latest Split</th>' +
+							'<th>Total Time</th>' +
+						'</tr>' +
+					'</thead>' +
+					'<tbody>' +
+					'</tbody>'
+				);
+			}
+			//*/
+
+			// show graph
+			$('#results-graph').show();
+
+			var data = new google.visualization.DataTable();
+			data.addColumn('number', 'Split');
+
+			var rows = [];
+			for (var i=0; i<results.runners.length; i++) {
+				var id = results.runners[i].id;
+				var name = results.runners[i].name;
+				var interval = results.runners[i].interval;
+				var numSplits = interval.length;
+
+				data.addColumn('number', name);
+				for (var j=0; j < numSplits; j++) {
+					// create row if doesn't exist
+					if (!rows[j])
+						rows[j] = [j+1];
+
+					rows[j][i+1] = Number(interval[j][0]);
+				}
+			}
+
+			// add NaN's to skipped spaces
+			for (var i=0; i<rows.length; i++)
+				for (var j=0; j<rows[0].length; j++)
+					if (typeof rows[i][j] === 'undefined')
+						rows[i][j] = NaN;
+
+			data.addRows(rows);
+
+			var options = {
+			  title: 'Split Times',
+			  hAxis: { title: 'Split', minValue: 1, viewWindow: { min: 1 } },
+			  vAxis: { title: 'Time'},
+			  //hAxis: {title: 'Split', minValue: 0, maxValue: 10},
+			  //vAxis: {title: 'Time', minValue: 50, maxValue: 100},
+			  //legend: { position: 'right' }
+			  series: {
+          0: {axis: 'hours studied'},
+          1: {axis: 'final grade'}
+        }
+			};
+
+			var chart = new google.visualization.ScatterChart(document.getElementById('results-graph'));
+			chart.draw(data, options);
+		}
+
+		function addNewRow(id, name, interval){
+			$('#results-table>tbody').append(
+				'<tr id="results'+id+'" class="accordion-toggle" data-toggle="collapse" data-parent="#results-table" data-target="#collapse'+id+'" aria-expanded="false" aria-controls="collapse'+id+'">' + 
+					'<td>' + name + '</td>' + 
+					'<td id="latest-split'+id+'">' + interval[interval.length-1][0] + '</td>' + 
+					'<td id="total-time'+id+'"></td>' + 
+				'</tr>' + 
+				'<tr></tr>'	+		// for correct stripes 
+				'<tr class="splits">' +
+					'<td colspan="3">' +
+						'<div id="collapse'+id+'" class="accordion-body collapse" aria-labelledby="results'+id+'">' + 
+							'<table id="splits'+id+'" class="table" style="text-align:center; background-color:transparent">' +
+								/*'<thead>' + 
+									'<tr>' +
+										'<th>Split</th>' +
+										'<th>Time</th>' +
+									'</tr>' +
+								'</thead>' + */
+								'<tbody>' +
+								'</tbody>' +
+							'</table>' +
+						'</div>' + 
+					'</td>' +
 				'</tr>'
 			);
 
-			// now calculate total time
-			total += Number(split);
+			//*
+			var total = 0;
+			for (var j=0; j < interval.length; j++) {
+				var split = String(Number(interval[j][0]).toFixed(3));
+
+				// add splits to subtable
+				$('table#splits'+id+'>tbody').append(
+					'<tr>' + 
+						'<td>' + (j+1) + '</td>' + 
+						'<td>' + split + '</td>' + 
+					'</tr>'
+				);
+
+				// now calculate total time
+				total += Number(split);
+			}
+
+			// display total time
+			total = formatTime(String(total));
+			$('#results-table>tbody #results'+id+'>td#total-time'+id).html(total);
+			//*/
 		}
 
-		// display total time
-		total = formatTime(String(total));
-		$('#results-table>tbody #results'+id+'>td#total-time'+id).html(total);
-		//*/
-	}
-
-	function lastWorkout(){
-		$.ajax({
-			url: '/api/sessions/',
-			headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-			dataType: 'text',			//force to handle it as text
-			success: function(data){
-				var json = $.parseJSON(data);
-				//alert(json.length);
-				if (json.length==0){ 
-					$('#notifications notification-default2').show();
-					spinner.stop();
-				} else {
-					$('#notifications notification-default2').hide();
-					var idjson = json[json.length - 1].id;
-					update(idjson);
-					selectedID = idjson;
-					//alert(selectedID);
-				}
-			}
-		});
-	}
-	
-	function lastSelected(){
-		$.ajax({
-			url: '/api/sessions/',
-			headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-			dataType: 'text',			//force to handle it as text
-			success: function(data){
-				var json = $.parseJSON(data);
-				//alert(json.length);
-				if (json.length==0){ 
-					$('#notifications notification-default2').show();
-					spinner.stop();
-				} else {
-					$('#notifications notification-default2').hide();
-					update(selectedID);
-				}
-			}
-		});
-	}
-		
-	function findScores(){
-		$.ajax({
-			url: '/api/sessions/',
-			headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-			dataType: 'text',			//force to handle it as text
-			success: function(data){
-				var json = $.parseJSON(data);
-				//alert(json.length);
-				if (json.length==0){ 
-					$('#notifications notification-default2').show();
-					spinner.stop();
-				} else {
-					$('#notifications notification-default2').hide();
-					var arr = [];
-					calendarEvents = [];
-					for (var i=0; i < json.length; i++){
-						// add events to event menu
-						$('#linkedlist').append('<tr><td>'+json[i].name+'</td></tr>');
-						$('ul.menulist').append('<li><a href="#">'+json[i].name+'</a></li>');
-						arr.push(json[i].id);
-
-						// add events to calendar event list
-						var url = json[i].id;
-						var str = json[i].start_time;
-						str = str.slice(0,10);
-						calendarEvents.push({title : json[i].name, url : url, start : str});
+		function lastWorkout(){
+			$.ajax({
+				url: '/api/sessions/',
+				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				dataType: 'text',			//force to handle it as text
+				success: function(data){
+					var json = $.parseJSON(data);
+					//alert(json.length);
+					if (json.length==0){ 
+						$('#notifications notification-default2').show();
+						spinner.stop();
+					} else {
+						$('#notifications notification-default2').hide();
+						var idjson = json[json.length - 1].id;
+						update(idjson, currentView);
+						currentID = idjson;
+						//alert(currentID);
 					}
-					idArray = arr;
 				}
-			}
+			});
+		}
+		
+		function lastSelected(){
+			$.ajax({
+				url: '/api/sessions/',
+				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				dataType: 'text',			//force to handle it as text
+				success: function(data){
+					var json = $.parseJSON(data);
+					//alert(json.length);
+					if (json.length==0){ 
+						$('#notifications notification-default2').show();
+						spinner.stop();
+					} else {
+						$('#notifications notification-default2').hide();
+						update(currentID, currentView);
+					}
+				}
+			});
+		}
+			
+		function findScores(){
+			$.ajax({
+				url: '/api/sessions/',
+				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				dataType: 'text',			//force to handle it as text
+				success: function(data){
+					var json = $.parseJSON(data);
+					//alert(json.length);
+					if (json.length==0){ 
+						$('#notifications notification-default2').show();
+						spinner.stop();
+					} else {
+						$('#notifications notification-default2').hide();
+						var arr = [];
+						calendarEvents = [];
+						for (var i=0; i < json.length; i++){
+							// add events to event menu
+							$('#linkedlist').append('<tr><td>'+json[i].name+'</td></tr>');
+							$('ul.menulist').append('<li><a href="#">'+json[i].name+'</a></li>');
+							arr.push(json[i].id);
+
+							// add events to calendar event list
+							var url = json[i].id;
+							var str = json[i].start_time;
+							str = str.slice(0,10);
+							calendarEvents.push({title : json[i].name, url : url, start : str});
+						}
+						idArray = arr;
+					}
+				}
+			});
+		}
+
+		// attach handler for heat menu item click
+		$('body').on('click', 'ul.menulist li a', function(){
+			var value = $(this).html();
+			console.log( 'Index: ' + $( 'ul.menulist li a' ).index( $(this) ) );
+			var indexClicked = $( 'ul.menulist li a' ).index( $(this) );
+
+			// set new heat id and update table contents
+			spinner.spin(target);
+			$('#results-table').empty();
+			currentID = idArray[indexClicked];
+			update(currentID, currentView);
 		});
-	}
-
-	// attach handler for heat menu item click
-	$('body').on('click', 'ul.menulist li a', function(){
-		var value = $(this).html();
-		console.log( 'Index: ' + $( 'ul.menulist li a' ).index( $(this) ) );
-		var indexClicked = $( 'ul.menulist li a' ).index( $(this) );
-
-		// set new heat id and update table contents
-		spinner.spin(target);
-		selectedID = idArray[indexClicked];
-		update(selectedID);
-	});
-	
-	//Download to Excel Script
-	$('#download').click(function(){
-		$.ajax({
-			url: '/api/sessions/',
-			headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-			dataType: 'text',			//force to handle it as text
-			success: function(data){
-				urlfn(selectedID);
-				return selectedID;
-			}
+		
+		//Download to Excel Script
+		$('#download').click(function(){
+			$.ajax({
+				url: '/api/sessions/',
+				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				dataType: 'text',			//force to handle it as text
+				success: function(data){
+					urlfn(currentID);
+					return currentID;
+				}
+			});
 		});
-	});
 
-	// attach handler for calendar menu click
-	$('#calendar-btn').click(function(e){
-		e.preventDefault();
+		// attach handler for calendar menu click
+		$('#calendar-btn').click(function(e){
+			e.preventDefault();
 
-		$('#calendar-overlay').show();
-		// Calendar script
-		$('#calendar').fullCalendar({
-			editable: true,
-			eventLimit: true, // allow "more" link when too many events
-			events: calendarEvents //calls list from function above
+			$('#calendar-overlay').show();
+			// Calendar script
+			$('#calendar').fullCalendar({
+				editable: true,
+				eventLimit: true, // allow "more" link when too many events
+				events: calendarEvents //calls list from function above
+			});
 		});
-	});
 
-	// attach handler for hiding calendar menu
-	$('#calendar-overlay').click(function(e){
-		//e.preventDefault();
-		var cal = $('.calendar-container');
-		if (!cal.is(e.target) && cal.has(e.target).length === 0)
+		// attach handler for hiding calendar menu
+		$('#calendar-overlay').click(function(e){
+			//e.preventDefault();
+			var cal = $('.calendar-container');
+			if (!cal.is(e.target) && cal.has(e.target).length === 0)
+				$('#calendar-overlay').hide();
+		});
+
+		// attach handler for calendar event click
+		$('.calendar-container').on('click','a.fc-day-grid-event', function(e) {
+			e.preventDefault();
 			$('#calendar-overlay').hide();
-	});
+			spinner.spin(target);
+			$('#results-table').empty();
+			currentID = parseInt($(this).attr('href').split('#'));
+			update(currentID, currentView);
+		});
 
-	// attach handler for calendar event click
-	$('.calendar-container').on('click','a.fc-day-grid-event', function(e) {
-		e.preventDefault();
-		$('#calendar-overlay').hide();
-		spinner.spin(target);
-		selectedID = parseInt($(this).attr('href').split('#'));
-		update(selectedID);
-	});
+		// attach handler for tab navigation
+		$('#results>ul>li').click(function(e){
+			e.preventDefault();
+			// update tab navbar
+			currentView = $(this).index();
+			$(this).parent().children().removeClass('active');
+			$(this).addClass('active');
 
-	
+			// update view
+			lastWorkout();
+
+			// clear and reset update handler
+			clearInterval(updateHandler);
+			updateHandler = setInterval(lastSelected, UPDATE_INTERVAL);
+
+			// clear and reset idle check
+			clearTimeout(idleHandler);
+			idleHandler = setTimeout(function(){ idleCheck(updateHandler, lastSelected, UPDATE_INTERVAL, IDLE_TIMEOUT, 'http://www.trac-us.com'); }, IDLE_TIMEOUT);
+		});
+	});
 });
 
 // format time in seconds to mm:ss.mil

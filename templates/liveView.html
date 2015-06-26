@@ -10,6 +10,10 @@
 
 {% block js_scripts %}
 	<script type="text/javascript" src="{% static "js/access_token.js" %}"></script>
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	<script>
+		
+	</script>
 	<script type="text/javascript" src="{% static "js/new/live_view.js" %}"></script>
 	<script type="text/javascript" src="{% static "js/fullcalendar.js" %}"></script>
 {% endblock %}
@@ -72,8 +76,8 @@
 		<div class="container">
 			<div class="row">
 				<div class="col-md-3 col-sm-4 col-xs-6">
-					<div class="menu-btn" style="display:inline-block;">
-						<span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span> Heat Menu
+					<div id="menu-btn" class="menu-btn" style="display:inline-block;">
+						<span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span> Workout Menu
 					</div>
 				</div>
 				<div class="col-md-3 col-md-offset-6 col-sm-4 col-sm-offset-4 col-xs-6" style="text-align:right;">
@@ -85,9 +89,14 @@
 
 			<div class="row">
 				<h1 id="results-title">Live Results</h1>
-				<div id="results">
+				<div id="results" class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+					<ul id="results-nav" class="nav nav-tabs">
+					  <li role="presentation" class="active"><a href="#">Tables</a></li>
+					  <li role="presentation"><a href="#">Graphs</a></li>
+					</ul>
 					<table id="results-table" class="table table-striped table-hover">
 					</table>
+					<div id="results-graph"></div>
 				</div>
 			</div>
 

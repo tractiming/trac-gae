@@ -1,11 +1,10 @@
-var idArray = [];
-var selectedID;
-
 //When DOM loaded we attach click event to button
 
 $(function() {
-	
-	var updateHandler, spinner;
+	var idArray = [],
+			currentID,
+			updateHandler, 
+			spinner;
 
 	(function init(){
 
@@ -147,7 +146,7 @@ $(function() {
 					var idjson = json[json.length - 1].id;
 				
 					update(idjson);
-					selectedID = idjson;
+					currentID = idjson;
 				}
 			}
 		});
@@ -165,7 +164,7 @@ $(function() {
 					$('p.notification.notification-default2').show();
 				} else {
 					$('p.notification.notification-default2').hide();
-					update(selectedID);
+					update(currentID);
 				}
 			}
 		});
@@ -205,8 +204,8 @@ $(function() {
 
 		// set new heat id and update table contents
 		spinner.spin(target);
-		selectedID = idArray[indexClicked];
-		update(selectedID);
+		currentID = idArray[indexClicked];
+		update(currentID);
 	});
 
 	// Download to Excel Script
@@ -214,7 +213,7 @@ $(function() {
 });
 
 function download(){
-	var url = '/api/score/'+ selectedID;
+	var url = '/api/score/'+ currentID;
 	$.ajax({
 		url: url,
 		dataType: 'text',		//force to handle it as text

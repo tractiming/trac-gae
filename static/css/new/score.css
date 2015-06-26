@@ -11,6 +11,10 @@ h1 {
 	margin-bottom: 20px;
 }
 
+#menu-btn {
+	cursor: pointer;
+}
+
 ul.menulist {
 	padding: 0;
 	list-style: none;

@@ -17,6 +17,10 @@ ul.menulist {
 			color: #b3b3b1;
 }
 
+#menu-btn, #calendar-btn {
+	cursor: pointer;
+}
+
 #calendar-overlay {
 	display: block;
 	position: fixed;
