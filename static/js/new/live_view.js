@@ -97,17 +97,20 @@ google.setOnLoadCallback(function(){
 						"private": true
 					};
 					//*/
+					var results = $.parseJSON(json.results);
 
 					// add heat name
 					$('#results-title').html('Live Results: ' + json.name);
 
 					// if empty, hide spinner and show notification
-					if ($.parseJSON(json.results).runners == '') {
+					if (results.runners == '') {
 						$('#notifications .notification-default').show();
 						$('#download-container').hide();
 						$('#results-nav').hide();
 						$('#results-table').hide().empty();
-						$('#results-graph').hide().empty();
+						$('#results-graph').hide()
+						$('#results-graph>#graph-canvas').empty();
+						$('#results-graph #graph-toggle-options').empty();
 						spinner.stop();
 					} else {
 						$('#notifications .notification-default').hide();
@@ -115,7 +118,9 @@ google.setOnLoadCallback(function(){
 						$('#results-nav').show();
 
 						if (view === TABLE_VIEW) {
-							$('#results-graph').hide().empty();
+							$('#results-graph').hide()
+							$('#results-graph>#graph-canvas').empty();
+							$('#results-graph #graph-toggle-options').empty();
 							drawTable(json);
 						} else if (view === CAL_VIEW) {
 							$('#results-table').hide().empty();
@@ -135,7 +140,6 @@ google.setOnLoadCallback(function(){
 			//*
 			// add table skeleton if empty
 			if (!$.trim($('#results-table').html())) {
-
 				$('#results-table').append(
 					'<thead>' + 
 						'<tr>' +
@@ -258,6 +262,30 @@ google.setOnLoadCallback(function(){
 		function drawGraph(json){
 			var results = $.parseJSON(json.results);
 
+			// add toggle checkboxes 
+			var toggleOptions = $('#results-graph #graph-toggle-options');
+			/*
+			if (!$.trim(toggleOptions.html())) {
+				for (var i=0; i<results.runners.length; i++) {
+					toggleOptions.append(
+						'<label class="checkbox"><input type="checkbox" id="'+results.runners[i].id+'" value="" checked>' +
+							results.runners[i].name +
+						'</label>'
+					);
+				}
+			}
+			//*/
+			for (var i=0; i<results.runners.length; i++) {
+				var id = results.runners[i].id;
+				// create new checkbox if doesn't already exist
+				if ($('#results-graph #graph-toggle-options label input#'+id).length !== 1)
+					toggleOptions.append(
+						'<label class="checkbox"><input type="checkbox" id="'+id+'" value="" checked>' +
+							results.runners[i].name +
+						'</label>'
+					);
+			}
+
 			// show graph
 			$('#results-graph').show();
 
@@ -270,14 +298,24 @@ google.setOnLoadCallback(function(){
 				var name = results.runners[i].name;
 				var interval = results.runners[i].interval;
 				var numSplits = interval.length;
+				var skip = false;
 
 				data.addColumn('number', name);
+				
+				// skip current runner if not toggled
+				if (!$('input#'+id).prop('checked')) {
+					skip = true;
+				}
+
 				for (var j=0; j < numSplits; j++) {
 					// create row if doesn't exist
 					if (!rows[j])
 						rows[j] = [j+1];
-
-					rows[j][i+1] = Number(interval[j][0]);
+					
+					if (skip)
+						rows[j][i+1] = NaN;
+					else
+						rows[j][i+1] = Number(interval[j][0]);
 				}
 			}
 
@@ -295,14 +333,11 @@ google.setOnLoadCallback(function(){
 			  vAxis: { title: 'Time'},
 			  //hAxis: {title: 'Split', minValue: 0, maxValue: 10},
 			  //vAxis: {title: 'Time', minValue: 50, maxValue: 100},
-			  legend: { position: 'bottom' }
-			  //series: {
-        //  0: {axis: 'hours studied'},
-        //  1: {axis: 'final grade'}
-        //}
+			  //legend: { position: 'right' }
+			  
 			};
 
-			var chart = new google.visualization.ScatterChart(document.getElementById('results-graph'));
+			var chart = new google.visualization.ScatterChart(document.getElementById('graph-canvas'));
 			chart.draw(data, options);
 
 			spinner.stop();
@@ -436,9 +471,12 @@ google.setOnLoadCallback(function(){
 			console.log( 'Index: ' + $( 'ul.menulist li a' ).index( $(this) ) );
 			var indexClicked = $( 'ul.menulist li a' ).index( $(this) );
 
-			// set new heat id and update table contents
+			// reset canvases and set new session id
 			spinner.spin(target);
 			$('#results-table').hide().empty();
+			$('#results-graph').hide()
+			$('#results-graph>#graph-canvas').empty();
+			$('#results-graph #graph-toggle-options').empty();
 			currentID = idArray[indexClicked];
 			update(currentID, currentView);
 		});
@@ -481,8 +519,13 @@ google.setOnLoadCallback(function(){
 		$('.calendar-container').on('click','a.fc-day-grid-event', function(e) {
 			e.preventDefault();
 			$('#calendar-overlay').hide();
+
+			// reset canvases and set new session id
 			spinner.spin(target);
-			$('#results-table').empty();
+			$('#results-table').hide().empty();
+			$('#results-graph').hide()
+			$('#results-graph>#graph-canvas').empty();
+			$('#results-graph #graph-toggle-options').empty();
 			currentID = parseInt($(this).attr('href').split('#'));
 			update(currentID, currentView);
 		});
@@ -510,6 +553,11 @@ google.setOnLoadCallback(function(){
 			// clear and reset idle check
 			clearTimeout(idleHandler);
 			idleHandler = setTimeout(function(){ idleCheck(updateHandler, lastSelected, UPDATE_INTERVAL, IDLE_TIMEOUT, 'http://www.trac-us.com'); }, IDLE_TIMEOUT);
+		});
+
+		$('#graph-toggle-options').click(function(e){
+			// update view
+			lastSelected();
 		});
 	});
 });

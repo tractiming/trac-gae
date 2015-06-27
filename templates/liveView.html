@@ -96,7 +96,18 @@
 					</ul>
 					<table id="results-table" class="table table-striped table-hover">
 					</table>
-					<div id="results-graph"></div>
+					<div id="results-graph">
+						<div id="graph-canvas"></div>
+						<div id="graph-toggle-container">
+							<div id="graph-toggle-btn" style="display: table; margin: 0 auto;">
+								<button id="toggle" class="btn btn-default btn-md" data-toggle="collapse" data-parent="#graph-toggle-btn" data-target="#graph-toggle-options-container" aria-expanded="false" aria-controls="graph-toggle-options-container">Toggle</button>
+							</div>
+							<div id="graph-toggle-options-container" class="collapse" aria-labelledby="graph-toggle-btn">
+								<div id="graph-toggle-options" style="display:table; margin:0 auto;">
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 

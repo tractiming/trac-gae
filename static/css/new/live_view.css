@@ -69,3 +69,7 @@ tr.splits {
 #results-graph {
 	margin-bottom: 20px;
 }
+
+#graph-toggle-options label, #graph-toggle-options input {
+	cursor: pointer;
+}
