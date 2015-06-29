@@ -55,7 +55,9 @@ $("li a.logout").click(function(){
 {% block content %}
 
 <script>
-
+	var mostInstance= 0;
+	var instanceFirst = 1;
+	var instanceLast = 11;
 	if (sessionStorage.usertype == 'athlete'){
 			    location.href="/home.html";
 		}
@@ -64,6 +66,7 @@ $("li a.logout").click(function(){
 <script>
   //step by step jquery plugin that explains each box of form
 	jQuery(document).ready(function($) {
+
 
 		/*$("#myform").progression({
 		  tooltipWidth: '200',
@@ -86,10 +89,33 @@ $("li a.logout").click(function(){
 	<script>
 $(document).ready(function() {
 	$(".modal-animate").show();
+	var opts = {
+		lines: 13, 							// The number of lines to draw
+	  length: 28, 						// The length of each line
+		width: 14, 							// The line thickness
+		radius: 42, 						// The radius of the inner circle
+		scale: 0.3, 						// Scales overall size of the Spinner
+		corners: 1, 						// Corner roundness (0..1)
+		color: '#3577a8', 			// #rgb or #rrggbb or array of colors
+		opacity: 0.25, 					// Opacity of the lines
+		rotate: 0, 							// The rotation offset
+		direction: 1, 					// 1: clockwise, -1: counterclockwise
+		speed: 1, 							// Rounds per second
+		trail: 60, 							// Afterglow percentage
+		fps: 20, 								// Frames per second when using setTimeout() as a fallback for CSS
+		zIndex: 1,	 						// The z-index (defaults to 2000000000)
+		className: 'spinner', 	// The CSS class to assign to the spinner
+		top: '50%', 						// Top position relative to parent
+		left: '50%', 						// Left position relative to parent
+		shadow: false, 					// Whether to render a shadow
+		hwaccel: false, 				// Whether to use hardware acceleration
+		position: 'absolute'	 	// Element positioning
+	}
+	var target = document.getElementById('spinner');
+	var spinner = new Spinner(opts);
 		loadworkouts();
 
-      //on submit prevent default of form and show spinner, 
-      $("input#save").on('click');
+      //on submit prevent default of form and show spinner,
         $("input#save").click( function(e){
             e.preventDefault();
 	    $(".modal-animate").show();
@@ -109,13 +135,13 @@ $(document).ready(function() {
 		     var privateselect=$('#private option:selected').val();
 		     var sT = local2UTC(start_date);
 		     var eT = local2UTC(end_date);
-			//alert(filter);
 	      $.ajax({
            type: "POST",
            dataType:'json',
-           url: "/api/sessions/",
+           url: "/api/time_create/",
 	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
            data: {
+               id: 0,
                name: title,
                start_time: sT,
                stop_time: eT,
@@ -125,8 +151,8 @@ $(document).ready(function() {
                interval_number:'0',
                filter_choice:filter,
                private:privateselect,
-               
-           },
+           }, 
+
            // Login was successful.
            success: function(data) {
 		    //hide spinner, success modal, and reset form
@@ -156,17 +182,18 @@ $(document).ready(function() {
                
             
         });
-    });
-</script>
-	<script>
-	function loadworkouts(){
+function loadworkouts(){
+	spinner.spin(target);
 			 $('#results').empty();
-		  //alert(path);
-		  //alert(path);
 		   $.ajax({
-             url: "/api/sessions/",
+             url: "/api/session_Pag/",
 		     headers: {Authorization: "Bearer " + sessionStorage.access_token},
                     //force to handle it as text
+                    data: {
+                    	i1: instanceFirst,
+                    	i2: instanceLast,
+
+                    },
                     dataType: "text",
                     success: function(data) {
                         //alert(data);
@@ -181,8 +208,8 @@ $(document).ready(function() {
 			  $(".outer").hide();
 			  $(".modal-animate").hide();
 			  $('#results').empty();
-			  
-			  
+  		      $('button#next').hide();
+  		      $('button#prev').show();			  
 			    $("div.notification.notification-default").show();
 
 			}
@@ -208,18 +235,18 @@ $(document).ready(function() {
 			    			'</tbody>'+
 			    		'</tbody>');
 			    		$('#results').addClass('col-md-6 col-md-offset-0 colr-sm-8 col-sm-offset-0');
-                       for (var ii=0;json.length;ii++){
-                       		var tableNumber = 1;
-                       		if(ii == 20){
-                       			tableNumber++;
-                       		}
+			    		var maximum = 0;
+                       for (var ii=0; ii < json.length;ii++){
 						   //alert(ii);
+						   if (ii > maximum){
+						   	maximum = ii;
+						   }
 						   id = json[ii].id;
 						   name = json[ii].name;
 						   start = json[ii].start_time.slice(0,10);
-						   start2 = json[ii].start_time.slice(11,16);
+						   start2 = json[ii].start_time.slice(11,19);
 						   end = json[ii].stop_time.slice(0,10);
-						   end2 = json[ii].stop_time.slice(11,16);
+						   end2 = json[ii].stop_time.slice(11,19);
 						   distance = json[ii].interval_distance;
 						   track = json[ii].track_size;
 						  // time = time.slice(0,10);
@@ -229,7 +256,6 @@ $(document).ready(function() {
 						   sTS = sTS.substring(0, 25);
 						   var sTE = UTC2local(end, end2);
 						   sTE = sTE.substring(0,25);
-						   $('#results tbody').attr('id', ''+tableNumber+'')
 			    			$('#results tbody').append(
 			    				'<tr>'+
 			    				'<td class="hidden-xs hidden-sm hidden-md hidden-lg">' + id + '</td>' +
@@ -241,7 +267,18 @@ $(document).ready(function() {
 			    					'<td>'+filter+'</td>'+
 			    					'<td class="hidden-xs hidden-sm">'+privateselect+'</td>'+
 			    				'</tr>');
-			  		$(".modal-animate").hide();
+						   }
+						   if (maximum < 8){
+						   	$('button#next').hide();
+						   }
+						   else{
+						   	$('button#next').show();
+						   }
+						   if (instanceFirst == 1){
+						   	$('button#prev').hide();
+						   }
+						   else{
+						   	$('button#prev').show();
 						   }
 					   }
 
@@ -250,26 +287,9 @@ $(document).ready(function() {
 			
 			
                     });
+spinner.stop();
 		   
 }
-
-	
-	
-	</script>
-	
-  	<style>
-		#myform{
-			width:300px;
-			margin: 0 auto;
-		}
-		label{
-			display:block;
-		}
-		input,textarea{
-			width:75%;
-		}
-	</style>
-<script>
 	  
 $("body").on('click', 'tr',function(){
 	//alert($(this).html());
@@ -283,7 +303,6 @@ $("body").on('click', 'tr',function(){
 	$("input#save").hide();
 	$(value).each(function(index){
 		//alert( $(this).html() );
-		console.log( index+ ":"+ $(this).html());
 		if (index ==0)
 		{
 			var input =$('input#idnumber');
@@ -301,7 +320,8 @@ $("body").on('click', 'tr',function(){
 			format = format.toISOString();
 			format = localISOString(format);
 			format = format.replace(/T/g,' ');
-			format = format.substring(0,16);
+			format = format.substring(0,19);
+			format = format.replace(/;/g, ':');
 			input.val(format);
 			}
 			else if (index ==3)
@@ -311,7 +331,8 @@ $("body").on('click', 'tr',function(){
 			format = format.toISOString();
 			format = localISOString(format);
 			format = format.replace(/T/g,' ');
-			format = format.substring(0,16);
+			format = format.substring(0,19);
+			format = format.replace(/;/g, ':');
 			input.val(format);
 			}
 		else if (index ==4){
@@ -362,7 +383,6 @@ $("body").on('click', 'tr',function(){
 	});
 	  
 	$("body").on('click', 'button#warning-yes', function(event){
-	console.log("On:", event.target);
 	var value = $(this).html();
 	 $(".modal-animate").show();
 	  
@@ -419,7 +439,18 @@ $("body").on('click', 'tr',function(){
 			$("div.notification.delete-success").hide();
 			$("div.notification.notification-warning").hide();
 		});
-
+		$("body").on('click', 'button#prev',function(f){
+			if(instanceFirst != 1){
+				instanceFirst -= 10;
+				instanceLast -= 10;
+			}
+			loadworkouts();
+		});
+		$("body").on('click', 'button#next',function(f){
+			instanceFirst += 10;
+			instanceLast += 10;
+			loadworkouts();
+		});
 		$("body").on('click', 'input#update',function(f){
 	//alert($(this).html());
 	  f.preventDefault();
@@ -437,11 +468,12 @@ $("body").on('click', 'tr',function(){
 	
 		//alert(filter);
 	      $.ajax({
-           type: "PUT",
+           type: "POST",
            dataType:'json',
-           url: "/api/sessions/"+id,
+           url: "/api/time_create/",
 	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
 	   data: {
+	   		   id: id,
                name: title,
                start_time: sT,
                stop_time: eT,
@@ -488,21 +520,23 @@ $("body").on('click', 'tr',function(){
 	});
 
 
-</script>
-
+    });
+	
+	</script>
+	
+  	<style>
+		#myform{
+			width:300px;
+			margin: 0 auto;
+		}
+		label{
+			display:block;
+		}
+		input,textarea{
+			width:75%;
+		}
+	</style>
     <div class="container-fluid">  
-    	<div class="row">
-    		<div class="col-md-6" align="center">
-     			<h2>Create</h2>
-     		</div>
-     		<div class="col-md-5">
-     		</div class="col-md-5">
-     		<div class="col-md-1" align="center">
-     			<button type="button" class="btn btn-default" id="create" data-toggle="modal" data-target="#myModal">
-     				<span class="glyphicon glyphicon-plus" aria-hidden="true"> </span>
-     			</button>
-     		</div>
-     	</div>
  </div>
  <div id="create" class="container">
  	<div class="modal fade" id="notificationModal" role="dialog">
@@ -514,7 +548,7 @@ $("body").on('click', 'tr',function(){
 						<div class="notification notification-success" role="alert">You have successfully created a workout!</div>
 						<div class="notification update-success" role="alert">You have successfully updated a workout!</div>
 						<div class="notification delete-success" role="alert">You have successfully deleted a workout!</div>
-						<div class="notification notification-warning" role="alert">Are you sure? <div id="screen-selector"><button href="#" type="button" id="warning-yes">Yes</button><button id="warning-no" href="#" type="button" style="float:right" data-dismiss="modal" data-toggle="modal" data-target="#myModal">Cancel</button></div></div>
+						<div class="notification notification-warning" role="alert">Are you sure? <div id="screen-selector"><button href="#" type="button" id="warning-yes" class="btn btn-danger" style="color:#FFF;">Yes</button><button id="warning-no" href="#" type="button" style="float:right; color:#FFF;" data-dismiss="modal" data-toggle="modal" data-target="#myModal" class="btn btn-primary">Cancel</button></div></div>
 					</div>
 				</div>
 			</div>
@@ -580,7 +614,7 @@ $("body").on('click', 'tr',function(){
 		  	  <br>
 		     
 		          <div class="button-container modal-footer">
-			<button name="" class="btn btn-primary col-md-3 col-sm-3 col-xs-3" id="delete" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal">Delete</button>
+			<button name="" class="btn btn-danger col-md-3 col-sm-3 col-xs-3" id="delete" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal" style="text-align: center;">Delete</button>
 		    <input type="submit" name="" class="btn btn-primary" id="save" value="Save" />
 		    <input type="submit" name="" class="btn btn-primary col-md-5 col-sm-5 col-xs-5" id="update" value="Update" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal" />
 	                         </div>
@@ -593,16 +627,26 @@ $("body").on('click', 'tr',function(){
 </div>
     <div class= "container-fluid content">
     <div id="container" class="container">
+    	<div class="row">
+     		<div align="right">
+     			<button type="button" class="btn btn-default" id="create" data-toggle="modal" data-target="#myModal">
+     				<span class="glyphicon glyphicon-plus" aria-hidden="true"> </span>
+     			</button>
+     		</div>
+     	</div>
       <div class="row">
       	<h1 id="score-title">Recent Workouts</h1>
        <div id="results" class="table"></div>
-       <nav>
-       		<ul class="pagination">
-       			<li><a href='#1'>1</a></li>
-       			<li><a href='#2'>2</a></li>
-       		</ul>
-       	</nav>
+     	<button type="button" class="btn btn-default" id="prev">
+     				<span class="glyphicon glyphicon-triangle-left" aria-hidden="true"> </span>
+     			</button>
+     	<button type="button" class="btn btn-default" id="next">
+     				<span class="glyphicon glyphicon-triangle-right" aria-hidden="true"> </span>
+     			</button>
        </div>
+       <div class="spinner-container" style="position:relative; top:50px;">
+				<div id="spinner"></div>
+			</div>
        </div>
    </div>
        <div id="notifications">

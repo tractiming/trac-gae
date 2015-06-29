@@ -4,6 +4,7 @@ from django.contrib.auth.models import User, Group
 from django.http import HttpResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
+
 from django.db import IntegrityError
 from django.utils import timezone
 from django.core.cache import cache
@@ -218,6 +219,7 @@ class ScoringViewSet(viewsets.ModelViewSet):
         return sessions  
         
 class TimingSessionViewSet(viewsets.ModelViewSet):
+
     """
     Returns a list of all sessions associated with the user.
     """
@@ -227,7 +229,6 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Overrides default method to filter sessions by user."""
         user = self.request.user
-
         # If the user is an athlete, list all the workouts he has run.
         if is_athlete(user):
             ap = AthleteProfile.objects.get(user=user)
@@ -236,11 +237,10 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         # If the user is a coach, list all sessions he manages.
         elif is_coach(user):
             sessions = TimingSession.objects.filter(manager=user)
-        
+            
         # If not a user or coach, list all public sessions.
         else:
             sessions = TimingSession.objects.filter(private=False)
-
         return sessions    
 
     def pre_save(self, obj):
@@ -256,7 +256,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         t=TimingSession.objects.latest('id')
         r=Reader.objects.filter(owner=user)
         t.readers.add(*r)
-        t.save()    
+        t.save()
 
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))
@@ -268,7 +268,7 @@ def open_session(request):
     data = request.POST
     try:
         ts = TimingSession.objects.get(id=data['id'])
-        ts.start_time = timezone.datetime.now()
+        ts.start_time = timezone.now()-timezone.timedelta(seconds=8)
         ts.stop_time = ts.start_time+timezone.timedelta(days=1)
         ts.save()
         return HttpResponse(status.HTTP_202_ACCEPTED)
@@ -311,7 +311,6 @@ def start_session(request):
         ts.start_button_time = current_time
         ts.save()
         return HttpResponse(status.HTTP_202_ACCEPTED)
-
     except ObjectDoesNotExist:
 		return HttpResponse(status.HTTP_404_NOT_FOUND)
     
@@ -402,6 +401,45 @@ def post_splits(request):
     elif request.method == 'GET':
         return Response({str(timezone.now())}, status.HTTP_200_OK)
 
+@api_view(['GET'])
+@permission_classes((permissions.AllowAny,))
+def sessions_paginate(request):
+    begin = int(request.GET.get('i1'))
+    stop = int(request.GET.get('i2'))
+    user = request.user
+    if is_coach(user):
+        table = TimingSession.objects.filter(manager=user).values()
+    else:
+        table = TimingSession.objects.filter(private='false').values()
+    i = 1
+    result = []
+    for instance in table:
+        i += 1
+        if i >= begin and i <= stop:
+            result.append(instance)
+    return Response(result, status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes((permissions.AllowAny,))
+def time_create(request):
+    data = request.POST
+    user = request.user
+    begin_time = dateutil.parser.parse(data['start_time'])
+    stop_time = dateutil.parser.parse(data['stop_time'])
+    if int(data['id']) == 0:
+        ts, created = TimingSession.objects.get_or_create(name=data['name'], manager=user, start_time=begin_time, stop_time=stop_time, track_size=data['track_size'], interval_distance=data['interval_distance'], filter_choice=data['filter_choice'], private=data['private'])
+    else:
+        ts= TimingSession.objects.get(id=int(data['id']))
+        ts.name = data['name']
+        ts.manager = user
+        ts.start_time = begin_time
+        ts.stop_time = stop_time
+        ts.track_size = data['track_size']
+        ts.interval_distance = data['interval_distance']
+        ts.filter_choice = data['filter_choice']
+        ts.private = data['private']
+        ts.save()
+    return HttpResponse(status.HTTP_201_CREATED)
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))
 def create_race(request):
@@ -425,7 +463,7 @@ def create_race(request):
     dateover = datestart + timezone.timedelta(days=1)
     # Create the timing session.
     name = data['race_name']
-    ts, created = TimingSession.objects.get_or_create(name=name, manager=uc, start_time=datestart, stop_time=dateover);
+    ts, created = TimingSession.objects.get_or_create(name=name, manager=uc, start_time=datestart, stop_time=dateover)
     if not created:
         return HttpResponse(status.HTTP_400_BAD_REQUEST)
 
@@ -467,11 +505,28 @@ def create_race(request):
             tag.save()
         except ObjectDoesNotExist:
             tag = Tag.objects.create(id_str=tag_id, user=user)
+
         ts.registered_tags.add(tag.pk)
-    
     return HttpResponse(status.HTTP_201_CREATED)
 
-
+@api_view(['GET', 'POST'])
+@permission_classes((permissions.IsAuthenticated,))
+def WorkoutTags(request):
+    if request.method == 'GET':
+        id_num = int(request.GET.get('id'))
+        user = request.user
+        array = []
+        if not is_coach(user):
+            return HttpResponse(status.HTTP_403_FORBIDDEN)
+        else:
+            table = TimingSession.objects.get(id=id_num)
+            result = table.registered_tags.all()        
+            for instance in result:
+                u_name = instance.user.username
+                array.append({'id': instance.id, 'user': u_name, 'id_str': instance.id_str})
+            return Response(array, status.HTTP_200_OK)
+    elif request.method == 'POST':
+        print 'Work On Next'
 
 
 ######################### Do we need these? ###########################
