@@ -29,9 +29,9 @@ div#create div#notifications .notification.delete-success {
   color: green;
 }
 
-div#create div#notifications .notification.notification-warning{background-color:#fffcf7;background-position:12px -188px;border-color:#f8981f}
+div#create div#notifications .notification.notification-warning{background-color:#fffcf7;background-position:12px -188px;border-color:#f8981f;}
 div#create div#notifications .notification.notification-warning .container {padding-left:10px; padding-top:10px; width:175px;}
-div#create div#notifications .notification.notification-warning .container button{width:60px; background:#f8981f; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; }
+div#create div#notifications .notification.notification-warning .container button{width:60px; background:#f8981f; font-size:15px; font-weight:bold; padding:7px; border-radius:3px; border:none; }
 
 div#create div#notifications .notification {
   display: none;
@@ -45,7 +45,7 @@ div#create div#notifications .notification {
   border-style: solid;
   text-align: left;
   font-size: 1em;
-  background: url("../img/icon_alert_sprite-2x.png") no-repeat;
+  background: url("../../img/icon_alert_sprite-2x.png") no-repeat;
   background-size: 20px;
   /* Default is the informational message */
 }
