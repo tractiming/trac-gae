@@ -1,437 +1,134 @@
-{% extends "base.html" %}
+{% extends "base_new.html" %}
+
 {% load staticfiles %}
 
-{% block content %}
-   <div class="modal-animate hide">
-    <div class="rotate"></div>
+<!-- Head -->
+{% block stylesheets %}
+	<link href="{% static "css/fullcalendar.css" %}" rel="stylesheet" type="text/css">
+	<link href="{% static "css/new/live_view.css" %}" rel='stylesheet' type='text/css'>
+{% endblock %}
 
-</div>
-       <nav class="pushy pushy-left">
-    <ul class="menulist">
-        
-        
+{% block js_scripts %}
+	<script type="text/javascript" src="{% static "js/access_token.js" %}"></script>
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	<script>
+		
+	</script>
+	<script type="text/javascript" src="{% static "js/new/live_view.js" %}"></script>
+	<script type="text/javascript" src="{% static "js/fullcalendar.js" %}"></script>
+{% endblock %}
+
+<!-- Body -->
+{% block nav-items %}
+  <li><a href="/home">Home</a></li>
+  <li><a href="/liveview">Live View</a></li>
+  <li><a href="/calendar">Calendar</a></li>
+  <li><a href="/create">Create</a></li>
+  <li><a class="hidden-sm hidden-md hidden-lg" href="/readers">Readers</a></li>
+  <li><a class="hidden-sm hidden-md hidden-lg" href="/settings">Settings</a></li>
+  <li><a class="logout hidden-sm hidden-md hidden-lg" href="">Logout</a></li>
+  <!-- Single button -->
+  <li id="dropdown-button" class="btn-group hidden-xs">
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>
+    </button>
+    <ul class="dropdown-menu" >
+      <li><a href="/readers">Readers</a></li>
+      <li><a href="/settings">Settings</a></li>
+      <li role="separator" class="divider"></li>
+      <li><a class="logout" href="">Logout</a></li>
     </ul>
-</nav>
+  </li>
+{% endblock %}
 
-<!-- Site Overlay -->
-<div class="site-overlay"></div>
+{% block content %}
+	<nav class="pushy pushy-left">
+		<ul class="menulist">      
+		</ul>
+	</nav>
 
+	<div class="site-overlay"></div>
 
-  <div id="bg2">  
+	<div id="idle-overlay" style="display: none;">
+		<div class="idle-container">
+			<div class="container">
+				<div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-10 col-xs-offset-1 idle-dialog">
+					<p>Are you still using TRAC?</p>
+					<div style="display: table; margin: 0 auto;">
+					  <button id="idle-yes" class="btn btn-primary btn-md" style="margin-right: 10px;">Yes</button>
+					  <button id="idle-no" class="btn btn-default btn-md">No</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 
+	<div id="calendar-overlay" style="display: none;">
+		<div class="calendar-container col-lg-7 col-md-7 col-sm-9 col-xs-12">
+			<div class="calendar-dialog">
+				<div id="calendar">
+				</div>
+			</div>
+		</div>
+	</div>
 
+	<div id="content" class="container-fluid">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-3 col-sm-4 col-xs-6">
+					<div id="menu-btn" class="menu-btn" style="display:inline-block;">
+						<span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span> Workout Menu
+					</div>
+				</div>
+				<div class="col-md-3 col-md-offset-6 col-sm-4 col-sm-offset-4 col-xs-6" style="text-align:right;">
+					<div id="calendar-btn" style="display:inline-block;">
+						<span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> Calendar
+					</div>
+				</div>
+			</div>
 
-	  <div class="content">
-		  <!-- Your Content -->
-<div id="container">
-    <!-- Menu Button -->
-    <div class="menu-btn">&#9776; Menu</div>
+			<div class="row">
+				<h1 id="results-title">Live Results</h1>
+				<div id="results" class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+					<ul id="results-nav" class="nav nav-tabs">
+					  <li role="presentation" class="active"><a href="#">Table</a></li>
+					  <li role="presentation"><a href="#">Graph</a></li>
+					</ul>
+					<table id="results-table" class="table table-striped table-hover">
+					</table>
+					<div id="results-graph">
+						<div id="graph-canvas"></div>
+						<div id="graph-toggle-container">
+							<div id="graph-toggle-btn" style="display: table; margin: 0 auto;">
+								<button id="toggle" class="btn btn-default btn-md" data-toggle="collapse" data-parent="#graph-toggle-btn" data-target="#graph-toggle-options-container" aria-expanded="false" aria-controls="graph-toggle-options-container">Toggle</button>
+							</div>
+							<div id="graph-toggle-options-container" class="collapse" aria-labelledby="graph-toggle-btn">
+								<div id="graph-toggle-options" style="display:table; margin:0 auto;">
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 
-
-
- <h2> Live Results</h2>
-
- <div class="inner">
-    <table id="results" style="width:100%"></table>
-
-
-    <div id="notifications">
-        <h6 class="notification notification-default" role="alert">There is currently no data for the most recent event.</h6>
-        <h6 class="notification notification-default2" role="alert">No recent events to show.</h6>
-
-    </div>
-  </div>  
-<div class="button-container">
-  <input type="submit" name="" class="gen_btn" id="submit" value="Download" />
-</div>
-
-
-
- <script>
-var idArray=[];
-var selectedID;
-        //When DOM loaded we attach click event to button
-        $(document).ready(function() {
-            //show spinner
-	    $(".modal-animate").show();
-	    
-	    //alert(idjson);
-		    
-		    
-		    
-		    
-	  var repeated_function = function(idjson){
-	    //alert(idjson);
-	    var last_url = "/api/sessions/"+ idjson;
-	   // alert(last_url);
-                //start ajax request
-                $.ajax({
-                    url: last_url,
-					headers: {Authorization: "Bearer " + sessionStorage.access_token},
-                    //force to handle it as text
-                    dataType: "text",
-                    success: function(data) {
-                        
-                        //data downloaded so we call parseJSON function 
-                        //and pass downloaded data
-                        var json = $.parseJSON(data);
-			json = $.parseJSON(json.results);
-                        //now json variable contains data in json format
-                        //let's display a few items
-                       // $('#results').html('Date: ' + json.date);
-			//$('#results').append('<p> Workout ID: '+ json.workoutID);
+			<div class="spinner-container" style="position:relative; top:50px;">
+				<div id="spinner"></div>
+			</div>
 			
-			//if empty show notification, hide spinner, and show button
-			if (json.runners == "") {
-			    $(".modal-animate").hide();
-			    $("h6.notification.notification-default").show();
-			      $("input#submit.gen_btn").show();
-			      $('#results').empty();
-			}
-			else {
-			    //hide spinner, show button, show results
-			    $("div.inner").show();
-			$(".modal-animate").hide();
-			$("h6.notification.notification-default").hide();
-			  $("input#submit.gen_btn").show();
-			 var longest = 0;
-			var importantRow;
-			for (var ii = 0; ii < json.runners.length; ii++) {
-			  for (var jj = 0; jj < json.runners[ii].interval.length; jj++){
-			    if (jj == 0) {
-			      //initilize temporary variable
-			      var tempLength = json.runners[ii].interval[jj].length;
-			    }
-			    else{
-			      tempLength = tempLength + json.runners[ii].interval[jj].length;
-			    }  
-			 }
-			  if (longest < tempLength) {
-			    longest = tempLength;
-			    importantRow = ii;
-			  } 
-			
-			}
-			  
-			  
-			  
-			  
-			  $('#results').empty();
-			for (var i=0; i < json.runners.length; i++) {
-			  //print names and enter name array
-			  var name = json.runners[i].name;
-			  //prints all splits with no nesting
-			  //var interval = json.runners[i].interval
-			  if (i==0) {
-			    $('#results').append('<tr><td>Name</td></tr>');
-			    $('#results').append('<tr class="odd"><td>'+name+'</td></tr>');
-			  }
-			  else if((i)%2 ==0) {
-			    $('#results').append('<tr class="odd"><td>'+name+'</td></tr>');
-			  }
-			  else{
-			    $('#results').append('<tr><td>'+name+'</td></tr>');
-			  }
-			  
-			  
-			  var finaltime = 0;
-			  
-			  for (var j=0; j < json.runners[i].interval.length; j++) {
-			    //iterate over interval to get to nested time arrays
-			    var interval = json.runners[i].interval[j];
-			    //$('#results').append( "Interval Subset: ")
-			    
+			<div id="notifications" class="row">
+				<div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-8 col-xs-offset-2">
+					<p class="notification notification-error notification-default" role="alert">
+						<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> There is currently no data for this event.
+					</p>
+					<p class="notification notification-error notification-default2" role="alert">
+						<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> No recent events to show.
+					</p>
+				</div>
+			</div>
 
-			    for (var k=0; k < json.runners[i].interval[j].length; k++) {
-			      //interate over subarrays and pull out each individually and print
-			      var subinterval = json.runners[i].interval[j][k];
-			      var min = Math.floor(subinterval/60);
-			      var sec = (subinterval-(min*60));
-			     // $('#results').append('<td>');
-			      //This if statements adds the preceding 0 to any second less than 10
-			      $('#results tr:last').append('<td>'+ subinterval +'</td>');
-			      //if (sec<10) {
-				//$('#results tr:last').append('<td>'+ min + ':0'+ sec +'</td>');
-			      //}
-			      //else
-			      //{
-			      //$('#results tr:last').append('<td>'+ min + ':'+ sec +'</td>');
-			      //}
-			      finaltime = finaltime + subinterval;
-			      if (i==importantRow) {
-				//Puts the word 'split #' on table
-				$('#results tr:first').append('<td>' + 'Split' + '</td>');
-			      }
-			    }
-			    
-			    
-			  }
-			  
-			  //to implement total time-- not necessary for this moment
-			  
-			//   var minfinal = Math.floor(finaltime/60);
-			//   var secfinal = (finaltime-(minfinal*60));
-			//   
-			//   if (secfinal<10) {
-			//    $('#results tr:last').append( minfinal + ':0'+ secfinal );
-			//   }
-			//   else{
-			//   $('#results tr:last').append( minfinal + ':'+ secfinal);
-			//   };
-			//   if (i==0) {
-			//	//adds word final time to table header
-			//	$('#results tr:first').append('<td>Final Time</td>');
-			//      }
-			
-			}
-			
-			
-			
-			
-			
-			}
-			
-                    }
-                });}
-		
-		
-		var lastWorkout = function(){
-		$.ajax({
-                    url: "/api/sessions/",
-					headers: {Authorization: "Bearer " + sessionStorage.access_token},
-                    //force to handle it as text
-                    dataType: "text",
-                    success: function(data){
-		      var json = $.parseJSON(data);
-			//alert(json.length);
-			if (json.length==0){ 
-				$("h6.notification.notification-default2").show();
-				$(".modal-animate").hide();
-				}
-			else{
-				 $("h6.notification.notification-default2").hide();
-			var idjson = json[json.length - 1].id;
-			
-			repeated_function(idjson);
-			selectedID = idjson;
-			//alert(selectedID);
-		}
-		    }
-		    
-	    });
-		}
-		
-		var lastSelected = function(){
-		$.ajax({
-                    url: "/api/sessions/",
-					headers: {Authorization: "Bearer " + sessionStorage.access_token},
-                    //force to handle it as text
-                    dataType: "text",
-                    success: function(data){
-		      var json = $.parseJSON(data);
-			//alert(json.length);
-			if (json.length==0){ 
-				$("h6.notification.notification-default2").show();
-				$(".modal-animate").hide();
-				}
-			else{
-				 $("h6.notification.notification-default2").hide();
-
-			repeated_function(selectedID);
-
-		}
-		    }
-		    
-	    });
-		}
-		
-		var findScores = function(){
-		$.ajax({
-                    url: "/api/sessions/",
-					headers: {Authorization: "Bearer " + sessionStorage.access_token},
-                    //force to handle it as text
-                    dataType: "text",
-                    success: function(data){
-		      var json = $.parseJSON(data);
-			//alert(json.length);
-			if (json.length==0){ 
-				$("h6.notification.notification-default2").show();
-				$(".modal-animate").hide();
-				}
-			else{
-				 $("h6.notification.notification-default2").hide();
-				 var Array = [];
-				 for (var ii=0; ii < json.length; ii++){
-					$('#linkedlist').append('<tr><td>'+json[ii].name+'</td></tr>');
-					$('ul.menulist').append('<li><a href="#">'+json[ii].name+'</a></li>');
-					Array.push(json[ii].id);
-				}
-				idArray = Array;
-				
-		}
-		    }
-		    
-	    });
-		}
-		
-
-	$("body").on('click', 'ul.menulist li a',function(){
-	//alert($(this).html());
-	var value = $(this).html();
-		console.log( "Index: " + $( "ul.menulist li a" ).index( $(this) ) );
-		var indexClicked= $( "ul.menulist li a" ).index( $(this) );
-	//alert(idArray);
-	//alert(idArray[indexClicked]);
-	selectedID = idArray[indexClicked];
-	repeated_function(idArray[indexClicked]);
-
-
-	});
-	
-	findScores();
-		//refresh the view every 5 seconds to update
-	    lastWorkout();
-	   setInterval(lastSelected ,5000);
-
-
-//Download to Excel Script
-
-    $('#submit').click(function(){
-        $.ajax({
-                    url: "/api/sessions/",
-					headers: {Authorization: "Bearer " + sessionStorage.access_token},
-                    //force to handle it as text
-                    dataType: "text",
-                    success: function(data){
-
-			urlfn(selectedID);
-            return selectedID;
-
-		    }
-		    
-	    });
-    });
-});
-	
-
-  
-  var urlfn = function(idjson){
-    var last_url = "/api/sessions/"+ idjson;
-    //alert(last_url);
-     $.ajax({
-                    url: last_url,
-		    headers: {Authorization: "Bearer " + sessionStorage.access_token},
-                    //force to handle it as text
-                    dataType: "text",
-                    success: function(data) {
-        
-        JSONToCSVConvertor(data, "TRAC_Report", true);}});
-  }
-  
-  
-function JSONToCSVConvertor(JSONData, ReportTitle, ShowLabel) {
-    //Data coming in must be json
-    //parse through it
-    var json = $.parseJSON(JSONData);
-  //now json variable contains data in json format
-  //let's display a few items
- // $('#results').html('Date: ' + json.date);
-  //$('#results').append('<p> Workout ID: '+ json.workoutID);
-  
-  
-  
-    var CSV = '';    
-    //Set Report title in first row or line
-    
-    CSV += ReportTitle + '\r\n\n';
-    CSV += 'Date,'+ json.start_time+'\r\n';
-    CSV += 'Workout ID,'+ json.id+'\r\n\n';
-   //alert(CSV);
-   CSV += 'Name \r\n'
-   //Uncomment below when using nested json in production
-   json = $.parseJSON(json.results);
-   
-	      //iterate into name array
-	       for (var i=0; i < json.runners.length; i++) {
-		  //print names and enter name array
-		  var name = json.runners[i].name; 
-		    CSV +=name+',';
-		  
-		//alert(CSV);
-   
-   
-			for (var j=0; j < json.runners[i].interval.length; j++) {
-			    //iterate over interval to get to nested time arrays
-			    var interval = json.runners[i].interval[j];
-
-			    for (var k=0; k < json.runners[i].interval[j].length; k++) {
-			      //interate over subarrays and pull out each individually and print
-			      //do a little math to move from seconds to minutes and seconds
-			      var subinterval = json.runners[i].interval[j][k];
-			      var min = Math.floor(subinterval/60);
-			      var sec = (subinterval-(min*60));
-			      	CSV += subinterval+',';
-			      //This if statements adds the preceding 0 to any second less than 10
-			      //if (sec<10) {
-				//CSV += min + ':0'+sec+',';
-			      //}
-			      //else
-			      //{
-			      //CSV += min + ':'+sec+',';
-			      //}
-			      
-			    }
-			  }
-			  //moves to new row on excel spreadsheet
-			  CSV += '\r\n'
-	       }
-   
-   //if varaible is empty, alert invalid and return
-    if (CSV == '') {        
-        alert("Invalid data");
-        return;
-    }
-    
-    //Generate a file name
-    var fileName = "MyReport_";
-    //this will remove the blank-spaces from the title and replace it with an underscore
-    fileName += ReportTitle.replace(/ /g,"_");   
-    
-    //Initialize file format you want csv or xls
-    var uri = 'data:text/csv;charset=utf-8,' + escape(CSV);
-    
-    // Now the little tricky part.
-    // you can use either>> window.open(uri);
-    // but this will not work in some browsers
-    // or you will not get the correct file extension    
-    
-    //this trick will generate a temp <a /> tag
-    var link = document.createElement("a");    
-    link.href = uri;
-    
-    //set the visibility hidden so it will not effect on your web-layout
-    link.style = "visibility:hidden";
-    link.download = fileName + ".csv";
-    
-    //this part will append the anchor tag and remove it after automatic click
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
-</script>
-    
-    
-    
-    
-    
-        </div>
-     
-      </div>
-{% endblock %} 
-    
-    
-    
-</html>
-
-
-
+			<div id="download-container" style="display: table; margin: 0 auto;">
+			  <button id="download" class="btn btn-primary btn-md">Download</button>
+			</div>
+		</div>
+	</div>
+{% endblock %}
