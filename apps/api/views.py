@@ -400,36 +400,41 @@ def post_splits(request):
     # this same endpoint to retrieve the server time. 
     elif request.method == 'GET':
         return Response({str(timezone.now())}, status.HTTP_200_OK)
-
+#pagination endpoint
 @api_view(['GET'])
 @permission_classes((permissions.AllowAny,))
 def sessions_paginate(request):
     begin = int(request.GET.get('i1'))
     stop = int(request.GET.get('i2'))
     user = request.user
+    # get pagination beginning and next page value
     if is_coach(user):
         table = TimingSession.objects.filter(manager=user).values()
     else:
         table = TimingSession.objects.filter(private='false').values()
+    #reset indices for pagination without changing id
     i = 1
     result = []
     for instance in table:
         i += 1
         if i >= begin and i <= stop:
+            #if indices are in the range of pagination, append to return list
             result.append(instance)
     return Response(result, status.HTTP_200_OK)
 
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))
 def time_create(request):
+    #time backend. Decided not to change any of the api's just make another intermediary endpoint that funnels from create.html into sessions model
     data = request.POST
     user = request.user
     begin_time = dateutil.parser.parse(data['start_time'])
     stop_time = dateutil.parser.parse(data['stop_time'])
-    if int(data['id']) == 0:
+    #KEY: parsing date and time into datetime objects before putting into database.
+    if int(data['id']) == 0: #for new instances
         ts, created = TimingSession.objects.get_or_create(name=data['name'], manager=user, start_time=begin_time, stop_time=stop_time, track_size=data['track_size'], interval_distance=data['interval_distance'], filter_choice=data['filter_choice'], private=data['private'])
     else:
-        ts= TimingSession.objects.get(id=int(data['id']))
+        ts= TimingSession.objects.get(id=int(data['id'])) #for updated instances
         ts.name = data['name']
         ts.manager = user
         ts.start_time = begin_time
@@ -509,10 +514,11 @@ def create_race(request):
         ts.registered_tags.add(tag.pk)
     return HttpResponse(status.HTTP_201_CREATED)
 
+#registered tags endpoint for settings
 @api_view(['GET', 'POST'])
 @permission_classes((permissions.IsAuthenticated,))
 def WorkoutTags(request):
-    if request.method == 'GET':
+    if request.method == 'GET': #loadAthletes
         id_num = int(request.GET.get('id'))
         user = request.user
         array = []
@@ -526,7 +532,28 @@ def WorkoutTags(request):
                 array.append({'id': instance.id, 'user': u_name, 'id_str': instance.id_str})
             return Response(array, status.HTTP_200_OK)
     elif request.method == 'POST':
-        print 'Work On Next'
+        id_num = request.POST.get('id')
+        tag_id = request.POST.get('id2')
+        user = request.user
+        if not is_coach(user):
+            return HttpResponse(HTTP_403_FORBIDDEN)
+        else:
+            if request.POST.get('submethod') == 'Delete': #Delete
+                ts = TimingSession.objects.get(id=id_num)
+                ts.registered_tags.remove(tag_id)
+                return HttpResponse(status.HTTP_200_OK)
+            elif request.POST.get('submethod') == 'Update': #Update and Create
+                ts = TimingSession.objects.get(id=id_num)
+                user, created = User.objects.get_or_create(username=request.POST.get('username'))
+                try:
+                    tag = Tag.objects.get(id_str = request.POST.get('id_str'))
+                    tag.user = user
+                    tag.save()
+                except ObjectDoesNotExist:
+                    tag = Tag.objects.create(id_str=request.POST.get('id_str'), user=user)
+                ts.registered_tags.add(tag.pk)
+                ts.save()
+                return HttpResponse(status.HTTP_200_OK)
 
 
 ######################### Do we need these? ###########################
