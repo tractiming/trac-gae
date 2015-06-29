@@ -292,7 +292,7 @@ google.setOnLoadCallback(function(){
 			var data = new google.visualization.DataTable();
 			data.addColumn('number', 'Split');
 
-			var rows = [];
+			var rows = []; var series = [];
 			for (var i=0; i<results.runners.length; i++) {
 				var id = results.runners[i].id;
 				var name = results.runners[i].name;
@@ -305,6 +305,9 @@ google.setOnLoadCallback(function(){
 				// skip current runner if not toggled
 				if (!$('input#'+id).prop('checked')) {
 					skip = true;
+					series.push({visibleInLegend: false});
+				} else {
+					series.push({});
 				}
 
 				for (var j=0; j < numSplits; j++) {
@@ -333,8 +336,8 @@ google.setOnLoadCallback(function(){
 			  vAxis: { title: 'Time'},
 			  //hAxis: {title: 'Split', minValue: 0, maxValue: 10},
 			  //vAxis: {title: 'Time', minValue: 50, maxValue: 100},
-			  //legend: { position: 'right' }
-			  
+			  series: series,
+			  legend: { position: 'right' }
 			};
 
 			var chart = new google.visualization.ScatterChart(document.getElementById('graph-canvas'));
