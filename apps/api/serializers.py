@@ -35,6 +35,13 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('first_name', 'last_name', 'username', 'tags', 'id')
 
+class CoachSerializer(serializers.ModelSerializer):
+    organization = serializers.CharField(source='coach.organization', read_only=True)
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'organization')
+
 class TagSerializer(FilterRelatedMixin, serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
     first_name = serializers.CharField(source='user.first_name', read_only=True)
@@ -57,10 +64,11 @@ class TagSerializer(FilterRelatedMixin, serializers.ModelSerializer):
 
 class RegistrationSerializer(serializers.ModelSerializer):
     user_type = serializers.CharField(max_length=15)
+    organization = serializers.CharField(max_length=50)
 
     class Meta:
         model = User
-        fields = ('username', 'password', 'user_type')
+        fields = ('username', 'password', 'user_type', 'organization')
 
 class ReaderSerializer(serializers.ModelSerializer):
     class Meta:

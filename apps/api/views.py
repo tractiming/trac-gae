@@ -16,7 +16,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from provider.oauth2.models import Client, AccessToken
 
 from serializers import (UserSerializer, RegistrationSerializer, TagSerializer, 
-                         TimingSessionSerializer, ReaderSerializer, UserSerializer,
+                         TimingSessionSerializer, ReaderSerializer, CoachSerializer,
                          CSVSerializer, ScoringSerializer)
 
 from trac.models import (TimingSession, AthleteProfile, CoachProfile, 
@@ -93,6 +93,7 @@ class RegistrationView(views.APIView):
             # Register a coach.
             coach = CoachProfile()
             coach.user = user
+            coach.organization = data['organization']
             coach.save()
 
         # Create the OAuth2 client.
@@ -135,6 +136,21 @@ class TagViewSet(viewsets.ModelViewSet):
         if is_athlete(self.request.user):
             request.DATA[u'user'] = self.request.user.pk
         return super(TagViewSet, self).create(request, *args, **kwargs)
+
+class CoachViewSet(viewsets.ModelViewSet):
+    permission_classes = (permissions.AllowAny,)
+    serializer_class = CoachSerializer
+
+    def get_queryset(self):
+        """
+        Returns all coaches
+        """
+        try:
+            cp = [c.user for c in CoachProfile.objects.all()]
+        except ObjectDoesNotExist:
+            cp = []
+
+        return cp
 
 class AthleteViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
