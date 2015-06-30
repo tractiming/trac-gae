@@ -50,6 +50,11 @@ a {
   	text-decoration: none;
 }
 
+.navbar li#dropdown-button{
+    padding-top:13px;
+    padding-left: 10px;
+}
+
 /* General */
 #content {
 	background-color: white;

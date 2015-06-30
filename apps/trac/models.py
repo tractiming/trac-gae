@@ -235,7 +235,9 @@ class TimingSession(models.Model):
         wdata = {}
         wdata['date'] = self.start_time.strftime('%m.%d.%Y')
         wdata['workoutID'] = self.id
-        wdata['runners'] = [{'name': r[1], 'counter': range(1,len(r[3])+1),
+        wdata['runners'] = [{'id': r[0],
+                            'name': r[1], 
+                            'counter': range(1,len(r[3])+1),
                             'interval': [[str(s)] for s in r[3]]} for r in results]
 
         return wdata

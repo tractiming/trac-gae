@@ -1,11 +1,10 @@
-var idArray = [];
-var selectedID;
-
 //When DOM loaded we attach click event to button
 
 $(function() {
-	
-	var updateHandler, spinner;
+	var idArray = [],
+			currentID,
+			updateHandler, 
+			spinner;
 
 	(function init(){
 
@@ -82,13 +81,13 @@ $(function() {
 				if (score.runners == '') {
 					spinner.stop();
 					$('#notifications .notification-default').show();
-					$('.button-container').hide();
+					//$('.button-container').hide();
 					$('#results-table').hide().empty();
 				} else {
 					// hide spinner and notification and show results
 					spinner.stop();
 					$('#notifications .notification-default').hide();
-					$('.button-container').show();
+					//$('.button-container').show();
 					$('#results-table').empty().show();
 
 					// style it with some bootstrap
@@ -147,7 +146,7 @@ $(function() {
 					var idjson = json[json.length - 1].id;
 				
 					update(idjson);
-					selectedID = idjson;
+					currentID = idjson;
 				}
 			}
 		});
@@ -165,7 +164,7 @@ $(function() {
 					$('p.notification.notification-default2').show();
 				} else {
 					$('p.notification.notification-default2').hide();
-					update(selectedID);
+					update(currentID);
 				}
 			}
 		});
@@ -204,8 +203,9 @@ $(function() {
 		var indexClicked = $( 'ul.menulist li a' ).index( $(this) );
 
 		// set new heat id and update table contents
-		selectedID = idArray[indexClicked];
-		update(selectedID);
+		spinner.spin(target);
+		currentID = idArray[indexClicked];
+		update(currentID);
 	});
 
 	// Download to Excel Script
@@ -213,7 +213,7 @@ $(function() {
 });
 
 function download(){
-	var url = '/api/score/'+ selectedID;
+	var url = '/api/score/'+ currentID;
 	$.ajax({
 		url: url,
 		dataType: 'text',		//force to handle it as text
