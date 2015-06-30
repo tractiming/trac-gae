@@ -1,0 +1,311 @@
+{
+    "director_username": "alsal", 
+    "readers": [
+        "A1010",
+        "A1011",
+        "A1012",
+        "A1013",
+        "A1014",
+        "A1015"
+    ], 
+    "athletes": [
+        {
+            "first_name": "Runner", 
+            "last_name": "1", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1127", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "2", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1128", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "3", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1129", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "4", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1130", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "5", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1131", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "6", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1132", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "7", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1133", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "8", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1134", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "9", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1135", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "10", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1136", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "11", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1137", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "12", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1138", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "13", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1139", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "14", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1140", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "15", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1141", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "16", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1142", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "17", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1143", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "18", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1144", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "19", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1145", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "20", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1146", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "21", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1147", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "22", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1148", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "23", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1149", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "24", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1150", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "25", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1151", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "26", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1152", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "27", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1153", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "28", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1154", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "29", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1155", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "30", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1156", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "31", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1157", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "32", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1158", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "33", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1159", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "34", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1160", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "35", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1161", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "36", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1162", 
+            "team": "Team"
+        }, 
+        {
+            "first_name": "Runner", 
+            "last_name": "37", 
+            "gender": "M", 
+            "age": "0", 
+            "tag": "23E1 B8CF 2C21 76F3 118E 1163", 
+            "team": "Team"
+        }
+    ], 
+    "race_name": "June 23", 
+    "race_date": "2015-06-22"
+}
