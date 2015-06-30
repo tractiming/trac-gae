@@ -534,8 +534,8 @@ def WorkoutTags(request):
     elif request.method == 'POST':
         id_num = request.POST.get('id')
         tag_id = request.POST.get('id2')
-        user = request.user
-        if not is_coach(user):
+        i_user = request.user
+        if not is_coach(i_user):
             return HttpResponse(HTTP_403_FORBIDDEN)
         else:
             if request.POST.get('submethod') == 'Delete': #Delete
@@ -545,6 +545,11 @@ def WorkoutTags(request):
             elif request.POST.get('submethod') == 'Update': #Update and Create
                 ts = TimingSession.objects.get(id=id_num)
                 user, created = User.objects.get_or_create(username=request.POST.get('username'))
+                a, created = AthleteProfile.objects.get_or_create(user=user)
+                if is_coach(i_user):
+                    cp = CoachProfile.objects.get(user=i_user)
+                    cp.athletes.add(a.pk)
+                a.save()
                 try:
                     tag = Tag.objects.get(id_str = request.POST.get('id_str'))
                     tag.user = user
