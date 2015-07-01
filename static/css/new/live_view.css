@@ -53,7 +53,9 @@ ul.menulist {
 			background-color: #D6D6EB !important;	}
 			.fc-event {
 				border: 1px solid #3577A8;
-				background-color: #3577A8;
+				background-color: #3577A8; }
+			.fc-title {
+				color: white;
 }
 
 tr.splits { 

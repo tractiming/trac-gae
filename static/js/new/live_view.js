@@ -261,9 +261,9 @@ google.setOnLoadCallback(function(){
 				height = 500;
 
 			var options = {
-			  title: 'Split Times',
+			  title: json.name,
 			  height: height,
-			  hAxis: { title: 'Split', minValue: 1, viewWindow: { min: 1 } },
+			  hAxis: { title: 'Split #', minValue: 1, viewWindow: { min: 1 } },
 			  vAxis: { title: 'Time'},
 			  //hAxis: {title: 'Split', minValue: 0, maxValue: 10},
 			  //vAxis: {title: 'Time', minValue: 50, maxValue: 100},
@@ -393,26 +393,63 @@ google.setOnLoadCallback(function(){
 						}
 						idArray = arr;
 					}
+
+					// attach handler for heat menu item click
+					$('body').on('click', 'ul.menulist li a', function(){
+						var value = $(this).html();
+						console.log( 'Index: ' + $( 'ul.menulist li a' ).index( $(this) ) );
+						var indexClicked = $( 'ul.menulist li a' ).index( $(this) );
+
+						// reset canvases and set new session id
+						$('.notification').hide();
+						$('#results-table').hide().empty();
+						$('#results-graph').hide();
+						$('#results-graph>#graph-canvas').empty();
+						$('#results-graph #graph-toggle-options').empty();
+						currentID = idArray[indexClicked];
+						spinner.spin(target);
+						update(currentID, currentView);
+					});
+
+					// attach handler for calendar menu click
+					$('#calendar-btn').click(function(e){
+						e.preventDefault();
+
+						$('#calendar-overlay').show();
+						// Calendar script
+						$('#calendar').fullCalendar({
+							editable: true,
+							eventLimit: true, // allow "more" link when too many events
+							events: calendarEvents //calls list from function above
+						});
+					});
+
+					// attach handler for hiding calendar menu
+					$('#calendar-overlay').click(function(e){
+						//e.preventDefault();
+						var cal = $('.calendar-container');
+						if (!cal.is(e.target) && cal.has(e.target).length === 0)
+							$('#calendar-overlay').hide();
+					});
+
+					// attach handler for calendar event click
+					$('.calendar-container').on('click','a.fc-day-grid-event', function(e) {
+						e.preventDefault();
+						$('#calendar-overlay').hide();
+
+						// reset canvases and set new session id
+						$('.notification').hide();
+						$('#results-table').hide().empty();
+						$('#results-graph').hide()
+						$('#results-graph>#graph-canvas').empty();
+						$('#results-graph #graph-toggle-options').empty();
+						currentID = parseInt($(this).attr('href').split('#'));
+						spinner.spin(target);
+						update(currentID, currentView);
+					});
 				}
 			});
 		}
-
-		// attach handler for heat menu item click
-		$('body').on('click', 'ul.menulist li a', function(){
-			var value = $(this).html();
-			console.log( 'Index: ' + $( 'ul.menulist li a' ).index( $(this) ) );
-			var indexClicked = $( 'ul.menulist li a' ).index( $(this) );
-
-			// reset canvases and set new session id
-			$('.notification').hide();
-			$('#results-table').hide().empty();
-			$('#results-graph').hide();
-			$('#results-graph>#graph-canvas').empty();
-			$('#results-graph #graph-toggle-options').empty();
-			currentID = idArray[indexClicked];
-			spinner.spin(target);
-			update(currentID, currentView);
-		});
 		
 		//Download to Excel Script
 		$('#download').click(function(){
@@ -425,43 +462,6 @@ google.setOnLoadCallback(function(){
 					return currentID;
 				}
 			});
-		});
-
-		// attach handler for calendar menu click
-		$('#calendar-btn').click(function(e){
-			e.preventDefault();
-
-			$('#calendar-overlay').show();
-			// Calendar script
-			$('#calendar').fullCalendar({
-				editable: true,
-				eventLimit: true, // allow "more" link when too many events
-				events: calendarEvents //calls list from function above
-			});
-		});
-
-		// attach handler for hiding calendar menu
-		$('#calendar-overlay').click(function(e){
-			//e.preventDefault();
-			var cal = $('.calendar-container');
-			if (!cal.is(e.target) && cal.has(e.target).length === 0)
-				$('#calendar-overlay').hide();
-		});
-
-		// attach handler for calendar event click
-		$('.calendar-container').on('click','a.fc-day-grid-event', function(e) {
-			e.preventDefault();
-			$('#calendar-overlay').hide();
-
-			// reset canvases and set new session id
-			$('.notification').hide();
-			$('#results-table').hide().empty();
-			$('#results-graph').hide()
-			$('#results-graph>#graph-canvas').empty();
-			$('#results-graph #graph-toggle-options').empty();
-			currentID = parseInt($(this).attr('href').split('#'));
-			spinner.spin(target);
-			update(currentID, currentView);
 		});
 
 		// attach handler for tab navigation
