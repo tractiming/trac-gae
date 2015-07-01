@@ -104,6 +104,7 @@ google.setOnLoadCallback(function(){
 
 					// if empty, hide spinner and show notification
 					if (results.runners == '') {
+						spinner.stop();
 						$('#notifications .notification-default').show();
 						$('#download-container').hide();
 						$('#results-nav').hide();
@@ -111,8 +112,8 @@ google.setOnLoadCallback(function(){
 						$('#results-graph').hide()
 						$('#results-graph>#graph-canvas').empty();
 						$('#results-graph #graph-toggle-options').empty();
-						spinner.stop();
 					} else {
+						spinner.stop();
 						$('#notifications .notification-default').hide();
 						$('#download-container').show();
 						$('#results-nav').show();
@@ -187,76 +188,6 @@ google.setOnLoadCallback(function(){
 					addNewRow(id, name, interval);
 				}
 			}
-			spinner.stop();
-			//*/
-
-			/*
-			var toggled = $('#results-table>tbody>tr.accordion-toggle').map(function(){ return $(this).attr('aria-expanded'); }).get();
-			if (toggled.indexOf('true') > -1) {
-				for (var i=0; i < results.runners.length; i++) {
-					var id = results.runners[i].id;
-					var name = results.runners[i].name;
-					var interval = results.runners[i].interval;
-
-					var row = $('#results-table>tbody>tr#results'+id);
-					// check if row exists
-					if (row.length === 1) {
-						// check if expanded
-						if (row.attr('aria-expanded') === 'true') {
-							var numDisplayedSplits = $('table#splits'+id+'>tbody>tr').length;
-							// update splits table
-							if (interval.length > numDisplayedSplits) {
-								var totalTime = $('#total-time'+id).html().split(':');
-								var total = Number(totalTime[0])*60 + Number(totalTime[1]);
-								
-								// add the new splits if not already displayed
-								for (var j=numDisplayedSplits; j < interval.length; j++) {
-									var split = interval[j][0];
-									$('table#splits'+id+'>tbody').append(
-										'<tr>' + 
-											'<td>' + (j+1) + '</td>' + 
-											'<td>' + split + '</td>' + 
-										'</tr>'
-									);
-									total += Number(split);
-								}
-
-								// then update latest split and recalculate total
-								$('#latest-split'+id).html(interval[interval.length-1][0]);
-								$('#total-time'+id).html(formatTime(total));
-							}
-						} else {
-
-						}
-					} else {
-						addNewRow(id, name, interval);
-					}
-				}
-			} else {
-
-				$('#results-table').empty().show();
-
-				$('#results-table').append(
-					'<thead>' + 
-						'<tr>' +
-							'<th>Name</th>' +
-							'<th>Latest Split</th>' +
-							'<th>Total Time</th>' +
-						'</tr>' +
-					'</thead>' +
-					'<tbody>' +
-					'</tbody>'
-				);
-
-				for (var i=0; i < results.runners.length; i++) {
-					var id = results.runners[i].id;
-					var name = results.runners[i].name;
-					var interval = results.runners[i].interval;
-
-					addNewRow(id, name, interval);
-				}
-			}
-			//*/
 		}
 
 		function drawGraph(json){
@@ -342,15 +273,19 @@ google.setOnLoadCallback(function(){
 
 			var chart = new google.visualization.ScatterChart(document.getElementById('graph-canvas'));
 			chart.draw(data, options);
-
-			spinner.stop();
 		}
 
 		function addNewRow(id, name, interval){
+			var split = 0;
+			if (interval.length > 0)
+				split = interval[interval.length-1][0];
+			else
+				split = 'NT';
+
 			$('#results-table>tbody').append(
 				'<tr id="results'+id+'" class="accordion-toggle" data-toggle="collapse" data-parent="#results-table" data-target="#collapse'+id+'" aria-expanded="false" aria-controls="collapse'+id+'">' + 
 					'<td>' + name + '</td>' + 
-					'<td id="latest-split'+id+'">' + interval[interval.length-1][0] + '</td>' + 
+					'<td id="latest-split'+id+'">' + split + '</td>' + 
 					'<td id="total-time'+id+'"></td>' + 
 				'</tr>' + 
 				'<tr></tr>'	+		// for correct stripes 
@@ -358,12 +293,6 @@ google.setOnLoadCallback(function(){
 					'<td colspan="3">' +
 						'<div id="collapse'+id+'" class="accordion-body collapse" aria-labelledby="results'+id+'">' + 
 							'<table id="splits'+id+'" class="table" style="text-align:center; background-color:transparent">' +
-								/*'<thead>' + 
-									'<tr>' +
-										'<th>Split</th>' +
-										'<th>Time</th>' +
-									'</tr>' +
-								'</thead>' + */
 								'<tbody>' +
 								'</tbody>' +
 							'</table>' +
@@ -475,12 +404,13 @@ google.setOnLoadCallback(function(){
 			var indexClicked = $( 'ul.menulist li a' ).index( $(this) );
 
 			// reset canvases and set new session id
-			spinner.spin(target);
+			$('.notification').hide();
 			$('#results-table').hide().empty();
-			$('#results-graph').hide()
+			$('#results-graph').hide();
 			$('#results-graph>#graph-canvas').empty();
 			$('#results-graph #graph-toggle-options').empty();
 			currentID = idArray[indexClicked];
+			spinner.spin(target);
 			update(currentID, currentView);
 		});
 		
@@ -524,12 +454,13 @@ google.setOnLoadCallback(function(){
 			$('#calendar-overlay').hide();
 
 			// reset canvases and set new session id
-			spinner.spin(target);
+			$('.notification').hide();
 			$('#results-table').hide().empty();
 			$('#results-graph').hide()
 			$('#results-graph>#graph-canvas').empty();
 			$('#results-graph #graph-toggle-options').empty();
 			currentID = parseInt($(this).attr('href').split('#'));
+			spinner.spin(target);
 			update(currentID, currentView);
 		});
 
