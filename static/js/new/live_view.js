@@ -109,7 +109,7 @@ google.setOnLoadCallback(function(){
 						$('#download-container').hide();
 						$('#results-nav').hide();
 						$('#results-table').hide().empty();
-						$('#results-graph').hide()
+						$('#results-graph').hide();
 						$('#results-graph>#graph-canvas').empty();
 						$('#results-graph #graph-toggle-options').empty();
 					} else {
@@ -119,7 +119,7 @@ google.setOnLoadCallback(function(){
 						$('#results-nav').show();
 
 						if (view === TABLE_VIEW) {
-							$('#results-graph').hide()
+							$('#results-graph').hide();
 							$('#results-graph>#graph-canvas').empty();
 							$('#results-graph #graph-toggle-options').empty();
 							drawTable(json);
@@ -195,17 +195,12 @@ google.setOnLoadCallback(function(){
 
 			// add toggle checkboxes 
 			var toggleOptions = $('#results-graph #graph-toggle-options');
-			/*
-			if (!$.trim(toggleOptions.html())) {
-				for (var i=0; i<results.runners.length; i++) {
-					toggleOptions.append(
-						'<label class="checkbox"><input type="checkbox" id="'+results.runners[i].id+'" value="" checked>' +
-							results.runners[i].name +
-						'</label>'
-					);
-				}
-			}
-			//*/
+
+			if ($('#results-graph #graph-toggle-options label input#all').length !== 1)
+				toggleOptions.append(
+					'<label class="checkbox"><input type="checkbox" id="all" value="" checked>All</label>'
+				);
+
 			for (var i=0; i<results.runners.length; i++) {
 				var id = results.runners[i].id;
 				// create new checkbox if doesn't already exist
@@ -261,8 +256,13 @@ google.setOnLoadCallback(function(){
 
 			data.addRows(rows);
 
+			var height = 300;
+			if (window.innerWidth > 768)
+				height = 500;
+
 			var options = {
 			  title: 'Split Times',
+			  height: height,
 			  hAxis: { title: 'Split', minValue: 1, viewWindow: { min: 1 } },
 			  vAxis: { title: 'Time'},
 			  //hAxis: {title: 'Split', minValue: 0, maxValue: 10},
@@ -490,6 +490,12 @@ google.setOnLoadCallback(function(){
 		});
 
 		$('#graph-toggle-options').click(function(e){
+			if (e.target.id === 'all')
+				if ($('#graph-toggle-options input#all').prop('checked'))
+					$('#graph-toggle-options input').prop('checked', true);
+				else
+					$('#graph-toggle-options input').prop('checked', false);
+
 			// update view
 			lastSelected();
 		});
