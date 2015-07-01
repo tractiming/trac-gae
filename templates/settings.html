@@ -13,6 +13,7 @@
 <script>
 var gl_helper;
 var id_helper;
+var isOpen = false;
 if (sessionStorage.access_token == null) {
     //link to login page
     location.href="/login";
@@ -292,7 +293,7 @@ $("body").on('hidden.bs.modal', '#notificationModal', function(){
     });
 $("body").on('click', '#open', function(e){
   console.log('pressing Open');
-
+  isOpen = true;
           $.ajax({
               type: 'POST',
               dataType: 'json',
@@ -310,6 +311,10 @@ $("body").on('click', '#open', function(e){
 
 $("body").on('click', 'button#stop', function(e){
             var id = id_helper;
+            if (isOpen == false){
+              alert('Session is not open');
+            }
+            else{
             $.ajax({
                     type: 'POST',
                     dataType: 'json',
@@ -318,15 +323,21 @@ $("body").on('click', 'button#stop', function(e){
                     headers: {Authorization: "Bearer " + sessionStorage.access_token},
                     success: function(data){
                       alert ('session closed');
+                      isOpen=false;
                     },
                     error: function(xhr, errmsg, err){
                       alert ("couldn't close session");
                     }
             });
+          }
 });
 
 $("body").on('click', 'button#start', function(e){
             var id = id_helper;
+            if (isOpen == false){
+              alert('Session not open');
+            }
+            else{
             $.ajax({
                     type: 'POST',
                     dataType: 'json',
@@ -340,6 +351,7 @@ $("body").on('click', 'button#start', function(e){
                       alert ("couldn't start session");
                     }
             });
+          }
 });
 
   $('body').on('click', 'ul.menulist li a', function(){

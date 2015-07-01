@@ -4,7 +4,7 @@ from django.contrib.auth.models import User, Group
 from django.http import HttpResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
-
+from django.db.models import Q
 from django.db import IntegrityError
 from django.utils import timezone
 from django.core.cache import cache
@@ -408,19 +408,33 @@ def sessions_paginate(request):
     stop = int(request.GET.get('i2'))
     user = request.user
     # get pagination beginning and next page value
-    if is_coach(user):
-        table = TimingSession.objects.filter(manager=user).values()
+    start_date = request.GET.get('start_date')
+    stop_date = request.GET.get('stop_date')
+    if start_date == None or stop_date == None:   
+        if is_coach(user):
+            table = TimingSession.objects.filter(manager=user).values()
+        else:
+            table = TimingSession.objects.filter(private='false').values()
     else:
-        table = TimingSession.objects.filter(private='false').values()
-    #reset indices for pagination without changing id
-    i = 1
-    result = []
-    for instance in table:
-        i += 1
-        if i >= begin and i <= stop:
-            #if indices are in the range of pagination, append to return list
-            result.append(instance)
-    return Response(result, status.HTTP_200_OK)
+        start_date = dateutil.parser.parse(start_date)
+        stop_date = dateutil.parser.parse(stop_date)        
+        if is_coach(user):
+            table = TimingSession.objects.filter(Q(manager=user) & Q(start_time__range=(start_date, stop_date))).values()
+        else:
+            table = TimingSession.objects.filter(Q(private='false') & Q(start_time__range=(start_date, stop_date))).values()
+        #reset indices for pagination without changing id
+    if begin == 0 and stop == 0:
+        return Response(table, status.HTTP_200_OK)
+    else:
+        i = 1
+        result = []
+        for instance in table[::-1]:
+            if i >= begin and i <= stop:
+                #if indices are in the range of pagination, append to return list
+                result.append(instance)
+            i += 1
+        result = list(reversed(result))
+        return Response(result, status.HTTP_200_OK)
 
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))
