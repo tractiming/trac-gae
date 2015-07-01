@@ -1,5 +1,6 @@
 function UTC2local(part1, part2){
 	var timeString = part1
+	timeString = timeString.replace(/-/g, '/');
 	timeString = timeString.concat(' ');
 	timeString = timeString.concat(part2);
 	timeString = timeString.concat(' UTC');
