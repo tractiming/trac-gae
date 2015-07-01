@@ -1,593 +1,516 @@
-{% extends "base.html" %}
-{% load staticfiles %}
+{% extends "base_new.html" %}
+{% load static %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static "css/new/main.css" %}" />
+<link rel="stylesheet" href="{% static "css/new/score.css" %}" />
+<link rel="stylesheet" href="{% static "css/new/create.css" %}" />
+<link rel="stylesheet" href="{% static "css/new/home.css" %}" />
+{% endblock %}
+
+{% block js_scripts %}
+
+<script>
+var gl_helper;
+var id_helper;
+var isOpen = false;
+if (sessionStorage.access_token == null) {
+    //link to login page
+    location.href="/login";
+}
+else{
+    
+}
+
+    $(document).ready(function() {
+$("li a.logout").click(function(){
+    sessionStorage.clear();
+    location.href="/login";
+});
+    });
+
+</script>
+{% endblock %}
+
+{% block nav-items %}
+  <li><a href="/home">Home</a></li>
+  <li><a href="/liveview">Live View</a></li>
+  <li><a href="/calendar">Calendar</a></li>
+  <li><a href="/create">Create</a></li>
+  <li><a class="hidden-sm hidden-md hidden-lg" href="/readers">Readers</a></li>
+  <li><a class="hidden-sm hidden-md hidden-lg" href="/settings">Settings</a></li>
+  <li><a class="logout hidden-sm hidden-md hidden-lg" href="">Logout</a></li>
+<!-- Single button -->
+  <li id="dropdown-button" class="btn-group hidden-xs">
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>
+    </button>
+    <ul class="dropdown-menu" >
+      <li><a href="/readers">Readers</a></li>
+      <li><a href="/settings">Settings</a></li>
+      <li role="separator" class="divider"></li>
+      <li><a class="logout" href="">Logout</a></li>
+    </ul>
+  </li>
+{% endblock %}
 
 {% block content %}
-<script type="text/javascript" src="{% static "js/timeConversion.js" %}" />
-   <script>
+<script>
 	$(document).ready(function(){
 	if (sessionStorage.usertype == 'athlete'){
-		$("form#coachform").hide();
-		load();
+		$("div.right").hide();
+		 $('div.pictures').css('padding-left','200px');
+		 $('div.text').css('padding-left','200px');
 		}
-		//if a coach
-	else {
-		$("form#myform").hide();
-		loadtags();}
+    loadAthletes();
+    findScores();
 	});
-	</script>
-	<script>
-		var stepped = 0, rowCount = 0, errorCount = 0, firstError;
-		var inputType = "string";
-		$(document).ready(function(){
-	    
-	    $("#csvform").on('submit', function(e){
-			e.preventDefault();
-			var config = buildConfig();
-			
-$('#file').parse({
-			config:config,
-			before: function(file, inputElem)
-				{
-					start = now();
-					console.log("Parsing file...", file);
-				},
-				error: function(err, file)
-				{
-					console.log("ERROR:", err, file);
-					firstError = firstError || err;
-					errorCount++;
-				},
-			
-			complete: function(){
-				end = now();
-				printStats("Done with all files");
-				
 
-				
-				
-			}
-		});
-	});
-});
-	function now()
-{
-	return typeof window.performance !== 'undefined'
-			? window.performance.now()
-			: 0;
-}
-
-function buildConfig()
-{
-	return {
-		delimiter: '',
-		header: true,
-		dynamicTyping: false, //turn numbers into numbers or strings? yes no to boolean?
-		skipEmptyLines:true,
-		preview: parseInt($('#preview').val() || 0),
-		step: $('#stream').prop('checked') ? stepFn : undefined,
-		encoding: '',
-		worker: true, //run on separate thread--slower but wont lock webpage
-		comments: $('#comments').val(),
-		complete: completeFn,
-		error: errorFn,
-		download: inputType == "remote"
-	};
-}
-
-function stepFn(results, parser)
-{
-	stepped++;
-	if (results)
-	{
-		if (results.data)
-			rowCount += results.data.length;
-		if (results.errors)
-		{
-			errorCount += results.errors.length;
-			firstError = firstError || results.errors[0];
-		}
-	}
-}
-
-function completeFn(results)
-{
-	end = now();
-
-	if (results && results.errors)
-	{
-		if (results.errors)
-		{
-			errorCount = results.errors.length;
-			firstError = results.errors[0];
-		}
-		if (results.data && results.data.length > 0)
-			rowCount = results.data.length;
-			
-	}
-
-	printStats("Parse complete");
-	console.log("    Results:", JSON.stringify(results.data));
-	var dated = $('input[id=date]').val();
-	var reads = $('input[id=readers]').val();
-	var workoutName = $('input[id=name]').val();
-	var username =$('input[id=username]').val();
-
-	//I made a manipulated string that allows users to input a list of readers and separates each reader.
-	var readersList = reads.split(",");
-	var rL = "";
-	for(var j = 0; j < readersList.length; j++){
-		rL = rL.concat('"'+readersList[j]+'"');
-		if (j != readersList.length - 1){
-			rL = rL.concat(',');
-		}
-	}
-	rL = '['+rL+']';
-	rL = rL.replace(/\s/g, '');
-	dL = local2UTC(dated);
-	console.log(dL);
-	//The manipulated string matches the api conventions and successfully creates new races with the readers that user inputs.
-	var json = '{"race_name":"'+workoutName+'","race_date":"'+dL+'","director_username":"'+username+'","readers":'+rL+',"athletes":'+JSON.stringify(results.data)+'}';
-	console.log(json);
-	$.ajax({
-           type: "POST",
-           dataType:'json',
-           url: "/api/raceregistration/",
-	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
-           data:json,
-           // Login was successful.
-           success: function(data) {alert('yes')},
-           error: function(xhr, errmsg, err) {alert('error')}
-	   });
-			
-			$('#file').val('');
-	// icky hack
-	//setTimeout(enableButton, 100);
-}
-
-function errorFn(err, file)
-{
-	end = now();
-	console.log("ERROR:", err, file);
-	//enableButton();
-}
-function printStats(msg)
-{
-	if (msg)
-		console.log(msg);
-	console.log("       Time:", (end-start || "(Unknown; your browser does not support the Performance API)"), "ms");
-	console.log("  Row count:", rowCount);
-	if (stepped)
-		console.log("    Stepped:", stepped);
-	console.log("     Errors:", errorCount);
-	if (errorCount)
-		console.log("First error:", firstError);
-}
-</script>
-	
-<script>
-//coaches jquery to call athletes and idnumbers
-$(document).ready(function() {
-		//load();
-
-        $("#coachform").on('submit', function(e){
-            e.preventDefault();
-	    $(".modal-animate").show();
-            var form = $(this);
-
-            form.parsley().validate();
-
-	    
-	    
-            if (form.parsley().isValid()){
-	            // var title=$('input[id=title]').val();
-	           var first=$('input[id=first]').val();
-	            var last=$('input[id=last]').val();  
-		      var id_number=$('input[id=number]').val();
-		    
-
-	      $.ajax({
-           type: "POST",
-           dataType:'json',
-           invokedata:{data1:id_number,},
-           url: "/api/athletes/",
-	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
-           data: {
-               first_name: first,
-               last_name:last,
-               username:first+""+last,
-           },
-           // Login was successful.
-           success: function(data) {
-			   var userid = data.id;
-			   var id_number = this.invokedata.data1;
-			   //alert(id_number);
-			   $.ajax({
-           type: "POST",
-           dataType:'json',
-           url: "/api/tags/",
-	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
-           data: {
-              id_str:id_number,
-              user:userid,
-               
-           },
-           // create athlete
-           success: function(data) {
-
-		    $(".modal-animate").hide();
-		    $("h6.notification.notification-critical").hide();
-		    $("h6.notification.notification-success").show();
-		    $("#coachform")[0].reset();
-		    loadtags();
-			   },
-			   error:function(xhr,errmsg,err){
-				   //created the username but not the tag to user
-				    $(".modal-animate").hide();
-	    $("h6.notification.notification-success").hide();
-               $("h6.notification.notification-critical").show();
-				   }
-			   
-			   });
-			   
-			   
-           },
-
-           // create athlete failed.
-           error: function(xhr, errmsg, err) {
-	    $(".modal-animate").hide();
-	    $("h6.notification.notification-success").hide();
-               $("h6.notification.notification-critical").show();
-           }
-           
-      });
-               
-            }
-        });
-    });
-
-
-</script>
-<script>
-    
-    function uploadCSV(){
-     $("form#coachform").hide();
-     $("form#csvform").show();
-     $("button#csvbutton").hide();
-     $("button#example").show();
-     $("button#individualbutton").show();
-        
-    }
-    
-    function uploadIndi(){
-     $("form#coachform").show();
-     $("form#csvform").hide();
-     $("button#csvbutton").show();
-        $("button#example").hide();
-     $("button#individualbutton").hide();
-        
-    }
-
-</script>
-
-	<script>
-		//for athlete load their personal tags
-    $(document).ready(function() {
-		//loadtags();
-        $("#myform").on('click', '#submit', function(e){
-            e.preventDefault();
-	    $(".modal-animate").show();
-
-
-
-	    
-	    
-          
-	            // var title=$('input[id=title]').val();
-		      var id_number=$('input[id=id_number]').val();
-		   
-               JSONObject = {'id_str':id_number};
-                            
-           		    
-	      $.ajax({
-          type: "POST",
-           dataType:'json',
-           contentType:'application/json',
-           url: "/api/tags/",
-
-	   headers: {Authorization: "Bearer " + sessionStorage.access_token
-		   },
-           data: JSON.stringify(JSONObject),
-           // Login was successful.
-           success: function(data) {
-		    $(".modal-animate").hide();
-		    $("h6.notification.notification-critical").hide();
-		    $("h6.notification.notification-success").show();
-		    $("#myform")[0].reset();
-		    load();
-                   
-           },
-
-           // Login request failed.
-           error: function(xhr, errmsg, err) {
-			   $(".modal-animate").hide();
-	    $("h6.notification.notification-success").hide();
-               $("h6.notification.notification-critical").show();
-           }
-           
-      });
-               
-            
-        });
-    });
-    
-    //add new button functionality for individual athlete
-    
-    
-
-$("body").on('click', 'tr',function(){
-	//alert($(this).html());
-	var value = $(this).html();
-	$("input#delete").show();
-	$("input#update").show();
-	$("div.button-container-two").show();
-	$("input#create").show();
-	$("p#idnumber").show();
-	//$("input#submit").hide();
-	$(value).each(function(index){
-		//alert( $(this).html() );
-		console.log( index+ ":"+ $(this).html());
-		if (index ==0)
-		{
-			var input =$('input#idnumber');
-			input.val($(this).html() );
-		}
-		else if (index ==1)
-		{
-			var input =$('input#id_number');
-			input.val($(this).html() );
-			}
-
-	});
-	
-	
-
-	
-	
-	});
-	
-
-
-	$("body").on('click', 'input#delete',deleteTags);
-	
-	
-
-			
-			function deleteTags(f){
-	//alert($(this).html());
-	
-	  f.preventDefault();
-	  $("h6.notification.notification-warning").show();
-	  $("h6.notification.notification-critical").hide();
-	  $("h6.notification.delete-success").hide();
-	  		    $("h6.notification.notification-critical").hide();
-		    $("h6.notification.notification-success").hide();
-		
-	  
-	  $("body").on('click','button', function(event){
-	console.log("On:", event.target);
-	var value = $(this).html();
-	
-	
-	if (value == 'Yes'){ $(".modal-animate").show();
-	  
-	 var id=$('input[id=idnumber]').val();
-	//alert(id);
-	//alert('test');
-	//alert(value);
-		//alert(filter);
-	      $.ajax({
-           type: "DELETE",
-           dataType:'json',
-           url: "/api/tags/"+id,
-	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
-         
-           // Login was successful.
-           success: function(data) {
-		    //hide spinner, success modal, and reset form
-		    $(".modal-animate").hide();
-		    $("h6.notification.notification-critical").hide();
-		    $("h6.notification.notification-success").hide();
-		
-		    $("h6.notification.delete-success").show();
-		     $("h6.notification.notification-warning").hide();
-		    $("#myform")[0].reset();
-		    	$("input#delete").hide();
-	$("input#update").hide();
-	$("input#submit").show();
-	$("p#idnumber").hide();
-	$("input#create").hide();
-		    load();
-		    $("button#warning-yes").unbind('click',deleteTags);
-                   
-           },
-
-           // Login request failed.
-           error: function(xhr, errmsg, err) {
-	    //hide spinner, show error modal
-	    $(".modal-animate").hide();
-	    $("h6.notification.notification-success").hide();
-	     $("h6.notification.notification-warning").hide();
-	
-		    $("h6.notification.delete-success").hide();
-               $("h6.notification.notification-critical").show();
-           }
-           
-      });
+  function loadAthletes(){
+   $('#athletes').empty();
+   if (id_helper!=0){
+   $.ajax({
+    url: "api/reg_tag/",
+    headers: {Authorization: "Bearer " + sessionStorage.access_token},
+    data: {id: id_helper},
+    dataType: 'text',
+    success: function(data){
+      var json = $.parseJSON(data);
+      json = json.reverse();
+        $('#athletes').append(
+          '<table id="results-table" class="table table-striped table-hover">' +
+              '<thead>' +
+                  '<tr>' +
+                    '<th class="hidden-xs hidden-sm hidden-md hidden-lg">id</th>'+
+                    '<th>Username</th>'+
+                    '<th>Tag ID</th>' +
+                  '</tr>'+
+                '</thead>'+
+                '<tbody>'+
+                '</tbody>'+
+              '</tbody>');
+        $('#athletes').addClass('col-md-6 col-md-offset-0 colr-sm-8 col-sm-offset-0');
+        for (var ii=0;ii < json.length;ii++){
+               //alert(ii);
+               id = json[ii].id;
+               fname = json[ii].user;
+               tag = json[ii].id_str;
+                $('#athletes tbody').append(
+                  '<tr>'+
+                    '<td class="hidden-xs hidden-sm hidden-md hidden-lg">' + id + '</td>' +
+                    '<td>'+fname+'</td>'+
+                    '<td>'+tag+'</td>' +
+                  '</tr>');
       }
-	else if(value =='Cancel'){
-		$(".modal-animate").hide();
-	    $("h6.notification.notification-success").hide();
-	    $("h6.notification.notification-warning").hide();
-              
-		}
-	
-	 });
-	  
-	  
-	
-	}
-			
-
-
-//functon to load tags
-function loadtags(){
-			 $('#tagresults').empty();
-		  //alert(path);
-		  //alert(path);
-		   $.ajax({
-                     url: "/api/tags/",
-		     headers: {Authorization: "Bearer " + sessionStorage.access_token},
-                    //force to handle it as text
-                    dataType: "text",
-                    success: function(data) {
-                        //alert(data);
-                        //data downloaded so we call parseJSON function 
-                        //and pass downloaded data
-                        
-                        var json = $.parseJSON(data);
-                       //alert(json[0].id_str)
-                       for (var ii=0;json.length;ii++){
-						   //alert(ii);
-						   firstname = json[ii].first_name;
-						   lastname = json[ii].last_name;
-						   userid= json[ii].user;
-						   referenceid = json[ii].id;
-						   rfidnum = json[ii].id_str;
-						  if (ii==0) {
-			    $('#tagresults').append('<tr><th>Reference ID</th><th>ID Number</th><th>User Number</th><th>First Name</th><th>Last Name</th></tr>');
-			    $('#tagresults').append('<tr class="odd"><td>'+referenceid+'</td><td>'+rfidnum+'</td><td>'+userid+'</td><td>'+firstname+'</td><td>'+lastname+'</td></tr>');
-			    //alert(name);
-			  }
-			  else if((ii)%2 ==0) {
-			    $('#tagresults').append('<tr class="odd"><td>'+referenceid+'</td><td>'+rfidnum+'</td><td>'+userid+'</td><td>'+firstname+'</td><td>'+lastname+'</td></tr>');
-			  }
-			  else{
-			    $('#tagresults').append('<tr><td>'+referenceid+'</td><td>'+rfidnum+'</td><td>'+userid+'</td><td>'+firstname+'</td><td>'+lastname+'</td></tr>');
-			    //alert(name);
-			  }
-						   }
-
-			}
-			
-			
-			
-                    });
-		   
+    }
+   });
+}
 }
 
+function findScores(){
+    $.ajax({
+      url: '/api/sessions/',
+      headers: {Authorization: "Bearer " + sessionStorage.access_token},
+      dataType: 'text',
+      success: function(data){
+        var json = $.parseJSON(data);
+        json = json.reverse();
+          var arr = [];
+          for (var i=0; i < json.length; i++){
+            $('#linkedlist').append('<tr><td>'+json[i].name+'</td></tr>');
+            $('ul.menulist').append('<li><a href="#">'+json[i].name+'</a></li>');
+            arr.push(json[i].id);
+          }
+          idArray = arr;
+        }
+    });
+  }
     
-	    </script>
-	
-	
+  // attach handler for heat menu item click
+</script>
+<style>
+    #coachform{
+      width:300px;
+      margin: 0 auto;
+    }
+    label{
+      display:block;
+    }
+    input,textarea{
+      width:75%;
+    }
+  </style>
+<script>
+$(document).ready(function() {
+    $("#coachform").on('submit', function(e){
+         e.preventDefault();
+         var form = $(this);  
+         form.parsley().validate();
+         if (form.parsley().isValid()){
+         	var it=$('input[id=idnumber]').val();   
+            var fname=$('input[id=username]').val();
+            var ti=$('input[id=tag]').val();
+        $.ajax({
+           type: "POST",
+           dataType:'json',
+           url: "/api/reg_tag/",
+           headers: {Authorization: "Bearer " + sessionStorage.access_token},
+           data: {
+           	   id: id_helper,
+           	   id2: it,
+               username: fname,
+               id_str: ti,
+               submethod: 'Update'
+           }, 
+                      success: function(data) {
+                      console.log(fname);
+                      $("#coachform")[0].reset();
+                      loadAthletes();
+                    }
+                });
+           }
+           
+      });
+});
+</script>
+<script>
+    
+$("body").on('click', 'tr' ,function(){
+  $('#myModal').modal('toggle');
+  var value = $(this).html();
+  $("button#delete").show();
+  $("input#update").show();
+  $("div.button-container-two").show();
+  $("input#create").show();
+  $("p#idnumber").show();
+  $("input#save").hide();
+  $(value).each(function(index){
+    //alert( $(this).html() );
+    console.log( index+ ":"+ $(this).html());
+    if (index ==0)
+    {
+      var input =$('input#idnumber');
+      input.val($(this).html() );
+    }
+    else if (index ==1)
+    {
+      var input =$('input#username');
+      input.val($(this).html() );
+      }
+    else if (index ==2)
+    {
+      var input =$('input#tag');
+      input.val($(this).html() );
+      }
+  });
+});
 
+$("body").on('click', 'button#plus', function(e){
+  //alert($(this).html());
+    e.preventDefault();
+    $("#coachform")[0].reset();
+  var value = $(this).html();
+  $("button#delete").hide();
+  $("input#update").hide();
+  $("input#save").show();
+  $("p#idnumber").hide();
+  //$("input#create").hide();
 
-<div class="modal-animate hide">
-    <div class="rotate"></div>
+  });
 
-</div>
+$("button#delete").off('click');
+  $("body").on('click', 'button#delete', function(f){
+  //alert($(this).html());
+    f.preventDefault();
+    $("div.notification.notification-warning").show();
+    $("div.notification.notification-critical").hide();
+    $("div.notification.notification-critical").hide();
+    $("div.notification.notification-success").hide();
+    $("div.notification.update-success").hide();
+  });
 
-    <div id="create">  
-     <h2>Settings</h2>
-     
-	  <div id="notifications">
-        <h6 class="notification notification-critical" role="alert">Some information you entered isn't right.</h6>
-	<h6 class="notification notification-success" role="alert">You have successfully registered an ID!</h6>
-		<h6 class="notification delete-success" role="alert">You have successfully deleted an ID!</h6>
-	<h6 class="notification notification-warning" role="alert">Are you sure? <div class="container" id="screen-selector"><button href="#" type="button" id="warning-yes">Yes</button><button id="warning-no" href="#" type="button" style="float:right">Cancel</button></div></h6>
-    </div>
-	  
-    <div id="contentleft">
-					
-
-		
-		
-		<button id="csvbutton" onclick="javascript:uploadCSV();">+ Upload CSV</button>
-        <button id="individualbutton" onclick="javascript:uploadIndi();">+ Individual</button>
-        <form method="get" action="/static/files/test.csv">
-        <button type="submit" id="example" >Example</button>
-            </form>
-        
-		<form name="coachform" id="coachform" method="POST" data-parsley-validate>
-
-		
-		   <p>
-		      <label for="">First Name:</label> 
-		      <input data-progression="" type="text" data-helper="" id="first" value="" placeholder="" required data-parsley-group="block1" />
-		  </p>
-		   <p>
-		      <label for="">Last Name:</label> 
-		      <input data-progression="" type="text" data-helper="" id="last" value="" placeholder="" required data-parsley-group="block1" />
-		  </p>
-		   <p>
-		      <label for="">ID Number:</label> 
-		      <input data-progression="" type="text" data-helper="" id="number" value="" placeholder="" required data-parsley-group="block1" />
-		  </p>
-		
-		     
-		     
-		          <div class="button-container">
-		    <input type="submit" name="" class="validate" id="submit" value="Save" />
-	                         </div>
-		</form>
-        
-        <form name="csvform" id="csvform"  data-parsley-validate>
-        
-		
- <p>
-		      <label for="">Workout Name:</label> 
-		      <input data-progression="" type="text" data-helper="" id="name" value="" placeholder="" />
-		  </p>
-		   <p>
-		      <label for="">Workout Date:</label> 
-		      <input data-progression="" type="text" data-helper="" id="date" value="" placeholder="" />
-		  </p>
-                        <p>
-		      <label for="">Confirm Username:</label> 
-		      <input data-progression="" type="text" data-helper="" id="username" value="" placeholder=""  />
-		  </p>
-		   <p>
-		      <label for="">Readers:</label> 
-		      <input data-progression="" type="text" data-helper="" id="readers" value="" placeholder="" />
-		  </p>
-		
-		     
-		     
-		          <div class="button-container">
-		    <input type="file" id="file" name="myfile" value="Choose File">
-				<input type="submit" class="gen_btn" id="upload" name ="upload" value="Upload">
-	                         </div>
-		</form>
+  
+  $("body").on('click', 'button#warning-yes', function(event){
+  console.log("On:", event.target);
+  var value = $(this).html();
+   $(".modal-animate").show();
+    
+   var id=$('input[id=idnumber]').val();
+   var id2=id_helper;
+  //alert(id);
+  
+    //alert(filter);
+        $.ajax({
+           type: "POST",
+           dataType:'json',
+           url: "/api/reg_tag/",
+           data:
+           {id: id2,
+            id2: id,
+        	submethod: 'Delete'},
+     headers: {Authorization: "Bearer " + sessionStorage.access_token},
          
-					
-					
-				
-    </div>
-                   <div id="contentright">
-			      <div class ="outer">
-      <div class="inner">
-       <table id="tagresults" style="width:100%"></table>
-       </div>
-       </div>
-      
-              </div>
-    
-    
-     
+           // Login was successful.
+           success: function(data) {
+                  $(".modal-animate").hide();
+                   $("div.notification.notification-critical").hide();
+                    $("div.notification.notification-success").hide();
+                   $("div.notification.update-success").hide();
+                  $("div.notification.delete-success").show();
+                 $("div.notification.notification-warning").hide();
+                $("#coachform")[0].reset();
+               $("button#delete").hide();
+               $("input#update").hide();
+                $("input#save").show();
+                 $("p#idnumber").hide();
+                 //$("input#create").hide();
+                  $("#athletes").empty();
+                 loadAthletes();
+              },
+              // Login request failed.
+           error: function(xhr, errmsg, err) {
+      //hide spinner, show error modal
+      $(".modal-animate").hide();
+      $("div.notification.notification-success").hide();
+       $("div.notification.notification-warning").hide();
+        $("div.notification.update-success").hide();
+        $("div.notification.delete-success").hide();
+        $("div.notification.notification-critical").show();
+           }
+            });  
+});
+
+$("button#warning-no").click(function(event){
+    $(".modal-animate").hide();
+      $("div.notification.notification-success").hide();
+      $("div.notification.notification-warning").hide();
+   });
+
+
+$("body").on('hidden.bs.modal', '#notificationModal', function(){
+          $("div.notification.delete-success").hide();
+          $("div.notification.notification-warning").hide();
+    });
+$("body").on('click', '#open', function(e){
+  console.log('pressing Open');
+  isOpen = true;
+          $.ajax({
+              type: 'POST',
+              dataType: 'json',
+              url: '/api/open_session/',
+              data: {id: id_helper},
+              headers: {Authorization: "Bearer " + sessionStorage.access_token},
+              success: function(data){
+                  alert ('session open');
+              },
+              error: function(xhr, errmsg, err){
+                  alert ("session couldn't open");
+              }
+          });
+});
+
+$("body").on('click', 'button#stop', function(e){
+            var id = id_helper;
+            if (isOpen == false){
+              alert('Session is not open');
+            }
+            else{
+            $.ajax({
+                    type: 'POST',
+                    dataType: 'json',
+                    url: '/api/close_session/',
+                    data: {id: id},
+                    headers: {Authorization: "Bearer " + sessionStorage.access_token},
+                    success: function(data){
+                      alert ('session closed');
+                      isOpen=false;
+                    },
+                    error: function(xhr, errmsg, err){
+                      alert ("couldn't close session");
+                    }
+            });
+          }
+});
+
+$("body").on('click', 'button#start', function(e){
+            var id = id_helper;
+            if (isOpen == false){
+              alert('Session not open');
+            }
+            else{
+            $.ajax({
+                    type: 'POST',
+                    dataType: 'json',
+                    url: '/api/start_timer/',
+                    data: {id: id},
+                    headers:{Authorization: "Bearer " + sessionStorage.access_token},
+                    success: function(data){
+                      alert ('session started');
+                    },
+                    error: function(xhr, errmsg, err){
+                      alert ("couldn't start session");
+                    }
+            });
+          }
+});
+
+  $('body').on('click', 'ul.menulist li a', function(){
+      var name = ($(this).html() );
+      var id;
+  $.ajax({
+      type: 'GET',
+      url: '/api/sessions/',
+      headers: {Authorization: "Bearer " + sessionStorage.access_token},
+      success: function(data){
+          var json = data;
+          json = json.reverse();
+          for (var ii=0; ii < json.length; ii++)
+          {
+              if(json[ii].name == name){
+                  id = json[ii].id;
+                  id_helper = id;
+              }
+          }
+          loadAthletes();
+      },
+      error: function(xhr, errmsg, err){
+        alert ("couldn't find workout");
+      }
+  });
+  });
+
+   $("body").on('click','input#update', function(e){
+         e.preventDefault();
+         	var it=$('input[id=idnumber]').val();   
+            var fname=$('input[id=username]').val();
+            var ti=$('input[id=tag]').val();
+            console.log(fname);
+        $.ajax({
+           type: "POST",
+           dataType:'json',
+           url: "/api/reg_tag/",
+           headers: {Authorization: "Bearer " + sessionStorage.access_token},
+           data: {
+           	   id: id_helper,
+           	   id2: it,
+               username: fname,
+               id_str: ti,
+               submethod: 'Update'
+           }, 
+                      success: function(data) {
+                      console.log(fname);
+                      $("#coachform")[0].reset();
+                      loadAthletes();
+                      $("div.notification.update-success").show();
+                    }
+                });
+           
+      });
+</script>
+<nav class="pushy pushy-left">
+    <ul class="menulist">      
+    </ul>
+  </nav>
+  <div class="site-overlay"></div>
+    <div id="home">  
+        <div class="container-fluid content">
+          <div id="container" class="container col-lg-5 col-md-5 col-sm-5 col-xs-5">
+            <div class="row">
+        <div class="col-md-3 col-sm-4 col-xs-6" style="margin: 2%">
+          <div class="menu-btn" style="display: inline-block;">
+            <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span> Heat Menu
+          </div>
+        </div>
       </div>
-    {% endblock %} 
+            <div class="row">
+              <h1 id="score-title">Roster</h1>
+              <div id="athletes" class="table">
+              </div>
+              <button type="button" class="btn btn-default" id="plus" data-toggle="modal" data-target="#myModal">
+                  <span class="glyphicon glyphicon-plus" aria-hidden="true"> </span>
+              </button>
+            </div>
+          </div>
+          <div id="container" class="container col-lg-7 col-md-7 col-sm-7 col-xs-7" align="center">
+            <div class="row"></div>
+            <div class="row">
+              <button type="button" class="btn btn-primary" id="open" style="margin: 2%;">Open</button>
+              <button type="button" class="btn btn-warning" id="stop" style="margin: 2%;">Stop</button>
+              <button type="button" class="btn btn-success" id="start" style="margin: 2%;">Start</button>
+            </div>
+          </div>
+      </div>
+      <div id="create" class="container">
+  <div class="modal fade" id="notificationModal" role="dialog">
+    <div class="modal-dialog">
+      <div class ="modal-content">
+        <div class="modal-body">
+          <div id="notifications">
+              <div class="notification notification-critical" role="alert">Some information you entered isn't right.</div>
+            <div class="notification notification-success" role="alert">You have successfully created a workout!</div>
+            <div class="notification update-success" role="alert">You have successfully updated a workout!</div>
+            <div class="notification delete-success" role="alert">You have successfully deleted a workout!</div>
+            <div class="notification notification-warning" role="alert">Are you sure? <div id="screen-selector"><button href="#" type="button" id="warning-yes">Yes</button><button id="warning-no" href="#" type="button" style="float:right" data-dismiss="modal" data-toggle="modal" data-target="#myModal">Cancel</button></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container">
+<div class="modal fade" id="workoutModal" role="dialog">
+    <div class="modal-dialog">
+      <div class ="modal-content">
+        <div class="modal-body">
+          <div id="notifications">
+            <input type="text" id="workout_name" value="" placeholder="" required data-parsley-group="block1" />
+            <button class="btn btn-primary" id="oworkout">Open Workout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="container">
+ <div class="modal fade" id="myModal" role="dialog">
+  <div class="modal-dialog">
+  <div class="modal-content">
+    <div class="modal-header">
+    </div>
+      <div class="modal-body">
+      <form name="tracform" id="coachform" method="POST" data-parsley-validate>
+        <div class="button-container-two">
+          </div>
+          <p id="idnumber">
+           
+            <input type="hidden" id="idnumber" value="" placeholder="" required data-parsley-group="block1" readonly/>
+        </p>
+       <p>
+           <label for="">Username:</label> 
+           <input data-progression="" type="text" id="username" value="" placeholder="" required data-parsley-group="block1" />
+       </p>
+        <p>
+           <label for="">TagID:</label> 
+           <input data-progression="" type="text" id="tag" value="" placeholder="" required data-parsley-group="block1" />
+       </p>
+          <br>
+         
+              <div class="button-container modal-footer">
+      <button name="" class="btn btn-primary col-md-3 col-sm-3 col-xs-3" id="delete" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal">Delete</button>
+        <input type="submit" name="" class="btn btn-primary" id="save" value="Save" />
+        <input type="submit" name="" class="btn btn-primary col-md-5 col-sm-5 col-xs-5" id="update" value="Update" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal" />
+                           </div>
+                        </form>   
+                     </div>        
+                 </div>
+              </div>
+          </div>
+      </div>
+    </div>
+
+     
+   {% endblock %} 
     
     
     
 </html>
-
-
