@@ -11,7 +11,7 @@
 {% block js_scripts %}
 <script>
 var gl_helper;
-var id_helper;
+var id_helper = 0;
 var isOpen = false;
 if (sessionStorage.access_token == null) {
     //link to login page
@@ -102,9 +102,13 @@ $("li a.logout").click(function(){
                     '<td>'+tag+'</td>' +
                   '</tr>');
       }
+            $('#inputheader').hide();
     }
    });
-}
+    }
+    else{
+      $('#inputheader').show();
+    }
 }
 
 function findScores(){
@@ -557,7 +561,7 @@ $("body").on('click', 'button#start', function(e){
     </ul>
   </nav>
   <div class="site-overlay"></div>
-    <div id="home">  
+    <div id="content">  
         <div class="container-fluid content">
           <div id="container" class="container col-lg-5 col-md-5 col-sm-5 col-xs-5">
             <div class="row">
@@ -568,12 +572,21 @@ $("body").on('click', 'button#start', function(e){
         </div>
       </div>
             <div class="row">
-              <h1 id="score-title">Roster</h1>
-              <div id="athletes" class="table">
-              </div>
+              <div class="col-lg-offset-10 col-md-offset-10 col-sm-offset-10 col-xs-offset-10">
               <button type="button" class="btn btn-default" id="plus" data-toggle="modal" data-target="#myModal">
                   <span class="glyphicon glyphicon-plus" aria-hidden="true"> </span>
               </button>
+            </div>
+            <h1 id="score-title">Roster</h1>
+            </div>
+            <div class="row">
+              <div id="athletes" class="table">
+              </div>
+              <div style="text-align: center;">
+              <p id="inputheader" class="notification notification-error notification-default" role="alert">
+              <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Please Select Workout to Manage from Heat Menu.
+              </p>
+            </div>
             </div>
           </div>
           <div id="container" class="container col-lg-7 col-md-7 col-sm-7 col-xs-7" align="center">
