@@ -104,21 +104,22 @@ google.setOnLoadCallback(function(){
 
 					// if empty, hide spinner and show notification
 					if (results.runners == '') {
+						spinner.stop();
 						$('#notifications .notification-default').show();
 						$('#download-container').hide();
 						$('#results-nav').hide();
 						$('#results-table').hide().empty();
-						$('#results-graph').hide()
+						$('#results-graph').hide();
 						$('#results-graph>#graph-canvas').empty();
 						$('#results-graph #graph-toggle-options').empty();
-						spinner.stop();
 					} else {
+						spinner.stop();
 						$('#notifications .notification-default').hide();
 						$('#download-container').show();
 						$('#results-nav').show();
 
 						if (view === TABLE_VIEW) {
-							$('#results-graph').hide()
+							$('#results-graph').hide();
 							$('#results-graph>#graph-canvas').empty();
 							$('#results-graph #graph-toggle-options').empty();
 							drawTable(json);
@@ -187,76 +188,6 @@ google.setOnLoadCallback(function(){
 					addNewRow(id, name, interval);
 				}
 			}
-			spinner.stop();
-			//*/
-
-			/*
-			var toggled = $('#results-table>tbody>tr.accordion-toggle').map(function(){ return $(this).attr('aria-expanded'); }).get();
-			if (toggled.indexOf('true') > -1) {
-				for (var i=0; i < results.runners.length; i++) {
-					var id = results.runners[i].id;
-					var name = results.runners[i].name;
-					var interval = results.runners[i].interval;
-
-					var row = $('#results-table>tbody>tr#results'+id);
-					// check if row exists
-					if (row.length === 1) {
-						// check if expanded
-						if (row.attr('aria-expanded') === 'true') {
-							var numDisplayedSplits = $('table#splits'+id+'>tbody>tr').length;
-							// update splits table
-							if (interval.length > numDisplayedSplits) {
-								var totalTime = $('#total-time'+id).html().split(':');
-								var total = Number(totalTime[0])*60 + Number(totalTime[1]);
-								
-								// add the new splits if not already displayed
-								for (var j=numDisplayedSplits; j < interval.length; j++) {
-									var split = interval[j][0];
-									$('table#splits'+id+'>tbody').append(
-										'<tr>' + 
-											'<td>' + (j+1) + '</td>' + 
-											'<td>' + split + '</td>' + 
-										'</tr>'
-									);
-									total += Number(split);
-								}
-
-								// then update latest split and recalculate total
-								$('#latest-split'+id).html(interval[interval.length-1][0]);
-								$('#total-time'+id).html(formatTime(total));
-							}
-						} else {
-
-						}
-					} else {
-						addNewRow(id, name, interval);
-					}
-				}
-			} else {
-
-				$('#results-table').empty().show();
-
-				$('#results-table').append(
-					'<thead>' + 
-						'<tr>' +
-							'<th>Name</th>' +
-							'<th>Latest Split</th>' +
-							'<th>Total Time</th>' +
-						'</tr>' +
-					'</thead>' +
-					'<tbody>' +
-					'</tbody>'
-				);
-
-				for (var i=0; i < results.runners.length; i++) {
-					var id = results.runners[i].id;
-					var name = results.runners[i].name;
-					var interval = results.runners[i].interval;
-
-					addNewRow(id, name, interval);
-				}
-			}
-			//*/
 		}
 
 		function drawGraph(json){
@@ -264,17 +195,12 @@ google.setOnLoadCallback(function(){
 
 			// add toggle checkboxes 
 			var toggleOptions = $('#results-graph #graph-toggle-options');
-			/*
-			if (!$.trim(toggleOptions.html())) {
-				for (var i=0; i<results.runners.length; i++) {
-					toggleOptions.append(
-						'<label class="checkbox"><input type="checkbox" id="'+results.runners[i].id+'" value="" checked>' +
-							results.runners[i].name +
-						'</label>'
-					);
-				}
-			}
-			//*/
+
+			if ($('#results-graph #graph-toggle-options label input#all').length !== 1)
+				toggleOptions.append(
+					'<label class="checkbox"><input type="checkbox" id="all" value="" checked>All</label>'
+				);
+
 			for (var i=0; i<results.runners.length; i++) {
 				var id = results.runners[i].id;
 				// create new checkbox if doesn't already exist
@@ -330,9 +256,14 @@ google.setOnLoadCallback(function(){
 
 			data.addRows(rows);
 
+			var height = 300;
+			if (window.innerWidth > 768)
+				height = 500;
+
 			var options = {
-			  title: 'Split Times',
-			  hAxis: { title: 'Split', minValue: 1, viewWindow: { min: 1 } },
+			  title: json.name,
+			  height: height,
+			  hAxis: { title: 'Split #', minValue: 1, viewWindow: { min: 1 } },
 			  vAxis: { title: 'Time'},
 			  //hAxis: {title: 'Split', minValue: 0, maxValue: 10},
 			  //vAxis: {title: 'Time', minValue: 50, maxValue: 100},
@@ -342,15 +273,19 @@ google.setOnLoadCallback(function(){
 
 			var chart = new google.visualization.ScatterChart(document.getElementById('graph-canvas'));
 			chart.draw(data, options);
-
-			spinner.stop();
 		}
 
 		function addNewRow(id, name, interval){
+			var split = 0;
+			if (interval.length > 0)
+				split = interval[interval.length-1][0];
+			else
+				split = 'NT';
+
 			$('#results-table>tbody').append(
 				'<tr id="results'+id+'" class="accordion-toggle" data-toggle="collapse" data-parent="#results-table" data-target="#collapse'+id+'" aria-expanded="false" aria-controls="collapse'+id+'">' + 
 					'<td>' + name + '</td>' + 
-					'<td id="latest-split'+id+'">' + interval[interval.length-1][0] + '</td>' + 
+					'<td id="latest-split'+id+'">' + split + '</td>' + 
 					'<td id="total-time'+id+'"></td>' + 
 				'</tr>' + 
 				'<tr></tr>'	+		// for correct stripes 
@@ -358,12 +293,6 @@ google.setOnLoadCallback(function(){
 					'<td colspan="3">' +
 						'<div id="collapse'+id+'" class="accordion-body collapse" aria-labelledby="results'+id+'">' + 
 							'<table id="splits'+id+'" class="table" style="text-align:center; background-color:transparent">' +
-								/*'<thead>' + 
-									'<tr>' +
-										'<th>Split</th>' +
-										'<th>Time</th>' +
-									'</tr>' +
-								'</thead>' + */
 								'<tbody>' +
 								'</tbody>' +
 							'</table>' +
@@ -464,25 +393,63 @@ google.setOnLoadCallback(function(){
 						}
 						idArray = arr;
 					}
+
+					// attach handler for heat menu item click
+					$('body').on('click', 'ul.menulist li a', function(){
+						var value = $(this).html();
+						console.log( 'Index: ' + $( 'ul.menulist li a' ).index( $(this) ) );
+						var indexClicked = $( 'ul.menulist li a' ).index( $(this) );
+
+						// reset canvases and set new session id
+						$('.notification').hide();
+						$('#results-table').hide().empty();
+						$('#results-graph').hide();
+						$('#results-graph>#graph-canvas').empty();
+						$('#results-graph #graph-toggle-options').empty();
+						currentID = idArray[indexClicked];
+						spinner.spin(target);
+						update(currentID, currentView);
+					});
+
+					// attach handler for calendar menu click
+					$('#calendar-btn').click(function(e){
+						e.preventDefault();
+
+						$('#calendar-overlay').show();
+						// Calendar script
+						$('#calendar').fullCalendar({
+							editable: true,
+							eventLimit: true, // allow "more" link when too many events
+							events: calendarEvents //calls list from function above
+						});
+					});
+
+					// attach handler for hiding calendar menu
+					$('#calendar-overlay').click(function(e){
+						//e.preventDefault();
+						var cal = $('.calendar-container');
+						if (!cal.is(e.target) && cal.has(e.target).length === 0)
+							$('#calendar-overlay').hide();
+					});
+
+					// attach handler for calendar event click
+					$('.calendar-container').on('click','a.fc-day-grid-event', function(e) {
+						e.preventDefault();
+						$('#calendar-overlay').hide();
+
+						// reset canvases and set new session id
+						$('.notification').hide();
+						$('#results-table').hide().empty();
+						$('#results-graph').hide()
+						$('#results-graph>#graph-canvas').empty();
+						$('#results-graph #graph-toggle-options').empty();
+						currentID = parseInt($(this).attr('href').split('#'));
+						spinner.spin(target);
+						update(currentID, currentView);
+					});
 				}
 			});
 		}
-
-		// attach handler for heat menu item click
-		$('body').on('click', 'ul.menulist li a', function(){
-			var value = $(this).html();
-			console.log( 'Index: ' + $( 'ul.menulist li a' ).index( $(this) ) );
-			var indexClicked = $( 'ul.menulist li a' ).index( $(this) );
-
-			// reset canvases and set new session id
-			spinner.spin(target);
-			$('#results-table').hide().empty();
-			$('#results-graph').hide()
-			$('#results-graph>#graph-canvas').empty();
-			$('#results-graph #graph-toggle-options').empty();
-			currentID = idArray[indexClicked];
-			update(currentID, currentView);
-		});
 		
 		//Download to Excel Script
 		$('#download').click(function(){
@@ -495,42 +462,6 @@ google.setOnLoadCallback(function(){
 					return currentID;
 				}
 			});
-		});
-
-		// attach handler for calendar menu click
-		$('#calendar-btn').click(function(e){
-			e.preventDefault();
-
-			$('#calendar-overlay').show();
-			// Calendar script
-			$('#calendar').fullCalendar({
-				editable: true,
-				eventLimit: true, // allow "more" link when too many events
-				events: calendarEvents //calls list from function above
-			});
-		});
-
-		// attach handler for hiding calendar menu
-		$('#calendar-overlay').click(function(e){
-			//e.preventDefault();
-			var cal = $('.calendar-container');
-			if (!cal.is(e.target) && cal.has(e.target).length === 0)
-				$('#calendar-overlay').hide();
-		});
-
-		// attach handler for calendar event click
-		$('.calendar-container').on('click','a.fc-day-grid-event', function(e) {
-			e.preventDefault();
-			$('#calendar-overlay').hide();
-
-			// reset canvases and set new session id
-			spinner.spin(target);
-			$('#results-table').hide().empty();
-			$('#results-graph').hide()
-			$('#results-graph>#graph-canvas').empty();
-			$('#results-graph #graph-toggle-options').empty();
-			currentID = parseInt($(this).attr('href').split('#'));
-			update(currentID, currentView);
 		});
 
 		// attach handler for tab navigation
@@ -559,6 +490,12 @@ google.setOnLoadCallback(function(){
 		});
 
 		$('#graph-toggle-options').click(function(e){
+			if (e.target.id === 'all')
+				if ($('#graph-toggle-options input#all').prop('checked'))
+					$('#graph-toggle-options input').prop('checked', true);
+				else
+					$('#graph-toggle-options input').prop('checked', false);
+
 			// update view
 			lastSelected();
 		});
