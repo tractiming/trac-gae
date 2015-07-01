@@ -540,7 +540,8 @@ def WorkoutTags(request):
         else:
             if request.POST.get('submethod') == 'Delete': #Delete
                 ts = TimingSession.objects.get(id=id_num)
-                ts.registered_tags.remove(tag_id)
+                tag = ts.registered_tags.get(id=tag_id)
+                tag.delete()
                 return HttpResponse(status.HTTP_200_OK)
             elif request.POST.get('submethod') == 'Update': #Update and Create
                 ts = TimingSession.objects.get(id=id_num)
@@ -550,7 +551,7 @@ def WorkoutTags(request):
                     cp = CoachProfile.objects.get(user=i_user)
                     cp.athletes.add(a.pk)
                 a.save()
-                try:
+                try:  #if tag exists update user. Or create tag.
                     tag = Tag.objects.get(id_str = request.POST.get('id_str'))
                     tag.user = user
                     tag.save()
@@ -560,6 +561,25 @@ def WorkoutTags(request):
                 ts.save()
                 return HttpResponse(status.HTTP_200_OK)
 
+#update and remove athlete profiles from coach.athletes.all() but keeps the athlete's user account.
+@api_view(['POST'])
+@permission_classes((permissions.IsAuthenticated,))
+def edit_athletes(request):
+    i_user = request.user
+    if not is_coach(i_user):
+        return HttpResponse(HTTP_403_FORBIDDEN)
+    else:
+        if request.POST.get('submethod') == 'Delete': #Removes the link with coach account
+            cp = CoachProfile.objects.get(user = i_user)
+            atl = cp.athletes.get(user_id=request.POST.get('id'))
+            cp.athletes.remove(atl)
+        elif request.POST.get('submethod') == 'Update': #Change user's first and last names. Not change username.
+            cp = CoachProfile.objects.get(user = i_user)
+            atl = cp.athletes.get(user_id=request.POST.get('id'))
+            atl.user.first_name = request.POST.get('first_name')
+            atl.user.last_name = request.POST.get('last_name')
+            atl.user.save()
+        return HttpResponse(status.HTTP_200_OK)
 
 ######################### Do we need these? ###########################
 #@api_view(['GET'])
