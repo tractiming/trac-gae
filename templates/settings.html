@@ -9,7 +9,6 @@
 {% endblock %}
 
 {% block js_scripts %}
-
 <script>
 var gl_helper;
 var id_helper;
@@ -30,6 +29,7 @@ $("li a.logout").click(function(){
     });
 
 </script>
+<script type="text/javascript" src="{% static "js/timeConversion.js" %}" />
 {% endblock %}
 
 {% block nav-items %}
@@ -126,7 +126,152 @@ function findScores(){
     });
   }
     
+function resetScores(){
+    $('#linkedlist tr').remove();
+    $('ul.menulist li').remove();
+  }
   // attach handler for heat menu item click
+</script>
+
+<script>
+    var stepped = 0, rowCount = 0, errorCount = 0, firstError;
+    var inputType = "string";
+    $(document).ready(function(){
+      
+      $("#csvform").on('submit', function(e){
+      e.preventDefault();
+      var config = buildConfig();
+      
+$('#file').parse({
+      config:config,
+      before: function(file, inputElem)
+        {
+          start = now();
+          console.log("Parsing file...", file);
+        },
+        error: function(err, file)
+        {
+          console.log("ERROR:", err, file);
+          firstError = firstError || err;
+          errorCount++;
+        },
+      
+      complete: function(){
+        end = now();
+        printStats("Done with all files");
+        
+        
+        
+      }
+    });
+  });
+});
+  function now()
+{
+  return typeof window.performance !== 'undefined'
+      ? window.performance.now()
+      : 0;
+}
+function buildConfig()
+{
+  return {
+    delimiter: '',
+    header: true,
+    dynamicTyping: false, //turn numbers into numbers or strings? yes no to boolean?
+    skipEmptyLines:true,
+    preview: parseInt($('#preview').val() || 0),
+    step: $('#stream').prop('checked') ? stepFn : undefined,
+    encoding: '',
+    worker: true, //run on separate thread--slower but wont lock webpage
+    comments: $('#comments').val(),
+    complete: completeFn,
+    error: errorFn,
+    download: inputType == "remote"
+  };
+}
+function stepFn(results, parser)
+{
+  stepped++;
+  if (results)
+  {
+    if (results.data)
+      rowCount += results.data.length;
+    if (results.errors)
+    {
+      errorCount += results.errors.length;
+      firstError = firstError || results.errors[0];
+    }
+  }
+}
+function completeFn(results)
+{
+  end = now();
+  if (results && results.errors)
+  {
+    if (results.errors)
+    {
+      errorCount = results.errors.length;
+      firstError = results.errors[0];
+    }
+    if (results.data && results.data.length > 0)
+      rowCount = results.data.length;
+      
+  }
+  printStats("Parse complete");
+  console.log("    Results:", JSON.stringify(results.data));
+  var dated = $('input[id=date]').val();
+  var reads = $('input[id=readers]').val();
+  var workoutName = $('input[id=name]').val();
+  var username =$('input[id=coach_username]').val();
+  //I made a manipulated string that allows users to input a list of readers and separates each reader.
+  var readersList = reads.split(",");
+  var rL = "";
+  for(var j = 0; j < readersList.length; j++){
+    rL = rL.concat('"'+readersList[j]+'"');
+    if (j != readersList.length - 1){
+      rL = rL.concat(',');
+    }
+  }
+  rL = '['+rL+']';
+  rL = rL.replace(/\s/g, '');
+  dL = local2UTC(dated);
+  console.log(dL);
+  //The manipulated string matches the api conventions and successfully creates new races with the readers that user inputs.
+  var json = '{"race_name":"'+workoutName+'","race_date":"'+dL+'","director_username":"'+username+'","readers":'+rL+',"athletes":'+JSON.stringify(results.data)+'}';
+  console.log(json);
+  $.ajax({
+           type: "POST",
+           dataType:'json',
+           url: "/api/raceregistration/",
+     headers: {Authorization: "Bearer " + sessionStorage.access_token},
+           data:json,
+           // Login was successful.
+           success: function(data) {alert('yes'); resetScores(); findScores();},
+           error: function(xhr, errmsg, err) {alert('error')}
+     });
+      
+      $('#file').val('');
+  // icky hack
+  //setTimeout(enableButton, 100);
+}
+function errorFn(err, file)
+{
+  end = now();
+  console.log("ERROR:", err, file);
+  //enableButton();
+}
+function printStats(msg)
+{
+  if (msg)
+    console.log(msg);
+  console.log("       Time:", (end-start || "(Unknown; your browser does not support the Performance API)"), "ms");
+  console.log("  Row count:", rowCount);
+  if (stepped)
+    console.log("    Stepped:", stepped);
+  console.log("     Errors:", errorCount);
+  if (errorCount)
+    console.log("First error:", firstError);
+}
 </script>
 <style>
     #coachform{
@@ -293,7 +438,6 @@ $("body").on('hidden.bs.modal', '#notificationModal', function(){
     });
 $("body").on('click', '#open', function(e){
   console.log('pressing Open');
-  isOpen = true;
           $.ajax({
               type: 'POST',
               dataType: 'json',
@@ -302,6 +446,7 @@ $("body").on('click', '#open', function(e){
               headers: {Authorization: "Bearer " + sessionStorage.access_token},
               success: function(data){
                   alert ('session open');
+                  isOpen = true;
               },
               error: function(xhr, errmsg, err){
                   alert ("session couldn't open");
@@ -457,6 +602,38 @@ $("body").on('click', 'button#start', function(e){
     </div>
   </div>
 </div>
+      <div class="container">
+  <div class="modal fade" id="csvModal" role="dialog">
+    <div class="modal-dialog">
+      <div class ="modal-content">
+        <div class="modal-body">
+          <form name="csvform" id="csvform"  data-parsley-validate>
+      <p>
+          <label for="">Workout Name:</label> 
+          <input data-progression="" type="text" data-helper="" id="name" value="" placeholder="" />
+      </p>
+       <p>
+          <label for="">Workout Date:</label> 
+          <input data-progression="" type="text" data-helper="" id="date" value="" placeholder="" />
+      </p>
+      <p>
+          <label for="">Confirm Username:</label> 
+          <input data-progression="" type="text" data-helper="" id="coach_username" value="" placeholder=""  />
+      </p>
+       <p>
+          <label for="">Readers:</label> 
+          <input data-progression="" type="text" data-helper="" id="readers" value="" placeholder="" />
+      </p>
+       <div class="button-container">
+        <input type="file" id="file" name="myfile" class="btn btn-warning" value="Choose File">
+        <input type="submit" class="gen_btn btn btn-primary" id="upload" name ="upload" value="Upload">
+                           </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="container">
 <div class="modal fade" id="workoutModal" role="dialog">
     <div class="modal-dialog">
@@ -476,6 +653,7 @@ $("body").on('click', 'button#start', function(e){
   <div class="modal-dialog">
   <div class="modal-content">
     <div class="modal-header">
+      <button name="" class="btn btn-primary" id="csv" data-dismiss="modal" data-toggle="modal" data-target="#csvModal">Upload CSV</button>
     </div>
       <div class="modal-body">
       <form name="tracform" id="coachform" method="POST" data-parsley-validate>
