@@ -435,6 +435,12 @@ def sessions_paginate(request):
             i += 1
         result = list(reversed(result))
         return Response(result, status.HTTP_200_OK)
+        
+def string2bool(string):
+    if string == 'true':
+        return True
+    elif string == 'false':
+        return False
 
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))
@@ -443,10 +449,9 @@ def time_create(request):
     data = request.POST
     user = request.user
     begin_time = dateutil.parser.parse(data['start_time'])
-    stop_time = dateutil.parser.parse(data['stop_time'])
-    #KEY: parsing date and time into datetime objects before putting into database.
+    stop_time = dateutil.parser.parse(data['stop_time'])    #KEY: parsing date and time into datetime objects before putting into database.
     if int(data['id']) == 0: #for new instances
-        ts, created = TimingSession.objects.get_or_create(name=data['name'], manager=user, start_time=begin_time, stop_time=stop_time, track_size=data['track_size'], interval_distance=data['interval_distance'], filter_choice=data['filter_choice'], private=data['private'])
+        ts, created = TimingSession.objects.get_or_create(name=data['name'], manager=user, start_time=begin_time, stop_time=stop_time, track_size=data['track_size'], interval_distance=data['interval_distance'], filter_choice=data['filter_choice'], private=string2bool(data['private']))
     else:
         ts= TimingSession.objects.get(id=int(data['id'])) #for updated instances
         ts.name = data['name']
@@ -456,8 +461,9 @@ def time_create(request):
         ts.track_size = data['track_size']
         ts.interval_distance = data['interval_distance']
         ts.filter_choice = data['filter_choice']
-        ts.private = data['private']
-        ts.save()
+        ts.private = string2bool(data['private'])
+    ts.save()
+    print ts.private
     return HttpResponse(status.HTTP_201_CREATED)
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))
@@ -550,12 +556,12 @@ def WorkoutTags(request):
         tag_id = request.POST.get('id2')
         i_user = request.user
         if not is_coach(i_user):
-            return HttpResponse(HTTP_403_FORBIDDEN)
+            return HttpResponse(status.HTTP_403_FORBIDDEN)
         else:
             if request.POST.get('submethod') == 'Delete': #Delete
                 ts = TimingSession.objects.get(id=id_num)
                 tag = ts.registered_tags.get(id=tag_id)
-                tag.delete()
+                ts.registered_tags.remove(tag)
                 return HttpResponse(status.HTTP_200_OK)
             elif request.POST.get('submethod') == 'Update': #Update and Create
                 ts = TimingSession.objects.get(id=id_num)
@@ -575,13 +581,29 @@ def WorkoutTags(request):
                 ts.save()
                 return HttpResponse(status.HTTP_200_OK)
 
+@api_view(['POST'])
+@permission_classes((permissions.IsAuthenticated,))
+def ManyDefaultTags(request):
+    i_user = request.user
+    if not is_coach(i_user):
+        return HttpResponse(status.HTTP_403_FORBIDDEN);
+    else:
+        data = json.loads(request.body)
+        for athlete in data['athletes']:
+            atl = User.objects.get(username=athlete['username'])
+            tag = Tag.objects.get(user=atl)
+            ts = TimingSession.objects.get(id=data['id'])
+            ts.registered_tags.add(tag.pk)
+        ts.save()
+        return HttpResponse(status.HTTP_200_OK)
+
 #update and remove athlete profiles from coach.athletes.all() but keeps the athlete's user account.
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))
 def edit_athletes(request):
     i_user = request.user
     if not is_coach(i_user):
-        return HttpResponse(HTTP_403_FORBIDDEN)
+        return HttpResponse(status.HTTP_403_FORBIDDEN)
     else:
         if request.POST.get('submethod') == 'Delete': #Removes the link with coach account
             cp = CoachProfile.objects.get(user = i_user)

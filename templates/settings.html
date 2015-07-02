@@ -64,8 +64,50 @@ $("li a.logout").click(function(){
 		}
     loadAthletes();
     findScores();
+    loadRoster();
 	});
-
+ function loadRoster(){
+    $('#roster').empty();
+        $.ajax({
+                    url: "api/athletes/",
+                    headers: {Authorization: "Bearer " + sessionStorage.access_token},
+                    dataType: 'text',
+                    success: function(data){
+                          var json = $.parseJSON(data);
+                          json = json.reverse();
+                          $('#roster').append(
+                                  '<table id="workouts-table" class="table table-striped table-hover">' +
+                                        '<thead>' +
+                                              '<tr>' +
+                                              '<th></th>' +
+                                                    '<th class="hidden-xs hidden-sm hidden-md hidden-lg">id</th>'+
+                                                    '<th>First Name</th>'+
+                                                    '<th>Last Name</th>' + 
+                                                    '<th>Username</th>' + 
+                                              '</tr>'+
+                                        '</thead>'+
+                                        '<tbody>'+
+                                        '</tbody>' +
+                                  '</table>');
+                          $('#roster').addClass('col-md-6 col-md-offset-0 colr-sm-8 col-sm-offset-0');
+                          for (var ii=0;ii < json.length;ii++){
+               //alert(ii);
+                                id = json[ii].id;
+                                fname = json[ii].first_name;
+                                lname = json[ii].last_name;
+                                uname = json[ii].username;
+                                $('#roster tbody').append(
+                                      '<tr class="ath">'+
+                                          '<td><input type="checkbox" id="check" style="width:10px; height:10px;"/></td>' +
+                                          '<td class="hidden-xs hidden-sm hidden-md hidden-lg">' + id + '</td>' +
+                                          '<td id="fname">'+fname+'</td>'+
+                                          '<td id="lname">'+lname+'</td>'+
+                                          '<td id="uname">'+uname+'</td>' +
+                                      '</tr>');
+                          }
+                    }
+              });
+  }
   function loadAthletes(){
    $('#athletes').empty();
    if (id_helper!=0){
@@ -324,7 +366,7 @@ $(document).ready(function() {
 </script>
 <script>
     
-$("body").on('click', 'tr' ,function(){
+$("body").on('click', '#athletes tr' ,function(){
   $('#myModal').modal('toggle');
   var value = $(this).html();
   $("button#delete").show();
@@ -440,6 +482,35 @@ $("body").on('hidden.bs.modal', '#notificationModal', function(){
           $("div.notification.delete-success").hide();
           $("div.notification.notification-warning").hide();
     });
+$('body').on('click', '#register', function(e){
+  var atlList = [];
+  $('#roster tr.ath').each(function(){
+      var atlObj = {};
+      if ($(this).find('td #check').is(":checked")){
+          atlObj.first_name = $(this).children('#fname').text();
+          atlObj.last_name = $(this).children('#fname').text();
+          atlObj.username = $(this).children('#uname').text();
+          atlList.push(atlObj);
+      }
+  });
+  var json = '{"id":"'+id_helper+'", "athletes":'+JSON.stringify(atlList)+'}';
+  console.log(json);
+  $.ajax({
+    type: 'POST',
+    dataType: 'json',
+    url: '/api/reg_manytags/',
+    data: json,
+    headers: {Authorization: "Bearer " + sessionStorage.access_token},
+    success: function(data){
+      resetScores();
+      findScores();
+      loadAthletes();
+    },
+    error: function(xhr, errmsg, err){
+      alert ("No athletes selected");
+    }
+  });
+});
 $("body").on('click', '#open', function(e){
   console.log('pressing Open');
           $.ajax({
@@ -502,7 +573,7 @@ $("body").on('click', 'button#start', function(e){
             });
           }
 });
-
+$('ul.menulist li a').off('click');
   $('body').on('click', 'ul.menulist li a', function(){
       var name = ($(this).html() );
       var id;
@@ -563,7 +634,8 @@ $("body").on('click', 'button#start', function(e){
   <div class="site-overlay"></div>
     <div id="content">  
         <div class="container-fluid content">
-          <div id="container" class="container col-lg-5 col-md-5 col-sm-5 col-xs-5">
+          <div id="container" class="container"> 
+            <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
             <div class="row">
         <div class="col-md-3 col-sm-4 col-xs-6" style="margin: 2%">
           <div class="menu-btn" style="display: inline-block;">
@@ -577,7 +649,7 @@ $("body").on('click', 'button#start', function(e){
                   <span class="glyphicon glyphicon-plus" aria-hidden="true"> </span>
               </button>
             </div>
-            <h1 id="score-title">Roster</h1>
+            <h1 id="score-title">Athletes</h1>
             </div>
             <div class="row">
               <div id="athletes" class="table">
@@ -589,14 +661,20 @@ $("body").on('click', 'button#start', function(e){
             </div>
             </div>
           </div>
-          <div id="container" class="container col-lg-7 col-md-7 col-sm-7 col-xs-7" align="center">
-            <div class="row"></div>
+          <div  class=" col-lg-5 col-md-5 col-sm-5 col-xs-5" align="center">
             <div class="row">
               <button type="button" class="btn btn-primary" id="open" style="margin: 2%;">Open</button>
               <button type="button" class="btn btn-warning" id="stop" style="margin: 2%;">Stop</button>
               <button type="button" class="btn btn-success" id="start" style="margin: 2%;">Start</button>
             </div>
+            <div class="row">
+              <div id="roster" class="table">
+              </div>
+            </div>
+            <div class="row">
+              <button type="button" class="btn btn-primary" id="register" align="center" style="margin: 2%;">Register Athletes</button>
           </div>
+        </div>
       </div>
       <div id="create" class="container">
   <div class="modal fade" id="notificationModal" role="dialog">

@@ -27,6 +27,7 @@ urlpatterns = [
         url(r'^filtered_results/$', views.filtered_results),
         url(r'^session_Pag/$', views.sessions_paginate),
         url(r'^reg_tag/$', views.WorkoutTags),
+        url(r'^reg_manytags/$', views.ManyDefaultTags),
         url(r'^time_create/$', views.time_create),
         url(r'^edit_athletes/$', views.edit_athletes),
         #url(r'^IndividualTimes/$', views.IndividualTimes.as_view()),
