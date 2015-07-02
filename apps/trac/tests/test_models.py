@@ -4,6 +4,7 @@ from trac.models import *
 from trac.util import RaceReport
 
 
+
 class ReaderTest(TestCase):
 
     def create_reader(self, user_name="Test User", reader_name="Alien", 
@@ -61,7 +62,32 @@ class TagTimeTest(TestCase):
         self.assertTrue(tt.owner_name == 'Mo Farah')
 
 class TimingSessionTest(TestCase):
+    
+    def setUp(self):
+        """
+        Create sessions, athletes, and results.
+        """
 
+        # Create the timing session.
+        u = User.objects.create(username='Test Coach')
+        c = CoachProfile.objects.create(user=u)
+        self.ts = TimingSession.objects.create(name='Test', manager=u)
+        self.ts.start_button_time = timezone.now()
+
+        # Create readers and add them to the session.
+        r1 = Reader.objects.create(name='R1', id_str='R1', owner=u)
+        r2 = Reader.objects.create(name='R2', id_str='R2', owner=u)
+        self.ts1.readers.add(r1.pk)
+        self.ts2.readers.add(r2.pk)
+        self.ts1.save()
+        self.ts2.save()
+
+        # Create some athletes, tags, and results.
+        self.tag_num = 1
+        a1, t1 = self.create_athlete("Runner 1", 15, 'M')
+        self.create_final_time(self.ts1, t1, r1, timezone.timedelta(seconds=140))
+
+    """
     def create_timingsession(self):
         u = User.objects.create(username='Test Coach')
         c = CoachProfile.objects.create(user=u)
@@ -92,6 +118,16 @@ class TimingSessionTest(TestCase):
 
     def test_all_users(self):
         pass
+    """
+
+    #def test_archive(self):
+    #    """
+    #    Test the functionality of archiving tags and names.
+    #    """
+    #    ts = self.create_timing_session()
+    #    self.create_tagtime()
+    #    pass
+
 
 class TestRaceReport(TestCase):
     """
