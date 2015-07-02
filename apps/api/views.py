@@ -435,7 +435,7 @@ def sessions_paginate(request):
             i += 1
         result = list(reversed(result))
         return Response(result, status.HTTP_200_OK)
-        
+
 def string2bool(string):
     if string == 'true':
         return True
@@ -615,6 +615,16 @@ def edit_athletes(request):
             atl.user.first_name = request.POST.get('first_name')
             atl.user.last_name = request.POST.get('last_name')
             atl.user.save()
+        elif request.POST.get('submethod') == 'Create':
+            cp = CoachProfile.objects.get(user = i_user)
+            username = ''+request.POST.get('first_name')+request.POST.get('last_name')+''
+            user, created = User.objects.get_or_create(username = username)
+            atl, created = AthleteProfile.objects.get_or_create(user = user)
+            tag, created = Tag.objects.get_or_create(user = user, id_str = data['id_str'])
+            cp.athletes.add(atl.pk)
+            tag.save()
+            atl.save()
+            user.save()
         return HttpResponse(status.HTTP_200_OK)
 
 ######################### Do we need these? ###########################
