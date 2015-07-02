@@ -10,6 +10,8 @@
 {% block js_scripts %}
 
 <script>
+var instanceFirst = 1;
+var instanceLast = 3;
 if (sessionStorage.access_token == null) {
     //link to login page
     location.href="/login";
@@ -26,6 +28,7 @@ $("li a.logout").click(function(){
     });
 
 </script>
+<script type="text/javascript" src="{% static "js/timeConversion.js" %}" />
 {% endblock %}
 
 {% block nav-items %}
@@ -60,6 +63,7 @@ $("li a.logout").click(function(){
           $('div.text').css('padding-left','200px');
       }
       loadAthletes();
+      loadworkouts();
   });
 
   function loadAthletes(){
@@ -72,7 +76,7 @@ $("li a.logout").click(function(){
                           var json = $.parseJSON(data);
                           json = json.reverse();
                           $('#athletes').append(
-                                  '<table id="results-table" class="table table-striped table-hover">' +
+                                  '<table id="workouts-table" class="table table-striped table-hover">' +
                                         '<thead>' +
                                               '<tr>' +
                                                     '<th class="hidden-xs hidden-sm hidden-md hidden-lg">id</th>'+
@@ -102,6 +106,100 @@ $("li a.logout").click(function(){
                     }
               });
   }
+
+function loadworkouts(){
+       $('#workouts').empty();
+       $.ajax({
+             url: "/api/session_Pag/",
+         headers: {Authorization: "Bearer " + sessionStorage.access_token},
+                    //force to handle it as text
+                    data: {
+                      i1: instanceFirst,
+                      i2: instanceLast,
+                    },
+                    dataType: "text",
+                    success: function(data) {
+                        //alert(data);
+                        //data downloaded so we call parseJSON function 
+                        //and pass downloaded data
+                        //console.log(data);
+                        var json = $.parseJSON(data);
+                       //alert(json[0].id_str)
+                       json = json.reverse();
+
+                       if (json == "") {
+        $(".outer").hide();
+        $(".modal-animate").hide();
+        $('#workouts').empty();
+            $('button#next').hide();
+            $('button#prev').show();        
+          $("div.notification.notification-default").show();
+
+      }
+      // show name and date, dont show message, but show button
+      else {
+                       $(".outer").show();
+                        $("div.notification.notification-default").hide();
+                        $('#workouts').append(
+                        '<table id="workouts-table" class="table table-striped table-hover">' +
+                          '<thead>' +
+                  '<tr>' +
+                  '<th class="hidden-xs hidden-sm hidden-md hidden-lg">id</th>'+
+                    '<th>Workout Name</th>'+
+                    '<th>Start Date</th>'+
+                    '<th class="hidden-xs hidden-sm">End Date</th>'+
+                    '<th class="hidden-xs hidden-sm">Distance</th>'+
+                    '<th class="hidden-xs hidden-sm">Track</th>'+
+                    '<th>Filtered</th>'+
+                    '<th class="hidden-xs hidden-sm">Private</th>'+
+                  '</tr>'+
+                '</thead>'+
+                '<tbody>'+
+                '</tbody>'+
+              '</tbody>');
+              $('#workouts').addClass('col-md-6 col-md-offset-0 colr-sm-8 col-sm-offset-0');
+              var maximum = 0;
+                       for (var ii=0; ii < json.length;ii++){
+               //alert(ii);
+               if (ii > maximum){
+                maximum = ii;
+               }
+               id = json[ii].id;
+               name = json[ii].name;
+               start = json[ii].start_time.slice(0,10);
+               start2 = json[ii].start_time.slice(11,19);
+               end = json[ii].stop_time.slice(0,10);
+               end2 = json[ii].stop_time.slice(11,19);
+               distance = json[ii].interval_distance;
+               track = json[ii].track_size;
+              // time = time.slice(0,10);
+               filter= json[ii].filter_choice;
+               privateselect = json [ii].private;
+               var sTS = UTC2local(start, start2);
+               sTS = sTS.substring(0, 25);
+               var sTE = UTC2local(end, end2);
+               sTE = sTE.substring(0,25);
+                $('#workouts tbody').append(
+                  '<tr>'+
+                  '<td class="hidden-xs hidden-sm hidden-md hidden-lg">' + id + '</td>' +
+                    '<td>'+name+'</td>'+
+                    '<td>'+sTS+'</td>'+
+                    '<td class="hidden-xs hidden-sm">'+sTE+'</td>'+
+                    '<td class="hidden-xs hidden-sm">'+distance+'</td>'+
+                    '<td class="hidden-xs hidden-sm">'+track+'</td>'+
+                    '<td>'+filter+'</td>'+
+                    '<td class="hidden-xs hidden-sm">'+privateselect+'</td>'+
+                  '</tr>');
+               }
+             }
+
+      }
+      
+      
+      
+                    });
+       
+}
 </script>
 <script>
   $(document).ready(function(){
@@ -112,15 +210,18 @@ $("li a.logout").click(function(){
          if (form.parsley().isValid()){ 
             var fname=$('input[id=first_name]').val();
             var lname=$('input[id=last_name]').val();
+            var tag = $('input[id=id_str]').val();
         $.ajax({
            type: "POST",
            dataType:'json',
-           url: "/api/athletes/",
+           url: "/api/edit_athletes/",
            headers: {Authorization: "Bearer " + sessionStorage.access_token},
            data: {
                first_name: fname,
                last_name: lname,
                username: fname + "" + lname,
+               id_str: tag,
+               submethod: 'Create',
            }, 
                       success: function(data) {
                       $("#coachform")[0].reset();
@@ -141,6 +242,8 @@ $("body").on('click', 'tr' ,function(){
   $("div.button-container-two").show();
   $("input#create").show();
   $("p#idnumber").show();
+  $("label#id_str").hide();
+  $("input#id_str").hide();
   $("input#save").hide();
   $(value).each(function(index){
     //alert( $(this).html() );
@@ -172,6 +275,8 @@ $("body").on('click', 'button#plus', function(e){
   $("input#update").hide();
   $("input#save").show();
   $("p#idnumber").hide();
+  $("label#id_str").show();
+  $("input#id_str").show();
   //$("input#create").hide();
 
   });
@@ -292,14 +397,21 @@ $("body").on('hidden.bs.modal', '#notificationModal', function(){
 
     <div id="home">  
         <div class="container-fluid content">
-          <div id="container" class="container col-lg-5 col-md-5 col-sm-5 col-xs-5">
+          <div id="container" class="container">
             <div class="row">
+              <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
               <h1 id="score-title">Home</h1>
               <div id="athletes" class="table">
               </div>
               <button type="button" class="btn btn-default" id="plus" data-toggle="modal" data-target="#myModal">
                   <span class="glyphicon glyphicon-plus" aria-hidden="true"> </span>
               </button>
+            </div>
+            <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
+              <h1 id="score-title">Recent Workouts</h1>
+              <div id="workouts" class="table">
+              </div>
+            </div>
             </div>
           </div>
         </div>
@@ -342,6 +454,10 @@ $("body").on('hidden.bs.modal', '#notificationModal', function(){
            <label for="">Last Name:</label> 
            <input data-progression="" type="text" id="last_name" value="" placeholder="" required data-parsley-group="block1" />
        </p>
+       <p>
+        <label for="" id="id_str">Tag ID:</label>
+        <input data-progression="" type="text" id="id_str" value="" placeholder="" required data-parsley-group="block1" />
+      </p>
           <br>
          
               <div class="button-container modal-footer">
