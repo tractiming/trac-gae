@@ -63,7 +63,6 @@ class userType(views.APIView):
 			return HttpResponse("athlete")
 		return HttpResponse("coach")
 
-
 class RegistrationView(views.APIView):
     """
     Registers a user and creates server-side client.
@@ -82,7 +81,7 @@ class RegistrationView(views.APIView):
         user = User.objects.create(username=data['username'])
         user.set_password(data['password'])
         user.save()
-            
+
         user_type = data['user_type']
         if user_type == 'athlete':
             # Register an athlete.
@@ -96,6 +95,11 @@ class RegistrationView(views.APIView):
             coach.user = user
             coach.organization = data['organization']
             coach.save()
+
+        # Add user to group
+        group, created = Group.objects.get_or_create(name=data['organization'])
+        user.groups.add(group.pk)
+        user.save()
 
         # Create the OAuth2 client.
         name = user.username
@@ -216,21 +220,20 @@ class ScoringViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """
-        Overrides default method to filter sessions by user.
+        Overrides default method to filter public sessions by organization.
         """
-        user = self.request.user
-
-        # If the user is an athlete, list all the workouts he has run.
-        if is_athlete(user):
-            ap = AthleteProfile.objects.get(user=user)
-            sessions = ap.get_completed_sessions()
-            #sessions = sessions.reverse()
-        elif is_coach(user):
-            sessions = TimingSession.objects.filter(manager=user)
-            #sessions = sessions.reverse()
-        # If not a user or coach, no results can be found.
+        org = self.request.GET.get('org', None)
+        if org == 'Unaffiliated':
+            # return sessions belonging to unaffiliated users
+            managers = User.objects.filter(groups__isnull=True)
+            sessions = TimingSession.objects.filter(private=False, manager__in=managers)
+        elif org is not None:
+            # return sessions belonging to users under requested organization
+            managers = Group.objects.get(name=org).user_set.all()
+            sessions = TimingSession.objects.filter(private=False, manager=managers[0])
         else:
-           sessions = TimingSession.objects.filter(private=False)
+            # return all public sessions
+            sessions = TimingSession.objects.filter(private=False)
            
         return sessions  
         

@@ -3,7 +3,7 @@
 $(function() {
 	var idArray = [],
 			currentID,
-			updateHandler, idleHandler, 
+			updateHandler, 
 			spinner, target;
 
 	(function init(){
@@ -37,33 +37,20 @@ $(function() {
 		// hide all notifications
 		$('.notification').hide();
 
-		// get all teams/organizations
-		getTeams();
-	})();
-
-	function getScores(team){
-		getSessions(team);
+		findScores();
 
 		// display most recent table
-		lastWorkout(team);
+		lastWorkout();
 
 		// refresh the view every 5 seconds to update
-		clearInterval(updateHandler);
-		updateHandler = setInterval(function(){lastSelected(team);}, 5000);
+		updateHandler = setInterval(lastSelected, 5000);
 
 		// idle check after 20 minutes
-		clearTimeout(idleHandler);
-		idleHandler = setTimeout(
-			function(){ 
-				idleCheck(
-					updateHandler, 
-					function(){lastSelected(team);}, 
-					5000, 
-					1200000, 
-					'http://www.trac-us.com'
-				); 
-			}, 1200000);
-	}
+		setTimeout(function(){ idleCheck(updateHandler, lastSelected, 5000, 1200000, 'http://www.trac-us.com'); }, 1200000);
+
+		// add tablesorter
+		//$('#results-table').tablesorter();
+	})();
 
 	function update(idjson){
 		var last_url = '/api/score/'+ idjson;
@@ -127,6 +114,8 @@ $(function() {
 							'</tr>'
 						);
 					}
+
+					//$('#results-table').tablesorter();
 				}
 			}
 		});
@@ -141,10 +130,10 @@ $(function() {
 		return mins.toString() + ':' + secs.toString();
 	}
 	
-	function lastWorkout(team){
+	function lastWorkout(){
 		$.ajax({
-			url: '/api/score/?org='+team,
-			dataType: 'text',
+			url: '/api/score/',
+			dataType: 'text',			//force to handle it as text
 			success: function(data){
 				var json = $.parseJSON(data);
 				if (json.length == 0){
@@ -163,9 +152,9 @@ $(function() {
 		});
 	}
 		
-	function lastSelected(team){
+	function lastSelected(){
 		$.ajax({
-			url: '/api/score/?org='+team,
+			url: '/api/score/',
 			dataType: 'text',			//force to handle it as text
 			success: function(data) {
 				var json = $.parseJSON(data);
@@ -180,59 +169,24 @@ $(function() {
 			}
 		});
 	}
-
-	// get all teams and add to dropdown
-	function getTeams(){
+	
+	// find all heats and add to heat menu and idArray
+	function findScores(){
 		$.ajax({
-			url: '/api/coaches/',
-			dataType: 'text',
+			url: '/api/score/',
+			dataType: 'text',			//force to handle it as text
 			success: function(data){
 				var json = $.parseJSON(data);
 				if (json.length == 0){ 
 					spinner.stop();
 					$('#results-table').hide();
-					$('p.notification.notification-default3').show();
-				} else {
-					// sort all teams
-					var org = [];
-					for (var i=0; i < json.length; i++){
-						if (json[i].organization[0])
-							org.push(json[i].organization[0]);
-					}
-					org.sort();
-					org.push('Unaffiliated');
-
-					// now add to team select dropdown
-					for (var i=0; i < org.length; i++){
-						$('#team-select').append('<option value="'+org[i]+'">'+org[i]+'</option>');
-					}
-
-					spinner.stop();
-					$('p.notification.notification-default2').hide();
-					$('p.notification.notification-default3').show();
-				}
-			}
-		});
-	}
-	
-	// find all heats and add to heat menu and idArray
-	function getSessions(team){
-		$('ul.menulist').empty();
-		$.ajax({
-			url: '/api/score/?org='+team,
-			dataType: 'text',
-			success: function(data){
-				var json = $.parseJSON(data);
-				if (json.length == 0) {
-					spinner.stop();
-					$('#results-table').hide();
-					$('#score-title').html('Live Results');
 					$('p.notification.notification-default2').show();
 				} else {
 					$('#results-table').show();
 					$('p.notification.notification-default2').hide();
 					var arr = [];
 					for (var i=0; i < json.length; i++){
+						$('#linkedlist').append('<tr><td>'+json[i].name+'</td></tr>');
 						$('ul.menulist').append('<li><a href="#">'+json[i].name+'</a></li>');
 						arr.push(json[i].id);
 					}
@@ -241,13 +195,6 @@ $(function() {
 			}
 		});
 	}
-
-	// attach click handler for team select
-	$('#team-select').change(function() {
-		spinner.spin(target);
-		$('.notification').hide();
-		getScores(this.value);
-	});
 		
 	// attach handler for heat menu item click
 	$('body').on('click', 'ul.menulist li a', function(){

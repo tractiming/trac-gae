@@ -33,5 +33,8 @@ def readers(request):
 def tags(request):
     return render(request, 'tags.html', {})
 
+def caramile(request):
+    return render(request, 'caramile.html', {})
+
 def score(request):
-    return render(request, 'teamscoring.html', {})
+    return render(request, 'score.html', {})

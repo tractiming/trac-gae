@@ -36,7 +36,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('id', 'first_name', 'last_name', 'username', 'tags')
 
 class CoachSerializer(serializers.ModelSerializer):
-    organization = serializers.CharField(source='coach.organization', read_only=True)
+    organization = serializers.CharField(source='groups.all', read_only=True)
 
     class Meta:
         model = User

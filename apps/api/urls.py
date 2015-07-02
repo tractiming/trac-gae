@@ -9,11 +9,14 @@ router.register(r'coaches', views.CoachViewSet, 'Coach')
 router.register(r'athletes', views.AthleteViewSet, 'Athlete')
 router.register(r'tags', views.TagViewSet, 'Tag')
 router.register(r'score', views.ScoringViewSet, 'Score')
+#router.register(r'score/(?P<org>.+)', views.ScoringViewSet, 'Score')
 
 urlpatterns = [
         url(r'^', include(router.urls)),
 
-        # General endpoints.
+        #url(r'^score/(?P<org>.+)/$', views.ScoringViewSet.as_view()),
+
+        # General endpoints.(?P<username>.+)/
         url(r'^register/$', views.RegistrationView.as_view()),
         url(r'^verifyLogin/$', views.verifyLogin.as_view()),
         url(r'^userType/$', views.userType.as_view()),
