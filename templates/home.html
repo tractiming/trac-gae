@@ -210,15 +210,18 @@ function loadworkouts(){
          if (form.parsley().isValid()){ 
             var fname=$('input[id=first_name]').val();
             var lname=$('input[id=last_name]').val();
+            var tag = $('input[id=id_str]').val();
         $.ajax({
            type: "POST",
            dataType:'json',
-           url: "/api/athletes/",
+           url: "/api/edit_athletes/",
            headers: {Authorization: "Bearer " + sessionStorage.access_token},
            data: {
                first_name: fname,
                last_name: lname,
                username: fname + "" + lname,
+               id_str: tag,
+               submethod: 'Create',
            }, 
                       success: function(data) {
                       $("#coachform")[0].reset();
@@ -239,6 +242,8 @@ $("body").on('click', 'tr' ,function(){
   $("div.button-container-two").show();
   $("input#create").show();
   $("p#idnumber").show();
+  $("label#id_str").hide();
+  $("input#id_str").hide();
   $("input#save").hide();
   $(value).each(function(index){
     //alert( $(this).html() );
@@ -270,6 +275,8 @@ $("body").on('click', 'button#plus', function(e){
   $("input#update").hide();
   $("input#save").show();
   $("p#idnumber").hide();
+  $("label#id_str").show();
+  $("input#id_str").show();
   //$("input#create").hide();
 
   });
@@ -447,6 +454,10 @@ $("body").on('hidden.bs.modal', '#notificationModal', function(){
            <label for="">Last Name:</label> 
            <input data-progression="" type="text" id="last_name" value="" placeholder="" required data-parsley-group="block1" />
        </p>
+       <p>
+        <label for="" id="id_str">Tag ID:</label>
+        <input data-progression="" type="text" id="id_str" value="" placeholder="" required data-parsley-group="block1" />
+      </p>
           <br>
          
               <div class="button-container modal-footer">

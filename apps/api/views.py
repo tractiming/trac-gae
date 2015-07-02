@@ -617,10 +617,9 @@ def edit_athletes(request):
             atl.user.save()
         elif request.POST.get('submethod') == 'Create':
             cp = CoachProfile.objects.get(user = i_user)
-            username = ''+request.POST.get('first_name')+request.POST.get('last_name')+''
-            user, created = User.objects.get_or_create(username = username)
+            user, created = User.objects.get_or_create(username = request.POST.get('username'), first_name = request.POST.get('first_name'), last_name = request.POST.get('last_name'))
             atl, created = AthleteProfile.objects.get_or_create(user = user)
-            tag, created = Tag.objects.get_or_create(user = user, id_str = data['id_str'])
+            tag, created = Tag.objects.get_or_create(user = user, id_str = request.POST.get('id_str'))
             cp.athletes.add(atl.pk)
             tag.save()
             atl.save()
