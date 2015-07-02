@@ -37,8 +37,8 @@ $(function() {
 		// hide all notifications
 		$('.notification').hide();
 
-		// get all teams/organizations
-		getTeams();
+		// team is defined in score.html through django templating engine
+		getScores(team)
 	})();
 
 	function getScores(team){
@@ -180,40 +180,6 @@ $(function() {
 			}
 		});
 	}
-
-	// get all teams and add to dropdown
-	function getTeams(){
-		$.ajax({
-			url: '/api/coaches/',
-			dataType: 'text',
-			success: function(data){
-				var json = $.parseJSON(data);
-				if (json.length == 0){ 
-					spinner.stop();
-					$('#results-table').hide();
-					$('p.notification.notification-default3').show();
-				} else {
-					// sort all teams
-					var org = [];
-					for (var i=0; i < json.length; i++){
-						if (json[i].organization[0])
-							org.push(json[i].organization[0]);
-					}
-					org.sort();
-					org.push('Unaffiliated');
-
-					// now add to team select dropdown
-					for (var i=0; i < org.length; i++){
-						$('#team-select').append('<option value="'+org[i]+'">'+org[i]+'</option>');
-					}
-
-					spinner.stop();
-					$('p.notification.notification-default2').hide();
-					$('p.notification.notification-default3').show();
-				}
-			}
-		});
-	}
 	
 	// find all heats and add to heat menu and idArray
 	function getSessions(team){
@@ -241,13 +207,6 @@ $(function() {
 			}
 		});
 	}
-
-	// attach click handler for team select
-	$('#team-select').change(function() {
-		spinner.spin(target);
-		$('.notification').hide();
-		getScores(this.value);
-	});
 		
 	// attach handler for heat menu item click
 	$('body').on('click', 'ul.menulist li a', function(){

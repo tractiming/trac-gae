@@ -14,5 +14,6 @@ urlpatterns = patterns('',
     url(r'^readers', views.readers, name='readers'),
     url(r'^tags', views.tags, name='tags'),    
     url(r'^caramile', views.caramile, name='caramile'),
-    url(r'^score', views.score, name='score'),   
+    url(r'^score/$', views.score, name='score'),
+    url(r'^score/(?P<org>.+)/$', views.score, name='score'),
 )

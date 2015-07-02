@@ -109,6 +109,12 @@ h1, h2, h3 {
 	text-align: center;
 }
 
+h1 {
+	font-family: 'GothamHTF-Book', 'Helvetica', 'Arial', sans;
+	text-transform: uppercase;
+	margin-bottom: 20px;
+}
+
 ul {
 	list-style: none;
 }
