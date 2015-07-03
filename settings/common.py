@@ -132,19 +132,38 @@ elif getenv('SETTINGS_MODE') == 'prod':
             }
     }
 else:
-    # Running in development, so use a local sqlite database. Need to let gae
-    # sandbox to allow us to import sqlite3.
+    # Running in development. Try to use a mysql db if one exists on the
+    # system, otherwise use a sqlite db.
+    import MySQLdb
+    host = 'localhost'
+    user = 'trac'
+    dbn = 'tracdb'
     try:
-        from google.appengine.tools.devappserver2.python import sandbox
-        sandbox._WHITE_LIST_C_MODULES += ['_sqlite3']
-    except:
-        pass
-    DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': join(DJANGO_ROOT, 'local', 'dev_loc.db'),
-            }
-    }
+        db = MySQLdb.connect(host=host, user=user, db=dbn)
+        db.close()
+        DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.mysql',
+                    'HOST': host,
+                    'NAME': dbn,
+                    'USER': user,
+                }
+        }
+
+    except MySQLdb.Error:
+    
+        # Need to let gae sandbox to allow us to import sqlite3.
+        try:
+            from google.appengine.tools.devappserver2.python import sandbox
+            sandbox._WHITE_LIST_C_MODULES += ['_sqlite3']
+        except:
+            pass
+        DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.sqlite3',
+                    'NAME': join(DJANGO_ROOT, 'local', 'dev_loc.db'),
+                }
+        }
 ############################################
 
 ########## CACHE CONFIGURATION ############
