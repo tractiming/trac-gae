@@ -1,0 +1,29 @@
+/* All CSS rules for score view */
+
+#cara-logo img {
+	display: block;
+	margin: 0 auto;
+}
+
+h1 {
+	font-family: 'GothamHTF-Book', 'Helvetica', 'Arial', sans;
+	text-transform: uppercase;
+	margin-bottom: 20px;
+}
+
+#menu-btn {
+	cursor: pointer;
+}
+
+ul.menulist {
+	padding: 0;
+	list-style: none;
+	font-size: 1.2em; }
+	ul.menulist>li>a {
+		text-decoration: none; }
+		ul.menulist>li>a:hover {
+			text-decoration: none; }
+		ul.menulist>li>a:visited {
+			text-decoration: none;
+			color: #b3b3b1;
+}

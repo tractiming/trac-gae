@@ -17,7 +17,7 @@
   <li><a href="/login">Login</a></li>
   <li><a href="/register">Register</a></li>
   <li><a href="http://www.trac-us.com">About</a></li>
-  <li><a href="/caramile">Live Results</a></li>
+  <li><a href="/score">Live Results</a></li>
 {% endblock %}
 
 
@@ -40,8 +40,12 @@
               <form method="POST" id="register-form" name="register-form" data-parsley-validate>
                 <div class="form-group">
 
+                  <label for="organization" class="sr-only">Organization</label>
+                  <input type="text" id="organization" name="organization" class="form-control" placeholder="Organization" required autofocus data-parsley-group="block1">
+                  <br>
+
                   <label for="username" class="sr-only">Username</label>
-                  <input type="text" id="username" name="username" class="form-control" placeholder="Username" required autofocus data-parsley-group="block1">
+                  <input type="text" id="username" name="username" class="form-control" placeholder="Username" required data-parsley-group="block1">
                   <br>
 
                   <label for="password" class="sr-only">Password</label>

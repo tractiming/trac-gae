@@ -45,6 +45,7 @@ $(function() {
     if (form.parsley().isValid()){
       // Get the username and password from registration form.
       var username = $('input#username').val();
+      var organization = $('input#organization').val();
       var password = $('input#password').val();
       var password_verify = $('input#password1').val();
       var user_type = $('input[name=utype]:checked').val();
@@ -56,6 +57,7 @@ $(function() {
           data: {
             username: username,
             password: password,
+            organization: organization,
             user_type: user_type
           },
           // Registration was successful.
