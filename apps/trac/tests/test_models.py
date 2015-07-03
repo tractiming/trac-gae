@@ -4,7 +4,6 @@ from trac.models import *
 from trac.util import RaceReport
 
 
-
 class ReaderTest(TestCase):
 
     def create_reader(self, user_name="Test User", reader_name="Alien", 
@@ -62,71 +61,106 @@ class TagTimeTest(TestCase):
         self.assertTrue(tt.owner_name == 'Mo Farah')
 
 class TimingSessionTest(TestCase):
-    
-    def setUp(self):
+
+    def test_creation(self):
         """
-        Create sessions, athletes, and results.
+        Test that we can create a session.
         """
-
-        # Create the timing session.
-        u = User.objects.create(username='Test Coach')
-        c = CoachProfile.objects.create(user=u)
-        self.ts = TimingSession.objects.create(name='Test', manager=u)
-        self.ts.start_button_time = timezone.now()
-
-        # Create readers and add them to the session.
-        r1 = Reader.objects.create(name='R1', id_str='R1', owner=u)
-        r2 = Reader.objects.create(name='R2', id_str='R2', owner=u)
-        self.ts1.readers.add(r1.pk)
-        self.ts2.readers.add(r2.pk)
-        self.ts1.save()
-        self.ts2.save()
-
-        # Create some athletes, tags, and results.
-        self.tag_num = 1
-        a1, t1 = self.create_athlete("Runner 1", 15, 'M')
-        self.create_final_time(self.ts1, t1, r1, timezone.timedelta(seconds=140))
-
-    """
-    def create_timingsession(self):
-        u = User.objects.create(username='Test Coach')
-        c = CoachProfile.objects.create(user=u)
-        return TimingSession.objects.create(name='Test Session', manager=u)
-
-    def create_tagtime(self, username='A1', time=timezone.now(), tagid='0001'):
-        u = User.objects.get_or_create(username=username)
-        a = AthleteProfile.objects.get_or_create(user=u)
-        return tagtime.objects.create(user=u, id_str=tagid)
-        
-    def test_timingsession_creation(self):
-        ts = self.create_timingsession() 
+        u = User.objects.create(username='A')
+        ts = TimingSession.objects.create(name="New", manager=u)
         self.assertIsInstance(ts, TimingSession)
 
-    #def test_is_active(self):
-    #    ts = self.create_timingsession()
-    #    ts.start_time = timezone.now()
-    #    ts.stop_time = timezone.now()+timezone.timedelta(1)
-    #    ts.save()
-#
- #       self.assertTrue(ts.is_active)
-   #     ts.start_time = ts.stop_time
-   #     ts.save()
-   #     self.assertFalse(ts.is_active)
+    def test_is_active(self):
+        """
+        Test opening and closing the workout.
+        """
+        u = User.objects.create(username='A')
+        ts = TimingSession.objects.create(name="New", manager=u)
 
-    def test_results(self):
-        pass
+        # Open the workout by advancing the stop time.
+        ts.stop_time = ts.stop_time+timezone.timedelta(days=1)
+        ts.save()
+        self.assertTrue(ts.is_active())
 
-    def test_all_users(self):
-        pass
-    """
+        # Close the workout by setting start time to stop time.
+        ts.start_time = ts.stop_time
+        ts.save()
+        self.assertFalse(ts.is_active())
 
-    #def test_archive(self):
-    #    """
-    #    Test the functionality of archiving tags and names.
-    #    """
-    #    ts = self.create_timing_session()
-    #    self.create_tagtime()
-    #    pass
+    def test_tag_results(self):
+        """
+        Test that the splits for a single tag are being calculated correctly.
+        """
+        u = User.objects.create(username='A')
+        ts = TimingSession.objects.create(name="New", manager=u)
+        tag = Tag.objects.create(id_str='0000', user=u)
+        reader = Reader.objects.create(id_str='0000', owner=u)
+        
+        # Add splits to the workout.
+        total_times = [30.123, 61.362, 120.982]
+        for time in total_times:
+            sec, ms = map(int, str(time).split('.'))
+            tt = TagTime.objects.create(tag=tag,
+                    time=ts.start_time+timezone.timedelta(seconds=sec),
+                    milliseconds=ms, reader=reader)
+            ts.tagtimes.add(tt)
+        ts.save()
+
+        res = ts.calc_splits_by_tag(tag.id, filter_s=False)
+        self.assertEqual(res[0], total_times[1]-total_times[0])
+        self.assertEqual(res[1], total_times[2]-total_times[1])
+
+    def test_archive(self):
+        """
+        Test the functionality of archiving tags and names.
+        """
+        user1 = User.objects.create(username='Runner1')
+        user2 = User.objects.create(username='Runner2')
+        reader = Reader.objects.create(id_str='0000', owner=user1)
+        ts = TimingSession.objects.create(name='New', manager=user1)
+
+        # Assign a tag and add it to the workout.
+        tag = Tag.objects.create(id_str='AAAA', user=user1)
+        tt = TagTime.objects.create(tag=tag, time=timezone.now(),
+                                    milliseconds=0, reader=reader)
+        ts.tagtimes.add(tt.pk)
+        ts.save()
+
+        # Close the workout.
+        ts.stop_time = ts.start_time
+        ts.save()
+
+        # Ask for the result. (This should build the archive.)
+        names = ts.get_athlete_names()
+        self.assertEqual(names[0], 'Runner1')
+
+        # Check that the archive was built.
+        self.assertTrue(ts.archived)
+
+        # Change the tag's owner.
+        tag.user = user2
+        tag.save()
+
+        # Ask for the result and make sure we get the old name.
+        names = ts.get_athlete_names()  
+        self.assertEqual(names[0], 'Runner1')
+
+        # Reopen the workout and ask for the result. (This should destroy the
+        # archive.)
+        ts.stop_time = ts.stop_time + timezone.timedelta(days=1)
+        names = ts.get_athlete_names()
+        self.assertFalse(ts.archived)
+        self.assertEqual(list(ts.archivedtag_set.all()), [])
+        self.assertEqual(names[0], 'Runner2')
+
+        # Close the workout again.
+        ts.stop_time = ts.start_time
+        ts.save()
+
+        # Ask for the result and confirm we get the most recent name.
+        names = ts.get_athlete_names()
+        self.assertTrue(ts.archived)
+        self.assertEqual(names[0], 'Runner2')
 
 
 class TestRaceReport(TestCase):

@@ -22,7 +22,7 @@ class Tag(models.Model):
         if name:
             return name
         else:
-            return user.username
+            return self.user.username
 
 class Reader(models.Model):
     """
@@ -146,7 +146,7 @@ class TimingSession(models.Model):
             archived_tag = ArchivedTag.objects.create(id_str=tag.id_str,
                                                       username=tag.uname,
                                                       session_id=self.id)
-            self.archivedtag_set.add(archived_tag.pk)
+            self.archivedtag_set.add(archived_tag)
         self.archived = True
         self.save()
 
@@ -154,7 +154,7 @@ class TimingSession(models.Model):
         """
         Destroy all archived tags in this workout.
         """
-        self.archivedtag_set.clear()
+        self.archivedtag_set.all().delete()
         self.archived = False
         self.save()
 
@@ -186,11 +186,11 @@ class TimingSession(models.Model):
             name_type = 'current'
 
         # Return either the archived or current name.
+        tag = Tag.objects.get(id=tag_id)
         if name_type == 'archived':
             return self.archivedtag_set.get(id_str=tag.id_str).username
 
         else:
-            tag = Tag.objects.get(id=tag_id)
             return tag.uname
                 
     def calc_results(self, tag_ids=None, read_cache=False, save_cache=False):
@@ -217,6 +217,7 @@ class TimingSession(models.Model):
 
                 # Get the name of the tag's owner.
                 name = self.get_tag_name(tag_id)
+                user = Tag.objects.get(id=tag_id).user
 
                 # Get the name of the user's team.
                 try:
@@ -311,16 +312,15 @@ class TimingSession(models.Model):
         names = cache.get(('ts_%i_athlete_names' %self.id))
 
         if not names:
-            user_list = []
+            names = []
             tag_ids = self.tagtimes.values_list('tag', flat=True).distinct()
             
             for tag_id in tag_ids:
-                user = Tag.objects.get(id=tag_id).user
-        
-                if (user) and (user not in user_list):
-                    user_list.append(user)
+                name = self.get_tag_name(tag_id)
+    
+                if name not in names:
+                    names.append(name)
             
-            names = [u.username for u in user_list]
             cache.set(('ts_%i_athlete_names' %self.id), names)
         
         return names
