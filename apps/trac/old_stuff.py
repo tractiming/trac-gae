@@ -340,4 +340,44 @@ def create_workout(request):
     return render(request, 'common/createworkout.html', 
             {'session_form': session_form})    
 
+    def get_score(self):
+		"""
+		Calculate score from data fed from get_final_results
+		"""
+		scored_array=[]
+		schools = []
+		scoring_runners=[]
+		score_breakdown=[]
+		score=[]
+		#compare registered schools to schools of runners
+		for t in self.participating_schools:
+			count=0
+			points = 0
+			r = 0
+			team_scorers=[]
+			team_score_breakdown=[]
+			while r<len(self.sorted_results[0]) and count < self.number_scoring: #change to scoring_runners
+				
+				if(self.sorted_results[0][r][2] == t):
+				    count = count + 1
+				    points = points + r + 1
+				    team_scorers.append(self.sorted_results[0][r][1])
+				    team_score_breakdown.append(r+1)
+				r = r + 1
+			#compare team to scoring standard, if less than standard set to null	
+			if count < self.number_scoring:#change to scoring_runners
+				points= None
+			
+            # if we need individual arrays,or json format will need to redo and
+            # order json
+			score_breakdown.append(team_score_breakdown)	
+			scoring_runners.append(team_scorers)
+			scored_array.append(points)
+			schools.append(t)
+            #score.append({'team': team_score_breakdown, 'team scoreres':
+            #team_scorers, 'points': points,'school':t})
+			
+		zipped_scores = [sorted(zip(scored_array,schools,scoring_runners,score_breakdown))]
+		return zipped_scores
+
 '''

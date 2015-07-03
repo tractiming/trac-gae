@@ -15,6 +15,15 @@ class Tag(models.Model):
     def __unicode__(self):
         return "id=%s, user=%s" %(self.id_str, self.user.username if self.user else "")
 
+    @property
+    def uname(self):
+        """The identifying name given to the tag's owner."""
+        name = self.user.get_full_name()
+        if name:
+            return name
+        else:
+            return self.user.username
+
 class Reader(models.Model):
     """
     An RFID reader that streams splits.
@@ -78,14 +87,11 @@ class TimingSession(models.Model):
     interval_number = models.IntegerField(default=0, blank=True)
     filter_choice = models.BooleanField(default=True)
     private = models.BooleanField(default=True)
-    
-    #number_scoring=models.IntegerField(default=5)
-    #gender_scoring=models.CharField(max_length=50,blank=True,default='male')
-    #age_scoring=JSONField(blank=True,default={})
-    #grade_scoring=JSONField(max_length=50,blank=True,default={})
 
+    archived = models.BooleanField(default=False)
+    
     def __unicode__(self):
-        return "num=%i, start=%s" %(self.id, self.start_time)
+        return "num=%i, name=%s, start=%s" %(self.id, self.name, self.start_time)
 
     def is_active(self, time=None):
         """
@@ -130,12 +136,68 @@ class TimingSession(models.Model):
 
         return interval
 
+    def _build_tag_archive(self):
+        """
+        Build the archive of tag-name relationships.
+        """
+        tag_ids = self.tagtimes.values_list('tag_id',flat=True).distinct()
+        for tid in tag_ids:
+            tag = Tag.objects.get(id=tid)
+            archived_tag = ArchivedTag.objects.create(id_str=tag.id_str,
+                                                      username=tag.uname,
+                                                      session_id=self.id)
+            self.archivedtag_set.add(archived_tag)
+        self.archived = True
+        self.save()
+
+    def _delete_tag_archive(self):
+        """
+        Destroy all archived tags in this workout.
+        """
+        self.archivedtag_set.all().delete()
+        self.archived = False
+        self.save()
+
+    def get_tag_name(self, tag_id):
+        """
+        Returns the name of the person associated with the tag id. Will take
+        into account archiving.
+        """
+        # If the workout is not active and archived, read from the saved names.
+        if self.archived and (not self.is_active()):
+            name_type = 'archived'
+
+        # If the workout is closed but not archived, build the archive and read
+        # from it.
+        elif (not self.archived) and (not self.is_active()):
+            self._build_tag_archive()
+            name_type = 'archived'
+
+        # If the workout is active and has an archive, delete the archive and
+        # update the name dynamically. (This could occur if the workout is
+        # reopened after it has already been closed.)
+        elif self.archived and self.is_active():
+            self._delete_tag_archive()
+            name_type = 'current'
+
+        # The final case is not archived and active. This case also dynamically
+        # updates the name based on the current tag assignments.
+        else:
+            name_type = 'current'
+
+        # Return either the archived or current name.
+        tag = Tag.objects.get(id=tag_id)
+        if name_type == 'archived':
+            return self.archivedtag_set.get(id_str=tag.id_str).username
+
+        else:
+            return tag.uname
+                
     def calc_results(self, tag_ids=None, read_cache=False, save_cache=False):
         """
         Calculates the raw results (user_id, user_name, team_name, splits,
         cumul_time). Can optionally filter by passing a list of tag ids to use.
         """
-        
         # By default, use all tags in the workout.
         if tag_ids is None:
             tag_ids = self.tagtimes.values_list('tag_id',flat=True).distinct()
@@ -154,15 +216,9 @@ class TimingSession(models.Model):
             for tag_id in tag_ids:
 
                 # Get the name of the tag's owner.
-                tag = Tag.objects.get(id=tag_id)
-                user = tag.user
-                if user:
-                    name = user.get_full_name()
-                    if not name:
-                        name = user.username
-                else:
-                    name = str(tag_id)
-                
+                name = self.get_tag_name(tag_id)
+                user = Tag.objects.get(id=tag_id).user
+
                 # Get the name of the user's team.
                 try:
                     team = user.groups.values_list('name',flat=True)[0]
@@ -249,48 +305,6 @@ class TimingSession(models.Model):
             r['interval'] = str(sum([float(t[0]) for t in r['interval']]))
         return res    
 
-
-    def get_score(self):
-		"""
-		Calculate score from data fed from get_final_results
-		"""
-		scored_array=[]
-		schools = []
-		scoring_runners=[]
-		score_breakdown=[]
-		score=[]
-		#compare registered schools to schools of runners
-		for t in self.participating_schools:
-			count=0
-			points = 0
-			r = 0
-			team_scorers=[]
-			team_score_breakdown=[]
-			while r<len(self.sorted_results[0]) and count < self.number_scoring: #change to scoring_runners
-				
-				if(self.sorted_results[0][r][2] == t):
-				    count = count + 1
-				    points = points + r + 1
-				    team_scorers.append(self.sorted_results[0][r][1])
-				    team_score_breakdown.append(r+1)
-				r = r + 1
-			#compare team to scoring standard, if less than standard set to null	
-			if count < self.number_scoring:#change to scoring_runners
-				points= None
-			
-            # if we need individual arrays,or json format will need to redo and
-            # order json
-			score_breakdown.append(team_score_breakdown)	
-			scoring_runners.append(team_scorers)
-			scored_array.append(points)
-			schools.append(t)
-            #score.append({'team': team_score_breakdown, 'team scoreres':
-            #team_scorers, 'points': points,'school':t})
-			
-		zipped_scores = [sorted(zip(scored_array,schools,scoring_runners,score_breakdown))]
-		return zipped_scores
-
-
     def get_athlete_names(self):
         """
         Returns a list of all users that are registered in the session.
@@ -298,16 +312,15 @@ class TimingSession(models.Model):
         names = cache.get(('ts_%i_athlete_names' %self.id))
 
         if not names:
-            user_list = []
+            names = []
             tag_ids = self.tagtimes.values_list('tag', flat=True).distinct()
             
             for tag_id in tag_ids:
-                user = Tag.objects.get(id=tag_id).user
-        
-                if (user) and (user not in user_list):
-                    user_list.append(user)
+                name = self.get_tag_name(tag_id)
+    
+                if name not in names:
+                    names.append(name)
             
-            names = [u.username for u in user_list]
             cache.set(('ts_%i_athlete_names' %self.id), names)
         
         return names
@@ -364,3 +377,16 @@ class RaceDirectorProfile(models.Model):
     """
     user = models.OneToOneField(User)
 
+class ArchivedTag(models.Model):
+    """
+    A record of a tag that saves the id and user's name. This is useful, for
+    example, if a tag is reassigned to a new user. In that case, if an archive
+    is not made, the results from previous workouts will be overwritten with
+    the new tag owner's name.
+    """
+    id_str = models.CharField(max_length=50)
+    username = models.CharField(max_length=50)
+    session = models.ForeignKey(TimingSession)
+
+    def __unicode__(self):
+        return "id=%s, user=%s" %(self.id_str, self.username)
