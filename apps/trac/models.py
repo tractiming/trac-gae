@@ -188,7 +188,7 @@ class TimingSession(models.Model):
         # Return either the archived or current name.
         tag = Tag.objects.get(id=tag_id)
         if name_type == 'archived':
-            return self.archivedtag_set.get(id_str=tag.id_str).username
+            return self.archivedtag_set.filter(id_str=tag.id_str)[0].username
 
         else:
             return tag.uname
