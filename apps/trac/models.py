@@ -105,6 +105,13 @@ class TimingSession(models.Model):
             return True
         return False
 
+    def start_button_active(self):
+        """
+        Returns True if the start button has been triggered for the current
+        workout, False otherwise.
+        """
+        return (self.start_button_time.year > 1)
+
     def calc_splits_by_tag(self, tag_id, filter_s=None):
         """
         Calculates the splits for a given tag in the current session.
@@ -330,6 +337,43 @@ class TimingSession(models.Model):
         self.tagtimes.clear()
         cache.delete(('ts_%i_results' %self.id))
         cache.delete(('ts_%i_athlete_names' %self.id))
+
+    def _delete_split(self, tag_id, split_indx):
+        """
+        Delete a result from the array of splits. The runner is identified by
+        tag id and the split to be deleted is identified by its position in the
+        array. The split index should refer to the position in the unfiltered 
+        results.
+        """
+        pass
+
+    def _edit_split(self, tag_id, split_indx):
+        """
+        Change the value of a split in the list of results. The split index
+        should refer to the position in the unfiltered results. 
+        """
+        pass
+
+    def _overwrite_final_time(self, tag_id, hr, mn, sc, ms):
+        """
+        Force a final time for the given tag id. This will delete all existing
+        splits and assign a final time only.
+        """
+        # Delete all existing times for this tag.
+        times = TagTime.objects.filter(timingsession=self, tag__id=tag_id)
+        times.delete()
+
+        # If the start button has not been set, we need to set it.
+        if not self.start_button_active():
+            self.start_button_time = timezone.now()
+
+        r = self.readers.all()[0]
+        final_time = self.start_button_time+timezone.timedelta(hours=hr, 
+                                                    minutes=mn, seconds=sc) 
+        tt = TagTime.objects.create(tag_id=tag_id, reader=r, time=final_time,
+                milliseconds=ms)
+        self.tagtimes.add(tt.pk)
+        self.save()
 
 class AthleteProfile(models.Model):
     """
