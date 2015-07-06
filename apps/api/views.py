@@ -380,7 +380,7 @@ def filtered_results(request):
 
     # Filter age.
     if ('age_lte' in data) and ('age_gte' in data):
-        age_range = [data['age_gte'], data['age_lte']]
+        age_range = [int(data['age_gte']), int(data['age_lte'])]
     else:
         age_range = []
 
