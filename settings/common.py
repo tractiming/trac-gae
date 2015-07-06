@@ -139,6 +139,8 @@ else:
     user = 'trac'
     dbn = 'tracdb'
     try:
+        # Uncomment the next line to force sqlite, even if mysql is configured.
+        #raise MySQLdb.Error
         db = MySQLdb.connect(host=host, user=user, db=dbn)
         db.close()
         DATABASES = {

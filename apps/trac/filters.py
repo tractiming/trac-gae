@@ -32,3 +32,20 @@ def filter_splits(unfiltered_splits, interval_distance, track_size):
     #filtered_counter = range(1,len(filtered_interval)+1)    
     
     return filtered_interval#, filtered_counter
+
+def get_ms(num):
+    s = str(num).split('.')
+    if len(s) == 1:
+        return 0
+    else:
+        return int(s[1]+'0'*(3-len(s[1])))
+
+def get_sec(num):
+    s = str(num).split('.')
+    if s[0] == '':
+        return 0
+    else:
+        return int(s[0])
+
+def get_sec_ms(num):
+    return get_sec(num), get_ms(num)

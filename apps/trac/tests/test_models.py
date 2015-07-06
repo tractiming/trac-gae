@@ -74,7 +74,7 @@ class TimingSessionTest(TestCase):
         self.ts.readers.add(self.reader.pk)
         self.ts.save()
 
-    def add_splits(self, tag_id, split_array):
+    def add_times(self, tag_id, split_array):
         """
         Add the given splits to the workout's results. Splits should be given
         in all seconds.
@@ -136,7 +136,7 @@ class TimingSessionTest(TestCase):
         """
         # Add splits to the workout.
         total_times = [30.123, 61.362, 120.982]
-        self.add_splits(self.tag.id, total_times)
+        self.add_times(self.tag.id, total_times)
 
         res = self.ts.calc_splits_by_tag(self.tag.id, filter_s=False)
         self.assertEqual(res[0], total_times[1]-total_times[0])
@@ -192,12 +192,42 @@ class TimingSessionTest(TestCase):
         """
         Test deleting one split from a list of results.
         """
-        pass
+        # Add some splits to the workout.
+        sp = [7.0, 12.34, 56.7, 110.001]
+        times = [sum(sp[:i]) for i in range(1,len(sp)+1)]
+        self.ts.start_button_time=timezone.now()
+        self.add_times(self.tag.id, times)
+        self.ts.filter_choice=False
+        
+        # Delete one of the splits and verify the results.
+        self.ts._delete_split(self.tag.id, 2)
+        res = self.ts.calc_splits_by_tag(self.tag.id, filter_s=False)
+        print res
+        print sp
+        self.assertEqual(len(res), len(sp)-1)
+        self.assertEqual(res[0], sp[0])
+        self.assertEqual(res[1], sp[1])
+        self.assertEqual(res[2], sp[3])
 
     def test_edit_split(self):
         """
         Test editing one split from a list of results.
         """
+        # Add some splits to the workout.
+        #sp = [7.0, 12.34, 56.7, 110.001]
+        #times = [sum(sp[:i]) for i in range(1,len(sp)+1)]
+        #self.ts.start_button_time=timezone.now()
+        #self.add_times(self.tag.id, times)
+        
+        # Change one of the splits and verify the results.
+        #self.ts._edit_split(self.tag.id, 2, 55, 500)
+        #res = self.ts.calc_splits_by_tag(self.tag.id, filter_s=False)
+        #print res
+        #print s
+        #self.assertEqual(res[0], sp[0])
+        #self.assertEqual(res[1], sp[1])
+        #self.assertEqual(res[2], 55.5)
+        #self.assertEqual(res[3], sp[3])
         pass
 
     def test_force_final_time(self):
@@ -210,15 +240,7 @@ class TimingSessionTest(TestCase):
         # First test the case where there is already some split information,
         # including a start button time.
         self.ts.start_button_time = timezone.now()
-        tt1 = TagTime.objects.create(tag=self.tag, reader=self.reader,
-                time=self.ts.start_button_time+timezone.timedelta(seconds=81),
-                milliseconds=0)
-        tt2 = TagTime.objects.create(tag=self.tag, reader=self.reader,
-                time=self.ts.start_button_time+timezone.timedelta(seconds=91),
-                milliseconds=0)
-        self.ts.tagtimes.add(tt1.pk)
-        self.ts.tagtimes.add(tt2.pk)
-        self.ts.save()
+        self.add_times(self.tag.id, [81.0, 10.0])
         self.ts._overwrite_final_time(self.tag.id, ft['hr'], ft['min'],
                                                    ft['sec'], ft['ms'])
         res = self.ts.calc_splits_by_tag(self.tag.id, filter_s=False)

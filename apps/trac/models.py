@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User, Group
 from django.utils import timezone
 from django.core.cache import cache
-from filters import filter_splits
+from filters import filter_splits, get_sec_ms
 from operator import itemgetter
 
 class Tag(models.Model):
@@ -64,6 +64,11 @@ class TagTime(models.Model):
         if not name:
             return ""
         return name
+
+    @property
+    def full_time(self):
+        """Full time with milliseconds."""
+        return self.time+timezone.timedelta(milliseconds=self.milliseconds)
 
 class TimingSession(models.Model):
     """
@@ -128,11 +133,7 @@ class TimingSession(models.Model):
         # Calculate splits.
         interval = []
         for i in range(len(times)-1):
-            t1 = times[i].time+timezone.timedelta(
-                    milliseconds=times[i].milliseconds)
-            t2 = times[i+1].time+timezone.timedelta(
-                    milliseconds=times[i+1].milliseconds)
-            dt = t2-t1
+            dt = times[i+1].full_time-times[i].full_time
             interval.append(round(dt.total_seconds(), 3))
         
         # Filtering algorithm.
@@ -345,13 +346,36 @@ class TimingSession(models.Model):
         array. The split index should refer to the position in the unfiltered 
         results.
         """
-        pass
+        assert self.filter_choice is False, "Filter must be off to delete."
+        tt = TagTime.objects.filter(timingsession=self, tag__id=tag_id)
 
-    def _edit_split(self, tag_id, split_indx):
+        # Find the index of the first tag time we need to change.
+        if self.start_button_active():
+            indx = split_indx
+        else:
+            indx = split_indx+1
+
+        # Get the offset and delete the time.
+        splits = self.calc_splits_by_tag(tag_id)
+        off_sec, off_ms = get_sec_ms(splits[split_indx])
+        tt[indx].delete()
+
+        # Edit adjust the rest of the tagtimes to maintain the other splits.
+        for i in range(indx, len(tt)):
+            old = tt[i].time+timezone.timedelta(milliseconds=tt[i].milliseconds)
+            print 'old', old
+            new = old-timezone.timedelta(seconds=off_sec, milliseconds=off_ms)
+            print 'new', new
+            tt[i].time = new
+            tt[i].milliseconds = new.microsecond/1000 
+            
+
+    def _edit_split(self, tag_id, split_indx, sec, ms):
         """
         Change the value of a split in the list of results. The split index
         should refer to the position in the unfiltered results. 
         """
+        assert self.filter_choice is False, "Filter must be off to edit."
         pass
 
     def _overwrite_final_time(self, tag_id, hr, mn, sc, ms):
