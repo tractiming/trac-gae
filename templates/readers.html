@@ -1,381 +1,181 @@
-{% extends "base.html" %}
-{% load staticfiles %}
+{% extends "base_new.html" %}
+
+{% load static %}
+
+<!-- Head -->
+{% block stylesheets %}
+	<link href="{% static "css/new/readers.css" %}" rel='stylesheet' type='text/css'>
+{% endblock %}
+
+{% block js_scripts %}
+	<script src="{% static "js/new/readers.js" %}" type="text/javascript"></script>
+{% endblock %}
+
+<!-- Body -->
+{% block nav-items %}
+  <li><a href="/home">Home</a></li>
+  <li><a href="/liveview">Live View</a></li>
+  <li><a href="/create">Create</a></li>
+  <li><a class="hidden-sm hidden-md hidden-lg" href="/readers">Readers</a></li>
+  <li><a class="hidden-sm hidden-md hidden-lg" href="/settings">Settings</a></li>
+  <li><a class="logout hidden-sm hidden-md hidden-lg" href="">Logout</a></li>
+  <!-- Single button -->
+  <li id="dropdown-button" class="btn-group hidden-xs">
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>
+    </button>
+    <ul class="dropdown-menu" >
+      <li><a href="/readers">Readers</a></li>
+      <li><a href="/settings">Settings</a></li>
+      <li role="separator" class="divider"></li>
+      <li><a class="logout" href="">Logout</a></li>
+    </ul>
+  </li>
+{% endblock %}
 
 {% block content %}
-<script>
+	<div id="content" class="container-fluid">
+		<div class="container">
 
-	if (sessionStorage.usertype == 'athlete'){
-			    location.href="/home.html";
-		}
-	
+			<div id="create-modal" class="modal fade" role="dialog">
+				<div class="modal-dialog">
 
-</script>
-<script>
-//ajax for reader information
-$(document).ready(function() {
-	$(".modal-animate").show();
-		loadreader();
-        $("#myform").on('click','#submit', function(e){
-            e.preventDefault();
-	    $(".modal-animate").show();
+					<!-- Modal content-->
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+							<h4 class="modal-title">Register Reader</h4>
+						</div>
+						<div class="modal-body">
 
+							<form method="POST" id="create-form" name="create-form" data-parsley-validate>
+								<div class="form-group">
+							    <label for="create-name" class="sr-only">Reader Name</label>
+							    <input type="text" id="create-name" name="create-name" class="form-control" placeholder="Reader name" required autofocus data-parsley-group="block1">
+							    <br>
 
-	            // var title=$('input[id=title]').val();
-	           var name=$('input[id=readername]').val();
-		      var idstr=$('input[id=readernum]').val();
-		    
+							    <label for="create-id-str" class="sr-only">Reader ID</label>
+							    <input type="text" id="create-id-str" name="create-id-str" class="form-control" placeholder="Reader ID" required data-parsley-group="block1">
+							    <br>
 
-	      $.ajax({
-           type: "POST",
-           dataType:'json',
-           url: "/api/readers/",
-	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
-           data: {
-               name: name,
-               id_str:idstr,
-               
-           },
-           // Login was successful.
-           success: function(data) {
-			  
-			      
-		    $(".modal-animate").hide();
-		    $("h6.notification.notification-critical").hide();
-		    $("h6.notification.notification-success").show();
-		    $("#myform")[0].reset();
-			   loadreader();
-           },
+							    <div style="display: table; margin: 0 auto;">
+							      <button type="submit" id="create-submit" class="btn btn-primary" style="margin-right:10px;">Create Reader</button>
+							    </div>
+							  </div>
+							</form>
 
-           // create athlete failed.
-           error: function(xhr, errmsg, err) {
-	    $(".modal-animate").hide();
-	    $("h6.notification.notification-success").hide();
-               $("h6.notification.notification-critical").show();
-           }
-           
-      });
-               
-            
-        });
-    });
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						</div>
+					</div>
 
+				</div>
+			</div>
 
-</script>
-	    <script>
+			<div id="edit-modal" class="modal fade" role="dialog">
+				<div class="modal-dialog">
 
+					<!-- Modal content-->
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+							<h4 class="modal-title">Edit Reader</h4>
+						</div>
+						<div class="modal-body">
 
-$("body").on('click', 'tr',function(){
-	//alert($(this).html());
-	var value = $(this).html();
-	$("input#delete").show();
-	$("input#update").show();
-	$("div.button-container-two").show();
-	$("input#create").show();
-	$("p#idnumber").show();
-	$("input#submit").hide();
-	$(value).each(function(index){
-		//alert( $(this).html() );
-		console.log( index+ ":"+ $(this).html());
-		if (index ==0)
-		{
-			var input =$('input#idnumber');
-			input.val($(this).html() );
-		}
-		else if (index ==1)
-		{
-			var input =$('input#readername');
-			input.val($(this).html() );
-			}
-		else if (index ==2)
-		{
-			var input =$('input#readernum');
-			input.val($(this).html() );
-			}
+							<form method="POST" id="edit-form" name="edit-form" data-parsley-validate>
+								<div class="form-group">
+									<input type="hidden" name="edit-id" id="edit-id" value="" />
 
-	});
-	
-	
+							    <label for="edit-name" class="sr-only">Reader Name</label>
+							    <input type="text" id="edit-name" name="edit-name" class="form-control" placeholder="Reader name" required autofocus data-parsley-group="block1">
+							    <br>
 
-	
-	
-	});
-	
-	$("body").on('click', 'input#create',function(e){
-	//alert($(this).html());
-	  e.preventDefault();
-	  $("#myform")[0].reset();
-	var value = $(this).html();
-	$("input#delete").hide();
-	$("input#update").hide();
-	$("input#submit").show();
-	$("p#idnumber").hide();
-	$("input#create").hide();
+							    <label for="edit-id-str" class="sr-only">Reader ID</label>
+							    <input type="text" id="edit-id-str" name="edit-id-str" class="form-control" placeholder="Reader ID" required data-parsley-group="block1">
+							    <br>
 
-	});
+							    <div style="display: table; margin: 0 auto;">
+							      <button type="submit" id="edit-submit" class="btn btn-primary" style="margin-right:10px;">Update Reader</button>
+							      <button type="submit" id="delete-submit" class="btn btn-danger">Delete Reader</button>
+							    </div>
+							  </div>
+							</form>
 
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						</div>
+					</div>
 
+				</div>
+			</div>
 
-	$("body").on('click', 'input#delete',function(f){
-	//alert($(this).html());
-	  f.preventDefault();
-	  $("h6.notification.notification-warning").show();
-	  $("h6.notification.notification-critical").hide();
-	  $("h6.notification.delete-success").hide();
-	  		    $("h6.notification.notification-critical").hide();
-		    $("h6.notification.notification-success").hide();
-		     $("h6.notification.update-success").hide();
-	  
-	   $("body").on('click','button',function(event){
-	console.log("On:", event.target);
-	var value = $(this).html();
-	if (value == 'Yes'){ $(".modal-animate").show();
-	  
-	 var id=$('input[id=idnumber]').val();
-	//alert(id);
-	
-		//alert(filter);
-	      $.ajax({
-           type: "DELETE",
-           dataType:'json',
-           url: "/api/readers/"+id,
-	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
-         
-           // Login was successful.
-           success: function(data) {
-		    //hide spinner, success modal, and reset form
-		    $(".modal-animate").hide();
-		    $("h6.notification.notification-critical").hide();
-		    $("h6.notification.notification-success").hide();
-		     $("h6.notification.update-success").hide();
-		    $("h6.notification.delete-success").show();
-		     $("h6.notification.notification-warning").hide();
-		    $("#myform")[0].reset();
-		    	$("input#delete").hide();
-	$("input#update").hide();
-	$("input#submit").show();
-	$("p#idnumber").hide();
-	$("input#create").hide();
-		    loadreader();
-                   
-           },
+			<div id="delete-confirm-modal" class="modal fade" role="dialog">
+				<div class="modal-dialog">
 
-           // Login request failed.
-           error: function(xhr, errmsg, err) {
-	    //hide spinner, show error modal
-	    $(".modal-animate").hide();
-	    $("h6.notification.notification-success").hide();
-	     $("h6.notification.notification-warning").hide();
-	      $("h6.notification.update-success").hide();
-		    $("h6.notification.delete-success").hide();
-               $("h6.notification.notification-critical").show();
-           }
-           
-      });
-      }
-	else if(value =='Cancel'){
-		$(".modal-animate").hide();
-	    $("h6.notification.notification-success").hide();
-	    $("h6.notification.notification-warning").hide();
-              
-		}
-	
-	 });
-	  
-	  
-	
-	});
-	
-	
-		$("body").on('click', 'input#update',function(f){
-	//alert($(this).html());
-	  f.preventDefault();
-	   $(".modal-animate").show();
-	 var id=$('input[id=idnumber]').val();
-	           var name=$('input[id=readername]').val();
-		      var idstr=$('input[id=readernum]').val();
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+							<h4 class="modal-title">Confirm Delete</h4>
+						</div>
+						<div class="modal-body">
+							<div style="display: table; margin: 0 auto;">
+								<p>Are you sure?</p>
+								<button type="button" id="delete-yes" class="btn btn-danger" style="margin-right:10px;">Yes</button>
+								<button type="button" id="delete-no" class="btn btn-default" autofocus>No</button>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						</div>
+					</div>
 
-	
-		//alert(filter);
-	      $.ajax({
-           type: "PUT",
-           dataType:'json',
-           url: "/api/readers/"+id,
-	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
-	   data: {
-               name: name,
-               id_str:idstr,
-               
-           },
+				</div>
+			</div>
 
-           // Login was successful.
-           success: function(data) {
-		    //hide spinner, success modal, and reset form
-		    $(".modal-animate").hide();
-		    $("h6.notification.notification-critical").hide();
-		    $("h6.notification.notification-success").hide();
-		    $("h6.notification.delete-success").hide();
-		    $("h6.notification.update-success").show();
-		    $("#myform")[0].reset();
-		    	$("input#delete").hide();
-	$("input#update").hide();
-	$("input#submit").show();
-	$("p#idnumber").hide();
-	$("input#create").hide();
-		    loadreader();
-                   
-           },
+			<div class="row">
+				<h1 id="results-title">Readers</h1>
+				<div id="notifications" class="row">
+					<div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-8 col-xs-offset-2">
+						<p class="notification notification-error no-results" role="alert">
+							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> You don't have any registered readers.
+						</p>
+						<p class="notification notification-error form-error" role="alert">
+							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Some information you entered isn't right.
+						</p>
+						<p class="notification notification-error server-error" role="alert">
+							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Oops. Something went wrong. Please try again.
+						</p>
+						<p class="notification notification-success register-success" role="alert">
+							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> You have successfully registered a reader!
+						</p>
+						<p class="notification notification-success update-success" role="alert">
+							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> You have successfully updated a reader!
+						</p>
+						<p class="notification notification-success delete-success" role="alert">
+							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> You have successfully deleted a reader!
+						</p>
+					</div>
+				</div>
+				<div class="row">
+					<div id="results" class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+						<table id="results-table" class="table tablesorter table-striped table-hover" style="text-align:center;">
+						</table>
+					</div>
+				</div>
+				<div class="row">
+					<div style="display: table; margin: 0 auto;">
+						<button type="button" id="add" class="btn btn-primary" data-toggle="modal" data-target="#create-modal">Add New Reader</button>
+					</div>
+				</div>
+			</div>
 
-           // Login request failed.
-           error: function(xhr, errmsg, err) {
-	    //hide spinner, show error modal
-	    $(".modal-animate").hide();
-	    $("h6.notification.notification-success").hide();
-	     $("h6.notification.notification-warning").hide();
-	      $("h6.notification.update-success").hide();
-		    $("h6.notification.delete-success").hide();
-               $("h6.notification.notification-critical").show();
-           }
-           
-      });
-	
-	});
-	
-	
-//function to load reader info
-function loadreader(){
-			 $('#results').empty();
-		  //alert(path);
-		  //alert(path);
-		   $.ajax({
-                     url: "/api/readers/",
-		     headers: {Authorization: "Bearer " + sessionStorage.access_token},
-                    //force to handle it as text
-                    dataType: "text",
-                    success: function(data) {
-                        //alert(data);
-                        //data downloaded so we call parseJSON function 
-                        //and pass downloaded data
-                        
-                        var json = $.parseJSON(data);
-                       //alert(json[0].id_str)
-                       
-                       if (json == "") {
-			  $(".outer").hide();
-			  $(".modal-animate").hide();
-			  $('#results').empty();
-			  
-			  
-			    $("h6.notification.notification-default").show();
-
-			}
-			// show name and date, dont show message, but show notificatin
-			else {
-                       $(".outer").show();
-                        $("h6.notification.notification-default").hide();
-                       
-                       for (var ii=0;json.length;ii++){
-						   //alert(ii);
-						   id = json[ii].id;
-						   name = json[ii].name;
-						   id_str = json[ii].id_str;
-						  if (ii==0) {
-			    $('#results').append('<tr><th>ID</th><th>Name</th><th>ID Number</th></tr>');
-			    $('#results').append('<tr class="odd"><td>'+id+'</td><td>'+name+'</td><td>'+id_str+'</td></tr>');
-			    //alert(name);
-			  }
-			  else if((ii)%2 ==0) {
-			    $('#results').append('<tr class="odd"><td>'+id+'</td><td>'+name+'</td><td>'+id_str+'</td></tr>');
-			  }
-			  else{
-			    $('#results').append('<tr><td>'+id+'</td><td>'+name+'</td><td>'+id_str+'</td></tr>');
-			    //alert(name);
-			  }
-			  $(".modal-animate").hide();
-						   }
-						   
-					   }
-
-			}
+			<div class="spinner-container" style="position:relative; top:50px;">
+				<div id="spinner"></div>
+			</div>
 			
-			
-			
-                    });
-		   
-}
-    
-	    </script>
-	
-	
-
-
-<div class="modal-animate hide">
-    <div class="rotate"></div>
-
-</div>
-
-    <div id="create">  
-     <h2>Readers</h2>
-
-	  <div id="notifications">
-        <h6 class="notification notification-critical" role="alert">Some information you entered isn't right.</h6>
-	<h6 class="notification notification-success" role="alert">You have successfully registered a reader!</h6>
-	<h6 class="notification update-success" role="alert">You have successfully updated a reader!</h6>
-	<h6 class="notification delete-success" role="alert">You have successfully deleted a reader!</h6>
-	<h6 class="notification notification-warning" role="alert">Are you sure? <div class="container" id="screen-selector"><button href="#" type="button" id="warning-yes">Yes</button><button id="warning-no" href="#" type="button" style="float:right">Cancel</button></div></h6>
-    </div>
-	  
-    <div id="contentleft">
-					
-		<form name="tracform"  id="myform" method="POST" data-parsley-validate>
-			<div class="button-container-two">
-		    <input type="submit" name="" class="validate" id="create" value="+ Create New" />
-		    </div>
-		    <p id="idnumber">
-		      
-		      <input type="hidden" id="idnumber" value="" placeholder="" required data-parsley-group="block1" readonly/>
-		  </p>
-		   <p>
-		      <label for="">Reader Name:</label> 
-		      <input data-progression="" type="text" data-helper="" id="readername" value="" placeholder="" required data-parsley-group="block1" />
-		  </p>
-		   <p>
-		      <label for="">Reader ID:</label> 
-		      <input data-progression="" type="text" data-helper="" id="readernum" value="" placeholder="" required data-parsley-group="block1" />
-		  </p>
-		
-		     
-		     
-		          <div class="button-container">
-			<input type="submit" name="" class="validate" id="delete" value="Delete" />
-		    <input type="submit" name="" class="validate" id="submit" value="Save" />
-		    <input type="submit" name="" class="validate" id="update" value="Update" />
-	                         </div>
-		</form>
-				
-					
-					
-					
-					
-				
-    </div>
-                   <div id="contentright">
-			      <div class ="outer">
-      <div class="inner">
-       <table id="results" style="width:100%"></table>
-       </div>
-       </div>
-       
-        <div id="notifications">
-        <h6 class="notification notification-default" role="alert">Please register a reader.</h6>
-    </div>
-              </div>
-    
-    
-     
-      </div>
-    {% endblock %} 
-    
-    
-    
-</html>
-
+		</div>
+	</div>
+{% endblock %}
