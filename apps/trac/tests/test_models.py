@@ -62,51 +62,83 @@ class TagTimeTest(TestCase):
 
 class TimingSessionTest(TestCase):
 
+    def setUp(self):
+        """
+        Create a timing session and a few users.
+        """
+        self.user1 = User.objects.create(username='Runner1')
+        self.user2 = User.objects.create(username='Runner2')
+        self.reader = Reader.objects.create(id_str='0000', owner=self.user1)
+        self.ts = TimingSession.objects.create(name='New', manager=self.user1)
+        self.tag = Tag.objects.create(id_str='1111', user=self.user1)
+        self.ts.readers.add(self.reader.pk)
+        self.ts.save()
+
+    def add_times(self, tag_id, split_array):
+        """
+        Add the given splits to the workout's results. Splits should be given
+        in all seconds.
+        """
+        def get_ms(num):
+            s = str(num).split('.')
+            if len(s) == 1:
+                return 0
+            else:
+                return int(s[1]+'0'*(3-len(s[1])))
+
+        def get_sec(num):
+            s = str(num).split('.')
+            if s[0] == '':
+                return 0
+            else:
+                return int(s[0])
+
+        for split in split_array:
+            sec, ms = get_sec(split), get_ms(split)
+            tt = TagTime.objects.create(tag_id=tag_id,
+                    time=self.ts.start_button_time+timezone.timedelta(seconds=sec),
+                    milliseconds=ms, reader=self.reader)
+            self.ts.tagtimes.add(tt)
+        self.ts.save()
+
     def test_creation(self):
         """
         Test that we can create a session.
         """
-        u = User.objects.create(username='A')
-        ts = TimingSession.objects.create(name="New", manager=u)
-        self.assertIsInstance(ts, TimingSession)
+        self.assertIsInstance(self.ts, TimingSession)
 
     def test_is_active(self):
         """
         Test opening and closing the workout.
         """
-        u = User.objects.create(username='A')
-        ts = TimingSession.objects.create(name="New", manager=u)
-
         # Open the workout by advancing the stop time.
-        ts.stop_time = ts.stop_time+timezone.timedelta(days=1)
-        ts.save()
-        self.assertTrue(ts.is_active())
+        self.ts.stop_time = self.ts.stop_time+timezone.timedelta(days=1)
+        self.ts.save()
+        self.assertTrue(self.ts.is_active())
 
         # Close the workout by setting start time to stop time.
-        ts.start_time = ts.stop_time
-        ts.save()
-        self.assertFalse(ts.is_active())
+        self.ts.start_time = self.ts.stop_time
+        self.ts.save()
+        self.assertFalse(self.ts.is_active())
+
+    def test_start_button_active(self):
+        """
+        Test that the start button can be correctly identified as active or
+        inactive.
+        """
+        self.assertFalse(self.ts.start_button_active())
+        self.ts.start_button_time=timezone.now()
+        self.assertTrue(self.ts.start_button_active())
 
     def test_tag_results(self):
         """
         Test that the splits for a single tag are being calculated correctly.
         """
-        u = User.objects.create(username='A')
-        ts = TimingSession.objects.create(name="New", manager=u)
-        tag = Tag.objects.create(id_str='0000', user=u)
-        reader = Reader.objects.create(id_str='0000', owner=u)
-        
         # Add splits to the workout.
         total_times = [30.123, 61.362, 120.982]
-        for time in total_times:
-            sec, ms = map(int, str(time).split('.'))
-            tt = TagTime.objects.create(tag=tag,
-                    time=ts.start_time+timezone.timedelta(seconds=sec),
-                    milliseconds=ms, reader=reader)
-            ts.tagtimes.add(tt)
-        ts.save()
+        self.add_times(self.tag.id, total_times)
 
-        res = ts.calc_splits_by_tag(tag.id, filter_s=False)
+        res = self.ts.calc_splits_by_tag(self.tag.id, filter_s=False)
         self.assertEqual(res[0], total_times[1]-total_times[0])
         self.assertEqual(res[1], total_times[2]-total_times[1])
 
@@ -114,54 +146,157 @@ class TimingSessionTest(TestCase):
         """
         Test the functionality of archiving tags and names.
         """
-        user1 = User.objects.create(username='Runner1')
-        user2 = User.objects.create(username='Runner2')
-        reader = Reader.objects.create(id_str='0000', owner=user1)
-        ts = TimingSession.objects.create(name='New', manager=user1)
-
         # Assign a tag and add it to the workout.
-        tag = Tag.objects.create(id_str='AAAA', user=user1)
-        tt = TagTime.objects.create(tag=tag, time=timezone.now(),
-                                    milliseconds=0, reader=reader)
-        ts.tagtimes.add(tt.pk)
-        ts.save()
+        tt = TagTime.objects.create(tag=self.tag, time=timezone.now(),
+                                    milliseconds=0, reader=self.reader)
+        self.ts.tagtimes.add(tt.pk)
+        self.ts.save()
 
         # Close the workout.
-        ts.stop_time = ts.start_time
-        ts.save()
+        self.ts.stop_time = self.ts.start_time
+        self.ts.save()
 
         # Ask for the result. (This should build the archive.)
-        names = ts.get_athlete_names()
+        names = self.ts.get_athlete_names()
         self.assertEqual(names[0], 'Runner1')
 
         # Check that the archive was built.
-        self.assertTrue(ts.archived)
+        self.assertTrue(self.ts.archived)
 
         # Change the tag's owner.
-        tag.user = user2
-        tag.save()
+        self.tag.user = self.user2
+        self.tag.save()
 
         # Ask for the result and make sure we get the old name.
-        names = ts.get_athlete_names()  
+        names = self.ts.get_athlete_names()  
         self.assertEqual(names[0], 'Runner1')
 
         # Reopen the workout and ask for the result. (This should destroy the
         # archive.)
-        ts.stop_time = ts.stop_time + timezone.timedelta(days=1)
-        names = ts.get_athlete_names()
-        self.assertFalse(ts.archived)
-        self.assertEqual(list(ts.archivedtag_set.all()), [])
+        self.ts.stop_time = self.ts.stop_time + timezone.timedelta(days=1)
+        names = self.ts.get_athlete_names()
+        self.assertFalse(self.ts.archived)
+        self.assertEqual(list(self.ts.archivedtag_set.all()), [])
         self.assertEqual(names[0], 'Runner2')
 
         # Close the workout again.
-        ts.stop_time = ts.start_time
-        ts.save()
+        self.ts.stop_time = self.ts.start_time
+        self.ts.save()
 
         # Ask for the result and confirm we get the most recent name.
-        names = ts.get_athlete_names()
-        self.assertTrue(ts.archived)
+        names = self.ts.get_athlete_names()
+        self.assertTrue(self.ts.archived)
         self.assertEqual(names[0], 'Runner2')
 
+    def test_delete_split(self):
+        """
+        Test deleting one split from a list of results.
+        """
+        # Create some splits for the workout.
+        sp = [7.0, 12.34, 16.7, 110.001]
+        times = [sum(sp[:i]) for i in range(1,len(sp)+1)]
+        self.ts.filter_choice=False
+        
+        # Test with the start button active.
+        self.ts.start_button_time=timezone.now()
+        self.add_times(self.tag.id, times)
+        self.ts._delete_split(self.tag.id, 2)
+        res = self.ts.calc_splits_by_tag(self.tag.id, filter_s=False)
+        self.assertEqual(len(res), len(sp)-1)
+        self.assertEqual(res[0], sp[0])
+        self.assertEqual(res[1], sp[1])
+        self.assertEqual(res[2], sp[3])
+
+        # Test with the start button inactive.
+        self.ts.start_button_reset()
+        self.ts.clear_results()
+        self.add_times(self.tag.id, times)
+        self.ts._delete_split(self.tag.id, 2)
+        res = self.ts.calc_splits_by_tag(self.tag.id, filter_s=False)
+        self.assertEqual(len(res), len(sp)-2)
+        self.assertEqual(res[0], sp[1])
+        self.assertEqual(res[1], sp[2])
+
+    def test_insert_split(self):
+        """
+        Test inserting one split into a list of results.
+        """
+        # Create some splits for the workout.
+        sp = [7.0, 12.34, 16.7, 110.001]
+        times = [sum(sp[:i]) for i in range(1,len(sp)+1)]
+        self.ts.filter_choice=False
+        
+        # Test with the start button active.
+        self.ts.start_button_time=timezone.now()
+        self.add_times(self.tag.id, times)
+        self.ts._insert_split(self.tag.id, 2, 18.9)
+        res = self.ts.calc_splits_by_tag(self.tag.id, filter_s=False)
+        self.assertEqual(len(res), len(sp)+1)
+        self.assertEqual(res[0], sp[0])
+        self.assertEqual(res[1], sp[1])
+        self.assertEqual(res[2], 18.9)
+        self.assertEqual(res[3], sp[2])
+        self.assertEqual(res[4], sp[3])
+
+        # Test with the start button inactive.
+        self.ts.start_button_reset()
+        self.ts.clear_results()
+        self.add_times(self.tag.id, times)
+        self.ts._insert_split(self.tag.id, 2, 18.9)
+        res = self.ts.calc_splits_by_tag(self.tag.id, filter_s=False)
+        self.assertEqual(len(res), len(sp))
+        self.assertEqual(res[0], sp[1])
+        self.assertEqual(res[1], sp[2])
+        self.assertEqual(res[2], 18.9)
+        self.assertEqual(res[3], sp[3])
+
+    def test_edit_split(self):
+        """
+        Test changing the time of one split.
+        """
+        # Create some splits for the workout.
+        sp = [7.0, 12.34, 16.7, 110.001]
+        times = [sum(sp[:i]) for i in range(1,len(sp)+1)]
+        self.ts.filter_choice=False
+        
+        # Test with the start button active.
+        self.ts.start_button_time=timezone.now()
+        self.add_times(self.tag.id, times)
+        self.ts._edit_split(self.tag.id, 2, 18.9)
+        res = self.ts.calc_splits_by_tag(self.tag.id, filter_s=False)
+        self.assertEqual(len(res), len(sp))
+        self.assertEqual(res[0], sp[0])
+        self.assertEqual(res[1], sp[1])
+        self.assertEqual(res[2], 18.9)
+        self.assertEqual(res[3], sp[3])
+
+    def test_force_final_time(self):
+        """
+        Test setting a final time for a single tag.
+        """
+        ft = {'hr': 0, 'min': 13, 'sec': 59, 'ms': 123}
+        ft_sec = 2600*ft['hr']+60*ft['min']+ft['sec']+ft['ms']/1000.0
+
+        # First test the case where there is already some split information,
+        # including a start button time.
+        self.ts.start_button_time = timezone.now()
+        self.add_times(self.tag.id, [81.0, 10.0])
+        self.ts._overwrite_final_time(self.tag.id, ft['hr'], ft['min'],
+                                                   ft['sec'], ft['ms'])
+        res = self.ts.calc_splits_by_tag(self.tag.id, filter_s=False)
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res[0], ft_sec)
+
+        # Next test the case where there are no splits already present and the
+        # start button time has not been set.
+        self.ts.tagtimes.filter(tag__id=self.tag.id).delete()
+        self.start_button_time = timezone.datetime(1,1,1,1,1,1)
+        self.ts._overwrite_final_time(self.tag.id, ft['hr'], ft['min'],
+                                                   ft['sec'], ft['ms'])
+
+        res = self.ts.calc_splits_by_tag(self.tag.id, filter_s=False)
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res[0], ft_sec)
 
 class TestRaceReport(TestCase):
     """

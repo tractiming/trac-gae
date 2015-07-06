@@ -34,6 +34,7 @@ urlpatterns = [
         url(r'^reg_manytags/$', views.ManyDefaultTags),
         url(r'^time_create/$', views.time_create),
         url(r'^edit_athletes/$', views.edit_athletes),
+        url(r'^edit_split/$', views.edit_split),
         #url(r'^IndividualTimes/$', views.IndividualTimes.as_view()),
 
         # Endpoint for readers.
