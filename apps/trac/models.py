@@ -296,7 +296,13 @@ class TimingSession(models.Model):
             tt = tt.filter(tag__user__groups__name__in=teams)
 
         tags = tt.values_list('tag_id',flat=True).distinct()
-        return self.calc_results(tag_ids=tags)
+        res = self.calc_results(tag_ids=tags)
+        
+        res_dict = {'results': [{'name': res[i][1], 'place': i+1,
+                                 'time': res[i][4] } for i in range(len(res))]}
+        return res_dict
+
+
 
     def get_results(self, force_update=False, sort=False):
         """Get full results, formatted for mobile."""
