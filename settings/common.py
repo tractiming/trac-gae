@@ -134,11 +134,12 @@ elif getenv('SETTINGS_MODE') == 'prod':
 else:
     # Running in development. Try to use a mysql db if one exists on the
     # system, otherwise use a sqlite db.
-    import MySQLdb
-    host = 'localhost'
-    user = 'trac'
-    dbn = 'tracdb'
     try:
+        import MySQLdb
+        host = 'localhost'
+        user = 'trac'
+        dbn = 'tracdb'
+
         db = MySQLdb.connect(host=host, user=user, db=dbn)
         db.close()
         DATABASES = {
@@ -150,7 +151,7 @@ else:
                 }
         }
 
-    except MySQLdb.Error:
+    except:
     
         # Need to let gae sandbox to allow us to import sqlite3.
         try:
