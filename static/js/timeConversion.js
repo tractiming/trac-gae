@@ -30,7 +30,7 @@ function localISOString(timeString){
 		+ '-' + pad(utcISO.getDate())
 		+ 'T' + pad(utcISO.getHours()) 
 		+ ':' + pad(utcISO.getMinutes())
-		+ ';' + pad(utcISO.getSeconds())
+		+ ':' + pad(utcISO.getSeconds())
 		+ dif + pad(tzo / 60)
 		+ ':' + pad(tzo % 60);
 }

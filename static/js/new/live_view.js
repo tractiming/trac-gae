@@ -14,7 +14,12 @@ google.setOnLoadCallback(function(){
 				spinner,
 				target,
 				calendarEvents,
-				graphToggle;
+				graphToggle,
+				instance_first=1,
+				instance_last = 5,
+				cStart,
+				cStop
+				;
 
 		(function init(){
 
@@ -56,7 +61,7 @@ google.setOnLoadCallback(function(){
 
 			// query for all workout sessions
 			findScores();
-
+			loadCalendar();
 			// display most recent results
 			lastWorkout();
 
@@ -363,12 +368,19 @@ google.setOnLoadCallback(function(){
 				}
 			});
 		}
-			
+		function resetScores(){
+		    $('#linkedlist tr#sM').remove();
+		    $('ul.menulist li#sM').remove();
+ 		 }
 		function findScores(){
 			$.ajax({
-				url: '/api/sessions/',
+				url: '/api/session_Pag/',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'text',			//force to handle it as text
+				data: {
+					i1: instance_first,
+					i2: instance_last,
+				},
 				success: function(data){
 					var json = $.parseJSON(data);
 					//alert(json.length);
@@ -378,7 +390,6 @@ google.setOnLoadCallback(function(){
 					} else {
 						$('#notifications notification-default2').hide();
 						var arr = [];
-						calendarEvents = [];
 						for (var i=0; i < json.length; i++){
 							// add events to event menu
 							$('#linkedlist').append('<tr><td>'+json[i].name+'</td></tr>');
@@ -386,10 +397,10 @@ google.setOnLoadCallback(function(){
 							arr.push(json[i].id);
 
 							// add events to calendar event list
-							var url = json[i].id;
-							var str = json[i].start_time;
-							str = str.slice(0,10);
-							calendarEvents.push({title : json[i].name, url : url, start : str});
+						}
+						if (json.length == 5){
+     					     $('#linkedlist').append('<tr id="sM"><td>SeeMore</td></tr>');
+     					     $('ul.menulist').append('<li id="sM"><a href="#SeeMore">See More</a></li>');
 						}
 						idArray = arr;
 					}
@@ -397,9 +408,15 @@ google.setOnLoadCallback(function(){
 					// attach handler for heat menu item click
 					$('body').on('click', 'ul.menulist li a', function(){
 						var value = $(this).html();
+						  if (value == 'See More'){
+   							   instance_first += 5;
+   							   instance_last += 5;
+  						       resetScores();
+  						       findScores();
+ 							 }
+ 							else{
 						console.log( 'Index: ' + $( 'ul.menulist li a' ).index( $(this) ) );
 						var indexClicked = $( 'ul.menulist li a' ).index( $(this) );
-
 						// reset canvases and set new session id
 						$('.notification').hide();
 						$('#results-table').hide().empty();
@@ -409,19 +426,55 @@ google.setOnLoadCallback(function(){
 						currentID = idArray[indexClicked];
 						spinner.spin(target);
 						update(currentID, currentView);
+							}
 					});
 
 					// attach handler for calendar menu click
-					$('#calendar-btn').click(function(e){
-						e.preventDefault();
-
+				}
+			});
+		}
+		function loadCalendar(){
 						$('#calendar-overlay').show();
-						// Calendar script
 						$('#calendar').fullCalendar({
 							editable: true,
 							eventLimit: true, // allow "more" link when too many events
 							events: calendarEvents //calls list from function above
 						});
+						cStart = $('#calendar').fullCalendar('getView').intervalStart;
+						cStop = $('#calendar').fullCalendar('getView').intervalEnd;
+						$('#calendar-overlay').hide();
+						CalendarScores();
+					}
+
+		function CalendarScores(){
+			cStart = localISOString(cStart._d);
+			cStop = localISOString(cStop._d);
+		    $.ajax({
+		    	url:'/api/session_Pag/',
+		    	headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+		    	dataType: 'text',
+		    	data: {
+		    		i1: 0, i2: 0, start_date: cStart, stop_date: cStop,
+		    	},
+		    	success: function(data){
+		    		var json = $.parseJSON(data);
+					calendarEvents = [];
+						for (var i=0; i < json.length; i++){
+							// add events to event menu
+							// add events to calendar event list
+							var url = json[i].id;
+							var str = json[i].start_time;
+							str = str.slice(0,10);
+							calendarEvents.push({title : json[i].name, url : url, start : str});
+						}
+						$('#calendar').fullCalendar('removeEvents');
+						$('#calendar').fullCalendar('addEventSource', calendarEvents);		
+						$('#calendar-btn').click(function(e){
+							e.preventDefault();
+							$('#calendar-overlay').show();
+							$('#calendar').fullCalendar('removeEvents');
+							$('#calendar').fullCalendar('addEventSource', calendarEvents);	
+						// Calendar script
 					});
 
 					// attach handler for hiding calendar menu
@@ -431,7 +484,20 @@ google.setOnLoadCallback(function(){
 						if (!cal.is(e.target) && cal.has(e.target).length === 0)
 							$('#calendar-overlay').hide();
 					});
-
+					$('body').off('click', 'button.fc-next-button');
+					$('body').on('click','button.fc-next-button',function(e){
+						e.preventDefault();
+						cStart = $('#calendar').fullCalendar('getView').intervalStart;
+						cStop = $('#calendar').fullCalendar('getView').intervalEnd;
+						CalendarScores();
+					});
+					$('body').off('click', 'button.fc-prev-button');
+					$('body').on('click','button.fc-prev-button',function(e){
+						e.preventDefault();
+						cStart = $('#calendar').fullCalendar('getView').intervalStart;
+						cStop = $('#calendar').fullCalendar('getView').intervalEnd;
+						CalendarScores();
+					});
 					// attach handler for calendar event click
 					$('.calendar-container').on('click','a.fc-day-grid-event', function(e) {
 						e.preventDefault();
@@ -448,8 +514,8 @@ google.setOnLoadCallback(function(){
 						update(currentID, currentView);
 					});
 				}
-			});
-		}
+				});
+				}
 		
 		//Download to Excel Script
 		$('#download').click(function(){
