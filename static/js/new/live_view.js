@@ -3,10 +3,17 @@ google.load('visualization', '1', {packages:['corechart']});
 google.setOnLoadCallback(function(){
 	$(function() {
 		var TABLE_VIEW = 0,
-				CAL_VIEW = 1;
+				CAL_VIEW = 1,
+				IND_FINAL_VIEW = 2,
+				TEAM_FINAL_VIEW = 3;
 
-		var UPDATE_INTERVAL = 5000, 
+		var UPDATE_INTERVAL = 5000,
 				IDLE_TIMEOUT = 1200000;
+
+		var GENDER_FILTERS = ['M','F'],
+				AGE_FILTERS = [[ 0, 14], [15, 19], [20, 24], [25, 29], [30, 34], [35, 39],
+											 [40, 44], [45, 49], [50, 54], [55, 59], [60, 64], [65, 69],
+											 [70, 74], [75, 79], [80, 120]];
 
 		var idArray = [],
 				currentID, currentView,
@@ -78,7 +85,7 @@ google.setOnLoadCallback(function(){
 				success: function(data) {
 					var json = $.parseJSON(data);
 
-					/*
+					//*
 	      	json = {
 						"id": 24, 
 						"name": "E9 - Boys Heat 2", 
@@ -105,7 +112,7 @@ google.setOnLoadCallback(function(){
 					// if empty, hide spinner and show notification
 					if (results.runners == '') {
 						spinner.stop();
-						$('#notifications .notification-default').show();
+						$('.notification-error.no-data').show();
 						$('#download-container').hide();
 						$('#results-nav').hide();
 						$('#results-table').hide().empty();
@@ -114,18 +121,30 @@ google.setOnLoadCallback(function(){
 						$('#results-graph #graph-toggle-options').empty();
 					} else {
 						spinner.stop();
-						$('#notifications .notification-default').hide();
+						$('.notification-error.no-data').hide();
 						$('#download-container').show();
 						$('#results-nav').show();
 
+						// hide all tab contents
+						$('.results-tab-content').hide();
+
 						if (view === TABLE_VIEW) {
-							$('#results-graph').hide();
 							$('#results-graph>#graph-canvas').empty();
 							$('#results-graph #graph-toggle-options').empty();
 							drawTable(json);
 						} else if (view === CAL_VIEW) {
-							$('#results-table').hide().empty();
+							$('#results-table').empty();
 							drawGraph(json);
+						} else if (view === IND_FINAL_VIEW) {
+							$('#results-table').empty();
+							$('#results-graph>#graph-canvas').empty();
+							$('#results-graph #graph-toggle-options').empty();
+							drawIndividual(json);
+						} else if (view === TEAM_FINAL_VIEW) {
+							$('#results-table').empty();
+							$('#results-graph>#graph-canvas').empty();
+							$('#results-graph #graph-toggle-options').empty();
+							drawTeam(json);
 						}
 					}
 				}
@@ -188,6 +207,55 @@ google.setOnLoadCallback(function(){
 					addNewRow(id, name, interval);
 				}
 			}
+		}
+
+		function addNewRow(id, name, interval){
+			var split = 0;
+			if (interval.length > 0)
+				split = interval[interval.length-1][0];
+			else
+				split = 'NT';
+
+			$('#results-table>tbody').append(
+				'<tr id="results'+id+'" class="accordion-toggle" data-toggle="collapse" data-parent="#results-table" data-target="#collapse'+id+'" aria-expanded="false" aria-controls="collapse'+id+'">' + 
+					'<td>' + name + '</td>' + 
+					'<td id="latest-split'+id+'">' + split + '</td>' + 
+					'<td id="total-time'+id+'"></td>' + 
+				'</tr>' + 
+				'<tr></tr>'	+		// for correct stripes 
+				'<tr class="splits">' +
+					'<td colspan="3">' +
+						'<div id="collapse'+id+'" class="accordion-body collapse" aria-labelledby="results'+id+'">' + 
+							'<table id="splits'+id+'" class="table" style="text-align:center; background-color:transparent">' +
+								'<tbody>' +
+								'</tbody>' +
+							'</table>' +
+						'</div>' + 
+					'</td>' +
+				'</tr>'
+			);
+
+			//*
+			var total = 0;
+			for (var j=0; j < interval.length; j++) {
+				var split = String(Number(interval[j][0]).toFixed(3));
+
+				// add splits to subtable
+				$('table#splits'+id+'>tbody').append(
+					'<tr>' + 
+						'<td>' + (j+1) + '</td>' + 
+						'<td>' + split + '</td>' + 
+					'</tr>'
+				);
+
+				// now calculate total time
+				total += Number(split);
+			}
+
+			// display total time
+			total = formatTime(String(total));
+			$('#results-table>tbody #results'+id+'>td#total-time'+id).html(total);
+			//*/
 		}
 
 		function drawGraph(json){
@@ -275,53 +343,67 @@ google.setOnLoadCallback(function(){
 			chart.draw(data, options);
 		}
 
-		function addNewRow(id, name, interval){
-			var split = 0;
-			if (interval.length > 0)
-				split = interval[interval.length-1][0];
-			else
-				split = 'NT';
+		function drawIndividual(json) {
+			var container = $('#individual-accordion');
+			var results = $.parseJSON(json.results);
 
-			$('#results-table>tbody').append(
-				'<tr id="results'+id+'" class="accordion-toggle" data-toggle="collapse" data-parent="#results-table" data-target="#collapse'+id+'" aria-expanded="false" aria-controls="collapse'+id+'">' + 
-					'<td>' + name + '</td>' + 
-					'<td id="latest-split'+id+'">' + split + '</td>' + 
-					'<td id="total-time'+id+'"></td>' + 
-				'</tr>' + 
-				'<tr></tr>'	+		// for correct stripes 
-				'<tr class="splits">' +
-					'<td colspan="3">' +
-						'<div id="collapse'+id+'" class="accordion-body collapse" aria-labelledby="results'+id+'">' + 
-							'<table id="splits'+id+'" class="table" style="text-align:center; background-color:transparent">' +
-								'<tbody>' +
-								'</tbody>' +
-							'</table>' +
-						'</div>' + 
-					'</td>' +
-				'</tr>'
-			);
+			// empty contents
+			container.empty();
 
 			//*
-			var total = 0;
-			for (var j=0; j < interval.length; j++) {
-				var split = String(Number(interval[j][0]).toFixed(3));
+			createIndividualResults(0,0);
+			function createIndividualResults(i, j) {
+				if (i >= GENDER_FILTERS.length)
+					return;
+				else if (j == AGE_FILTERS.length) {
+					i++;
+					j = 0;
+				}
 
-				// add splits to subtable
-				$('table#splits'+id+'>tbody').append(
-					'<tr>' + 
-						'<td>' + (j+1) + '</td>' + 
-						'<td>' + split + '</td>' + 
-					'</tr>'
-				);
+				gender = GENDER_FILTERS[i];
+				age_gte = AGE_FILTERS[j][0];
+				age_lte = AGE_FILTERS[j][1];
 
-				// now calculate total time
-				total += Number(split);
+				console.log((gender == 'M' ? 'Male' : 'Female') + ' ' + age_gte + '-' + age_lte);
+				$.ajax({
+					url: '/api/filtered_results/?id='+currentID+'&gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
+					headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+					dataType: 'text',
+					success: function(data) {
+						//console.log((gender == 'M' ? 'Male' : 'Female') + ' ' + age_gte + '-' + age_lte);
+						container.append(
+							'<div class="panel panel-default">' +
+								'<div class="panel-heading" role="tab" id="individual-heading-'+i+'-'+j+'">' + 
+								 '<h4 class="panel-title">' + 
+								 	'<a role="button" data-toggle="collapse" data-parent="#individual-accordion" href="#individual'+i+'-'+j+'" aria-expanded="true" aria-controls="individual'+i+'-'+j+'">' +
+								 		(gender == 'M' ? 'Male' : 'Female') + ' ' + age_gte + '-' + age_lte +
+								 	'</a>' +
+								 '</h4>' +
+								'</div>' +
+								'<div id="individual'+i+'-'+j+'" class="panel-collapse collapse" role="tabpanel" aria-labelledby="individual-heading-'+i+'-'+j+'">' +
+									'<div class="panel-body">' +
+										'Results for ' + (gender == 'M' ? 'Male' : 'Female') + ' ' + age_gte + '-' + age_lte +
+									'</div>' +
+								'</div>' +
+							'</div>'
+						);
+						j++;
+						createIndividualResults(i, j);
+					}
+				});
 			}
-
-			// display total time
-			total = formatTime(String(total));
-			$('#results-table>tbody #results'+id+'>td#total-time'+id).html(total);
 			//*/
+
+			// finally show results
+			$('#results-individual').show();
+		}
+
+		function drawTeam(json) {
+			var container = $('#results-team-final');
+			var results = $.parseJSON(json.results);
+
+			// empty contents
+			container.empty();
 		}
 
 		function lastWorkout(){
@@ -331,12 +413,12 @@ google.setOnLoadCallback(function(){
 				dataType: 'text',			//force to handle it as text
 				success: function(data){
 					var json = $.parseJSON(data);
-					//alert(json.length);
-					if (json.length==0){ 
-						$('#notifications notification-default2').show();
+
+					if (json.length == 0){ 
+						$('.notification-error.no-sessions').show();
 						spinner.stop();
 					} else {
-						$('#notifications notification-default2').hide();
+						$('.notification-error.no-sessions').hide();
 						var idjson = json[json.length - 1].id;
 						update(idjson, currentView);
 						currentID = idjson;						
@@ -352,12 +434,12 @@ google.setOnLoadCallback(function(){
 				dataType: 'text',			//force to handle it as text
 				success: function(data){
 					var json = $.parseJSON(data);
-					//alert(json.length);
-					if (json.length==0){ 
-						$('#notifications notification-default2').show();
+					
+					if (json.length == 0){ 
+						$('.notification-error.no-sessions').show();
 						spinner.stop();
 					} else {
-						$('#notifications notification-default2').hide();
+						$('.notification-error.no-sessions').hide();
 						update(currentID, currentView);
 					}
 				}
@@ -371,12 +453,12 @@ google.setOnLoadCallback(function(){
 				dataType: 'text',			//force to handle it as text
 				success: function(data){
 					var json = $.parseJSON(data);
-					//alert(json.length);
-					if (json.length==0){ 
-						$('#notifications notification-default2').show();
+					
+					if (json.length == 0){ 
+						$('.notification-error.no-sessions').show();
 						spinner.stop();
 					} else {
-						$('#notifications notification-default2').hide();
+						$('.notification-error.no-sessions').hide();
 						var arr = [];
 						calendarEvents = [];
 						for (var i=0; i < json.length; i++){
@@ -392,61 +474,61 @@ google.setOnLoadCallback(function(){
 							calendarEvents.push({title : json[i].name, url : url, start : str});
 						}
 						idArray = arr;
-					}
 
-					// attach handler for heat menu item click
-					$('body').on('click', 'ul.menulist li a', function(){
-						var value = $(this).html();
-						console.log( 'Index: ' + $( 'ul.menulist li a' ).index( $(this) ) );
-						var indexClicked = $( 'ul.menulist li a' ).index( $(this) );
+						// attach handler for heat menu item click
+						$('body').on('click', 'ul.menulist li a', function(){
+							var value = $(this).html();
+							console.log( 'Index: ' + $( 'ul.menulist li a' ).index( $(this) ) );
+							var indexClicked = $( 'ul.menulist li a' ).index( $(this) );
 
-						// reset canvases and set new session id
-						$('.notification').hide();
-						$('#results-table').hide().empty();
-						$('#results-graph').hide();
-						$('#results-graph>#graph-canvas').empty();
-						$('#results-graph #graph-toggle-options').empty();
-						currentID = idArray[indexClicked];
-						spinner.spin(target);
-						update(currentID, currentView);
-					});
-
-					// attach handler for calendar menu click
-					$('#calendar-btn').click(function(e){
-						e.preventDefault();
-
-						$('#calendar-overlay').show();
-						// Calendar script
-						$('#calendar').fullCalendar({
-							editable: true,
-							eventLimit: true, // allow "more" link when too many events
-							events: calendarEvents //calls list from function above
+							// reset canvases and set new session id
+							$('.notification').hide();
+							$('#results-table').hide().empty();
+							$('#results-graph').hide();
+							$('#results-graph>#graph-canvas').empty();
+							$('#results-graph #graph-toggle-options').empty();
+							currentID = idArray[indexClicked];
+							spinner.spin(target);
+							update(currentID, currentView);
 						});
-					});
 
-					// attach handler for hiding calendar menu
-					$('#calendar-overlay').click(function(e){
-						//e.preventDefault();
-						var cal = $('.calendar-container');
-						if (!cal.is(e.target) && cal.has(e.target).length === 0)
+						// attach handler for calendar menu click
+						$('#calendar-btn').click(function(e){
+							e.preventDefault();
+
+							$('#calendar-overlay').show();
+							// Calendar script
+							$('#calendar').fullCalendar({
+								editable: true,
+								eventLimit: true, // allow "more" link when too many events
+								events: calendarEvents //calls list from function above
+							});
+						});
+
+						// attach handler for hiding calendar menu
+						$('#calendar-overlay').click(function(e){
+							//e.preventDefault();
+							var cal = $('.calendar-container');
+							if (!cal.is(e.target) && cal.has(e.target).length === 0)
+								$('#calendar-overlay').hide();
+						});
+
+						// attach handler for calendar event click
+						$('.calendar-container').on('click','a.fc-day-grid-event', function(e) {
+							e.preventDefault();
 							$('#calendar-overlay').hide();
-					});
 
-					// attach handler for calendar event click
-					$('.calendar-container').on('click','a.fc-day-grid-event', function(e) {
-						e.preventDefault();
-						$('#calendar-overlay').hide();
-
-						// reset canvases and set new session id
-						$('.notification').hide();
-						$('#results-table').hide().empty();
-						$('#results-graph').hide()
-						$('#results-graph>#graph-canvas').empty();
-						$('#results-graph #graph-toggle-options').empty();
-						currentID = parseInt($(this).attr('href').split('#'));
-						spinner.spin(target);
-						update(currentID, currentView);
-					});
+							// reset canvases and set new session id
+							$('.notification').hide();
+							$('#results-table').hide().empty();
+							$('#results-graph').hide()
+							$('#results-graph>#graph-canvas').empty();
+							$('#results-graph #graph-toggle-options').empty();
+							currentID = parseInt($(this).attr('href').split('#'));
+							spinner.spin(target);
+							update(currentID, currentView);
+						});
+					}
 				}
 			});
 		}
@@ -472,21 +554,29 @@ google.setOnLoadCallback(function(){
 			$(this).parent().children().removeClass('active');
 			$(this).addClass('active');
 
-			$('#results-table').hide();
-			$('#results-graph').hide();
+			$('.results-tab-content').hide();
 			$('#download-container').hide();
 			spinner.spin(target);
 
-			// update view
-			lastSelected();
+			// views 0 and 1 = live results updated every 5 secs
+			if (currentView < 1) {
+				// update view
+				lastSelected();
 
-			// clear and reset update handler
-			clearInterval(updateHandler);
-			updateHandler = setInterval(lastSelected, UPDATE_INTERVAL);
+				// clear and reset update handler
+				clearInterval(updateHandler);
+				updateHandler = setInterval(lastSelected, UPDATE_INTERVAL);
 
-			// clear and reset idle check
-			clearTimeout(idleHandler);
-			idleHandler = setTimeout(function(){ idleCheck(updateHandler, lastSelected, UPDATE_INTERVAL, IDLE_TIMEOUT, 'http://www.trac-us.com'); }, IDLE_TIMEOUT);
+				// clear and reset idle check
+				clearTimeout(idleHandler);
+				idleHandler = setTimeout(function(){ idleCheck(updateHandler, lastSelected, UPDATE_INTERVAL, IDLE_TIMEOUT, 'http://www.trac-us.com'); }, IDLE_TIMEOUT);
+			} else {
+				clearInterval(updateHandler);
+				clearTimeout(idleHandler);
+
+				// update view
+				lastSelected();
+			}
 		});
 
 		$('#graph-toggle-options').click(function(e){
