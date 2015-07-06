@@ -192,22 +192,31 @@ class TimingSessionTest(TestCase):
         """
         Test deleting one split from a list of results.
         """
-        # Add some splits to the workout.
-        sp = [7.0, 12.34, 56.7, 110.001]
+        # Create some splits for the workout.
+        sp = [7.0, 12.34, 16.7, 110.001]
         times = [sum(sp[:i]) for i in range(1,len(sp)+1)]
-        self.ts.start_button_time=timezone.now()
-        self.add_times(self.tag.id, times)
         self.ts.filter_choice=False
         
-        # Delete one of the splits and verify the results.
+        # Test with the start button active.
+        self.ts.start_button_time=timezone.now()
+        self.add_times(self.tag.id, times)
         self.ts._delete_split(self.tag.id, 2)
         res = self.ts.calc_splits_by_tag(self.tag.id, filter_s=False)
-        print res
-        print sp
         self.assertEqual(len(res), len(sp)-1)
         self.assertEqual(res[0], sp[0])
         self.assertEqual(res[1], sp[1])
         self.assertEqual(res[2], sp[3])
+
+        # Test with the start button inactive.
+        self.ts.start_button_reset()
+        self.ts.clear_results()
+        self.add_times(self.tag.id, times)
+        self.ts._delete_split(self.tag.id, 2)
+        res = self.ts.calc_splits_by_tag(self.tag.id, filter_s=False)
+        self.assertEqual(len(res), len(sp)-2)
+        self.assertEqual(res[0], sp[1])
+        self.assertEqual(res[1], sp[2])
+
 
     def test_edit_split(self):
         """

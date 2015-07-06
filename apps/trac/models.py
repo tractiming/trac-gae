@@ -68,7 +68,8 @@ class TagTime(models.Model):
     @property
     def full_time(self):
         """Full time with milliseconds."""
-        return self.time+timezone.timedelta(milliseconds=self.milliseconds)
+        return (self.time.replace(microsecond=0)+
+                timezone.timedelta(milliseconds=self.milliseconds))
 
 class TimingSession(models.Model):
     """
@@ -116,6 +117,13 @@ class TimingSession(models.Model):
         workout, False otherwise.
         """
         return (self.start_button_time.year > 1)
+
+    def start_button_reset(self):
+        """
+        Deactivate the start button by setting it to the default time.
+        """
+        self.start_button_time = timezone.datetime(1,1,1,1,1,1)
+        self.save()
 
     def calc_splits_by_tag(self, tag_id, filter_s=None):
         """
@@ -336,6 +344,10 @@ class TimingSession(models.Model):
     def clear_results(self):
         """Removes all the tagtimes that currently exist in the session."""
         self.tagtimes.clear()
+        self.clear_cache()
+
+    def clear_cache(self):
+        """Clear the session's cached results."""
         cache.delete(('ts_%i_results' %self.id))
         cache.delete(('ts_%i_athlete_names' %self.id))
 
@@ -358,17 +370,15 @@ class TimingSession(models.Model):
         # Get the offset and delete the time.
         splits = self.calc_splits_by_tag(tag_id)
         off_sec, off_ms = get_sec_ms(splits[split_indx])
+        offset = timezone.timedelta(seconds=off_sec, milliseconds=off_ms)
         tt[indx].delete()
 
         # Edit adjust the rest of the tagtimes to maintain the other splits.
         for i in range(indx, len(tt)):
-            old = tt[i].time+timezone.timedelta(milliseconds=tt[i].milliseconds)
-            print 'old', old
-            new = old-timezone.timedelta(seconds=off_sec, milliseconds=off_ms)
-            print 'new', new
+            new = tt[i].full_time-offset
             tt[i].time = new
-            tt[i].milliseconds = new.microsecond/1000 
-            
+            tt[i].milliseconds = new.microsecond/1000
+            tt[i].save()
 
     def _edit_split(self, tag_id, split_indx, sec, ms):
         """
