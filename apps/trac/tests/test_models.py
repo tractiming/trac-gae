@@ -229,7 +229,7 @@ class TimingSessionTest(TestCase):
         # Test with the start button active.
         self.ts.start_button_time=timezone.now()
         self.add_times(self.tag.id, times)
-        self.ts._insert_split(self.tag.id, 2, 18, 900)
+        self.ts._insert_split(self.tag.id, 2, 18.9)
         res = self.ts.calc_splits_by_tag(self.tag.id, filter_s=False)
         self.assertEqual(len(res), len(sp)+1)
         self.assertEqual(res[0], sp[0])
@@ -242,7 +242,7 @@ class TimingSessionTest(TestCase):
         self.ts.start_button_reset()
         self.ts.clear_results()
         self.add_times(self.tag.id, times)
-        self.ts._insert_split(self.tag.id, 2, 18, 900)
+        self.ts._insert_split(self.tag.id, 2, 18.9)
         res = self.ts.calc_splits_by_tag(self.tag.id, filter_s=False)
         self.assertEqual(len(res), len(sp))
         self.assertEqual(res[0], sp[1])
@@ -262,7 +262,7 @@ class TimingSessionTest(TestCase):
         # Test with the start button active.
         self.ts.start_button_time=timezone.now()
         self.add_times(self.tag.id, times)
-        self.ts._edit_split(self.tag.id, 2, 18, 900)
+        self.ts._edit_split(self.tag.id, 2, 18.9)
         res = self.ts.calc_splits_by_tag(self.tag.id, filter_s=False)
         self.assertEqual(len(res), len(sp))
         self.assertEqual(res[0], sp[0])

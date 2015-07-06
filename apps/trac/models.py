@@ -380,12 +380,13 @@ class TimingSession(models.Model):
             tt[i].milliseconds = new.microsecond/1000
             tt[i].save()
 
-    def _insert_split(self, tag_id, split_indx, sec, ms):
+    def _insert_split(self, tag_id, split_indx, val):
         """
         Insert a new split into the array before the given index.
         """
         assert self.filter_choice is False, "Filter must be off to insert."
         tt = TagTime.objects.filter(timingsession=self, tag__id=tag_id).order_by('time')
+        sec, ms = get_sec_ms(val)
         split_dt = timezone.timedelta(seconds=sec, milliseconds=ms)
 
         # Find the index of the first tag time we need to change as well as the
@@ -418,7 +419,7 @@ class TimingSession(models.Model):
         self.tagtimes.add(nt.pk)
         self.save()
 
-    def _edit_split(self, tag_id, split_indx, sec, ms):
+    def _edit_split(self, tag_id, split_indx, val):
         """
         Change the value of a split in the list of results. The split index
         should refer to the position in the unfiltered results. 
@@ -428,7 +429,7 @@ class TimingSession(models.Model):
         # The split is edited by deleting the current time and inserting a new
         # split in its place.
         self._delete_split(tag_id, split_indx)
-        self._insert_split(tag_id, split_indx, sec, ms)
+        self._insert_split(tag_id, split_indx, val)
 
     def _overwrite_final_time(self, tag_id, hr, mn, sc, ms):
         """

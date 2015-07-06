@@ -420,6 +420,37 @@ def post_splits(request):
     # this same endpoint to retrieve the server time. 
     elif request.method == 'GET':
         return Response({str(timezone.now())}, status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes((permissions.IsAuthenticated,))
+def edit_splits(request):
+    """
+    Edit, delete, or insert a single split within a single workout.
+    Parameters:
+        - id: the id of the timing session
+        - user_id: id of the user whose splits we want to change
+        - action: one of 'edit', 'insert', or 'delete'
+        - indx: index of the split to perform the action on
+        - val: new value for edited or inserted split
+    Note: all indices are in reference to unfiltered result set. An error will
+    be raised if splits are edited in a session where filter_choice is True.
+    """
+    data = request.POST
+    ts = TimingSession.objects.get(id=int(data['id']))
+    all_tags = ts.tagtimes.values_list('tag_id', flat=True).distinct()
+    tag = Tag.objects.filter(user_id=int(data['user_id']), id__in=all_tags)
+    
+    if data['action'] == 'edit':
+        ts._edit_split(tag.id, int(data['indx']), float(data['val']))
+    elif data['action'] == 'insert':
+        ts._insert_split(tag.id, int(data['indx']), float(data['val']))
+    elif data['action'] == 'delete':
+        ts._delete_split(tag.id, int(data['indx']))
+    else:
+		return HttpResponse(status.HTTP_404_NOT_FOUND)
+
+    return HttpResponse(status.HTTP_202_ACCEPTED)
+
 #pagination endpoint
 @api_view(['GET'])
 @permission_classes((permissions.AllowAny,))
