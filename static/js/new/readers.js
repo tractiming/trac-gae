@@ -41,20 +41,13 @@ $(function() {
 
 		// get all the readers
 		getReaders();
-
-		// display most recent table
-		//lastWorkout();
-
-		// refresh the view every 5 seconds to update
-		//updateHandler = setInterval(lastSelected, 5000);
-
-		// idle check after 20 minutes
-		//setTimeout(function(){ idleCheck(updateHandler, lastSelected, 5000, 1200000, 'http://www.trac-us.com'); }, 1200000);
 	})();
 
 	//function to load reader info
 	function getReaders(){
 		$('#results-table').empty();
+		$('.notification').hide();
+
 		$.ajax({
 			url: '/api/readers/',
 			headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
@@ -65,7 +58,6 @@ $(function() {
 					$('.notifications.no-results').show();
 					spinner.stop();
 				} else {
-					$('.notification').hide();
 					spinner.stop();
 
 					// add table head if empty
@@ -92,249 +84,144 @@ $(function() {
 						);
 					}
 
+					$('#results-table').show();
+
 					$('#results-table tbody tr').click(function(e) {
 						e.preventDefault();
-						$('#edit-modal #edit-form input#id').val(this.id);
-						$('#edit-modal #edit-form input#name').val($(this).find('td')[0].innerText);
-						$('#edit-modal #edit-form input#id-str').val($(this).find('td')[1].innerText);
+						$('#edit-modal #edit-form input#edit-id').val(this.id);
+						$('#edit-modal #edit-form input#edit-name').val($(this).find('td')[0].innerText);
+						$('#edit-modal #edit-form input#edit-id-str').val($(this).find('td')[1].innerText);
+						$('#edit-modal #edit-form').parsley().reset();
 					});
 				}
 			}
 		});
 	}
 
+	$('button#add').click(function(e) {
+		e.preventDefault();
+
+		$('.notification').hide();
+
+		$('#create-submit').click(function(e) {
+			e.preventDefault();
+			
+			var form = $('#create-form');
+			form.parsley().validate();
+
+			if (form.parsley().isValid()) {
+				$('#create-modal').modal('hide');
+				$('#results-table').hide();
+				spinner.spin(target);
+
+				var name = $('input#create-name').val();
+				var idstr = $('input#create-id-str').val();
+				
+				form.parsley().reset();
+				form[0].reset();
+
+				$.ajax({
+					type: 'POST',
+					dataType: 'json',
+					url: '/api/readers/',
+					headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+					data: {
+						name: name,
+						id_str: idstr
+					},
+					success: function(data) {
+						spinner.stop();
+						getReaders();
+						$('.notification-success.register-success').show();
+					},
+					error: function(xhr, errmsg, err) {
+						spinner.stop();
+						$('#results-table').show();
+						$('.notification-error.server-error').show();
+					}
+				});
+			}
+		});
+
+	});
+
 	$('#edit-submit').on('click', function(e) {
 		e.preventDefault();
-		console.log($('input#id').val());
+
+		$('.notification').hide();
+
+		var form = $('#edit-form');
+		form.parsley().validate();
+
+		//if the form is valid then submit
+		if (form.parsley().isValid()) {
+			
+			$('#edit-modal').modal('hide');
+			$('#results-table').hide();
+			spinner.spin(target);
+
+			var id = $('input#edit-id').val();
+			var name = $('input#edit-name').val();
+			var idstr = $('input#edit-id-str').val();
+			$.ajax({
+				type: 'PUT',
+				dataType:'json',
+				url: '/api/readers/'+id,
+				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				data: {
+					name: name,
+					id_str: idstr
+				},
+				success: function(data) {
+					spinner.stop();
+					getReaders();
+					$('.notification-success.update-success').show();
+				},
+				error: function(xhr, errmsg, err) {
+					spinner.stop();
+					$('#results-table').show();
+					$('.notification-error.server-error').show();
+				}
+			});
+		}
+	});
+
+
+	$('#delete-submit').on('click', function(e) {
+		e.preventDefault();
+
+		$('.notification').hide();
+		$('#edit-modal').modal('hide');
+		$('#delete-confirm-modal').modal('show');
+
+		var id = $('input#edit-id').val();
+		$('#delete-confirm-modal .modal-body button').on('click', function(e) {
+			e.preventDefault();
+			$('#delete-confirm-modal').modal('hide');
+			$('#results-table').hide();
+			spinner.spin(target);
+			var confirm = $(this).html();
+			if (confirm == 'Yes') {
+				$.ajax({
+					type: 'DELETE',
+					dataType: 'json',
+					url: '/api/readers/'+id,
+					headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+					success: function(data) {
+						spinner.stop();
+						getReaders();
+						$('.notification-success.delete-success').show();
+					},
+					error: function(xhr, errmsg, err) {
+						spinner.stop();
+						$('#results-table').show();
+						$('.notification-error.server-error').show();
+					}
+				});
+			} else if (confirm == 'No') {
+				$('#delete-confirm-modal').modal('hide');
+				$('#edit-modal').modal('show');
+			}
+		});
 	});
 });
-
-
-
-
-
-$(document).ready(function() {
-	$(".modal-animate").show();
-		loadreader();
-        $("#myform").on('click','#submit', function(e){
-            e.preventDefault();
-	    $(".modal-animate").show();
-
-
-	            // var title=$('input[id=title]').val();
-	           var name=$('input[id=readername]').val();
-		      var idstr=$('input[id=readernum]').val();
-		    
-
-	      $.ajax({
-           type: "POST",
-           dataType:'json',
-           url: "/api/readers/",
-	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
-           data: {
-               name: name,
-               id_str:idstr,
-               
-           },
-           // Login was successful.
-           success: function(data) {
-			  
-			      
-		    $(".modal-animate").hide();
-		    $("h6.notification.notification-critical").hide();
-		    $("h6.notification.notification-success").show();
-		    $("#myform")[0].reset();
-			   loadreader();
-           },
-
-           // create athlete failed.
-           error: function(xhr, errmsg, err) {
-	    $(".modal-animate").hide();
-	    $("h6.notification.notification-success").hide();
-               $("h6.notification.notification-critical").show();
-           }
-           
-      });
-               
-            
-        });
-    });
-
-
-
-$("body").on('click', 'tr',function(){
-	//alert($(this).html());
-	var value = $(this).html();
-	$("input#delete").show();
-	$("input#update").show();
-	$("div.button-container-two").show();
-	$("input#create").show();
-	$("p#idnumber").show();
-	$("input#submit").hide();
-	$(value).each(function(index){
-		//alert( $(this).html() );
-		console.log( index+ ":"+ $(this).html());
-		if (index ==0)
-		{
-			var input =$('input#idnumber');
-			input.val($(this).html() );
-		}
-		else if (index ==1)
-		{
-			var input =$('input#readername');
-			input.val($(this).html() );
-			}
-		else if (index ==2)
-		{
-			var input =$('input#readernum');
-			input.val($(this).html() );
-			}
-
-	});
-	
-	
-
-	
-	
-	});
-	
-	$("body").on('click', 'input#create',function(e){
-	//alert($(this).html());
-	  e.preventDefault();
-	  $("#myform")[0].reset();
-	var value = $(this).html();
-	$("input#delete").hide();
-	$("input#update").hide();
-	$("input#submit").show();
-	$("p#idnumber").hide();
-	$("input#create").hide();
-
-	});
-
-
-
-	$("body").on('click', 'input#delete',function(f){
-	//alert($(this).html());
-	  f.preventDefault();
-	  $("h6.notification.notification-warning").show();
-	  $("h6.notification.notification-critical").hide();
-	  $("h6.notification.delete-success").hide();
-	  		    $("h6.notification.notification-critical").hide();
-		    $("h6.notification.notification-success").hide();
-		     $("h6.notification.update-success").hide();
-	  
-	   $("body").on('click','button',function(event){
-	console.log("On:", event.target);
-	var value = $(this).html();
-	if (value == 'Yes'){ $(".modal-animate").show();
-	  
-	 var id=$('input[id=idnumber]').val();
-	//alert(id);
-	
-		//alert(filter);
-	      $.ajax({
-           type: "DELETE",
-           dataType:'json',
-           url: "/api/readers/"+id,
-	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
-         
-           // Login was successful.
-           success: function(data) {
-		    //hide spinner, success modal, and reset form
-		    $(".modal-animate").hide();
-		    $("h6.notification.notification-critical").hide();
-		    $("h6.notification.notification-success").hide();
-		     $("h6.notification.update-success").hide();
-		    $("h6.notification.delete-success").show();
-		     $("h6.notification.notification-warning").hide();
-		    $("#myform")[0].reset();
-		    	$("input#delete").hide();
-	$("input#update").hide();
-	$("input#submit").show();
-	$("p#idnumber").hide();
-	$("input#create").hide();
-		    loadreader();
-                   
-           },
-
-           // Login request failed.
-           error: function(xhr, errmsg, err) {
-	    //hide spinner, show error modal
-	    $(".modal-animate").hide();
-	    $("h6.notification.notification-success").hide();
-	     $("h6.notification.notification-warning").hide();
-	      $("h6.notification.update-success").hide();
-		    $("h6.notification.delete-success").hide();
-               $("h6.notification.notification-critical").show();
-           }
-           
-      });
-      }
-	else if(value =='Cancel'){
-		$(".modal-animate").hide();
-	    $("h6.notification.notification-success").hide();
-	    $("h6.notification.notification-warning").hide();
-              
-		}
-	
-	 });
-	  
-	  
-	
-	});
-	
-	
-		$("body").on('click', 'input#update',function(f){
-	//alert($(this).html());
-	  f.preventDefault();
-	   $(".modal-animate").show();
-	 var id=$('input[id=idnumber]').val();
-	           var name=$('input[id=readername]').val();
-		      var idstr=$('input[id=readernum]').val();
-
-	
-		//alert(filter);
-	      $.ajax({
-           type: "PUT",
-           dataType:'json',
-           url: "/api/readers/"+id,
-	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
-	   data: {
-               name: name,
-               id_str:idstr,
-               
-           },
-
-           // Login was successful.
-           success: function(data) {
-		    //hide spinner, success modal, and reset form
-		    $(".modal-animate").hide();
-		    $("h6.notification.notification-critical").hide();
-		    $("h6.notification.notification-success").hide();
-		    $("h6.notification.delete-success").hide();
-		    $("h6.notification.update-success").show();
-		    $("#myform")[0].reset();
-		    	$("input#delete").hide();
-	$("input#update").hide();
-	$("input#submit").show();
-	$("p#idnumber").hide();
-	$("input#create").hide();
-		    loadreader();
-                   
-           },
-
-           // Login request failed.
-           error: function(xhr, errmsg, err) {
-	    //hide spinner, show error modal
-	    $(".modal-animate").hide();
-	    $("h6.notification.notification-success").hide();
-	     $("h6.notification.notification-warning").hide();
-	      $("h6.notification.update-success").hide();
-		    $("h6.notification.delete-success").hide();
-               $("h6.notification.notification-critical").show();
-           }
-           
-      });
-	
-	});
-	

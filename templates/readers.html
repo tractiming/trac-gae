@@ -38,6 +38,42 @@
 	<div id="content" class="container-fluid">
 		<div class="container">
 
+			<div id="create-modal" class="modal fade" role="dialog">
+				<div class="modal-dialog">
+
+					<!-- Modal content-->
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+							<h4 class="modal-title">Register Reader</h4>
+						</div>
+						<div class="modal-body">
+
+							<form method="POST" id="create-form" name="create-form" data-parsley-validate>
+								<div class="form-group">
+							    <label for="create-name" class="sr-only">Reader Name</label>
+							    <input type="text" id="create-name" name="create-name" class="form-control" placeholder="Reader name" required autofocus data-parsley-group="block1">
+							    <br>
+
+							    <label for="create-id-str" class="sr-only">Reader ID</label>
+							    <input type="text" id="create-id-str" name="create-id-str" class="form-control" placeholder="Reader ID" required data-parsley-group="block1">
+							    <br>
+
+							    <div style="display: table; margin: 0 auto;">
+							      <button type="submit" id="create-submit" class="btn btn-primary" style="margin-right:10px;">Create Reader</button>
+							    </div>
+							  </div>
+							</form>
+
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						</div>
+					</div>
+
+				</div>
+			</div>
+
 			<div id="edit-modal" class="modal fade" role="dialog">
 				<div class="modal-dialog">
 
@@ -51,14 +87,14 @@
 
 							<form method="POST" id="edit-form" name="edit-form" data-parsley-validate>
 								<div class="form-group">
-									<input type="hidden" name="id" id="id" value="" />
+									<input type="hidden" name="edit-id" id="edit-id" value="" />
 
-							    <label for="name" class="sr-only">Reader Name</label>
-							    <input type="text" id="name" name="name" class="form-control" placeholder="Reader name" required autofocus data-parsley-group="block1">
+							    <label for="edit-name" class="sr-only">Reader Name</label>
+							    <input type="text" id="edit-name" name="edit-name" class="form-control" placeholder="Reader name" required autofocus data-parsley-group="block1">
 							    <br>
 
-							    <label for="id-str" class="sr-only">Reader ID</label>
-							    <input type="text" id="id-str" name="id-str" class="form-control" placeholder="Reader ID" required data-parsley-group="block1">
+							    <label for="edit-id-str" class="sr-only">Reader ID</label>
+							    <input type="text" id="edit-id-str" name="edit-id-str" class="form-control" placeholder="Reader ID" required data-parsley-group="block1">
 							    <br>
 
 							    <div style="display: table; margin: 0 auto;">
@@ -68,6 +104,29 @@
 							  </div>
 							</form>
 
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						</div>
+					</div>
+
+				</div>
+			</div>
+
+			<div id="delete-confirm-modal" class="modal fade" role="dialog">
+				<div class="modal-dialog">
+
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+							<h4 class="modal-title">Confirm Delete</h4>
+						</div>
+						<div class="modal-body">
+							<div style="display: table; margin: 0 auto;">
+								<p>Are you sure?</p>
+								<button type="button" id="delete-yes" class="btn btn-danger" style="margin-right:10px;">Yes</button>
+								<button type="button" id="delete-no" class="btn btn-default" autofocus>No</button>
+							</div>
 						</div>
 						<div class="modal-footer">
 							<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -87,6 +146,9 @@
 						<p class="notification notification-error form-error" role="alert">
 							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Some information you entered isn't right.
 						</p>
+						<p class="notification notification-error server-error" role="alert">
+							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Oops. Something went wrong. Please try again.
+						</p>
 						<p class="notification notification-success register-success" role="alert">
 							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> You have successfully registered a reader!
 						</p>
@@ -98,9 +160,16 @@
 						</p>
 					</div>
 				</div>
-				<div id="results" class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
-					<table id="results-table" class="table tablesorter table-striped table-hover" style="text-align:center;">
-					</table>
+				<div class="row">
+					<div id="results" class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+						<table id="results-table" class="table tablesorter table-striped table-hover" style="text-align:center;">
+						</table>
+					</div>
+				</div>
+				<div class="row">
+					<div style="display: table; margin: 0 auto;">
+						<button type="button" id="add" class="btn btn-primary" data-toggle="modal" data-target="#create-modal">Add New Reader</button>
+					</div>
 				</div>
 			</div>
 
