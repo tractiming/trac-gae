@@ -423,7 +423,7 @@ def post_splits(request):
 
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))
-def edit_splits(request):
+def edit_split(request):
     """
     Edit, delete, or insert a single split within a single workout.
     Parameters:
