@@ -424,7 +424,11 @@ class TimingSession(models.Model):
         should refer to the position in the unfiltered results. 
         """
         assert self.filter_choice is False, "Filter must be off to edit."
-        pass
+
+        # The split is edited by deleting the current time and inserting a new
+        # split in its place.
+        self._delete_split(tag_id, split_indx)
+        self._insert_split(tag_id, split_indx, sec, ms)
 
     def _overwrite_final_time(self, tag_id, hr, mn, sc, ms):
         """

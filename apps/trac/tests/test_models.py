@@ -250,6 +250,26 @@ class TimingSessionTest(TestCase):
         self.assertEqual(res[2], 18.9)
         self.assertEqual(res[3], sp[3])
 
+    def test_edit_split(self):
+        """
+        Test changing the time of one split.
+        """
+        # Create some splits for the workout.
+        sp = [7.0, 12.34, 16.7, 110.001]
+        times = [sum(sp[:i]) for i in range(1,len(sp)+1)]
+        self.ts.filter_choice=False
+        
+        # Test with the start button active.
+        self.ts.start_button_time=timezone.now()
+        self.add_times(self.tag.id, times)
+        self.ts._edit_split(self.tag.id, 2, 18, 900)
+        res = self.ts.calc_splits_by_tag(self.tag.id, filter_s=False)
+        self.assertEqual(len(res), len(sp))
+        self.assertEqual(res[0], sp[0])
+        self.assertEqual(res[1], sp[1])
+        self.assertEqual(res[2], 18.9)
+        self.assertEqual(res[3], sp[3])
+
     def test_force_final_time(self):
         """
         Test setting a final time for a single tag.
