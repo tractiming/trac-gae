@@ -359,7 +359,7 @@ class TimingSession(models.Model):
         results.
         """
         assert self.filter_choice is False, "Filter must be off to delete."
-        tt = TagTime.objects.filter(timingsession=self, tag__id=tag_id)
+        tt = TagTime.objects.filter(timingsession=self, tag__id=tag_id).order_by('time')
 
         # Find the index of the first tag time we need to change.
         if self.start_button_active():
@@ -379,6 +379,44 @@ class TimingSession(models.Model):
             tt[i].time = new
             tt[i].milliseconds = new.microsecond/1000
             tt[i].save()
+
+    def _insert_split(self, tag_id, split_indx, sec, ms):
+        """
+        Insert a new split into the array before the given index.
+        """
+        assert self.filter_choice is False, "Filter must be off to insert."
+        tt = TagTime.objects.filter(timingsession=self, tag__id=tag_id).order_by('time')
+        split_dt = timezone.timedelta(seconds=sec, milliseconds=ms)
+
+        # Find the index of the first tag time we need to change as well as the
+        # previous (absoulte) time.
+        if self.start_button_active():
+            indx = split_indx
+            if indx == 0:
+                t_prev = self.start_button_time
+            else:
+                t_prev = tt[indx-1].full_time
+        else:
+            indx = split_indx+1
+            t_prev = tt[indx-1].full_time
+
+        # Create a new tagtime.
+        t_curr = t_prev+split_dt
+        r = self.readers.all()[0]
+        nt = TagTime.objects.create(tag_id=tag_id, time=t_curr,
+                milliseconds=t_curr.microsecond/1000, reader=r)
+
+        # Edit the rest of the tagtimes to maintain the other splits.
+        for i in range(indx, len(tt)):
+            new = tt[i].full_time+split_dt
+            tt[i].time = new
+            tt[i].milliseconds = new.microsecond/1000
+            tt[i].save()
+
+        # Add the new tagtime after the rest of the splits have already been
+        # adjusted.
+        self.tagtimes.add(nt.pk)
+        self.save()
 
     def _edit_split(self, tag_id, split_indx, sec, ms):
         """
