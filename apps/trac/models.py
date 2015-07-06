@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User, Group
 from django.utils import timezone
 from django.core.cache import cache
-from filters import filter_splits
+from filters import filter_splits, get_sec_ms
 from operator import itemgetter
 
 class Tag(models.Model):
@@ -65,6 +65,12 @@ class TagTime(models.Model):
             return ""
         return name
 
+    @property
+    def full_time(self):
+        """Full time with milliseconds."""
+        return (self.time.replace(microsecond=0)+
+                timezone.timedelta(milliseconds=self.milliseconds))
+
 class TimingSession(models.Model):
     """
     A collection of timing information, e.g. a workout or race.
@@ -105,6 +111,20 @@ class TimingSession(models.Model):
             return True
         return False
 
+    def start_button_active(self):
+        """
+        Returns True if the start button has been triggered for the current
+        workout, False otherwise.
+        """
+        return (self.start_button_time.year > 1)
+
+    def start_button_reset(self):
+        """
+        Deactivate the start button by setting it to the default time.
+        """
+        self.start_button_time = timezone.datetime(1,1,1,1,1,1)
+        self.save()
+
     def calc_splits_by_tag(self, tag_id, filter_s=None):
         """
         Calculates the splits for a given tag in the current session.
@@ -121,11 +141,7 @@ class TimingSession(models.Model):
         # Calculate splits.
         interval = []
         for i in range(len(times)-1):
-            t1 = times[i].time+timezone.timedelta(
-                    milliseconds=times[i].milliseconds)
-            t2 = times[i+1].time+timezone.timedelta(
-                    milliseconds=times[i+1].milliseconds)
-            dt = t2-t1
+            dt = times[i+1].full_time-times[i].full_time
             interval.append(round(dt.total_seconds(), 3))
         
         # Filtering algorithm.
@@ -280,7 +296,13 @@ class TimingSession(models.Model):
             tt = tt.filter(tag__user__groups__name__in=teams)
 
         tags = tt.values_list('tag_id',flat=True).distinct()
-        return self.calc_results(tag_ids=tags)
+        res = self.calc_results(tag_ids=tags)
+        
+        res_dict = {'results': [{'name': res[i][1], 'place': i+1,
+                                 'time': res[i][4] } for i in range(len(res))]}
+        return res_dict
+
+
 
     def get_results(self, force_update=False, sort=False):
         """Get full results, formatted for mobile."""
@@ -330,8 +352,113 @@ class TimingSession(models.Model):
     def clear_results(self):
         """Removes all the tagtimes that currently exist in the session."""
         self.tagtimes.clear()
+        self.clear_cache()
+
+    def clear_cache(self):
+        """Clear the session's cached results."""
         cache.delete(('ts_%i_results' %self.id))
         cache.delete(('ts_%i_athlete_names' %self.id))
+
+    def _delete_split(self, tag_id, split_indx):
+        """
+        Delete a result from the array of splits. The runner is identified by
+        tag id and the split to be deleted is identified by its position in the
+        array. The split index should refer to the position in the unfiltered 
+        results.
+        """
+        assert self.filter_choice is False, "Filter must be off to delete."
+        tt = TagTime.objects.filter(timingsession=self, tag__id=tag_id).order_by('time')
+
+        # Find the index of the first tag time we need to change.
+        if self.start_button_active():
+            indx = split_indx
+        else:
+            indx = split_indx+1
+
+        # Get the offset and delete the time.
+        splits = self.calc_splits_by_tag(tag_id)
+        off_sec, off_ms = get_sec_ms(splits[split_indx])
+        offset = timezone.timedelta(seconds=off_sec, milliseconds=off_ms)
+        tt[indx].delete()
+
+        # Edit adjust the rest of the tagtimes to maintain the other splits.
+        for i in range(indx, len(tt)):
+            new = tt[i].full_time-offset
+            tt[i].time = new
+            tt[i].milliseconds = new.microsecond/1000
+            tt[i].save()
+
+    def _insert_split(self, tag_id, split_indx, val):
+        """
+        Insert a new split into the array before the given index.
+        """
+        assert self.filter_choice is False, "Filter must be off to insert."
+        tt = TagTime.objects.filter(timingsession=self, tag__id=tag_id).order_by('time')
+        sec, ms = get_sec_ms(val)
+        split_dt = timezone.timedelta(seconds=sec, milliseconds=ms)
+
+        # Find the index of the first tag time we need to change as well as the
+        # previous (absoulte) time.
+        if self.start_button_active():
+            indx = split_indx
+            if indx == 0:
+                t_prev = self.start_button_time
+            else:
+                t_prev = tt[indx-1].full_time
+        else:
+            indx = split_indx+1
+            t_prev = tt[indx-1].full_time
+
+        # Create a new tagtime.
+        t_curr = t_prev+split_dt
+        r = self.readers.all()[0]
+        nt = TagTime.objects.create(tag_id=tag_id, time=t_curr,
+                milliseconds=t_curr.microsecond/1000, reader=r)
+
+        # Edit the rest of the tagtimes to maintain the other splits.
+        for i in range(indx, len(tt)):
+            new = tt[i].full_time+split_dt
+            tt[i].time = new
+            tt[i].milliseconds = new.microsecond/1000
+            tt[i].save()
+
+        # Add the new tagtime after the rest of the splits have already been
+        # adjusted.
+        self.tagtimes.add(nt.pk)
+        self.save()
+
+    def _edit_split(self, tag_id, split_indx, val):
+        """
+        Change the value of a split in the list of results. The split index
+        should refer to the position in the unfiltered results. 
+        """
+        assert self.filter_choice is False, "Filter must be off to edit."
+
+        # The split is edited by deleting the current time and inserting a new
+        # split in its place.
+        self._delete_split(tag_id, split_indx)
+        self._insert_split(tag_id, split_indx, val)
+
+    def _overwrite_final_time(self, tag_id, hr, mn, sc, ms):
+        """
+        Force a final time for the given tag id. This will delete all existing
+        splits and assign a final time only.
+        """
+        # Delete all existing times for this tag.
+        times = TagTime.objects.filter(timingsession=self, tag__id=tag_id)
+        times.delete()
+
+        # If the start button has not been set, we need to set it.
+        if not self.start_button_active():
+            self.start_button_time = timezone.now()
+
+        r = self.readers.all()[0]
+        final_time = self.start_button_time+timezone.timedelta(hours=hr, 
+                                                    minutes=mn, seconds=sc) 
+        tt = TagTime.objects.create(tag_id=tag_id, reader=r, time=final_time,
+                milliseconds=ms)
+        self.tagtimes.add(tt.pk)
+        self.save()
 
 class AthleteProfile(models.Model):
     """
