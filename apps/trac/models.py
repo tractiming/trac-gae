@@ -156,6 +156,8 @@ class TimingSession(models.Model):
         """
         Build the archive of tag-name relationships.
         """
+        # If an archive already exists, delete it and create a new one.
+        self._delete_tag_archive()
         tag_ids = self.tagtimes.values_list('tag_id',flat=True).distinct()
         for tid in tag_ids:
             tag = Tag.objects.get(id=tid)
