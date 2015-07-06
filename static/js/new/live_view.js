@@ -90,7 +90,7 @@ google.setOnLoadCallback(function(){
 				success: function(data) {
 					var json = $.parseJSON(data);
 
-					//*
+					/*
 	      	json = {
 						"id": 24, 
 						"name": "E9 - Boys Heat 2", 
@@ -532,12 +532,12 @@ google.setOnLoadCallback(function(){
 				success: function(data){
 					var json = $.parseJSON(data);
 					
-					if (json.length == 0){ 
+					if ((json.length == 0) && (!$.trim($('ul.menulist').html()))) {
 						$('.notification-error.no-sessions').show();
 						spinner.stop();
 					} else {
 						$('.notification-error.no-sessions').hide();
-						for (var i=0; i < json.length; i++){
+						for (var i=json.length-1; i >= 0; i--){
 							// add events to event menu
 							$('ul.menulist').append('<li><a href="#">'+json[i].name+'</a></li>');
 							idArray.push(json[i].id);
