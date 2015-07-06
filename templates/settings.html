@@ -10,6 +10,9 @@
 
 {% block js_scripts %}
 <script>
+var instance_first = 1;
+var instance_last = 5;
+var numitems = 0;
 var gl_helper;
 var id_helper = 0;
 var isOpen = false;
@@ -63,6 +66,11 @@ $("li a.logout").click(function(){
 		 $('div.text').css('padding-left','200px');
 		}
     loadAthletes();
+    var pushyheight = $('.pushy').height();
+    var itemheight = 56;
+    numitems = pushyheight / itemheight;
+    numitems = Math.floor(numitems);
+    instance_last = numitems;
     findScores();
     loadRoster();
 	});
@@ -155,9 +163,11 @@ $("li a.logout").click(function(){
 
 function findScores(){
     $.ajax({
-      url: '/api/sessions/',
+      url: '/api/session_Pag/',
       headers: {Authorization: "Bearer " + sessionStorage.access_token},
       dataType: 'text',
+      data: {i1: instance_first,
+             i2: instance_last,},
       success: function(data){
         var json = $.parseJSON(data);
         json = json.reverse();
@@ -167,14 +177,18 @@ function findScores(){
             $('ul.menulist').append('<li><a href="#">'+json[i].name+'</a></li>');
             arr.push(json[i].id);
           }
+          if (json.length == 5){
+          $('#linkedlist').append('<tr id="sM"><td>SeeMore</td></tr>');
+          $('ul.menulist').append('<li id="sM"><a href="#SeeMore">See More</a></li>');
+        }
           idArray = arr;
         }
     });
   }
     
 function resetScores(){
-    $('#linkedlist tr').remove();
-    $('ul.menulist li').remove();
+    $('#linkedlist tr#sM').remove();
+    $('ul.menulist li#sM').remove();
   }
   // attach handler for heat menu item click
 </script>
@@ -577,7 +591,15 @@ $('ul.menulist li a').off('click');
   $('body').on('click', 'ul.menulist li a', function(){
       var name = ($(this).html() );
       var id;
-  $.ajax({
+      console.log(name);
+  if (name == 'See More'){
+      instance_first += numitems;
+      instance_last += numitems;
+      resetScores();
+      findScores();
+  }
+  else {
+      $.ajax({
       type: 'GET',
       url: '/api/sessions/',
       headers: {Authorization: "Bearer " + sessionStorage.access_token},
@@ -597,6 +619,7 @@ $('ul.menulist li a').off('click');
         alert ("couldn't find workout");
       }
   });
+    }
   });
 
    $("body").on('click','input#update', function(e){
@@ -683,9 +706,9 @@ $('ul.menulist li a').off('click');
         <div class="modal-body">
           <div id="notifications">
               <div class="notification notification-critical" role="alert">Some information you entered isn't right.</div>
-            <div class="notification notification-success" role="alert">You have successfully created a workout!</div>
-            <div class="notification update-success" role="alert">You have successfully updated a workout!</div>
-            <div class="notification delete-success" role="alert">You have successfully deleted a workout!</div>
+            <div class="notification notification-success" role="alert">You have successfully added tag(s) to a workout!</div>
+            <div class="notification update-success" role="alert">You have successfully updated a tag!</div>
+            <div class="notification delete-success" role="alert">You have successfully delinked a tag from the workout!</div>
             <div class="notification notification-warning" role="alert">Are you sure? <div id="screen-selector"><button href="#" type="button" id="warning-yes">Yes</button><button id="warning-no" href="#" type="button" style="float:right" data-dismiss="modal" data-toggle="modal" data-target="#myModal">Cancel</button></div></div>
           </div>
         </div>
