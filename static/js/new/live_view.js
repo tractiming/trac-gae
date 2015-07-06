@@ -122,7 +122,6 @@ google.setOnLoadCallback(function(){
 					} else {
 						spinner.stop();
 						$('.notification-error.no-data').hide();
-						$('#download-container').show();
 						$('#results-nav').show();
 
 						// hide all tab contents
@@ -131,20 +130,23 @@ google.setOnLoadCallback(function(){
 						if (view === TABLE_VIEW) {
 							$('#results-graph>#graph-canvas').empty();
 							$('#results-graph #graph-toggle-options').empty();
+							$('#download-container').show();
 							drawTable(json);
 						} else if (view === CAL_VIEW) {
 							$('#results-table').empty();
+							$('#download-container').show();
 							drawGraph(json);
 						} else if (view === IND_FINAL_VIEW) {
 							$('#results-table').empty();
 							$('#results-graph>#graph-canvas').empty();
 							$('#results-graph #graph-toggle-options').empty();
-							drawIndividual(json);
+							$('#results-individual').show();
+							drawIndividual();
 						} else if (view === TEAM_FINAL_VIEW) {
 							$('#results-table').empty();
 							$('#results-graph>#graph-canvas').empty();
 							$('#results-graph #graph-toggle-options').empty();
-							drawTeam(json);
+							//drawTeam(json);
 						}
 					}
 				}
@@ -343,6 +345,74 @@ google.setOnLoadCallback(function(){
 			chart.draw(data, options);
 		}
 
+		function drawIndividual() {
+			var a = $('#age-select').val();
+			var g = $('#gender-select').val();
+
+			// gender or age wasn't selected
+			if ((a === null) || (g === null))
+				return;
+
+			$('#results-individual-table').hide().empty();
+			spinner.spin(target);
+
+			a = a.split('-');
+			var age_gte = a[0].trim();
+			var age_lte = a[1].trim();
+
+			var gender = (g.trim() === 'Male') ? 'M' : 'F';
+
+			//console.log(gender + ' ' + age_gte + '-' + age_lte);
+			$.ajax({
+				url: '/api/filtered_results/?id='+currentID+'&gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
+				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				dataType: 'text',
+				success: function(data) {
+					/*
+					var json = $.parseJSON(data);
+
+					if (json == '') {
+						spinner.spin(target);
+						$('.notification-error.no-data').show();
+						$('#download-container').hide();
+					} else {
+						$('.notification').hide();
+
+						$('#results-individual-table').append(
+							'<thead>' +
+								'<tr>' +
+									'<th>Place</th>' +
+									'<th>Name</th>' +
+									'<th>Final Time</th>' +
+								'</tr>' +
+							'</thead>' +
+							'<tbody>' +
+							'</tbody>'
+						);
+
+						var runner = {};
+						for (var i=0; i < json.length; i++) {
+							runner = json[i];
+							$('#results-individual-table tbody').append(
+								'<tr>' +
+									'<td>'+ runner.place +'</td>' +
+									'<td>'+ runner.name +'</td>' +
+									'<td>'+ runner.time +'</td>' +
+								'</tr>'
+							);
+						}
+
+						// show results
+						spinner.stop();
+						$('#results-individual-table').show();
+						$('#download-container').show();
+					}
+					//*/
+				}
+			});
+		}
+
+		/*
 		function drawIndividual(json) {
 			var container = $('#individual-accordion');
 			var results = $.parseJSON(json.results);
@@ -350,7 +420,6 @@ google.setOnLoadCallback(function(){
 			// empty contents
 			container.empty();
 
-			//*
 			createIndividualResults(0,0);
 			function createIndividualResults(i, j) {
 				if (i >= GENDER_FILTERS.length)
@@ -392,7 +461,6 @@ google.setOnLoadCallback(function(){
 					}
 				});
 			}
-			//*/
 
 			// finally show results
 			$('#results-individual').show();
@@ -405,6 +473,7 @@ google.setOnLoadCallback(function(){
 			// empty contents
 			container.empty();
 		}
+		//*/
 
 		function lastWorkout(){
 			$.ajax({
@@ -588,6 +657,14 @@ google.setOnLoadCallback(function(){
 
 			// update view
 			lastSelected();
+		});
+
+		// attach handler for individual results tab
+		$('#gender-select').change(function(){
+			drawIndividual();
+		});
+		$('#age-select').change(function(){
+			drawIndividual();
 		});
 	});
 });
