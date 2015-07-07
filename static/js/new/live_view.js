@@ -3,7 +3,7 @@ google.load('visualization', '1', {packages:['corechart']});
 google.setOnLoadCallback(function(){
 	$(function() {
 		var TABLE_VIEW = 0,
-				CAL_VIEW = 1,
+				GRAPH_VIEW = 1,
 				IND_FINAL_VIEW = 2,
 				TEAM_FINAL_VIEW = 3;
 
@@ -129,7 +129,7 @@ google.setOnLoadCallback(function(){
 							$('#results-graph #graph-toggle-options').empty();
 							$('#download-container').show();
 							drawTable(json);
-						} else if (view === CAL_VIEW) {
+						} else if (view === GRAPH_VIEW) {
 							$('#results-table').empty();
 							$('#download-container').show();
 							drawGraph(json);
@@ -645,6 +645,8 @@ google.setOnLoadCallback(function(){
 					$('#graph-toggle-options input').prop('checked', true);
 				else
 					$('#graph-toggle-options input').prop('checked', false);
+			else if (!$('#graph-toggle-options input#'+e.target.id).prop('checked'))
+				$('#graph-toggle-options input#all').prop('checked', false);
 
 			// update view
 			lastSelected();
