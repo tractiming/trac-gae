@@ -264,17 +264,22 @@ class TimingSession(models.Model):
         # Get all of the team names.
         results = self.calc_results(read_cache=True, save_cache=True)
         teams = set([r[2] for r in results if (r[2] is not None)])
-        scores = dict(zip(teams, [[0,0]]*len(teams)))
+        scores = dict(zip(teams, [[0,0] for i in range(len(teams))]))
 
         place = 1
         for athlete in results:
             if athlete[2] in teams:
-                if scores[athlete[2]] < num_scorers:
+                if scores[athlete[2]][0] < num_scorers:
                     scores[athlete[2]][0] += 1
                     scores[athlete[2]][1] += place
                 place += 1    
 
-        return scores
+        sorted_scores = sorted([(t, scores[t][1]) for t in scores if 
+                         (scores[t][0]==num_scorers)], key=itemgetter(1))
+
+        return [{'place': i+1, 
+                 'name': sorted_scores[i][0], 
+                 'score': sorted_scores[i][1]} for i in range(len(sorted_scores))]
 
     def get_filtered_results(self, gender='', age_range=[], teams=[]):
         """Gets a filtered list of tag ids."""
@@ -301,8 +306,6 @@ class TimingSession(models.Model):
         res_dict = {'results': [{'name': res[i][1], 'place': i+1,
                                  'time': res[i][4] } for i in range(len(res))]}
         return res_dict
-
-
 
     def get_results(self, force_update=False, sort=False):
         """Get full results, formatted for mobile."""
