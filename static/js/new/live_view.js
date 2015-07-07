@@ -10,11 +10,6 @@ google.setOnLoadCallback(function(){
 		var UPDATE_INTERVAL = 5000,
 				IDLE_TIMEOUT = 1200000;
 
-		var GENDER_FILTERS = ['M','F'],
-				AGE_FILTERS = [[ 0, 14], [15, 19], [20, 24], [25, 29], [30, 34], [35, 39],
-											 [40, 44], [45, 49], [50, 54], [55, 59], [60, 64], [65, 69],
-											 [70, 74], [75, 79], [80, 120]];
-
 		var idArray = [],
 				currentID, currentView,
 				updateHandler, idleHandler,
@@ -416,69 +411,6 @@ google.setOnLoadCallback(function(){
 				}
 			});
 		}
-
-		/*
-		function drawIndividual(json) {
-			var container = $('#individual-accordion');
-			var results = $.parseJSON(json.results);
-
-			// empty contents
-			container.empty();
-
-			createIndividualResults(0,0);
-			function createIndividualResults(i, j) {
-				if (i >= GENDER_FILTERS.length)
-					return;
-				else if (j == AGE_FILTERS.length) {
-					i++;
-					j = 0;
-				}
-
-				gender = GENDER_FILTERS[i];
-				age_gte = AGE_FILTERS[j][0];
-				age_lte = AGE_FILTERS[j][1];
-
-				console.log((gender == 'M' ? 'Male' : 'Female') + ' ' + age_gte + '-' + age_lte);
-				$.ajax({
-					url: '/api/filtered_results/?id='+currentID+'&gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
-					headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-					dataType: 'text',
-					success: function(data) {
-						//console.log((gender == 'M' ? 'Male' : 'Female') + ' ' + age_gte + '-' + age_lte);
-						container.append(
-							'<div class="panel panel-default">' +
-								'<div class="panel-heading" role="tab" id="individual-heading-'+i+'-'+j+'">' + 
-								 '<h4 class="panel-title">' + 
-								 	'<a role="button" data-toggle="collapse" data-parent="#individual-accordion" href="#individual'+i+'-'+j+'" aria-expanded="true" aria-controls="individual'+i+'-'+j+'">' +
-								 		(gender == 'M' ? 'Male' : 'Female') + ' ' + age_gte + '-' + age_lte +
-								 	'</a>' +
-								 '</h4>' +
-								'</div>' +
-								'<div id="individual'+i+'-'+j+'" class="panel-collapse collapse" role="tabpanel" aria-labelledby="individual-heading-'+i+'-'+j+'">' +
-									'<div class="panel-body">' +
-										'Results for ' + (gender == 'M' ? 'Male' : 'Female') + ' ' + age_gte + '-' + age_lte +
-									'</div>' +
-								'</div>' +
-							'</div>'
-						);
-						j++;
-						createIndividualResults(i, j);
-					}
-				});
-			}
-
-			// finally show results
-			$('#results-individual').show();
-		}
-
-		function drawTeam(json) {
-			var container = $('#results-team-final');
-			var results = $.parseJSON(json.results);
-
-			// empty contents
-			container.empty();
-		}
-		//*/
 
 		function lastWorkout(){
 			$.ajax({
