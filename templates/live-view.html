@@ -92,12 +92,14 @@
 				<h1 id="results-title">Live Results</h1>
 				<div id="results">
 					<ul id="results-nav" class="nav nav-tabs">
-					  <li role="presentation" class="active"><a href="#">Table</a></li>
-					  <li role="presentation"><a href="#">Graph</a></li>
+					  <li role="presentation" class="active"><a href="#">Live Results</a></li>
+					  <li role="presentation"><a href="#">Live Graph</a></li>
+					  <li id="individual-final" role="presentation"><a href="#">Individual Final</a></li>
+					  <li id="team-final" role="presentation"><a href="#">Team Final</a></li>
 					</ul>
-					<table id="results-table" class="table table-striped table-hover">
+					<table id="results-table" class="table table-striped table-hover results-tab-content">
 					</table>
-					<div id="results-graph">
+					<div id="results-graph" class="results-tab-content">
 						<div id="graph-canvas"></div>
 						<div id="graph-toggle-container">
 							<div id="graph-toggle-btn" style="display: table; margin: 0 auto;">
@@ -109,20 +111,67 @@
 							</div>
 						</div>
 					</div>
+					<div id="results-individual" class="results-tab-content">
+						<div class="container">
+							<div class="row">
+								<div class="col-md-3 col-sm-5 col-xs-6" style="padding-top:15px;">
+									<div class="form-group">
+										<label for="gender-select" class="sr-only">Select list:</label>
+										<select class="form-control" id="gender-select">
+											<option disabled selected>Gender</option>
+											<option>Male</option>
+											<option>Female</option>
+										</select>
+									</div>
+								</div>
+								<div class="col-md-3 col-sm-5 col-xs-6" style="padding-top:15px;">
+									<div class="form-group">
+										<label for="age-select" class="sr-only">Select list:</label>
+										<select class="form-control" id="age-select">
+											<option disabled selected>Age group</option>
+											<option>0 - 14</option>
+											<option>15 - 19</option>
+											<option>20 - 24</option>
+											<option>25 - 29</option>
+											<option>30 - 34</option>
+											<option>35 - 39</option>
+											<option>40 - 44</option>
+											<option>45 - 49</option>
+											<option>50 - 54</option>
+											<option>55 - 59</option>
+											<option>60 - 64</option>
+											<option>65 - 69</option>
+											<option>70 - 74</option>
+											<option>75 - 79</option>
+											<option>80 - 120</option>
+										</select>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<table id="results-individual-table" class="table table-striped table-hover"></table>
+							</div>
+						</div>
+					</div>
+					<div id="results-team" class="results-tab-content">
+					</div>
 				</div>
 			</div>
 
-			<div class="spinner-container" style="position:relative; top:50px;">
+			<div class="spinner-container" style="position:relative; top:100px;">
 				<div id="spinner"></div>
 			</div>
 			
 			<div id="notifications" class="row">
 				<div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-8 col-xs-offset-2">
-					<p class="notification notification-error notification-default" role="alert">
+					<p class="notification notification-error no-data" role="alert">
 						<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> There is currently no data for this event.
 					</p>
-					<p class="notification notification-error notification-default2" role="alert">
+					<p class="notification notification-error no-sessions" role="alert">
 						<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> No recent events to show.
+					</p>
+					<p class="notification notification-error no-individual-data" role="alert">
+						<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> There is currently no data for this group.
 					</p>
 				</div>
 			</div>

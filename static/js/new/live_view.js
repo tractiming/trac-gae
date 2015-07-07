@@ -3,9 +3,11 @@ google.load('visualization', '1', {packages:['corechart']});
 google.setOnLoadCallback(function(){
 	$(function() {
 		var TABLE_VIEW = 0,
-				CAL_VIEW = 1;
+				CAL_VIEW = 1,
+				IND_FINAL_VIEW = 2,
+				TEAM_FINAL_VIEW = 3;
 
-		var UPDATE_INTERVAL = 5000, 
+		var UPDATE_INTERVAL = 5000,
 				IDLE_TIMEOUT = 1200000;
 
 		var idArray = [],
@@ -15,11 +17,8 @@ google.setOnLoadCallback(function(){
 				target,
 				calendarEvents,
 				graphToggle,
-				instance_first=1,
-				instance_last = 5,
-				cStart,
-				cStop
-				;
+				sessionFirst = 1, sessionLast = 15,
+				cStart, cStop;
 
 		(function init(){
 
@@ -47,21 +46,21 @@ google.setOnLoadCallback(function(){
 				position: 'absolute'	 	// Element positioning
 			}
 			target = document.getElementById('spinner');
-			spinner = new Spinner(opts).spin(target);
+			spinner = new Spinner(opts);
 
 			// default view to table
 			currentView = TABLE_VIEW;
 
-			// hide all notifications
+			// hide notifications and results
 			$('.notification').hide();
 			$('#results-nav').hide();
-			$('#results-table').hide();
-			$('#results-graph').hide();
+			$('.results-tab-content').hide();
 			$('#download-container').hide();
 
 			// query for all workout sessions
 			findScores();
 			loadCalendar();
+
 			// display most recent results
 			lastWorkout();
 
@@ -110,27 +109,41 @@ google.setOnLoadCallback(function(){
 					// if empty, hide spinner and show notification
 					if (results.runners == '') {
 						spinner.stop();
-						$('#notifications .notification-default').show();
+						$('.notification-error.no-data').show();
 						$('#download-container').hide();
 						$('#results-nav').hide();
-						$('#results-table').hide().empty();
-						$('#results-graph').hide();
+						$('.results-tab-content').hide();
+						$('#results-table').empty();
 						$('#results-graph>#graph-canvas').empty();
 						$('#results-graph #graph-toggle-options').empty();
 					} else {
 						spinner.stop();
-						$('#notifications .notification-default').hide();
-						$('#download-container').show();
+						$('.notification').hide();
 						$('#results-nav').show();
 
+						// hide all tab contents
+						$('.results-tab-content').hide();
+
 						if (view === TABLE_VIEW) {
-							$('#results-graph').hide();
 							$('#results-graph>#graph-canvas').empty();
 							$('#results-graph #graph-toggle-options').empty();
+							$('#download-container').show();
 							drawTable(json);
 						} else if (view === CAL_VIEW) {
-							$('#results-table').hide().empty();
+							$('#results-table').empty();
+							$('#download-container').show();
 							drawGraph(json);
+						} else if (view === IND_FINAL_VIEW) {
+							$('#results-table').empty();
+							$('#results-graph>#graph-canvas').empty();
+							$('#results-graph #graph-toggle-options').empty();
+							$('#results-individual').show();
+							drawIndividual();
+						} else if (view === TEAM_FINAL_VIEW) {
+							$('#results-table').empty();
+							$('#results-graph>#graph-canvas').empty();
+							$('#results-graph #graph-toggle-options').empty();
+							//drawTeam(json);
 						}
 					}
 				}
@@ -193,6 +206,55 @@ google.setOnLoadCallback(function(){
 					addNewRow(id, name, interval);
 				}
 			}
+		}
+
+		function addNewRow(id, name, interval){
+			var split = 0;
+			if (interval.length > 0)
+				split = interval[interval.length-1][0];
+			else
+				split = 'NT';
+
+			$('#results-table>tbody').append(
+				'<tr id="results'+id+'" class="accordion-toggle" data-toggle="collapse" data-parent="#results-table" data-target="#collapse'+id+'" aria-expanded="false" aria-controls="collapse'+id+'">' + 
+					'<td>' + name + '</td>' + 
+					'<td id="latest-split'+id+'">' + split + '</td>' + 
+					'<td id="total-time'+id+'"></td>' + 
+				'</tr>' + 
+				'<tr></tr>'	+		// for correct stripes 
+				'<tr class="splits">' +
+					'<td colspan="3">' +
+						'<div id="collapse'+id+'" class="accordion-body collapse" aria-labelledby="results'+id+'">' + 
+							'<table id="splits'+id+'" class="table" style="text-align:center; background-color:transparent">' +
+								'<tbody>' +
+								'</tbody>' +
+							'</table>' +
+						'</div>' + 
+					'</td>' +
+				'</tr>'
+			);
+
+			//*
+			var total = 0;
+			for (var j=0; j < interval.length; j++) {
+				var split = String(Number(interval[j][0]).toFixed(3));
+
+				// add splits to subtable
+				$('table#splits'+id+'>tbody').append(
+					'<tr>' + 
+						'<td>' + (j+1) + '</td>' + 
+						'<td>' + split + '</td>' + 
+					'</tr>'
+				);
+
+				// now calculate total time
+				total += Number(split);
+			}
+
+			// display total time
+			total = formatTime(String(total));
+			$('#results-table>tbody #results'+id+'>td#total-time'+id).html(total);
+			//*/
 		}
 
 		function drawGraph(json){
@@ -280,53 +342,71 @@ google.setOnLoadCallback(function(){
 			chart.draw(data, options);
 		}
 
-		function addNewRow(id, name, interval){
-			var split = 0;
-			if (interval.length > 0)
-				split = interval[interval.length-1][0];
-			else
-				split = 'NT';
+		function drawIndividual() {
+			var a = $('#age-select').val();
+			var g = $('#gender-select').val();
 
-			$('#results-table>tbody').append(
-				'<tr id="results'+id+'" class="accordion-toggle" data-toggle="collapse" data-parent="#results-table" data-target="#collapse'+id+'" aria-expanded="false" aria-controls="collapse'+id+'">' + 
-					'<td>' + name + '</td>' + 
-					'<td id="latest-split'+id+'">' + split + '</td>' + 
-					'<td id="total-time'+id+'"></td>' + 
-				'</tr>' + 
-				'<tr></tr>'	+		// for correct stripes 
-				'<tr class="splits">' +
-					'<td colspan="3">' +
-						'<div id="collapse'+id+'" class="accordion-body collapse" aria-labelledby="results'+id+'">' + 
-							'<table id="splits'+id+'" class="table" style="text-align:center; background-color:transparent">' +
-								'<tbody>' +
-								'</tbody>' +
-							'</table>' +
-						'</div>' + 
-					'</td>' +
-				'</tr>'
-			);
+			// gender or age wasn't selected
+			if ((a === null) || (g === null))
+				return;
 
-			//*
-			var total = 0;
-			for (var j=0; j < interval.length; j++) {
-				var split = String(Number(interval[j][0]).toFixed(3));
+			$('#results-individual-table').hide().empty();
+			spinner.spin(target);
 
-				// add splits to subtable
-				$('table#splits'+id+'>tbody').append(
-					'<tr>' + 
-						'<td>' + (j+1) + '</td>' + 
-						'<td>' + split + '</td>' + 
-					'</tr>'
-				);
+			a = a.split('-');
+			var age_gte = a[0].trim();
+			var age_lte = a[1].trim();
 
-				// now calculate total time
-				total += Number(split);
-			}
+			var gender = (g.trim() === 'Male') ? 'M' : 'F';
 
-			// display total time
-			total = formatTime(String(total));
-			$('#results-table>tbody #results'+id+'>td#total-time'+id).html(total);
-			//*/
+			//console.log(gender + ' ' + age_gte + '-' + age_lte);
+			$.ajax({
+				url: '/api/filtered_results/?id='+currentID+'&gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
+				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				dataType: 'text',
+				success: function(data) {
+					//*
+					var results = $.parseJSON(data).results;
+
+					if (results == '') {
+						spinner.stop();
+						$('.notification-error.no-individual-data').show();
+						$('#download-container').hide();
+					} else {
+						$('.notification').hide();
+
+						$('#results-individual-table').append(
+							'<thead>' +
+								'<tr>' +
+									'<th>Place</th>' +
+									'<th>Name</th>' +
+									'<th>Final Time</th>' +
+								'</tr>' +
+							'</thead>' +
+							'<tbody>' +
+							'</tbody>'
+						);
+
+						var runner = {};
+						for (var i=0; i < results.length; i++) {
+							runner = results[i];
+							$('#results-individual-table tbody').append(
+								'<tr>' +
+									'<td>'+ runner.place +'</td>' +
+									'<td>'+ runner.name +'</td>' +
+									'<td>'+ runner.time +'</td>' +
+								'</tr>'
+							);
+						}
+
+						// show results
+						spinner.stop();
+						$('#results-individual-table').show();
+						$('#download-container').show();
+					}
+					//*/
+				}
+			});
 		}
 
 		function lastWorkout(){
@@ -336,12 +416,12 @@ google.setOnLoadCallback(function(){
 				dataType: 'text',			//force to handle it as text
 				success: function(data){
 					var json = $.parseJSON(data);
-					//alert(json.length);
-					if (json.length==0){ 
-						$('#notifications notification-default2').show();
+
+					if (json.length == 0){ 
+						$('.notification-error.no-sessions').show();
 						spinner.stop();
 					} else {
-						$('#notifications notification-default2').hide();
+						$('.notification').hide();
 						var idjson = json[json.length - 1].id;
 						update(idjson, currentView);
 						currentID = idjson;						
@@ -357,156 +437,129 @@ google.setOnLoadCallback(function(){
 				dataType: 'text',			//force to handle it as text
 				success: function(data){
 					var json = $.parseJSON(data);
-					//alert(json.length);
-					if (json.length==0){ 
-						$('#notifications notification-default2').show();
+					
+					if (json.length == 0){ 
+						$('.notification-error.no-sessions').show();
 						spinner.stop();
 					} else {
-						$('#notifications notification-default2').hide();
+						$('.notification').hide();
 						update(currentID, currentView);
 					}
 				}
 			});
 		}
-		function resetScores(){
-		    $('#linkedlist tr#sM').remove();
-		    $('ul.menulist li#sM').remove();
- 		 }
+
 		function findScores(){
+			spinner.spin(target);
+
 			$.ajax({
 				url: '/api/session_Pag/',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'text',			//force to handle it as text
 				data: {
-					i1: instance_first,
-					i2: instance_last,
+					i1: sessionFirst,
+					i2: sessionLast,
 				},
 				success: function(data){
 					var json = $.parseJSON(data);
-					//alert(json.length);
-					if (json.length==0){ 
-						$('#notifications notification-default2').show();
+					
+					if ((json.length == 0) && (!$.trim($('ul.menulist').html()))) {
+						$('.notification-error.no-sessions').show();
 						spinner.stop();
 					} else {
-						$('#notifications notification-default2').hide();
-						var arr = [];
-						for (var i=0; i < json.length; i++){
-							// add events to event menu
-							$('#linkedlist').append('<tr><td>'+json[i].name+'</td></tr>');
-							$('ul.menulist').append('<li><a href="#">'+json[i].name+'</a></li>');
-							arr.push(json[i].id);
-
-							// add events to calendar event list
-						}
-						if (json.length == 5){
-     					     $('#linkedlist').append('<tr id="sM"><td>SeeMore</td></tr>');
-     					     $('ul.menulist').append('<li id="sM"><a href="#SeeMore">See More</a></li>');
-						}
-						idArray = arr;
-					}
-
-					// attach handler for heat menu item click
-					$('body').on('click', 'ul.menulist li a', function(){
-						var value = $(this).html();
-						  if (value == 'See More'){
-   							   instance_first += 5;
-   							   instance_last += 5;
-  						       resetScores();
-  						       findScores();
- 							 }
- 							else{
-						console.log( 'Index: ' + $( 'ul.menulist li a' ).index( $(this) ) );
-						var indexClicked = $( 'ul.menulist li a' ).index( $(this) );
-						// reset canvases and set new session id
 						$('.notification').hide();
-						$('#results-table').hide().empty();
-						$('#results-graph').hide();
-						$('#results-graph>#graph-canvas').empty();
-						$('#results-graph #graph-toggle-options').empty();
-						currentID = idArray[indexClicked];
-						spinner.spin(target);
-						update(currentID, currentView);
-							}
-					});
-
-					// attach handler for calendar menu click
+						for (var i=json.length-1; i >= 0; i--){
+							// add events to event menu
+							$('ul.menulist').append('<li><a href="#">'+json[i].name+'</a></li>');
+							idArray.push(json[i].id);
+						}
+						if (json.length == 15){
+							$('ul.menulist').append('<li id="see-more"><a href="#">See More</a></li>');
+						}
+					}
 				}
 			});
 		}
-		function loadCalendar(){
-						$('#calendar-overlay').show();
-						$('#calendar').fullCalendar({
-							editable: true,
-							eventLimit: true, // allow "more" link when too many events
-							events: calendarEvents //calls list from function above
-						});
-						cStart = $('#calendar').fullCalendar('getView').intervalStart;
-						cStop = $('#calendar').fullCalendar('getView').intervalEnd;
-						$('#calendar-overlay').hide();
-						CalendarScores();
-					}
 
-		function CalendarScores(){
+		function loadCalendar(){
+			$('#calendar-overlay').show();
+			$('#calendar').fullCalendar({
+				editable: true,
+				eventLimit: true, // allow "more" link when too many events
+				events: calendarEvents
+			});
+			cStart = $('#calendar').fullCalendar('getView').intervalStart;
+			cStop = $('#calendar').fullCalendar('getView').intervalEnd;
+			$('#calendar-overlay').hide();
+			calendarScores();
+		}
+
+		function calendarScores(){
 			cStart = localISOString(cStart._d);
 			cStop = localISOString(cStop._d);
-		    $.ajax({
-		    	url:'/api/session_Pag/',
-		    	headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-		    	dataType: 'text',
-		    	data: {
-		    		i1: 0, i2: 0, start_date: cStart, stop_date: cStop,
-		    	},
-		    	success: function(data){
-		    		var json = $.parseJSON(data);
+			$.ajax({
+				url:'/api/session_Pag/',
+				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				dataType: 'text',
+				data: {
+					i1: 0, i2: 0, start_date: cStart, stop_date: cStop,
+				},
+				success: function(data){
+					var json = $.parseJSON(data);
 					calendarEvents = [];
-						for (var i=0; i < json.length; i++){
-							// add events to event menu
-							// add events to calendar event list
-							var url = json[i].id;
-							var str = json[i].start_time;
-							str = str.slice(0,10);
-							calendarEvents.push({title : json[i].name, url : url, start : str});
-						}
+					for (var i=0; i < json.length; i++){
+						// add events to calendar event list
+						var url = json[i].id;
+						var str = json[i].start_time;
+						str = str.slice(0,10);
+						calendarEvents.push({title : json[i].name, url : url, start : str});
+					}
+					$('#calendar').fullCalendar('removeEvents');
+					$('#calendar').fullCalendar('addEventSource', calendarEvents);	
+
+					$('body').off('click', '#calendar-btn');
+					$('body').on('click', '#calendar-btn', function(e){
+						e.preventDefault();
+						$('#calendar-overlay').show();
 						$('#calendar').fullCalendar('removeEvents');
-						$('#calendar').fullCalendar('addEventSource', calendarEvents);		
-						$('#calendar-btn').click(function(e){
-							e.preventDefault();
-							$('#calendar-overlay').show();
-							$('#calendar').fullCalendar('removeEvents');
-							$('#calendar').fullCalendar('addEventSource', calendarEvents);	
-						// Calendar script
+						$('#calendar').fullCalendar('addEventSource', calendarEvents);
 					});
 
 					// attach handler for hiding calendar menu
-					$('#calendar-overlay').click(function(e){
+					$('body').off('click', '#calendar-overlay');
+					$('body').on('click', '#calendar-overlay', function(e){
 						//e.preventDefault();
 						var cal = $('.calendar-container');
 						if (!cal.is(e.target) && cal.has(e.target).length === 0)
 							$('#calendar-overlay').hide();
 					});
+
+					// unbind and rebind previous and next buttons on calendar
 					$('body').off('click', 'button.fc-next-button');
-					$('body').on('click','button.fc-next-button',function(e){
+					$('body').on('click','button.fc-next-button', function(e){
 						e.preventDefault();
 						cStart = $('#calendar').fullCalendar('getView').intervalStart;
 						cStop = $('#calendar').fullCalendar('getView').intervalEnd;
-						CalendarScores();
+						calendarScores();
 					});
 					$('body').off('click', 'button.fc-prev-button');
 					$('body').on('click','button.fc-prev-button',function(e){
 						e.preventDefault();
 						cStart = $('#calendar').fullCalendar('getView').intervalStart;
 						cStop = $('#calendar').fullCalendar('getView').intervalEnd;
-						CalendarScores();
+						calendarScores();
 					});
-					// attach handler for calendar event click
+
+					// rebind handler for calendar event click
+					$('.calendar-container').off('click','a.fc-day-grid-event');
 					$('.calendar-container').on('click','a.fc-day-grid-event', function(e) {
 						e.preventDefault();
 						$('#calendar-overlay').hide();
 
 						// reset canvases and set new session id
 						$('.notification').hide();
-						$('#results-table').hide().empty();
-						$('#results-graph').hide()
+						$('#results-table').empty();
+						$('.results-tab-content').hide();
 						$('#results-graph>#graph-canvas').empty();
 						$('#results-graph #graph-toggle-options').empty();
 						currentID = parseInt($(this).attr('href').split('#'));
@@ -514,8 +567,8 @@ google.setOnLoadCallback(function(){
 						update(currentID, currentView);
 					});
 				}
-				});
-				}
+			});
+		}
 		
 		//Download to Excel Script
 		$('#download').click(function(){
@@ -530,6 +583,29 @@ google.setOnLoadCallback(function(){
 			});
 		});
 
+		// attach handler for heat menu item click
+		$('body').on('click', 'ul.menulist li a', function(){
+			var value = $(this).html();
+			if (value == 'See More'){
+				sessionFirst += 15;
+				sessionLast += 15;
+				$('ul.menulist li#see-more').remove();
+				findScores();
+			} else {
+				console.log( 'Index: ' + $( 'ul.menulist li a' ).index( $(this) ) );
+				var indexClicked = $( 'ul.menulist li a' ).index( $(this) );
+				// reset canvases and set new session id
+				$('.notification').hide();
+				$('#results-table').empty();
+				$('.results-tab-content').hide();
+				$('#results-graph>#graph-canvas').empty();
+				$('#results-graph #graph-toggle-options').empty();
+				currentID = idArray[indexClicked];
+				spinner.spin(target);
+				update(currentID, currentView);
+			}
+		});
+
 		// attach handler for tab navigation
 		$('#results>ul>li').click(function(e){
 			e.preventDefault();
@@ -538,21 +614,29 @@ google.setOnLoadCallback(function(){
 			$(this).parent().children().removeClass('active');
 			$(this).addClass('active');
 
-			$('#results-table').hide();
-			$('#results-graph').hide();
+			$('.results-tab-content').hide();
 			$('#download-container').hide();
 			spinner.spin(target);
 
-			// update view
-			lastSelected();
+			// views 0 and 1 = live results updated every 5 secs
+			if (currentView < 1) {
+				// update view
+				lastSelected();
 
-			// clear and reset update handler
-			clearInterval(updateHandler);
-			updateHandler = setInterval(lastSelected, UPDATE_INTERVAL);
+				// clear and reset update handler
+				clearInterval(updateHandler);
+				updateHandler = setInterval(lastSelected, UPDATE_INTERVAL);
 
-			// clear and reset idle check
-			clearTimeout(idleHandler);
-			idleHandler = setTimeout(function(){ idleCheck(updateHandler, lastSelected, UPDATE_INTERVAL, IDLE_TIMEOUT, 'http://www.trac-us.com'); }, IDLE_TIMEOUT);
+				// clear and reset idle check
+				clearTimeout(idleHandler);
+				idleHandler = setTimeout(function(){ idleCheck(updateHandler, lastSelected, UPDATE_INTERVAL, IDLE_TIMEOUT, 'http://www.trac-us.com'); }, IDLE_TIMEOUT);
+			} else {
+				clearInterval(updateHandler);
+				clearTimeout(idleHandler);
+
+				// update view
+				lastSelected();
+			}
 		});
 
 		$('#graph-toggle-options').click(function(e){
@@ -564,6 +648,14 @@ google.setOnLoadCallback(function(){
 
 			// update view
 			lastSelected();
+		});
+
+		// attach handler for individual results tab
+		$('#gender-select').change(function(){
+			drawIndividual();
+		});
+		$('#age-select').change(function(){
+			drawIndividual();
 		});
 	});
 });
