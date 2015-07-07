@@ -17,11 +17,8 @@ google.setOnLoadCallback(function(){
 				target,
 				calendarEvents,
 				graphToggle,
-				instance_first=1,
-				instance_last = 5,
-				cStart,
-				cStop
-				;
+				sessionFirst = 1, sessionLast = 15,
+				cStart, cStop;
 
 		(function init(){
 
@@ -49,21 +46,21 @@ google.setOnLoadCallback(function(){
 				position: 'absolute'	 	// Element positioning
 			}
 			target = document.getElementById('spinner');
-			spinner = new Spinner(opts).spin(target);
+			spinner = new Spinner(opts);
 
 			// default view to table
 			currentView = TABLE_VIEW;
 
-			// hide all notifications
+			// hide notifications and results
 			$('.notification').hide();
 			$('#results-nav').hide();
-			$('#results-table').hide();
-			$('#results-graph').hide();
+			$('.results-tab-content').hide();
 			$('#download-container').hide();
 
 			// query for all workout sessions
 			findScores();
 			loadCalendar();
+
 			// display most recent results
 			lastWorkout();
 
@@ -453,13 +450,15 @@ google.setOnLoadCallback(function(){
 		}
 
 		function findScores(){
+			spinner.spin(target);
+
 			$.ajax({
 				url: '/api/session_Pag/',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'text',			//force to handle it as text
 				data: {
-					i1: instance_first,
-					i2: instance_last,
+					i1: sessionFirst,
+					i2: sessionLast,
 				},
 				success: function(data){
 					var json = $.parseJSON(data);
@@ -474,32 +473,9 @@ google.setOnLoadCallback(function(){
 							$('ul.menulist').append('<li><a href="#">'+json[i].name+'</a></li>');
 							idArray.push(json[i].id);
 						}
-						if (json.length == 5){
+						if (json.length == 15){
 							$('ul.menulist').append('<li id="see-more"><a href="#">See More</a></li>');
 						}
-
-						// attach handler for heat menu item click
-						$('body').on('click', 'ul.menulist li a', function(){
-							var value = $(this).html();
-							if (value == 'See More'){
-								instance_first += 5;
-								instance_last += 5;
-								$('ul.menulist li#see-more').remove();
-								findScores();
-							} else {
-								console.log( 'Index: ' + $( 'ul.menulist li a' ).index( $(this) ) );
-								var indexClicked = $( 'ul.menulist li a' ).index( $(this) );
-								// reset canvases and set new session id
-								$('.notification').hide();
-								$('#results-table').hide().empty();
-								$('#results-graph').hide();
-								$('#results-graph>#graph-canvas').empty();
-								$('#results-graph #graph-toggle-options').empty();
-								currentID = idArray[indexClicked];
-								spinner.spin(target);
-								update(currentID, currentView);
-							}
-						});
 					}
 				}
 			});
@@ -510,7 +486,7 @@ google.setOnLoadCallback(function(){
 			$('#calendar').fullCalendar({
 				editable: true,
 				eventLimit: true, // allow "more" link when too many events
-				events: calendarEvents //calls list from function above
+				events: calendarEvents
 			});
 			cStart = $('#calendar').fullCalendar('getView').intervalStart;
 			cStop = $('#calendar').fullCalendar('getView').intervalEnd;
@@ -539,8 +515,10 @@ google.setOnLoadCallback(function(){
 						calendarEvents.push({title : json[i].name, url : url, start : str});
 					}
 					$('#calendar').fullCalendar('removeEvents');
-					$('#calendar').fullCalendar('addEventSource', calendarEvents);		
-					$('#calendar-btn').click(function(e){
+					$('#calendar').fullCalendar('addEventSource', calendarEvents);	
+
+					$('body').off('click', '#calendar-btn');
+					$('body').on('click', '#calendar-btn', function(e){
 						e.preventDefault();
 						$('#calendar-overlay').show();
 						$('#calendar').fullCalendar('removeEvents');
@@ -548,12 +526,15 @@ google.setOnLoadCallback(function(){
 					});
 
 					// attach handler for hiding calendar menu
-					$('#calendar-overlay').click(function(e){
+					$('body').off('click', '#calendar-overlay');
+					$('body').on('click', '#calendar-overlay', function(e){
 						//e.preventDefault();
 						var cal = $('.calendar-container');
 						if (!cal.is(e.target) && cal.has(e.target).length === 0)
 							$('#calendar-overlay').hide();
 					});
+
+					// unbind and rebind previous and next buttons on calendar
 					$('body').off('click', 'button.fc-next-button');
 					$('body').on('click','button.fc-next-button', function(e){
 						e.preventDefault();
@@ -569,15 +550,16 @@ google.setOnLoadCallback(function(){
 						calendarScores();
 					});
 
-					// attach handler for calendar event click
+					// rebind handler for calendar event click
+					$('.calendar-container').off('click','a.fc-day-grid-event');
 					$('.calendar-container').on('click','a.fc-day-grid-event', function(e) {
 						e.preventDefault();
 						$('#calendar-overlay').hide();
 
 						// reset canvases and set new session id
 						$('.notification').hide();
-						$('#results-table').hide().empty();
-						$('#results-graph').hide()
+						$('#results-table').empty();
+						$('.results-tab-content').hide();
 						$('#results-graph>#graph-canvas').empty();
 						$('#results-graph #graph-toggle-options').empty();
 						currentID = parseInt($(this).attr('href').split('#'));
@@ -599,6 +581,29 @@ google.setOnLoadCallback(function(){
 					return currentID;
 				}
 			});
+		});
+
+		// attach handler for heat menu item click
+		$('body').on('click', 'ul.menulist li a', function(){
+			var value = $(this).html();
+			if (value == 'See More'){
+				sessionFirst += 15;
+				sessionLast += 15;
+				$('ul.menulist li#see-more').remove();
+				findScores();
+			} else {
+				console.log( 'Index: ' + $( 'ul.menulist li a' ).index( $(this) ) );
+				var indexClicked = $( 'ul.menulist li a' ).index( $(this) );
+				// reset canvases and set new session id
+				$('.notification').hide();
+				$('#results-table').empty();
+				$('.results-tab-content').hide();
+				$('#results-graph>#graph-canvas').empty();
+				$('#results-graph #graph-toggle-options').empty();
+				currentID = idArray[indexClicked];
+				spinner.spin(target);
+				update(currentID, currentView);
+			}
 		});
 
 		// attach handler for tab navigation
