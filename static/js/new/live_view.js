@@ -126,7 +126,7 @@ google.setOnLoadCallback(function(){
 						$('#results-graph #graph-toggle-options').empty();
 					} else {
 						spinner.stop();
-						$('.notification-error.no-data').hide();
+						$('.notification').hide();
 						$('#results-nav').show();
 
 						// hide all tab contents
@@ -373,12 +373,12 @@ google.setOnLoadCallback(function(){
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
-					/*
-					var json = $.parseJSON(data);
+					//*
+					var results = $.parseJSON(data).results;
 
-					if (json == '') {
-						spinner.spin(target);
-						$('.notification-error.no-data').show();
+					if (results == '') {
+						spinner.stop();
+						$('.notification-error.no-individual-data').show();
 						$('#download-container').hide();
 					} else {
 						$('.notification').hide();
@@ -396,8 +396,8 @@ google.setOnLoadCallback(function(){
 						);
 
 						var runner = {};
-						for (var i=0; i < json.length; i++) {
-							runner = json[i];
+						for (var i=0; i < results.length; i++) {
+							runner = results[i];
 							$('#results-individual-table tbody').append(
 								'<tr>' +
 									'<td>'+ runner.place +'</td>' +
@@ -492,7 +492,7 @@ google.setOnLoadCallback(function(){
 						$('.notification-error.no-sessions').show();
 						spinner.stop();
 					} else {
-						$('.notification-error.no-sessions').hide();
+						$('.notification').hide();
 						var idjson = json[json.length - 1].id;
 						update(idjson, currentView);
 						currentID = idjson;						
@@ -513,7 +513,7 @@ google.setOnLoadCallback(function(){
 						$('.notification-error.no-sessions').show();
 						spinner.stop();
 					} else {
-						$('.notification-error.no-sessions').hide();
+						$('.notification').hide();
 						update(currentID, currentView);
 					}
 				}
@@ -536,7 +536,7 @@ google.setOnLoadCallback(function(){
 						$('.notification-error.no-sessions').show();
 						spinner.stop();
 					} else {
-						$('.notification-error.no-sessions').hide();
+						$('.notification').hide();
 						for (var i=json.length-1; i >= 0; i--){
 							// add events to event menu
 							$('ul.menulist').append('<li><a href="#">'+json[i].name+'</a></li>');
