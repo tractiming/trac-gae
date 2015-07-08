@@ -718,7 +718,7 @@ function createFullCSV(idjson){
 				CSV += '\r\n';
 			}
 
-			// if varaible is empty, alert invalid and return
+			// if variable is empty, alert invalid and return
 			if (CSV == '') {        
 				alert('Invalid data');
 				return;
