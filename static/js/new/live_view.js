@@ -439,14 +439,33 @@ google.setOnLoadCallback(function(){
 					var team = {};
 					for (var i=0; i < results.length; i++) {
 						team = results[i];
-						$('#team-table-canvas tbody').append(
-							'<tr>' +
+						var id = team.id;
+						$('#team-table-canvas>tbody').append(
+							'<tr id="team'+id+'" class="accordion-toggle" data-toggle="collapse" data-parent="#team-table-canvas" data-target="#collapse-team'+id+'" aria-expanded="false" aria-controls="collapse-team'+id+'">' +
 								'<td>' + team.place + '</td>' +
 								'<td>' + team.name + '</td>' +
 								'<td>' + team.score + '</td>' +
+							'</tr>' +
+							'<tr></tr>'	+
+							'<tr class="team-members">' +
+								'<td colspan="3">' +
+									'<div id="collapse-team'+id+'" class="accordion-body collapse" aria-labelledby="team'+id+'">' +
+										'<table id="team'+id+'" class="table" style="text-align:center; background-color:transparent">' +
+											'<tbody>' +
+											'</tbody>' +
+										'</table>' +
+									'</div>' + 
+								'</td>' +
 							'</tr>'
 						);
 					}
+
+					// rebind click handler
+					$('body').off('click', '#team-table-canvas>tbody>tr.accordion-toggle');
+					$('body').on('click', '#team-table-canvas>tbody>tr.accordion-toggle', function(e) {
+						e.preventDefault();
+						console.log($(this).hasClass('collapsed'));
+					});
 
 					spinner.stop();
 					$('#results-team').show();
