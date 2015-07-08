@@ -113,8 +113,8 @@ google.setOnLoadCallback(function(){
 						$('#download-container').hide();
 						$('#results-nav').hide();
 						$('.results-tab-content').hide();
-						$('#results-table').empty();
-						$('#results-graph>#graph-canvas').empty();
+						$('#results-table #table-canvas').empty();
+						$('#results-graph #graph-canvas').empty();
 						$('#results-graph #graph-toggle-options').empty();
 					} else {
 						spinner.stop();
@@ -125,25 +125,25 @@ google.setOnLoadCallback(function(){
 						$('.results-tab-content').hide();
 
 						if (view === TABLE_VIEW) {
-							$('#results-graph>#graph-canvas').empty();
+							$('#results-graph #graph-canvas').empty();
 							$('#results-graph #graph-toggle-options').empty();
 							$('#download-container').show();
 							drawTable(json);
 						} else if (view === GRAPH_VIEW) {
-							$('#results-table').empty();
+							$('#results-table #table-canvas').empty();
 							$('#download-container').show();
 							drawGraph(json);
 						} else if (view === IND_FINAL_VIEW) {
-							$('#results-table').empty();
-							$('#results-graph>#graph-canvas').empty();
+							$('#results-table #table-canvas').empty();
+							$('#results-graph #graph-canvas').empty();
 							$('#results-graph #graph-toggle-options').empty();
 							$('#results-individual').show();
 							drawIndividual();
 						} else if (view === TEAM_FINAL_VIEW) {
-							$('#results-table').empty();
-							$('#results-graph>#graph-canvas').empty();
+							$('#results-table #table-canvas').empty();
+							$('#results-graph #graph-canvas').empty();
 							$('#results-graph #graph-toggle-options').empty();
-							//drawTeam(json);
+							drawTeam();
 						}
 					}
 				}
@@ -153,13 +153,10 @@ google.setOnLoadCallback(function(){
 		function drawTable(json){
 			var results = $.parseJSON(json.results);
 
-			// show table
-			$('#results-table').show();
-
 			//*
 			// add table skeleton if empty
-			if (!$.trim($('#results-table').html())) {
-				$('#results-table').append(
+			if (!$.trim($('#table-canvas').html())) {
+				$('#table-canvas').append(
 					'<thead>' + 
 						'<tr>' +
 							'<th>Name</th>' +
@@ -177,7 +174,7 @@ google.setOnLoadCallback(function(){
 				var name = results.runners[i].name;
 				var interval = results.runners[i].interval;
 
-				var row = $('#results-table>tbody>tr#results'+id);
+				var row = $('#table-canvas>tbody>tr#results'+id);
 				// check if row exists
 				if (row.length === 1) {
 					var numDisplayedSplits = $('table#splits'+id+'>tbody>tr').length;
@@ -206,6 +203,9 @@ google.setOnLoadCallback(function(){
 					addNewRow(id, name, interval);
 				}
 			}
+
+			// show table
+			$('#results-table').show();
 		}
 
 		function addNewRow(id, name, interval){
@@ -215,8 +215,8 @@ google.setOnLoadCallback(function(){
 			else
 				split = 'NT';
 
-			$('#results-table>tbody').append(
-				'<tr id="results'+id+'" class="accordion-toggle" data-toggle="collapse" data-parent="#results-table" data-target="#collapse'+id+'" aria-expanded="false" aria-controls="collapse'+id+'">' + 
+			$('#table-canvas>tbody').append(
+				'<tr id="results'+id+'" class="accordion-toggle" data-toggle="collapse" data-parent="#table-canvas" data-target="#collapse'+id+'" aria-expanded="false" aria-controls="collapse'+id+'">' + 
 					'<td>' + name + '</td>' + 
 					'<td id="latest-split'+id+'">' + split + '</td>' + 
 					'<td id="total-time'+id+'"></td>' + 
@@ -253,7 +253,7 @@ google.setOnLoadCallback(function(){
 
 			// display total time
 			total = formatTime(String(total));
-			$('#results-table>tbody #results'+id+'>td#total-time'+id).html(total);
+			$('#table-canvas>tbody #results'+id+'>td#total-time'+id).html(total);
 			//*/
 		}
 
@@ -343,14 +343,18 @@ google.setOnLoadCallback(function(){
 		}
 
 		function drawIndividual() {
+			$('.notification').hide();
+			$('#results-individual-table').empty();
+
 			var a = $('#age-select').val();
 			var g = $('#gender-select').val();
 
 			// gender or age wasn't selected
-			if ((a === null) || (g === null))
+			if ((a === null) || (g === null)) {
+				$('.notification-error.select-group').show();
 				return;
+			}
 
-			$('#results-individual-table').hide().empty();
 			spinner.spin(target);
 
 			a = a.split('-');
@@ -359,7 +363,6 @@ google.setOnLoadCallback(function(){
 
 			var gender = (g.trim() === 'Male') ? 'M' : 'F';
 
-			//console.log(gender + ' ' + age_gte + '-' + age_lte);
 			$.ajax({
 				url: '/api/filtered_results/?id='+currentID+'&gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
@@ -370,6 +373,7 @@ google.setOnLoadCallback(function(){
 
 					if (results == '') {
 						spinner.stop();
+						$('#results-individual-table').empty();
 						$('.notification-error.no-individual-data').show();
 						$('#download-container').hide();
 					} else {
@@ -407,6 +411,10 @@ google.setOnLoadCallback(function(){
 					//*/
 				}
 			});
+		}
+
+		function drawTeam(){
+
 		}
 
 		function lastWorkout(){
@@ -558,7 +566,7 @@ google.setOnLoadCallback(function(){
 
 						// reset canvases and set new session id
 						$('.notification').hide();
-						$('#results-table').empty();
+						$('#results-table #table-canvas').empty();
 						$('.results-tab-content').hide();
 						$('#results-graph>#graph-canvas').empty();
 						$('#results-graph #graph-toggle-options').empty();
@@ -592,11 +600,11 @@ google.setOnLoadCallback(function(){
 				$('ul.menulist li#see-more').remove();
 				findScores();
 			} else {
-				console.log( 'Index: ' + $( 'ul.menulist li a' ).index( $(this) ) );
 				var indexClicked = $( 'ul.menulist li a' ).index( $(this) );
+				
 				// reset canvases and set new session id
 				$('.notification').hide();
-				$('#results-table').empty();
+				$('#results-table #table-canvas').empty();
 				$('.results-tab-content').hide();
 				$('#results-graph>#graph-canvas').empty();
 				$('#results-graph #graph-toggle-options').empty();
@@ -639,6 +647,7 @@ google.setOnLoadCallback(function(){
 			}
 		});
 
+		// attach handler for athlete toggle on graph view
 		$('#graph-toggle-options').click(function(e){
 			if (e.target.id === 'all')
 				if ($('#graph-toggle-options input#all').prop('checked'))
