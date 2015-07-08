@@ -71,7 +71,7 @@ google.setOnLoadCallback(function(){
 			idleHandler = setTimeout(function(){ idleCheck(updateHandler, lastSelected, UPDATE_INTERVAL, IDLE_TIMEOUT, 'http://www.trac-us.com'); }, IDLE_TIMEOUT);
 		})();
 
-		function update(idjson, view) {
+		function update(idjson, view) {			
 			var last_url = '/api/sessions/'+ idjson;
 			
 			//start ajax request
@@ -152,7 +152,6 @@ google.setOnLoadCallback(function(){
 
 		function drawTable(json){
 			var results = $.parseJSON(json.results);
-
 			//*
 			// add table skeleton if empty
 			if (!$.trim($('#table-canvas').html())) {
@@ -196,7 +195,7 @@ google.setOnLoadCallback(function(){
 						}
 
 						// then update latest split and recalculate total
-						$('#latest-split'+id).html(interval[interval.length-1][0]);
+						$('#latest-split'+id).html(String(Number(interval[interval.length-1][0]).toFixed(3)));
 						$('#total-time'+id).html(formatTime(total));
 					}
 				} else {
@@ -211,7 +210,7 @@ google.setOnLoadCallback(function(){
 		function addNewRow(id, name, interval){
 			var split = 0;
 			if (interval.length > 0)
-				split = interval[interval.length-1][0];
+				split = String(Number(interval[interval.length-1][0]).toFixed(3));
 			else
 				split = 'NT';
 
@@ -343,7 +342,6 @@ google.setOnLoadCallback(function(){
 		}
 
 		function drawIndividual() {
-			$('.notification').hide();
 			$('#results-individual-table').empty();
 
 			var a = $('#age-select').val();
@@ -354,6 +352,7 @@ google.setOnLoadCallback(function(){
 				$('.notification-error.select-group').show();
 				return;
 			}
+			$('.notification-error.select-group').hide();
 
 			spinner.spin(target);
 
@@ -398,7 +397,7 @@ google.setOnLoadCallback(function(){
 								'<tr>' +
 									'<td>'+ runner.place +'</td>' +
 									'<td>'+ runner.name +'</td>' +
-									'<td>'+ runner.time +'</td>' +
+									'<td>'+ formatTime(runner.time) +'</td>' +
 								'</tr>'
 							);
 						}
@@ -577,19 +576,6 @@ google.setOnLoadCallback(function(){
 				}
 			});
 		}
-		
-		//Download to Excel Script
-		$('#download').click(function(){
-			$.ajax({
-				url: '/api/sessions/',
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-				dataType: 'text',			//force to handle it as text
-				success: function(data){
-					urlfn(currentID);
-					return currentID;
-				}
-			});
-		});
 
 		// attach handler for heat menu item click
 		$('body').on('click', 'ul.menulist li a', function(){
@@ -622,6 +608,7 @@ google.setOnLoadCallback(function(){
 			$(this).parent().children().removeClass('active');
 			$(this).addClass('active');
 
+			$('.notification').hide();
 			$('.results-tab-content').hide();
 			$('#download-container').hide();
 			spinner.spin(target);
@@ -668,93 +655,150 @@ google.setOnLoadCallback(function(){
 		$('#age-select').change(function(){
 			drawIndividual();
 		});
+
+		//Download to Excel Script
+		$('#download').click(function(){
+			if ((currentView === TABLE_VIEW) || (currentView === GRAPH_VIEW))
+				createFullCSV(currentID);
+			else if (currentView === IND_FINAL_VIEW)
+				createFilteredIndividualCSV(currentID);
+			else if (currentView === TEAM_FINAL_VIEW)
+				createFilteredTeamCSV(currentID);
+		});
 	});
 });
 
-// format time in seconds to mm:ss.mil
-function formatTime(timeStr) {
-	var time = Number(timeStr);
-	var mins = Math.floor(time / 60);
-	var secs = (time % 60).toFixed(3);
-	secs = Math.floor(secs / 10) == 0 ? '0'+secs : secs;
-	return mins.toString() + ':' + secs.toString();
-}
-
-function urlfn(idjson){
+function createFullCSV(idjson){
 	var last_url = '/api/sessions/'+ idjson;
-	//alert(last_url);
 	$.ajax({
 		url: last_url,
 		headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 		dataType: 'text',			//force to handle it as text
 		success: function(data) {
-			JSONToCSVConvertor(data, 'TRAC_Report', true);
+			var json = $.parseJSON(data);
+
+			var reportTitle = json.name + ' Full Results';
+			
+			// initialize file content
+			var CSV = '';
+
+			// set report title in first row or line
+			CSV += reportTitle + '\r\n\n';
+
+			// format date and time
+			var d = new Date(UTC2local(json.start_time));
+
+			CSV += 'Date,'+ d.toDateString() +'\r\n';
+			CSV += 'Time,'+ d.toLocaleTimeString() +'\r\n\n';
+
+			CSV += 'Name\r\n';
+
+			var results = $.parseJSON(json.results);
+			
+
+			// iterate into runner array
+			var runner = {};
+			for (var i=0; i < results.runners.length; i++) {
+				runner = results.runners[i];
+
+				CSV += runner.name + ',';
+
+				for (var j=0; j < runner.interval.length; j++) {
+					//iterate over interval to get to nested time arrays
+					var interval = runner.interval[j];
+
+					for (var k=0; k < results.runners[i].interval[j].length; k++) {
+						//interate over subarrays and pull out each individually and print
+						//do a little math to move from seconds to minutes and seconds
+						var subinterval = results.runners[i].interval[j][k];
+						CSV += subinterval+',';
+					}
+				}
+
+				CSV += '\r\n';
+			}
+
+			// if varaible is empty, alert invalid and return
+			if (CSV == '') {        
+				alert('Invalid data');
+				return;
+			}
+
+			download(CSV, reportTitle);
 		}
 	});
 }
 
-function JSONToCSVConvertor(JSONData, ReportTitle, ShowLabel) {
-	//Data coming in must be json
-	//parse through it
-	var json = $.parseJSON(JSONData);
-	//now json variable contains data in json format
-	//let's display a few items
-	// $('#results').html('Date: ' + json.date);
-	//$('#results').append('<p> Workout ID: '+ json.workoutID);
+function createFilteredIndividualCSV(idjson) {
+	var last_url = '/api/sessions/'+ idjson;
+	$.ajax({
+		url: last_url,
+		headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+		dataType: 'text',			//force to handle it as text
+		success: function(data) {
+			var json = $.parseJSON(data);
 
-	var CSV = '';
-	//Set Report title in first row or line
-	CSV += ReportTitle + '\r\n\n';
-	CSV += 'Date,'+ json.start_time+'\r\n';
-	CSV += 'Workout ID,'+ json.id+'\r\n\n';
+			var a = $('#age-select').val();
+			var g = $('#gender-select').val();
 
-	CSV += 'Name \r\n'
-	
-	//Uncomment below when using nested json in production
-	json = $.parseJSON(json.results);
+			// gender or age wasn't selected
+			if ((a === null) || (g === null))
+				return;
 
-	//iterate into name array
-	for (var i=0; i < json.runners.length; i++) {
-		//print names and enter name array
-		var name = json.runners[i].name;
-		CSV +=name+',';
+			ages = a.split('-');
+			var age_gte = ages[0].trim();
+			var age_lte = ages[1].trim();
 
-		for (var j=0; j < json.runners[i].interval.length; j++) {
-			//iterate over interval to get to nested time arrays
-			var interval = json.runners[i].interval[j];
+			var gender = (g.trim() === 'Male') ? 'M' : 'F';
 
-			for (var k=0; k < json.runners[i].interval[j].length; k++) {
-				//interate over subarrays and pull out each individually and print
-				//do a little math to move from seconds to minutes and seconds
-				var subinterval = json.runners[i].interval[j][k];
-				var min = Math.floor(subinterval/60);
-				var sec = (subinterval-(min*60));
-				CSV += subinterval+',';
+			$.ajax({
+				url: '/api/filtered_results/?id='+idjson+'&gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
+				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				dataType: 'text',
+				success: function(filteredData) {
+					var filteredResults = $.parseJSON(filteredData).results;
 
-				/*
-				//This if statements adds the preceding 0 to any second less than 10
-				if (sec<10)
-					CSV += min + ':0'+sec+',';
-				else
-					CSV += min + ':'+sec+',';
-				//*/
-			}
+					var reportTitle = json.name + ' Individual Results';
+					
+					// initialize file content
+					var CSV = '';
+
+					// set report title in first row or line
+					CSV += reportTitle + '\r\n\n';
+
+					// format date and time
+					var d = new Date(UTC2local(json.start_time));
+
+					CSV += 'Date,'+ d.toDateString() +'\r\n';
+					CSV += 'Time,'+ d.toLocaleTimeString() +'\r\n\n';
+
+					// add group info
+					CSV += 'Gender,' + g + '\r\n';
+					CSV += 'Age bracket,' + a + '\r\n\n';
+
+					if (filteredResults != '') {
+						CSV += 'Place,Name,Final Time\r\n';
+
+						var runner = {};
+						for (var i=0; i < filteredResults.length; i++) {
+							runner = filteredResults[i];
+							CSV += runner.place + ',' + runner.name + ',' + formatTime(runner.time) + '\r\n';
+						}
+					}
+
+					download(CSV, reportTitle);
+				}
+			});
 		}
+	});
+}
 
-		// move to new row on excel spreadsheet
-		CSV += '\r\n'
-	}
-
-	//if varaible is empty, alert invalid and return
-	if (CSV == '') {        
-		alert('Invalid data');
-		return;
-	}
+function download(CSV, reportTitle) {
 
 	//Generate a file name
-	var fileName = 'MyReport_';
+	var fileName = 'TRAC_';
 	//this will remove the blank-spaces from the title and replace it with an underscore
-	fileName += ReportTitle.replace(/ /g,'_');
+	fileName += reportTitle.replace(/ /g,'_');
 
 	//Initialize file format you want csv or xls
 	var uri = 'data:text/csv;charset=utf-8,' + escape(CSV);
