@@ -390,7 +390,13 @@ def filtered_results(request):
     else:
         g = ''
 
-    results = session.get_filtered_results(gender=g, age_range=age_range)
+    # Filter by team.
+    if 'team' in data:
+        t = [data['team']]
+    else:
+        t = []
+
+    results = session.get_filtered_results(gender=g, age_range=age_range, teams=t)
     return Response(results, status.HTTP_200_OK)
 
 @api_view(['GET'])

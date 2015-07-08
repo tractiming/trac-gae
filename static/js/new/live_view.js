@@ -342,7 +342,7 @@ google.setOnLoadCallback(function(){
 		}
 
 		function drawIndividual() {
-			$('#results-individual-table').empty();
+			$('#individual-table-canvas').empty();
 
 			var a = $('#age-select').val();
 			var g = $('#gender-select').val();
@@ -372,13 +372,13 @@ google.setOnLoadCallback(function(){
 
 					if (results == '') {
 						spinner.stop();
-						$('#results-individual-table').empty();
+						$('#individual-table-canvas').empty();
 						$('.notification-error.no-individual-data').show();
 						$('#download-container').hide();
 					} else {
 						$('.notification').hide();
 
-						$('#results-individual-table').append(
+						$('#individual-table-canvas').append(
 							'<thead>' +
 								'<tr>' +
 									'<th>Place</th>' +
@@ -393,7 +393,7 @@ google.setOnLoadCallback(function(){
 						var runner = {};
 						for (var i=0; i < results.length; i++) {
 							runner = results[i];
-							$('#results-individual-table tbody').append(
+							$('#individual-table-canvas tbody').append(
 								'<tr>' +
 									'<td>'+ runner.place +'</td>' +
 									'<td>'+ runner.name +'</td>' +
@@ -404,7 +404,7 @@ google.setOnLoadCallback(function(){
 
 						// show results
 						spinner.stop();
-						$('#results-individual-table').show();
+						$('#individual-table-canvas').show();
 						$('#download-container').show();
 					}
 					//*/
@@ -413,7 +413,45 @@ google.setOnLoadCallback(function(){
 		}
 
 		function drawTeam(){
+			$('#team-table-canvas').empty();
+			spinner.spin(target);
+			$.ajax({
+				url: 'api/team_results/?id='+currentID,
+				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				dataType: 'text',
+				success: function(data) {
+					var results = $.parseJSON(data).results;
 
+					// create table header
+					$('#team-table-canvas').append(
+						'<thead>' +
+							'<tr>' +
+								'<th>Place</th>' +
+								'<th>Team</th>' +
+								'<th>Score</th>' +
+							'</tr>' +
+						'</thead>' +
+						'<tbody>' +
+						'</tbody>'
+					);
+
+					// create table rows
+					var team = {};
+					for (var i=0; i < results.length; i++) {
+						team = results[i];
+						$('#team-table-canvas tbody').append(
+							'<tr>' +
+								'<td>' + team.place + '</td>' +
+								'<td>' + team.name + '</td>' +
+								'<td>' + team.score + '</td>' +
+							'</tr>'
+						);
+					}
+
+					spinner.stop();
+					$('#results-team').show();
+				}
+			});
 		}
 
 		function lastWorkout(){

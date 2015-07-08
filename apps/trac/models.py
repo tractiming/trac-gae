@@ -259,7 +259,7 @@ class TimingSession(models.Model):
 
         return results
 
-    def get_team_results(self, num_scorers=5):
+    def get_team_results(self, num_scorers=1):
         """Score team results. - basic implementation."""
         # Get all of the team names.
         results = self.calc_results(read_cache=True, save_cache=True)
@@ -272,14 +272,14 @@ class TimingSession(models.Model):
                 if scores[athlete[2]][0] < num_scorers:
                     scores[athlete[2]][0] += 1
                     scores[athlete[2]][1] += place
-                place += 1    
+                place += 1
 
         sorted_scores = sorted([(t, scores[t][1]) for t in scores if 
                          (scores[t][0]==num_scorers)], key=itemgetter(1))
 
-        return [{'place': i+1, 
-                 'name': sorted_scores[i][0], 
-                 'score': sorted_scores[i][1]} for i in range(len(sorted_scores))]
+        return {'results': [{'place': i+1, 
+                             'name': sorted_scores[i][0], 
+                             'score': sorted_scores[i][1]} for i in range(len(sorted_scores))] }
 
     def get_filtered_results(self, gender='', age_range=[], teams=[]):
         """Gets a filtered list of tag ids."""
@@ -299,6 +299,8 @@ class TimingSession(models.Model):
         # Filter by team.
         if teams:
             tt = tt.filter(tag__user__groups__name__in=teams)
+
+        print teams
 
         tags = tt.values_list('tag_id',flat=True).distinct()
         res = self.calc_results(tag_ids=tags)
