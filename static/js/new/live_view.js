@@ -7,23 +7,22 @@ google.setOnLoadCallback(function(){
 				IND_FINAL_VIEW = 2,
 				TEAM_FINAL_VIEW = 3;
 
-		var UPDATE_INTERVAL = 5000,
-				IDLE_TIMEOUT = 1200000;
+		var UPDATE_INTERVAL = 5000,				// update live results every 5 secs
+				IDLE_TIMEOUT = 1200000;				// idle check after 20 minutes
 
 		var idArray = [],
-				currentID, currentView,
-				updateHandler, idleHandler,
-				spinner,
-				target,
-				calendarEvents,
-				graphToggle,
-				sessionFirst = 1, sessionLast = 15,
-				cStart, cStop;
+				currentID, currentView,												// used to identify current session and view
+				updateHandler, idleHandler,										// interval handlers
+				spinner, opts, target, teamSpinners = {},			// spinner variables
+				currentTeamID, currentTeam,										// used in team results tab
+				calendarEvents,																// holds list of sessions formatted for fullcalendar
+				sessionFirst = 1, sessionLast = 15,						// used for sessions pagination
+				cStart, cStop;																// used for date-based sessions query
 
 		(function init(){
 
 			// initialize spinner
-			var opts = {
+			opts = {
 				lines: 13, 							// The number of lines to draw
 			  length: 28, 						// The length of each line
 				width: 14, 							// The line thickness
@@ -58,6 +57,7 @@ google.setOnLoadCallback(function(){
 			$('#download-container').hide();
 
 			// query for all workout sessions
+			spinner.spin(target);
 			findScores();
 			loadCalendar();
 
@@ -109,7 +109,7 @@ google.setOnLoadCallback(function(){
 					// if empty, hide spinner and show notification
 					if (results.runners == '') {
 						spinner.stop();
-						$('.notification-error.no-data').show();
+						$('.notification.no-data').show();
 						$('#download-container').hide();
 						$('#results-nav').hide();
 						$('.results-tab-content').hide();
@@ -127,11 +127,9 @@ google.setOnLoadCallback(function(){
 						if (view === TABLE_VIEW) {
 							$('#results-graph #graph-canvas').empty();
 							$('#results-graph #graph-toggle-options').empty();
-							$('#download-container').show();
 							drawTable(json);
 						} else if (view === GRAPH_VIEW) {
 							$('#results-table #table-canvas').empty();
-							$('#download-container').show();
 							drawGraph(json);
 						} else if (view === IND_FINAL_VIEW) {
 							$('#results-table #table-canvas').empty();
@@ -203,8 +201,9 @@ google.setOnLoadCallback(function(){
 				}
 			}
 
-			// show table
+			// show results
 			$('#results-table').show();
+			$('#download-container').show();
 		}
 
 		function addNewRow(id, name, interval){
@@ -278,8 +277,9 @@ google.setOnLoadCallback(function(){
 					);
 			}
 
-			// show graph
+			// show results
 			$('#results-graph').show();
+			$('#download-container').show();
 
 			var data = new google.visualization.DataTable();
 			data.addColumn('number', 'Split');
@@ -342,17 +342,17 @@ google.setOnLoadCallback(function(){
 		}
 
 		function drawIndividual() {
-			$('#results-individual-table').empty();
+			$('#individual-table-canvas').empty();
 
 			var a = $('#age-select').val();
 			var g = $('#gender-select').val();
 
 			// gender or age wasn't selected
 			if ((a === null) || (g === null)) {
-				$('.notification-error.select-group').show();
+				$('.notification.select-group').show();
 				return;
 			}
-			$('.notification-error.select-group').hide();
+			$('.notification.select-group').hide();
 
 			spinner.spin(target);
 
@@ -367,18 +367,17 @@ google.setOnLoadCallback(function(){
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
-					//*
 					var results = $.parseJSON(data).results;
 
 					if (results == '') {
 						spinner.stop();
-						$('#results-individual-table').empty();
-						$('.notification-error.no-individual-data').show();
+						$('#individual-table-canvas').empty();
+						$('.notification.no-individual-data').show();
 						$('#download-container').hide();
 					} else {
 						$('.notification').hide();
 
-						$('#results-individual-table').append(
+						$('#individual-table-canvas').append(
 							'<thead>' +
 								'<tr>' +
 									'<th>Place</th>' +
@@ -393,7 +392,7 @@ google.setOnLoadCallback(function(){
 						var runner = {};
 						for (var i=0; i < results.length; i++) {
 							runner = results[i];
-							$('#results-individual-table tbody').append(
+							$('#individual-table-canvas tbody').append(
 								'<tr>' +
 									'<td>'+ runner.place +'</td>' +
 									'<td>'+ runner.name +'</td>' +
@@ -404,16 +403,128 @@ google.setOnLoadCallback(function(){
 
 						// show results
 						spinner.stop();
-						$('#results-individual-table').show();
+						$('#individual-table-canvas').show();
 						$('#download-container').show();
 					}
-					//*/
 				}
 			});
 		}
 
 		function drawTeam(){
+			$('#team-table-canvas').empty();
+			spinner.spin(target);
+			$.ajax({
+				url: 'api/team_results/?id='+currentID,
+				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				dataType: 'text',
+				success: function(data) {
+					var results = $.parseJSON(data).results;
 
+					// create table header
+					$('#team-table-canvas').append(
+						'<thead>' +
+							'<tr>' +
+								'<th>Place</th>' +
+								'<th>Team</th>' +
+								'<th>Score</th>' +
+							'</tr>' +
+						'</thead>' +
+						'<tbody>' +
+						'</tbody>'
+					);
+
+					// create table rows
+					var team = {};
+					for (var i=0; i < results.length; i++) {
+						team = results[i];
+						var id = team.id;
+						$('#team-table-canvas>tbody').append(
+							'<tr id="team'+id+'" class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#team-table-canvas" data-target="#collapse-team'+id+'" aria-expanded="false" aria-controls="collapse-team'+id+'">' +
+								'<td>' + team.place + '</td>' +
+								'<td>' + team.name + '</td>' +
+								'<td>' + team.score + '</td>' +
+							'</tr>' +
+							'<tr></tr>'	+
+							'<tr class="team-runners">' +
+								'<td colspan="3">' +
+									'<div id="collapse-team'+id+'" class="accordion-body collapse" aria-labelledby="team'+id+'">' +
+										'<table id="runners-team'+id+'" class="table" style="text-align:center; background-color:transparent">' +
+											'<thead>' +
+												'<tr>' +
+													'<th style="text-align:center;">Place</th>' +
+													'<th style="text-align:center;">Name</th>' +
+													'<th style="text-align:center;">Final Time</th>' +
+												'</tr>' +
+											'</thead>' +
+											'<tbody>' +
+											'</tbody>' +
+										'</table>' +
+									'</div>' + 
+								'</td>' +
+							'</tr>'
+						);
+					}
+
+					// rebind click handler
+					$('body').off('click', '#team-table-canvas>tbody>tr.accordion-toggle');
+					$('body').on('click', '#team-table-canvas>tbody>tr.accordion-toggle', function(e) {
+						e.preventDefault();
+						if ($(this).hasClass('collapsed')) {
+
+							currentTeamID = this.id.slice(4);
+							currentTeam = $('tr#team'+currentTeamID+' td:nth-child(2)').html().trim();
+
+							// clear table data
+							$('#runners-team'+currentTeamID+' tbody').empty();
+
+							// add a spinner
+							$('#collapse-team'+currentTeamID).append(
+								'<div class="spinner-container" style="position:relative; min-height:150px;">' +
+									'<div id="spinner-team'+currentTeamID+'"></div>' +
+								'</div>'
+							);
+							teamSpinners[currentTeamID] = teamSpinners[currentTeamID] || new Spinner(opts);
+							teamSpinners[currentTeamID].spin(document.getElementById('spinner-team'+currentTeamID));
+
+							// get team members data
+							$.ajax({
+								url: 'api/filtered_results/?id='+currentID+'&team='+currentTeam,
+								headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+								dataType: 'text',
+								success: function(runnerData) {
+									var runnerResults = $.parseJSON(runnerData).results;
+
+									// add team members to table
+									var runner = {};
+									for (var i=0; i < runnerResults.length; i++) {
+										runner = runnerResults[i];
+										$('#runners-team'+currentTeamID+' tbody').append(
+											'<tr>' +
+												'<td>' + runner.place + '</td>' +
+												'<td>' + runner.name + '</td>' +
+												'<td>' + formatTime(runner.time) + '</td>' +
+											'</tr>'
+										);
+									}
+
+									// remove spinner
+									teamSpinners[currentTeamID].stop();
+									$('#collapse-team'+currentTeamID).find('div').remove();
+								}
+							});
+
+						} else {
+							teamSpinners[currentTeamID].stop();
+							$('#collapse-team'+currentTeamID).find('div').remove();
+						}
+					});
+	
+					// stop spinner and show results
+					spinner.stop();
+					$('#results-team').show();
+					$('#download-container').show();
+				}
+			});
 		}
 
 		function lastWorkout(){
@@ -425,7 +536,7 @@ google.setOnLoadCallback(function(){
 					var json = $.parseJSON(data);
 
 					if (json.length == 0){ 
-						$('.notification-error.no-sessions').show();
+						$('.notification.no-sessions').show();
 						spinner.stop();
 					} else {
 						$('.notification').hide();
@@ -446,7 +557,7 @@ google.setOnLoadCallback(function(){
 					var json = $.parseJSON(data);
 					
 					if (json.length == 0){ 
-						$('.notification-error.no-sessions').show();
+						$('.notification.no-sessions').show();
 						spinner.stop();
 					} else {
 						$('.notification').hide();
@@ -457,7 +568,7 @@ google.setOnLoadCallback(function(){
 		}
 
 		function findScores(){
-			spinner.spin(target);
+			//spinner.spin(target);
 
 			$.ajax({
 				url: '/api/session_Pag/',
@@ -471,7 +582,7 @@ google.setOnLoadCallback(function(){
 					var json = $.parseJSON(data);
 					
 					if ((json.length == 0) && (!$.trim($('ul.menulist').html()))) {
-						$('.notification-error.no-sessions').show();
+						$('.notification.no-sessions').show();
 						spinner.stop();
 					} else {
 						$('.notification').hide();
@@ -601,7 +712,7 @@ google.setOnLoadCallback(function(){
 		});
 
 		// attach handler for tab navigation
-		$('#results>ul>li').click(function(e){
+		$('body').on('click', '#results>ul>li', function(e){
 			e.preventDefault();
 			// update tab navbar
 			currentView = $(this).index();
@@ -635,7 +746,7 @@ google.setOnLoadCallback(function(){
 		});
 
 		// attach handler for athlete toggle on graph view
-		$('#graph-toggle-options').click(function(e){
+		$('body').on('click', '#graph-toggle-options', function(e){
 			if (e.target.id === 'all')
 				if ($('#graph-toggle-options input#all').prop('checked'))
 					$('#graph-toggle-options input').prop('checked', true);
@@ -649,15 +760,12 @@ google.setOnLoadCallback(function(){
 		});
 
 		// attach handler for individual results tab
-		$('#gender-select').change(function(){
-			drawIndividual();
-		});
-		$('#age-select').change(function(){
+		$('body').on('change', '#gender-select, #age-select', function(){
 			drawIndividual();
 		});
 
 		//Download to Excel Script
-		$('#download').click(function(){
+		$('body').on('click', '#download', function(){
 			if ((currentView === TABLE_VIEW) || (currentView === GRAPH_VIEW))
 				createFullCSV(currentID);
 			else if (currentView === IND_FINAL_VIEW)
@@ -669,11 +777,10 @@ google.setOnLoadCallback(function(){
 });
 
 function createFullCSV(idjson){
-	var last_url = '/api/sessions/'+ idjson;
 	$.ajax({
-		url: last_url,
+		url: '/api/sessions/'+idjson,
 		headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-		dataType: 'text',			//force to handle it as text
+		dataType: 'text',
 		success: function(data) {
 			var json = $.parseJSON(data);
 
@@ -730,11 +837,10 @@ function createFullCSV(idjson){
 }
 
 function createFilteredIndividualCSV(idjson) {
-	var last_url = '/api/sessions/'+ idjson;
 	$.ajax({
-		url: last_url,
+		url: '/api/sessions/'+idjson,
 		headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-		dataType: 'text',			//force to handle it as text
+		dataType: 'text',
 		success: function(data) {
 			var json = $.parseJSON(data);
 
@@ -793,8 +899,53 @@ function createFilteredIndividualCSV(idjson) {
 	});
 }
 
-function download(CSV, reportTitle) {
+function createFilteredTeamCSV(idjson) {
+	$.ajax({
+		url: '/api/sessions/'+idjson,
+		headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+		dataType: 'text',
+		success: function(data) {
+			var json = $.parseJSON(data);
 
+			$.ajax({
+				url: '/api/team_results/?id='+idjson,
+				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				dataType: 'text',
+				success: function(teamData) {
+					var teamResults = $.parseJSON(teamData).results;
+
+					var reportTitle = json.name + ' Team Results';
+					
+					// initialize file content
+					var CSV = '';
+
+					// set report title in first row or line
+					CSV += reportTitle + '\r\n\n';
+
+					// format date and time
+					var d = new Date(UTC2local(json.start_time));
+
+					CSV += 'Date,'+ d.toDateString() +'\r\n';
+					CSV += 'Time,'+ d.toLocaleTimeString() +'\r\n\n';
+
+					if (teamResults != '') {
+						CSV += 'Place,Name,Score\r\n';
+
+						var team = {};
+						for (var i=0; i < teamResults.length; i++) {
+							team = teamResults[i];
+							CSV += team.place + ',' + team.name + ',' + team.score + '\r\n';
+						}
+					}
+
+					download(CSV, reportTitle);
+				}
+			});
+		}
+	});
+}
+
+function download(CSV, reportTitle) {
 	//Generate a file name
 	var fileName = 'TRAC_';
 	//this will remove the blank-spaces from the title and replace it with an underscore

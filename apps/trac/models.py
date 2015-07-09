@@ -273,14 +273,15 @@ class TimingSession(models.Model):
                 if scores[athlete[2]][0] < num_scorers:
                     scores[athlete[2]][0] += 1
                     scores[athlete[2]][1] += place
-                place += 1    
+                place += 1
 
         sorted_scores = sorted([(t, scores[t][1]) for t in scores if 
                          (scores[t][0]==num_scorers)], key=itemgetter(1))
 
-        return [{'place': i+1, 
-                 'name': sorted_scores[i][0], 
-                 'score': sorted_scores[i][1]} for i in range(len(sorted_scores))]
+        return {'results': [{'place': i+1, 
+                             'name': sorted_scores[i][0],
+                             'id': Group.objects.get(name=sorted_scores[i][0]).id,
+                             'score': sorted_scores[i][1]} for i in range(len(sorted_scores))] }
 
     def get_filtered_results(self, gender='', age_range=[], teams=[]):
         """Gets a filtered list of tag ids."""

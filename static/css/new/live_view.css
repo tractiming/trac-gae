@@ -59,14 +59,24 @@ ul.menulist {
 }
 
 tr.splits { 
-	color: #666;
+	color: #888;
 	font-weight: lighter; }
 	tr.splits:hover {
 		background-color: inherit !important; }
 	tr.splits>td {
 		padding: 0 !important; 
 		border-style: none !important;
-	}
+}
+
+tr.team-runners { 
+	color: #888;
+	font-weight: lighter; }
+	tr.team-runners:hover {
+		background-color: inherit !important; }
+	tr.team-runners>td {
+		padding: 0 !important; 
+		border-style: none !important;
+}
 
 #results-graph {
 	margin-bottom: 20px;

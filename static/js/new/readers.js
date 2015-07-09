@@ -54,8 +54,9 @@ $(function() {
 			dataType: 'text',
 			success: function(data) {
 				var json = $.parseJSON(data);
+				console.log(json);
 				if (json == '') {
-					$('.notifications.no-results').show();
+					$('.notification.no-results').show();
 					spinner.stop();
 				} else {
 					spinner.stop();
