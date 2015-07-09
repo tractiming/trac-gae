@@ -7,23 +7,22 @@ google.setOnLoadCallback(function(){
 				IND_FINAL_VIEW = 2,
 				TEAM_FINAL_VIEW = 3;
 
-		var UPDATE_INTERVAL = 5000,
-				IDLE_TIMEOUT = 1200000;
+		var UPDATE_INTERVAL = 5000,				// update live results every 5 secs
+				IDLE_TIMEOUT = 1200000;				// idle check after 20 minutes
 
 		var idArray = [],
-				currentID, currentView,
-				updateHandler, idleHandler,
-				spinner,
-				target,
-				calendarEvents,
-				graphToggle,
-				sessionFirst = 1, sessionLast = 15,
-				cStart, cStop;
+				currentID, currentView,												// used to identify current session and view
+				updateHandler, idleHandler,										// interval handlers
+				spinner, opts, target, teamSpinners = {},			// spinner variables
+				currentTeamID, currentTeam,										// used in team results tab
+				calendarEvents,																// holds list of sessions formatted for fullcalendar
+				sessionFirst = 1, sessionLast = 15,						// used for sessions pagination
+				cStart, cStop;																// used for date-based sessions query
 
 		(function init(){
 
 			// initialize spinner
-			var opts = {
+			opts = {
 				lines: 13, 							// The number of lines to draw
 			  length: 28, 						// The length of each line
 				width: 14, 							// The line thickness
@@ -441,16 +440,23 @@ google.setOnLoadCallback(function(){
 						team = results[i];
 						var id = team.id;
 						$('#team-table-canvas>tbody').append(
-							'<tr id="team'+id+'" class="accordion-toggle" data-toggle="collapse" data-parent="#team-table-canvas" data-target="#collapse-team'+id+'" aria-expanded="false" aria-controls="collapse-team'+id+'">' +
+							'<tr id="team'+id+'" class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#team-table-canvas" data-target="#collapse-team'+id+'" aria-expanded="false" aria-controls="collapse-team'+id+'">' +
 								'<td>' + team.place + '</td>' +
 								'<td>' + team.name + '</td>' +
 								'<td>' + team.score + '</td>' +
 							'</tr>' +
 							'<tr></tr>'	+
-							'<tr class="team-members">' +
+							'<tr class="team-runners">' +
 								'<td colspan="3">' +
 									'<div id="collapse-team'+id+'" class="accordion-body collapse" aria-labelledby="team'+id+'">' +
-										'<table id="team'+id+'" class="table" style="text-align:center; background-color:transparent">' +
+										'<table id="runners-team'+id+'" class="table" style="text-align:center; background-color:transparent">' +
+											'<thead>' +
+												'<tr>' +
+													'<th style="text-align:center;">Place</th>' +
+													'<th style="text-align:center;">Name</th>' +
+													'<th style="text-align:center;">Final Time</th>' +
+												'</tr>' +
+											'</thead>' +
 											'<tbody>' +
 											'</tbody>' +
 										'</table>' +
@@ -464,9 +470,57 @@ google.setOnLoadCallback(function(){
 					$('body').off('click', '#team-table-canvas>tbody>tr.accordion-toggle');
 					$('body').on('click', '#team-table-canvas>tbody>tr.accordion-toggle', function(e) {
 						e.preventDefault();
-						console.log($(this).hasClass('collapsed'));
-					});
+						if ($(this).hasClass('collapsed')) {
 
+							currentTeamID = this.id.slice(4);
+							currentTeam = $('tr#team'+currentTeamID+' td:nth-child(2)').html().trim();
+
+							// clear table data
+							$('#runners-team'+currentTeamID+' tbody').empty();
+
+							// add a spinner
+							$('#collapse-team'+currentTeamID).append(
+								'<div class="spinner-container" style="position:relative; min-height:150px;">' +
+									'<div id="spinner-team'+currentTeamID+'"></div>' +
+								'</div>'
+							);
+							teamSpinners[currentTeamID] = teamSpinners[currentTeamID] || new Spinner(opts);
+							teamSpinners[currentTeamID].spin(document.getElementById('spinner-team'+currentTeamID));
+
+							// get team members data
+							$.ajax({
+								url: 'api/filtered_results/?id='+currentID+'&team='+currentTeam,
+								headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+								dataType: 'text',
+								success: function(runnerData) {
+									var runnerResults = $.parseJSON(runnerData).results;
+
+									// add team members to table
+									var runner = {};
+									for (var i=0; i < runnerResults.length; i++) {
+										runner = runnerResults[i];
+										$('#runners-team'+currentTeamID+' tbody').append(
+											'<tr>' +
+												'<td>' + runner.place + '</td>' +
+												'<td>' + runner.name + '</td>' +
+												'<td>' + formatTime(runner.time) + '</td>' +
+											'</tr>'
+										);
+									}
+
+									// remove spinner
+									teamSpinners[currentTeamID].stop();
+									$('#collapse-team'+currentTeamID).find('div').remove();
+								}
+							});
+
+						} else {
+							teamSpinners[currentTeamID].stop();
+							$('#collapse-team'+currentTeamID).find('div').remove();
+						}
+					});
+	
+					// stop spinner and show results
 					spinner.stop();
 					$('#results-team').show();
 				}
