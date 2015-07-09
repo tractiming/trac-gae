@@ -711,7 +711,7 @@ google.setOnLoadCallback(function(){
 		});
 
 		// attach handler for tab navigation
-		$('#results>ul>li').click(function(e){
+		$('body').on('click', '#results>ul>li', function(e){
 			e.preventDefault();
 			// update tab navbar
 			currentView = $(this).index();
@@ -745,7 +745,7 @@ google.setOnLoadCallback(function(){
 		});
 
 		// attach handler for athlete toggle on graph view
-		$('#graph-toggle-options').click(function(e){
+		$('body').on('click', '#graph-toggle-options', function(e){
 			if (e.target.id === 'all')
 				if ($('#graph-toggle-options input#all').prop('checked'))
 					$('#graph-toggle-options input').prop('checked', true);
@@ -759,15 +759,12 @@ google.setOnLoadCallback(function(){
 		});
 
 		// attach handler for individual results tab
-		$('#gender-select').change(function(){
-			drawIndividual();
-		});
-		$('#age-select').change(function(){
+		$('body').on('change', '#gender-select, #age-select', function(){
 			drawIndividual();
 		});
 
 		//Download to Excel Script
-		$('#download').click(function(){
+		$('body').on('click', '#download', function(){
 			if ((currentView === TABLE_VIEW) || (currentView === GRAPH_VIEW))
 				createFullCSV(currentID);
 			else if (currentView === IND_FINAL_VIEW)
@@ -908,7 +905,41 @@ function createFilteredTeamCSV(idjson) {
 		dataType: 'text',
 		success: function(data) {
 			var json = $.parseJSON(data);
-			
+
+			$.ajax({
+				url: '/api/team_results/?id='+idjson,
+				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				dataType: 'text',
+				success: function(teamData) {
+					var teamResults = $.parseJSON(teamData).results;
+
+					var reportTitle = json.name + ' Team Results';
+					
+					// initialize file content
+					var CSV = '';
+
+					// set report title in first row or line
+					CSV += reportTitle + '\r\n\n';
+
+					// format date and time
+					var d = new Date(UTC2local(json.start_time));
+
+					CSV += 'Date,'+ d.toDateString() +'\r\n';
+					CSV += 'Time,'+ d.toLocaleTimeString() +'\r\n\n';
+
+					if (teamResults != '') {
+						CSV += 'Place,Name,Score\r\n';
+
+						var team = {};
+						for (var i=0; i < teamResults.length; i++) {
+							team = teamResults[i];
+							CSV += team.place + ',' + team.name + ',' + team.score + '\r\n';
+						}
+					}
+
+					download(CSV, reportTitle);
+				}
+			});
 		}
 	});
 }
