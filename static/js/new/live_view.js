@@ -126,11 +126,9 @@ google.setOnLoadCallback(function(){
 						if (view === TABLE_VIEW) {
 							$('#results-graph #graph-canvas').empty();
 							$('#results-graph #graph-toggle-options').empty();
-							$('#download-container').show();
 							drawTable(json);
 						} else if (view === GRAPH_VIEW) {
 							$('#results-table #table-canvas').empty();
-							$('#download-container').show();
 							drawGraph(json);
 						} else if (view === IND_FINAL_VIEW) {
 							$('#results-table #table-canvas').empty();
@@ -202,8 +200,9 @@ google.setOnLoadCallback(function(){
 				}
 			}
 
-			// show table
+			// show results
 			$('#results-table').show();
+			$('#download-container').show();
 		}
 
 		function addNewRow(id, name, interval){
@@ -277,9 +276,6 @@ google.setOnLoadCallback(function(){
 					);
 			}
 
-			// show graph
-			$('#results-graph').show();
-
 			var data = new google.visualization.DataTable();
 			data.addColumn('number', 'Split');
 
@@ -338,6 +334,10 @@ google.setOnLoadCallback(function(){
 
 			var chart = new google.visualization.ScatterChart(document.getElementById('graph-canvas'));
 			chart.draw(data, options);
+
+			// show results
+			$('#results-graph').show();
+			$('#download-container').show();
 		}
 
 		function drawIndividual() {
@@ -366,7 +366,6 @@ google.setOnLoadCallback(function(){
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
-					//*
 					var results = $.parseJSON(data).results;
 
 					if (results == '') {
@@ -406,7 +405,6 @@ google.setOnLoadCallback(function(){
 						$('#individual-table-canvas').show();
 						$('#download-container').show();
 					}
-					//*/
 				}
 			});
 		}
@@ -523,6 +521,7 @@ google.setOnLoadCallback(function(){
 					// stop spinner and show results
 					spinner.stop();
 					$('#results-team').show();
+					$('#download-container').show();
 				}
 			});
 		}
@@ -780,11 +779,10 @@ google.setOnLoadCallback(function(){
 });
 
 function createFullCSV(idjson){
-	var last_url = '/api/sessions/'+ idjson;
 	$.ajax({
-		url: last_url,
+		url: '/api/sessions/'+idjson,
 		headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-		dataType: 'text',			//force to handle it as text
+		dataType: 'text',
 		success: function(data) {
 			var json = $.parseJSON(data);
 
@@ -841,11 +839,10 @@ function createFullCSV(idjson){
 }
 
 function createFilteredIndividualCSV(idjson) {
-	var last_url = '/api/sessions/'+ idjson;
 	$.ajax({
-		url: last_url,
+		url: '/api/sessions/'+idjson,
 		headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-		dataType: 'text',			//force to handle it as text
+		dataType: 'text',
 		success: function(data) {
 			var json = $.parseJSON(data);
 
@@ -904,8 +901,19 @@ function createFilteredIndividualCSV(idjson) {
 	});
 }
 
-function download(CSV, reportTitle) {
+function createFilteredTeamCSV(idjson) {
+	$.ajax({
+		url: '/api/sessions/'+idjson,
+		headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+		dataType: 'text',
+		success: function(data) {
+			var json = $.parseJSON(data);
+			
+		}
+	});
+}
 
+function download(CSV, reportTitle) {
 	//Generate a file name
 	var fileName = 'TRAC_';
 	//this will remove the blank-spaces from the title and replace it with an underscore
