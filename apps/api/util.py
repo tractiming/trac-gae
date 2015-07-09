@@ -16,6 +16,7 @@ def create_split(reader_id, tag_id, time):
     try:
         reader = Reader.objects.get(id_str=reader_id)
         tag = Tag.objects.get(id_str=tag_id)
+        print 'step 1'
     except:
         return -1
    
@@ -27,12 +28,14 @@ def create_split(reader_id, tag_id, time):
     tt = TagTime(tag_id=tag.id, time=dtime, reader_id=reader.id, milliseconds=ms)
     try:
         tt.save()
+        print 'step 2'
+        print reader.active_sessions
     except:
         return -1
 
     # Add the TagTime to all sessions active and having a related reader.
     for s in reader.active_sessions:
-        
+        print 'hello'
         # If the session has a set of registered tags, and the current tag is
         # not in that set, ignore the split.
         reg_tags = s.registered_tags.all()

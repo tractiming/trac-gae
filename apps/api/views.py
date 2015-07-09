@@ -513,8 +513,9 @@ def time_create(request):
         ts.interval_distance = data['interval_distance']
         ts.filter_choice = data['filter_choice']
         ts.private = string2bool(data['private'])
+    r = Reader.objects.filter(owner=user)
+    ts.readers.add(*r)
     ts.save()
-    print ts.private
     return HttpResponse(status.HTTP_201_CREATED)
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))
@@ -676,6 +677,47 @@ def edit_athletes(request):
             atl.save()
             user.save()
         return HttpResponse(status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes((permissions.AllowAny,))
+def IndividualTimes(request):
+
+    data = int(request.GET.get('id'))
+    user = request.user
+    # print for permissions
+    
+    # If the user is an athlete, list all the workouts he has run. If coach, the user he wants.
+    # Uses the User.id, alternatively could use athelte.id
+    if is_coach(user):
+        ap = User.objects.get(id=data)
+        print ap
+    elif is_athlete(user):
+        ap = user
+        
+    # If not a user or coach, no results can be found.
+    else:
+        return HttpResponse(status.HTTP_404_NOT_FOUND)
+    final_array = [{'Name':ap.username}]
+    sessions = ap.athlete.get_completed_sessions()
+    #Iterate through each session to get all of a single users workouts
+    for s in sessions:
+        t = TimingSession.objects.get(id=s.pk)
+        if ap.first_name != '' and ap.last_name != '':
+            string1 = ap.first_name
+            string2 = ap.last_name
+            username = string1 +' '+string2
+            num = t.get_athlete_names().index(username)
+        else:
+            username = ap.username
+            num = t.get_athlete_names().index(ap.username)
+        run = t.get_results().get('runners')
+        for r in run:
+            if r['name'] == username:
+                temp = r
+        temp_array = [{'Name': t.name, 'Date': t.start_time, 'id': t.id, 'Runner': temp}]
+        final_array += temp_array
+    final_array = final_array[::-1]
+    return Response(final_array)
 
 ######################### Do we need these? ###########################
 #@api_view(['GET'])

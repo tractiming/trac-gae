@@ -41,3 +41,12 @@ def score(request, org = None):
         return render(request, 'teams.html', {})
     else:
         return render(request, 'score.html', {'org': org})
+
+def individual(request, id1 = 0):
+    return render(request, 'individual.html', {'id1': id1})
+
+def tutorial(request, page = 1):
+    return render(request, 'tutorial.html', {'page': page})
+
+def usersettings(request):
+    return render(request, 'UserSettings.html', {})

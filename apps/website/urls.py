@@ -16,4 +16,7 @@ urlpatterns = patterns('',
     url(r'^caramile', views.caramile, name='caramile'),
     url(r'^score/$', views.score, name='score'),
     url(r'^score/(?P<org>.+)/$', views.score, name='score'),
+    url(r'^individual/(?P<id1>.+)/$', views.individual, name='individual_splits'),
+    url(r'^Tutorial/(?P<page>.+)/$', views.tutorial, name='tutorial'),
+    url(r'^UserSettings', views.usersettings, name="userSettings"),
 )

@@ -1,0 +1,166 @@
+{% extends "base_new.html" %}
+
+{% load static %}
+
+<!-- Head -->
+{% block stylesheets %}
+  <link href="{% static "css/new/main.css" %}" rel="stylesheet" type="text/css">
+  <link href="{% static "css/new/score.css" %}" rel='stylesheet' type='text/css'>
+{% endblock %}
+
+{% block js_scripts %}
+<script type="text/javascript" src="{% static "js/timeConversion.js" %}" ></script>
+  <script type="text/javascript">
+    var page = "{{ page }}";
+  </script>
+  <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+{% endblock %}
+<!-- Body -->
+{% block nav-items %}
+  <li><a href="/login">Login</a></li>
+  <li><a href="/register">Register</a></li>
+  <li><a href="http://www.trac-us.com">About</a></li>
+  <li><a href="/score">Live Results</a></li>
+{% endblock %}
+
+{% block content %}
+<script>
+$(document).ready(function(){
+   if(page==1){
+    $('#step1').append(
+        '<h1 style="border-bottom: 1px solid #eee;">How to Set Up a Reader</h1>' +
+        '<div id="header"></div><br>' +
+        '<div id="header1"></div><br>' +
+        '<div id="header2"></div><br>'
+    );
+    $('#header').append(
+        '<h3 style="text-align: left;">Select Readers from the dropdown menu</h2>' +
+        '<div id="paragraph" class="pull-left"></div>'
+    );
+    $('#header1').append(
+        '<h3 style="text-align: left;">Select Add New Reader</h2>' +
+        '<div id="paragraph1" class="pull-left"></div>'
+    );
+    $('#header2').append(
+        '<h3 style="text-align: left;">To update/delete a reader:</h2>' +
+        '<div id="paragraph2" class="pull-left"></div>'
+    );
+    $('#paragraph').append(
+        '<br>' +
+        '<img src="../../static/img/Tutorial1.png">' +
+        '<br>' +
+        '<br>' 
+    );
+    $('#paragraph1').append(
+        '<p>Name your reader and add the reader number provided then click create reader.</p>'+
+        '<br>' +
+        //'<img src="../../static/img/Tutorial2.png" style="border-bottom: 1px solid #000;">' +
+        '<br>' +
+        '<br>' 
+    );
+    $('#paragraph2').append(
+        '<p>Click on a row.' +
+        ' Change either the name of id number of the reader.' +
+        ' Select update or delete</p>' +
+        '<br>' //+
+        //'<img src="../../static/img/Tutorial3.png" style="border-bottom: 1px solid #000;">'
+    );
+  }
+  if(page==2){
+    $('#step1').append(
+        '<h1>How to Create a Workout</h1>' +
+        '<div id="header" text-align="left"></div><br>' +
+        '<div id="header1" text-align="left"></div><br>' +
+        '<br><br><div id="header2" text-align="left"></div><br>' +
+        '<br><br><div id="header3" text-align="left"></div><br>'
+    );
+    $('#header').append(
+        '<h3 style="text-align: left;">Note: Make sure you have registered all readers before beginning this process</h3>' +
+        '<div id="paragraph" class="pull-left"></div>'
+    );
+    $('#header1').append(
+        '<h3 style="text-align: left;">Select create</h3>' +
+        '<div id="paragraph1" class="pull-left"></div>'
+    );
+    $('#header2').append(
+        '<h3 style="text-align: left;">To add a workout:</h3>' +
+        '<div id="paragraph2" class="pull-left"></div>'
+    );
+    $('#header3').append(
+        '<h3 style="text-align: left;">To update workouts:</h3>' +
+        '<div id="paragraph3" class="pull-left"></div>'
+    );      
+    $('#paragraph').append(
+        '<p></p>'
+    );
+    $('#paragraph1').append(
+        '<img src="../../static/img/Tutorial4.png" style="width: 80%;">' +
+        '<br>' +
+        '<br>'
+    );
+    $('#paragraph2').append(
+        '<p>Select the plus button in the corner and fill out the desired information.</p>' +
+        '<p>For Chrome: <p class="col-lg-offset-1 col-md-offset-1 col-sm-offset-1 col-xs-offset-1">Date must be in the form: yyyy­mm­dd hh:mm:ss</p></p>' +
+        '<p>For other browsers: <p class="col-lg-offset-1 col-md-offset-1 col-sm-offset-1 col-xs-offset-1">Date must be in the form: yyyy/mm/dd hh:mm:ss</p></p>' + 
+        '<p>To make workouts publicly viewable: change the private toggle to “no”. This allows people without accounts to view the data. Toggle the filter to “yes” to delete any times that are less than 30 seconds; otherwise it will default to “no." When finished click save to add to your list of workouts.</p>' +
+        '<br>' +
+        '<br>'
+    );
+    $('#paragraph3').append(
+        '<p>Click on the row of the workout you want to change.</p>' +
+        '<br>' +
+        '<br>'
+    );
+  }
+  if(page==3){
+    $('#step1').append(
+        '<h1>How to Manage Race</h1>' +
+        '<div id="header" class="pull-left"></div>'
+    );
+    $('#header').append(
+        '<h2 style="text-align: left;">Header1</h2>' +
+        '<div id="subheader" class="pull-left"></div>'
+    );
+    $('#subheader').append(
+        '<h3>Subheader1</h3>' +
+        '<div id="paragraph"></div>'
+    );
+    $('#paragraph').append(
+        '<p>Text and pics</p>'
+    );
+  }
+  if(page==4){
+    $('#step1').append(
+        '<h1>Advanced Features</h1>' +
+        '<div id="header" class="pull-left"></div>'
+    );
+    $('#header').append(
+        '<h2 style="text-align: left;">Header1</h2>' +
+        '<div id="subheader" class="pull-left"></div>'
+    );
+    $('#subheader').append(
+        '<h3>Subheader1</h3>' +
+        '<div id="paragraph"></div>'
+    );
+    $('#paragraph').append(
+        '<p>Text and pics</p>'
+    );
+  }
+});
+</script>
+<div class="container fluid content">
+    <div class="content" id="content">
+          <div id="step1" class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
+          </div>
+          <div id="articles" class="pull-right" style="border-left: 1px solid #eee; padding-left: 2%;">
+            <h2 style="text-align: left;">Articles</h2>
+            <a id="r" href="/Tutorial/1">Reader Setup</a></br>
+            <a id="c" href="/Tutorial/2">Create Workout</a></br>
+            <a id="m" href="/Tutorial/3">Manage Race</a></br>
+            <a id="v" href="/Tutorial/4">Advanced Features</a></br>
+            <a id="f" href="/Tutorial/5">Frequently Asked Questions</a></br>
+            <a id="h" href="/Tutorial/6">Hardware Guide</a></br>
+          </div>
+    </div>
+</div>
+{% endblock %}

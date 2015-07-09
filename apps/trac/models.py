@@ -41,6 +41,7 @@ class Reader(models.Model):
         Returns a list of all active sessions the reader belongs to.
         """
         now = timezone.now()
+        print self.timingsession_set.all()
         return self.timingsession_set.filter(start_time__lte=now, stop_time__gte=now)
 
 class TagTime(models.Model):
