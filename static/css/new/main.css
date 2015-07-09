@@ -96,8 +96,11 @@ a {
 
 /* Notifications */
 #notifications { text-align: center; }
-.notification-error { color: #b94a48; }
 .notification-success { color: #468847; }
+.notification-info { color: #2e6da4; }
+.notification-warning { color: #d58512; }
+.notification-error { color: #b94a48; }
+
 
 p.parsley-error {
 	color: #B94A48;

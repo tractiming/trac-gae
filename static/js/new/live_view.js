@@ -57,6 +57,7 @@ google.setOnLoadCallback(function(){
 			$('#download-container').hide();
 
 			// query for all workout sessions
+			spinner.spin(target);
 			findScores();
 			loadCalendar();
 
@@ -108,7 +109,7 @@ google.setOnLoadCallback(function(){
 					// if empty, hide spinner and show notification
 					if (results.runners == '') {
 						spinner.stop();
-						$('.notification-error.no-data').show();
+						$('.notification.no-data').show();
 						$('#download-container').hide();
 						$('#results-nav').hide();
 						$('.results-tab-content').hide();
@@ -276,6 +277,10 @@ google.setOnLoadCallback(function(){
 					);
 			}
 
+			// show results
+			$('#results-graph').show();
+			$('#download-container').show();
+
 			var data = new google.visualization.DataTable();
 			data.addColumn('number', 'Split');
 
@@ -334,10 +339,6 @@ google.setOnLoadCallback(function(){
 
 			var chart = new google.visualization.ScatterChart(document.getElementById('graph-canvas'));
 			chart.draw(data, options);
-
-			// show results
-			$('#results-graph').show();
-			$('#download-container').show();
 		}
 
 		function drawIndividual() {
@@ -348,10 +349,10 @@ google.setOnLoadCallback(function(){
 
 			// gender or age wasn't selected
 			if ((a === null) || (g === null)) {
-				$('.notification-error.select-group').show();
+				$('.notification.select-group').show();
 				return;
 			}
-			$('.notification-error.select-group').hide();
+			$('.notification.select-group').hide();
 
 			spinner.spin(target);
 
@@ -371,7 +372,7 @@ google.setOnLoadCallback(function(){
 					if (results == '') {
 						spinner.stop();
 						$('#individual-table-canvas').empty();
-						$('.notification-error.no-individual-data').show();
+						$('.notification.no-individual-data').show();
 						$('#download-container').hide();
 					} else {
 						$('.notification').hide();
@@ -535,7 +536,7 @@ google.setOnLoadCallback(function(){
 					var json = $.parseJSON(data);
 
 					if (json.length == 0){ 
-						$('.notification-error.no-sessions').show();
+						$('.notification.no-sessions').show();
 						spinner.stop();
 					} else {
 						$('.notification').hide();
@@ -556,7 +557,7 @@ google.setOnLoadCallback(function(){
 					var json = $.parseJSON(data);
 					
 					if (json.length == 0){ 
-						$('.notification-error.no-sessions').show();
+						$('.notification.no-sessions').show();
 						spinner.stop();
 					} else {
 						$('.notification').hide();
@@ -567,7 +568,7 @@ google.setOnLoadCallback(function(){
 		}
 
 		function findScores(){
-			spinner.spin(target);
+			//spinner.spin(target);
 
 			$.ajax({
 				url: '/api/session_Pag/',
@@ -581,7 +582,7 @@ google.setOnLoadCallback(function(){
 					var json = $.parseJSON(data);
 					
 					if ((json.length == 0) && (!$.trim($('ul.menulist').html()))) {
-						$('.notification-error.no-sessions').show();
+						$('.notification.no-sessions').show();
 						spinner.stop();
 					} else {
 						$('.notification').hide();
