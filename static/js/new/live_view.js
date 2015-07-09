@@ -61,15 +61,26 @@ google.setOnLoadCallback(function(){
 			findScores();
 			loadCalendar();
 
-			// display most recent results
-			lastWorkout();
+			// start updates
+			startUpdates();
+		})();
 
+		function startUpdates() {
 			// refresh the view every 5 seconds to update
 			updateHandler = setInterval(lastSelected, UPDATE_INTERVAL);
 
 			// idle check after 20 minutes
 			idleHandler = setTimeout(function(){ idleCheck(updateHandler, lastSelected, UPDATE_INTERVAL, IDLE_TIMEOUT, 'http://www.trac-us.com'); }, IDLE_TIMEOUT);
-		})();
+		}
+
+		function stopUpdates() {
+			clearInterval(updateHandler);
+			clearTimeout(idleHandler);
+		}
+
+		function lastSelected(){
+			update(currentID, currentView);
+		}
 
 		function update(idjson, view) {			
 			var last_url = '/api/sessions/'+ idjson;
@@ -527,46 +538,6 @@ google.setOnLoadCallback(function(){
 			});
 		}
 
-		function lastWorkout(){
-			$.ajax({
-				url: '/api/sessions/',
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-				dataType: 'text',			//force to handle it as text
-				success: function(data){
-					var json = $.parseJSON(data);
-
-					if (json.length == 0){ 
-						$('.notification.no-sessions').show();
-						spinner.stop();
-					} else {
-						$('.notification').hide();
-						var idjson = json[json.length - 1].id;
-						update(idjson, currentView);
-						currentID = idjson;						
-					}
-				}
-			});
-		}
-		
-		function lastSelected(){
-			$.ajax({
-				url: '/api/sessions/',
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-				dataType: 'text',			//force to handle it as text
-				success: function(data){
-					var json = $.parseJSON(data);
-					
-					if (json.length == 0){ 
-						$('.notification.no-sessions').show();
-						spinner.stop();
-					} else {
-						$('.notification').hide();
-						update(currentID, currentView);
-					}
-				}
-			});
-		}
-
 		function findScores(){
 			//spinner.spin(target);
 
@@ -595,6 +566,9 @@ google.setOnLoadCallback(function(){
 							$('ul.menulist').append('<li id="see-more"><a href="#">See More</a></li>');
 						}
 					}
+					// show most recent workout
+					currentID = currentID || idArray[0];
+					update(currentID, currentView);
 				}
 			});
 		}
@@ -729,16 +703,13 @@ google.setOnLoadCallback(function(){
 				// update view
 				lastSelected();
 
-				// clear and reset update handler
-				clearInterval(updateHandler);
-				updateHandler = setInterval(lastSelected, UPDATE_INTERVAL);
+				// clear and reset updates
+				stopUpdates();
+				startUpdates();
 
-				// clear and reset idle check
-				clearTimeout(idleHandler);
-				idleHandler = setTimeout(function(){ idleCheck(updateHandler, lastSelected, UPDATE_INTERVAL, IDLE_TIMEOUT, 'http://www.trac-us.com'); }, IDLE_TIMEOUT);
 			} else {
-				clearInterval(updateHandler);
-				clearTimeout(idleHandler);
+				// clear updates
+				stopUpdates();
 
 				// update view
 				lastSelected();
