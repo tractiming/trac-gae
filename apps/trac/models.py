@@ -259,7 +259,7 @@ class TimingSession(models.Model):
 
         return results
 
-    def get_team_results(self, num_scorers=1):
+    def get_team_results(self, num_scorers=5):
         """Score team results. - basic implementation."""
         # Get all of the team names.
         results = self.calc_results(read_cache=True, save_cache=True)
@@ -300,8 +300,6 @@ class TimingSession(models.Model):
         # Filter by team.
         if teams:
             tt = tt.filter(tag__user__groups__name__in=teams)
-
-        print teams
 
         tags = tt.values_list('tag_id',flat=True).distinct()
         res = self.calc_results(tag_ids=tags)
