@@ -36,10 +36,17 @@ function localISOString(timeString){
 }
 
 // format time in seconds.milliseconds to mm:ss.mil
-function formatTime(timeStr) {
-	var time = Number(timeStr);
+function formatTime(time) {
 	var mins = Math.floor(time / 60);
 	var secs = (time % 60).toFixed(3);
 	secs = Math.floor(secs / 10) == 0 ? '0'+secs : secs;
 	return mins.toString() + ':' + secs.toString();
+}
+
+// convert time string in mm:ss.mil to seconds and milliseconds
+function convertToSeconds(timeStr) {
+	var times = timeStr.split(':');
+	var mins = Number(times[0]);
+	var secs = Number(times[1]);
+	return ((mins * 60)+secs);
 }

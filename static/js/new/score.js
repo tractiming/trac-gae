@@ -118,7 +118,7 @@ $(function() {
 					);
 
 					for (var i=0; i < score.runners.length; i++) {
-						var time = formatTime(score.runners[i].interval);
+						var time = formatTime(Number(score.runners[i].interval));
 
 						$('#results-table tbody').append(
 							'<tr>' + 
@@ -130,15 +130,6 @@ $(function() {
 				}
 			}
 		});
-	}
-
-	// format time in seconds to mm:ss.mil
-	function formatTime(timeStr) {
-		var time = Number(timeStr);
-		var mins = Math.floor(time / 60);
-		var secs = (time % 60).toFixed(3);
-		secs = Math.floor(secs / 10) == 0 ? '0'+secs : secs;
-		return mins.toString() + ':' + secs.toString();
 	}
 	
 	function lastWorkout(team){

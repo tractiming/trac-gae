@@ -68,8 +68,8 @@ tr.splits {
 		border-style: none !important; }
 		tr.splits table td {
 			vertical-align: middle !important; }
-			tr.splits table td.split-value { }
-				tr.splits table td.split-value input {
+			tr.splits table td.split-time { }
+				tr.splits table td.split-time input {
 					width: 120px;
 					margin: 0 auto; }
 			tr.splits table td.split-edit-options {
