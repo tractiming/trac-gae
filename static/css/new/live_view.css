@@ -70,7 +70,7 @@ tr.splits {
 			vertical-align: middle !important; }
 			tr.splits table td.split-time { }
 				tr.splits table td.split-time input {
-					width: 120px;
+					width: 90px;
 					margin: 0 auto; }
 			tr.splits table td.split-edit-options {
 				width: 200px; }

@@ -198,8 +198,16 @@ google.setOnLoadCallback(function(){
 							var split = String(Number(interval[j][0]).toFixed(3));
 							$('table#splits-'+id+'>tbody').append(
 								'<tr>' + 
-									'<td>' + (j+1) + '</td>' + 
-									'<td>' + split + '</td>' + 
+									'<td class="split-number col-md-2 col-sm-2">' + (j+1) + '</td>' + 
+									'<td class="split-time col-md-7 col-sm-7">' + split + '</td>' + 
+									'<td class="split-edit-options col-md-3 col-sm-3 hidden-xs">' +
+										'<div class="modify-splits modify-splits-'+id+'" style="display:none;">' +
+											'<div class="insert-split"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></div>' +
+											'<div class="insert-split"><span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span></div>' +
+											'<div class="edit-split"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
+											'<div class="delete-split"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></div>' +
+										'</div>' +
+									'</td>' + 
 								'</tr>'
 							);
 							total += Number(split);
@@ -316,7 +324,7 @@ google.setOnLoadCallback(function(){
 			var prevSplitTime = splitTimeCell.html();
 
 			// replace split with textbox
-			splitTimeCell.html('<input type="text" class="form-control" id="edit-'+runnerID+'-'+indx+'" placeholder="Split value">');
+			splitTimeCell.html('<input type="text" id="edit-'+runnerID+'-'+indx+'" class="form-control" placeholder="Split value" style="color:#f90;">');
 			splitTimeCell.find('input').val(prevSplitTime);
 
 			// hide edit buttons and add save/cancel button
@@ -329,10 +337,13 @@ google.setOnLoadCallback(function(){
 				'</div>'
 			);
 
+			// highlight split row
+			target.closest('tr').css('background-color', '#fffae6').css('color', '#f90');
+
 			// bind click handler
 			var button = target.find('button');
 			target.closest('td').find('.confirm-edit').on('click', button, function(e) {
-				//e.preventDefault();
+				e.preventDefault();
 				if ($(e.target).attr('value') === 'update') {
 					var splitTime = splitTimeCell.find('input').val();
 					splitTime = $.isNumeric(splitTime) ? String(Number(splitTime).toFixed(3)) : '0.000';
@@ -357,6 +368,9 @@ google.setOnLoadCallback(function(){
 							$('body').on('mouseover', 'tr.splits table tbody tr', function() {
 								$(this).find('.modify-splits').show();
 							});
+
+							// restore split row
+							target.closest('tr').css('background-color', '').css('color', '');
 
 							// update display table
 							splitTimeCell.html(splitTime);
@@ -386,6 +400,9 @@ google.setOnLoadCallback(function(){
 						$(this).find('.modify-splits').show();
 					});
 
+					// restore split row
+					target.closest('tr').css('background-color', '').css('color', '');
+
 					// restart updates
 					startUpdates();
 				}
@@ -402,6 +419,62 @@ google.setOnLoadCallback(function(){
 					'<button value="cancel" class="cancel-edit-split btn btn-sm btn-danger">Cancel</button>' +
 				'</div>'
 			);
+
+			// highlight split row
+			target.closest('tr').css('background-color', '#fdd').css('color', '#f55');
+
+			// bind click handler
+			var button = target.find('button');
+			target.closest('td').find('.confirm-edit').on('click', button, function(e) {
+				e.preventDefault();
+				if ($(e.target).attr('value') === 'delete') {
+					/*
+					// delete in backend
+					$.ajax({
+						method: 'POST',
+						url: 'api/edit_split/',
+						headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+						data: { id: currentID,
+										user_id: runnerID,
+										action: 'edit',
+										indx: indx,
+										val: splitTime },
+						success: function() {
+							// remove confirmation buttons
+							target.closest('td').find('.confirm-edit').remove();
+
+							// re-register handler
+							$('body').on('mouseover', 'tr.splits table tbody tr', function() {
+								$(this).find('.modify-splits').show();
+							});
+
+							// restore split row
+							target.closest('tr').css('background-color', '').css('color', '');
+
+							// update display table
+							
+
+							// restart updates
+							startUpdates();
+						}
+					});
+					//*/
+				} else {		// clicked cancel
+					// remove confirmation buttons
+					target.closest('td').find('.confirm-edit').remove();
+
+					// re-register handler
+					$('body').on('mouseover', 'tr.splits table tbody tr', function() {
+						$(this).find('.modify-splits').show();
+					});
+
+					// restore split row
+					target.closest('tr').css('background-color', '').css('color', '');
+
+					// restart updates
+					startUpdates();
+				}
+			});
 		}
 
 		//==================================== GRAPH VIEW ====================================
