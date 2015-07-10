@@ -304,19 +304,17 @@ google.setOnLoadCallback(function(){
 			var indx = $(this).closest('tr').index();
 
 			if ((action === 'insert') && ($(this).index() === 0)) {
-
+				addSplit($(this), runnerID, indx, false);
 			} else if ((action === 'insert') && ($(this).index() === 1)) {
-				indx++;
+				addSplit($(this), runnerID, indx, true);
 			} else if (action === 'edit') {
 				editSplit($(this), runnerID, indx);
-
 			} else if (action === 'delete') {
 				deleteSplit($(this), runnerID, indx);
 			}
-
-			// restart updates
-			//startUpdates();
 		});
+
+		
 
 		function editSplit(target, runnerID, indx) {
 			var splitRow = target.closest('tr');
@@ -413,14 +411,15 @@ google.setOnLoadCallback(function(){
 
 		function deleteSplit(target, runnerID, indx) {
 			var splitRow = target.closest('tr');
+			var splitTimeCell = splitRow.find('td.split-time');
 
 			// hide edit buttons and add save/cancel button
 			target.parent().hide();
 			$('body').off('mouseover', 'tr.splits table tbody tr');
 			target.closest('td').append(
-				'<div class="confirm-edit" style="display: table; margin: 0 auto;">' +
-					'<button value="delete" class="confirm-edit-split btn btn-sm btn-danger" style="margin-right:10px;">Delete</button>' +
-					'<button value="cancel" class="cancel-edit-split btn btn-sm btn-default">Cancel</button>' +
+				'<div class="confirm-delete" style="display: table; margin: 0 auto;">' +
+					'<button value="delete" class="confirm-delete-split btn btn-sm btn-danger" style="margin-right:10px;">Delete</button>' +
+					'<button value="cancel" class="cancel-delete-split btn btn-sm btn-default">Cancel</button>' +
 				'</div>'
 			);
 
@@ -429,7 +428,7 @@ google.setOnLoadCallback(function(){
 
 			// bind click handler
 			var button = target.find('button');
-			target.closest('td').find('.confirm-edit').on('click', button, function(e) {
+			target.closest('td').find('.confirm-delete').on('click', button, function(e) {
 				e.preventDefault();
 				if ($(e.target).attr('value') === 'delete') {
 					//*
@@ -444,7 +443,7 @@ google.setOnLoadCallback(function(){
 										indx: indx },
 						success: function() {
 							// remove confirmation buttons
-							target.closest('td').find('.confirm-edit').remove();
+							target.closest('td').find('.confirm-delete').remove();
 
 							// re-register handler
 							$('body').on('mouseover', 'tr.splits table tbody tr', function() {
@@ -454,9 +453,20 @@ google.setOnLoadCallback(function(){
 							// delete on frontend
 							var splitRowsAfter = splitRow.nextAll();
 							for (var i=0; i<splitRowsAfter.length; i++) {
-								var splitNumberCell = $(splitRowsAfter[i]).find('.split-number');
-								splitNumberCell.html( Number(splitRow.find('.split-number').html()) + i );
+								$(splitRowsAfter[i]).find('.split-number').html( indx+1 + i );
 							}
+
+							var splitTime = Number(splitTimeCell.html());
+							var totalTimeCell = $('tr#results-'+runnerID+'>td#total-time-'+runnerID),
+									prevTotalTime = convertToSeconds(totalTimeCell.html());
+							totalTimeCell.html(formatTime(prevTotalTime - splitTime));
+
+							var splitRowsAll = $('table#splits-'+runnerID+' tbody tr')
+							if (splitTimeCell.closest('tr').index() === splitRowsAll.length-1) {
+								var latestSplit = $('table#splits-'+runnerID+' tbody tr:nth-child('+(splitRowsAll.length-1)+')').find('td.split-time').html();
+								$('tr#results-'+runnerID+'>td#latest-split-'+runnerID).html(latestSplit);
+							}
+
 							splitRow.remove();
 
 							// restart updates
@@ -466,7 +476,7 @@ google.setOnLoadCallback(function(){
 					//*/
 				} else {		// clicked cancel
 					// remove confirmation buttons
-					target.closest('td').find('.confirm-edit').remove();
+					target.closest('td').find('.confirm-delete').remove();
 
 					// re-register handler
 					$('body').on('mouseover', 'tr.splits table tbody tr', function() {
