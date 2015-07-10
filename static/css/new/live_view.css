@@ -65,8 +65,24 @@ tr.splits {
 		background-color: inherit !important; }
 	tr.splits>td {
 		padding: 0 !important; 
-		border-style: none !important;
-}
+		border-style: none !important; }
+		tr.splits table td {
+			vertical-align: middle !important; }
+			tr.splits table td.split-value { }
+				tr.splits table td.split-value input {
+					width: 120px;
+					margin: 0 auto; }
+			tr.splits table td.split-edit-options {
+				width: 200px; }
+				tr.splits table td.split-edit-options .modify-splits {
+					display: table;
+					margin: 0 auto; }
+					tr.splits table td.split-edit-options .modify-splits>div {
+						float: left; }
+					tr.splits table td.split-edit-options .modify-splits span.glyphicon {
+						margin-right: 10px }
+					tr.splits table td.split-edit-options .modify-splits span.glyphicon:hover {
+						color: #f0b922; }
 
 tr.team-runners { 
 	color: #888;

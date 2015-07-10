@@ -159,6 +159,8 @@ google.setOnLoadCallback(function(){
 			});
 		}
 
+		//==================================== TABLE VIEW ====================================
+
 		function drawTable(json){
 			var results = $.parseJSON(json.results);
 			//*
@@ -182,8 +184,8 @@ google.setOnLoadCallback(function(){
 				var name = results.runners[i].name;
 				var interval = results.runners[i].interval;
 
-				var row = $('#table-canvas>tbody>tr#results'+id);
 				// check if row exists
+				var row = $('#table-canvas>tbody>tr#results'+id);
 				if (row.length === 1) {
 					var numDisplayedSplits = $('table#splits'+id+'>tbody>tr').length;
 					// update splits table
@@ -251,8 +253,16 @@ google.setOnLoadCallback(function(){
 				// add splits to subtable
 				$('table#splits'+id+'>tbody').append(
 					'<tr>' + 
-						'<td>' + (j+1) + '</td>' + 
-						'<td>' + split + '</td>' + 
+						'<td class="split-number">' + (j+1) + '</td>' + 
+						'<td class="split-value">' + split + '</td>' + 
+						'<td class="split-edit-options hidden-xs">' +
+							'<div class="modify-splits runner-'+id+'" style="display:none;">' +
+								'<div class="insert-split"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></div>' +
+								'<div class="insert-split"><span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span></div>' +
+								'<div class="edit-split"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
+								'<div class="delete-split"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></div>' +
+							'</div>' +
+						'</td>' + 
 					'</tr>'
 				);
 
@@ -265,6 +275,116 @@ google.setOnLoadCallback(function(){
 			$('#table-canvas>tbody #results'+id+'>td#total-time'+id).html(total);
 			//*/
 		}
+
+		// register handler for editing splits
+		$('body').on('mouseover', 'tr.splits table tbody tr', function() {
+			$(this).find('.modify-splits').show();
+		});
+		$('body').on('mouseleave', 'tr.splits table tbody tr', function() {
+			$(this).find('.modify-splits').hide();
+		});
+		$('body').on('click', '.modify-splits>div', function(e) {
+			e.preventDefault();
+			
+			// pause updates 
+			stopUpdates();
+
+			var runnerID = $(this).parent().attr('class').toString().split(' ')[1].split('-')[1].trim();
+			var action = $(this).attr('class').toString().split('-')[0].trim();
+			
+			// set index to modify
+			var indx = $(this).closest('tr').index();
+
+			if ((action === 'insert') && ($(this).index() === 0)) {
+
+			} else if ((action === 'insert') && ($(this).index() === 1)) {
+				indx++;
+			} else if (action === 'edit') {
+				editSplit($(this), runnerID, indx);
+
+			} else if (action === 'delete') {
+
+			}
+
+			// restart updates
+			//startUpdates();
+		});
+
+		function editSplit(target, runnerID, indx) {
+			// get split value
+			var valueTarget = target.closest('tr').find('td.split-value');
+			var splitValue = valueTarget.html();
+
+			// replace split with textbox
+			valueTarget.html('<input type="text" class="form-control" id="edit-'+runnerID+'-'+indx+'" placeholder="Split value">');
+			valueTarget.find('input').val(splitValue);
+
+			// hide edit buttons and add save/cancel button
+			target.parent().hide();
+			$('body').off('mouseover', 'tr.splits table tbody tr');
+			target.closest('td').append(
+				'<div class="confirm-edit" style="display: table; margin: 0 auto;">' +
+					'<button value="update" class="confirm-edit-split btn btn-sm btn-primary" style="margin-right:10px;">Update</button>' +
+					'<button value="cancel" class="cancel-edit-split btn btn-sm btn-danger">Cancel</button>' +
+				'</div>'
+			);
+
+			// bind click handler
+			var button = target.find('button');
+			$('body').off('click', button);
+			$('body').on('click', button, function(e) {
+				e.preventDefault();
+				if ($(e.target).attr('value') === 'update') {
+					console.log('Confirm edit split for workout '+currentID+', runner '+runnerID+', split number '+indx+' with value '+splitValue);
+					splitValue = valueTarget.find('input').val();
+
+					splitValue = $.isNumeric(splitValue) ? String(Number(splitValue).toFixed(3)) : '0.000';
+					
+					// edit in backend
+					$.ajax({
+						method: 'POST',
+						url: 'api/edit_split/',
+						headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+						data: { id: currentID,
+										user_id: runnerID,
+										action: 'edit',
+										indx: indx,
+										val: splitValue },
+						success: function() {
+							// remove confirmation buttons
+							target.closest('td').find('.confirm-edit').remove();
+
+							// re-register handler
+							$('body').on('mouseover', 'tr.splits table tbody tr', function() {
+								$(this).find('.modify-splits').show();
+							});
+
+							// update split value on table
+							valueTarget.html(splitValue);
+
+							// restart updates
+							startUpdates();
+						}
+					});
+				}
+			});
+		}
+
+		//==================================== GRAPH VIEW ====================================
+
+		// attach handler for athlete toggle on graph view
+		$('body').on('click', '#graph-toggle-options', function(e){
+			if (e.target.id === 'all')
+				if ($('#graph-toggle-options input#all').prop('checked'))
+					$('#graph-toggle-options input').prop('checked', true);
+				else
+					$('#graph-toggle-options input').prop('checked', false);
+			else if (!$('#graph-toggle-options input#'+e.target.id).prop('checked'))
+				$('#graph-toggle-options input#all').prop('checked', false);
+
+			// update view
+			lastSelected();
+		});
 
 		function drawGraph(json){
 			var results = $.parseJSON(json.results);
@@ -352,6 +472,13 @@ google.setOnLoadCallback(function(){
 			chart.draw(data, options);
 		}
 
+		//==================================== INDIVIDUAL RESULTS VIEW ====================================
+
+		// attach handler for individual results tab
+		$('body').on('change', '#gender-select, #age-select', function(){
+			drawIndividual();
+		});
+
 		function drawIndividual() {
 			$('#individual-table-canvas').empty();
 
@@ -420,6 +547,8 @@ google.setOnLoadCallback(function(){
 				}
 			});
 		}
+
+		//==================================== TEAM RESULTS VIEW ====================================
 
 		function drawTeam(){
 			$('#team-table-canvas').empty();
@@ -703,36 +832,17 @@ google.setOnLoadCallback(function(){
 				// update view
 				lastSelected();
 
-				// clear and reset updates
+				// restart updates
 				stopUpdates();
 				startUpdates();
 
 			} else {
-				// clear updates
+				// stop updates
 				stopUpdates();
 
 				// update view
 				lastSelected();
 			}
-		});
-
-		// attach handler for athlete toggle on graph view
-		$('body').on('click', '#graph-toggle-options', function(e){
-			if (e.target.id === 'all')
-				if ($('#graph-toggle-options input#all').prop('checked'))
-					$('#graph-toggle-options input').prop('checked', true);
-				else
-					$('#graph-toggle-options input').prop('checked', false);
-			else if (!$('#graph-toggle-options input#'+e.target.id).prop('checked'))
-				$('#graph-toggle-options input#all').prop('checked', false);
-
-			// update view
-			lastSelected();
-		});
-
-		// attach handler for individual results tab
-		$('body').on('change', '#gender-select, #age-select', function(){
-			drawIndividual();
 		});
 
 		//Download to Excel Script
