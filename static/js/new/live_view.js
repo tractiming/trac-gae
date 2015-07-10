@@ -319,13 +319,15 @@ google.setOnLoadCallback(function(){
 		});
 
 		function editSplit(target, runnerID, indx) {
+			var splitRow = target.closest('tr');
+
 			// get split value
-			var splitTimeCell = target.closest('tr').find('td.split-time');
+			var splitTimeCell = splitRow.find('td.split-time');
 			var prevSplitTime = splitTimeCell.html();
 
 			// replace split with textbox
-			splitTimeCell.html('<input type="text" id="edit-'+runnerID+'-'+indx+'" class="form-control" placeholder="Split value" style="color:#f90;">');
-			splitTimeCell.find('input').val(prevSplitTime);
+			splitTimeCell.html('<input type="text" id="edit-'+runnerID+'-'+indx+'" class="form-control" placeholder="Split value" style="color:#f90;" autofocus>');
+			splitTimeCell.find('input').val(prevSplitTime).focus();
 
 			// hide edit buttons and add save/cancel button
 			target.parent().hide();
@@ -338,7 +340,7 @@ google.setOnLoadCallback(function(){
 			);
 
 			// highlight split row
-			target.closest('tr').css('background-color', '#fffae6').css('color', '#f90');
+			splitRow.css('background-color', '#fcf8e3').css('color', '#c60');
 
 			// bind click handler
 			var button = target.find('button');
@@ -370,9 +372,9 @@ google.setOnLoadCallback(function(){
 							});
 
 							// restore split row
-							target.closest('tr').css('background-color', '').css('color', '');
+							splitRow.css('background-color', '').css('color', '');
 
-							// update display table
+							// update on frontend
 							splitTimeCell.html(splitTime);
 
 							var totalTimeCell = $('tr#results-'+runnerID+'>td#total-time-'+runnerID),
@@ -401,7 +403,7 @@ google.setOnLoadCallback(function(){
 					});
 
 					// restore split row
-					target.closest('tr').css('background-color', '').css('color', '');
+					splitRow.css('background-color', '').css('color', '');
 
 					// restart updates
 					startUpdates();
@@ -410,25 +412,27 @@ google.setOnLoadCallback(function(){
 		}
 
 		function deleteSplit(target, runnerID, indx) {
+			var splitRow = target.closest('tr');
+
 			// hide edit buttons and add save/cancel button
 			target.parent().hide();
 			$('body').off('mouseover', 'tr.splits table tbody tr');
 			target.closest('td').append(
 				'<div class="confirm-edit" style="display: table; margin: 0 auto;">' +
-					'<button value="delete" class="confirm-edit-split btn btn-sm btn-primary" style="margin-right:10px;">Delete</button>' +
-					'<button value="cancel" class="cancel-edit-split btn btn-sm btn-danger">Cancel</button>' +
+					'<button value="delete" class="confirm-edit-split btn btn-sm btn-danger" style="margin-right:10px;">Delete</button>' +
+					'<button value="cancel" class="cancel-edit-split btn btn-sm btn-default">Cancel</button>' +
 				'</div>'
 			);
 
 			// highlight split row
-			target.closest('tr').css('background-color', '#fdd').css('color', '#f55');
+			splitRow.css('background-color', '#f2dede').css('color', '#d9534f');
 
 			// bind click handler
 			var button = target.find('button');
 			target.closest('td').find('.confirm-edit').on('click', button, function(e) {
 				e.preventDefault();
 				if ($(e.target).attr('value') === 'delete') {
-					/*
+					//*
 					// delete in backend
 					$.ajax({
 						method: 'POST',
@@ -436,9 +440,8 @@ google.setOnLoadCallback(function(){
 						headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 						data: { id: currentID,
 										user_id: runnerID,
-										action: 'edit',
-										indx: indx,
-										val: splitTime },
+										action: 'delete',
+										indx: indx },
 						success: function() {
 							// remove confirmation buttons
 							target.closest('td').find('.confirm-edit').remove();
@@ -448,11 +451,13 @@ google.setOnLoadCallback(function(){
 								$(this).find('.modify-splits').show();
 							});
 
-							// restore split row
-							target.closest('tr').css('background-color', '').css('color', '');
-
-							// update display table
-							
+							// delete on frontend
+							var splitRowsAfter = splitRow.nextAll();
+							for (var i=0; i<splitRowsAfter.length; i++) {
+								var splitNumberCell = $(splitRowsAfter[i]).find('.split-number');
+								splitNumberCell.html( Number(splitRow.find('.split-number').html()) + i );
+							}
+							splitRow.remove();
 
 							// restart updates
 							startUpdates();
@@ -469,7 +474,7 @@ google.setOnLoadCallback(function(){
 					});
 
 					// restore split row
-					target.closest('tr').css('background-color', '').css('color', '');
+					splitRow.css('background-color', '').css('color', '');
 
 					// restart updates
 					startUpdates();

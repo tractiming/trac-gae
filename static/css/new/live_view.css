@@ -81,8 +81,12 @@ tr.splits {
 						float: left; }
 					tr.splits table td.split-edit-options .modify-splits span.glyphicon {
 						margin-right: 10px }
-					tr.splits table td.split-edit-options .modify-splits span.glyphicon:hover {
+					tr.splits table td.split-edit-options .modify-splits div.insert-split span.glyphicon:hover {
 						color: #f0b922; }
+					tr.splits table td.split-edit-options .modify-splits div.edit-split span.glyphicon:hover {
+						color: #f0b922; }
+					tr.splits table td.split-edit-options .modify-splits div.delete-split span.glyphicon:hover {
+						color: #d9534f; }
 
 tr.team-runners { 
 	color: #888;
