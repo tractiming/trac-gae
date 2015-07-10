@@ -28,70 +28,61 @@
 $(document).ready(function(){
    if(page==1){
     $('#step1').append(
-        '<h1 style="border-bottom: 1px solid #eee;">How to Set Up a Reader</h1>' +
+        '<h1>Registering Readers</h1>' +
         '<div id="header"></div><br>' +
-        '<div id="header1"></div><br>' +
         '<div id="header2"></div><br>'
     );
     $('#header').append(
-        '<h3 style="text-align: left;">Select Readers from the dropdown menu</h2>' +
+        '<h3 style="text-align: left;">Register</h2>' +
         '<div id="paragraph" class="pull-left"></div>'
     );
-    $('#header1').append(
-        '<h3 style="text-align: left;">Select Add New Reader</h2>' +
-        '<div id="paragraph1" class="pull-left"></div>'
-    );
+ 
     $('#header2').append(
-        '<h3 style="text-align: left;">To update/delete a reader:</h2>' +
+        '<h3 style="text-align: left;">Update & Delete</h2>' +
         '<div id="paragraph2" class="pull-left"></div>'
     );
     $('#paragraph').append(
-        '<br>' +
+        '<br><p>Select Readers from the dropdown menu. Then select "Add New Reader."</p>' +
         '<img src="../../static/img/Tutorial1.png">' +
         '<br>' +
+        '<br>' +'<p>Name your reader and add the reader number provided then click create reader.</p>'+
+        '<br>'+
         '<br>' 
     );
-    $('#paragraph1').append(
-        '<p>Name your reader and add the reader number provided then click create reader.</p>'+
-        '<br>' +
-        //'<img src="../../static/img/Tutorial2.png" style="border-bottom: 1px solid #000;">' +
-        '<br>' +
-        '<br>' 
-    );
+    
     $('#paragraph2').append(
         '<p>Click on a row.' +
         ' Change either the name of id number of the reader.' +
         ' Select update or delete</p>' +
-        '<br>' //+
-        //'<img src="../../static/img/Tutorial3.png" style="border-bottom: 1px solid #000;">'
+        '<br>'
     );
   }
   if(page==2){
     $('#step1').append(
-        '<h1>How to Create a Workout</h1>' +
+        '<h1>Creating Workouts</h1>' +
         '<div id="header" text-align="left"></div><br>' +
         '<div id="header1" text-align="left"></div><br>' +
         '<br><br><div id="header2" text-align="left"></div><br>' +
         '<br><br><div id="header3" text-align="left"></div><br>'
     );
     $('#header').append(
-        '<h3 style="text-align: left;">Note: Make sure you have registered all readers before beginning this process</h3>' +
+        '<h3 style="text-align: left;">Making Races & Workouts</h3>' +
         '<div id="paragraph" class="pull-left"></div>'
     );
     $('#header1').append(
-        '<h3 style="text-align: left;">Select create</h3>' +
+        '<h3 style="text-align: left;"></h3>' +
         '<div id="paragraph1" class="pull-left"></div>'
     );
     $('#header2').append(
-        '<h3 style="text-align: left;">To add a workout:</h3>' +
+        '<h3 style="text-align: left;"></h3>' +
         '<div id="paragraph2" class="pull-left"></div>'
     );
     $('#header3').append(
-        '<h3 style="text-align: left;">To update workouts:</h3>' +
+        '<h3 style="text-align: left;">Updating Workout & Race Info</h3>' +
         '<div id="paragraph3" class="pull-left"></div>'
     );      
     $('#paragraph').append(
-        '<p></p>'
+        '<p>Note: Make sure you have registered all readers before beginning this process. Select the "create" button from the header. </p>'
     );
     $('#paragraph1').append(
         '<img src="../../static/img/Tutorial4.png" style="width: 80%;">' +
@@ -99,35 +90,52 @@ $(document).ready(function(){
         '<br>'
     );
     $('#paragraph2').append(
-        '<p>Select the plus button in the corner and fill out the desired information.</p>' +
+        '<p>Click on the plus button in the corner and fill out the desired information.</p>' +
         '<p>For Chrome: <p class="col-lg-offset-1 col-md-offset-1 col-sm-offset-1 col-xs-offset-1">Date must be in the form: yyyy­mm­dd hh:mm:ss</p></p>' +
         '<p>For other browsers: <p class="col-lg-offset-1 col-md-offset-1 col-sm-offset-1 col-xs-offset-1">Date must be in the form: yyyy/mm/dd hh:mm:ss</p></p>' + 
-        '<p>To make workouts publicly viewable: change the private toggle to “no”. This allows people without accounts to view the data. Toggle the filter to “yes” to delete any times that are less than 30 seconds; otherwise it will default to “no." When finished click save to add to your list of workouts.</p>' +
+        '<p>To make workouts publicly viewable: change the private toggle to “no”. This allows people without accounts to view the data. Toggle the filter to “Yes” to delete any times that are less than 30 seconds; otherwise it will default to “No." The track size and interval distance fields are not required, but help to create more powerful algorithms in fitness prediction. When finished click "Save" to add to your list of workouts. </p>' +
         '<br>' +
         '<br>'
     );
     $('#paragraph3').append(
-        '<p>Click on the row of the workout you want to change.</p>' +
+        '<p>Click on the row of the workout you want to change. The more information that is accurately input into the fields, the more powerful our system can become in outputting results.</p>' +
         '<br>' +
         '<br>'
     );
   }
   if(page==3){
-    $('#step1').append(
-        '<h1>How to Manage Race</h1>' +
-        '<div id="header" class="pull-left"></div>'
+   $('#step1').append(
+        '<h1>Race Management</h1>' +
+        '<div id="header" text-align="left"></div><br>' +
+        '<div id="header1" text-align="left"></div><br>' +
+        '<br><br><div id="header2" text-align="left"></div><br>' +
+        '<br><br><div id="header3" text-align="left"></div><br>'
     );
-    $('#header').append(
-        '<h2 style="text-align: left;">Header1</h2>' +
-        '<div id="subheader" class="pull-left"></div>'
+
+    $('#header1').append(
+        '<h3 style="text-align: left;">Adding Athletes</h3>' +
+        '<div id="paragraph1" class="pull-left"></div>'+'<br><br>'
     );
-    $('#subheader').append(
-        '<h3>Subheader1</h3>' +
-        '<div id="paragraph"></div>'
+    $('#header2').append(
+        '<h3 style="text-align: left;">Stopwatch Buttons</h3>' +
+        '<div id="paragraph2" class="pull-left"></div>'
     );
-    $('#paragraph').append(
-        '<p>Text and pics</p>'
+
+    $('#paragraph1').append(
+        '<img src="../../static/img/Tutorial7.png" style="width: 80%;">' +
+        '<br>' +
+        '<br>'+'<p>Select a heat from the heat menu to the left hand side of the screen. The athletes registered to the selected workout will appear. If none appear, every tag that is registered in the entire system that crosses the reader will appear into your workout. </p><br>' + '<p>To add additional athletes into your workout, use the right column and checkboxes to select athletes you want added to the workout. After you have selected all the runners you want to add, click "Register Athletes." They will then be added to the workout. </p><br><br>'
     );
+    $('#paragraph2').append(
+      '<img src="../../static/img/Tutorial6.png" style="width: 80%;"><br><br>' +
+        
+        '<p>The three buttons on the upper right hand corner are important for workout management. The "Open" button changes the "Start Date" of a workout to the current time, and the workouts "Finish Time" to 24 hours in advance of the moment the button is pressed. The "Stop" button changes the "Stop Time" to the current time. Both of these buttons help to ensure that athletes or times that are not desired to show up in a workout, do not appear in the results. </p><br>'+
+        
+        '<p>The "Start" button creates a universal start time for all runners that enter into a workout. Everyone will have the same start time regardless of when they pass the reader. It is best used for large starts, or races, when a reader cannot pick up all runners at once.</p>' +
+        '<br>' +
+        '<br>'
+    );
+
   }
   if(page==4){
     $('#step1').append(
@@ -135,17 +143,115 @@ $(document).ready(function(){
         '<div id="header" class="pull-left"></div>'
     );
     $('#header').append(
-        '<h2 style="text-align: left;">Header1</h2>' +
-        '<div id="subheader" class="pull-left"></div>'
+        '<h2 style="text-align: left;">Tips & Tricks</h2>' +
+        '<div id="subheader" class="pull-left"></div>'+'<div id="subheader2" class="pull-left"></div>'
     );
     $('#subheader').append(
-        '<h3>Subheader1</h3>' +
+        '<h3 style="text-align: left;">Uploading a CSV</h3>' +
+        '<div id="paragraph"></div>'
+    );
+      $('#subheader2').append(
+        '<h3 style="text-align: left;">Download into Excel</h3>' +
+        '<div id="paragraph2"></div>'
+    );
+    $('#paragraph').append(
+        '<p>This saves time and effort and can create a workout and upload athletes through a single form upload</p>'+
+        '<img src="../../static/img/Tutorial10.png" style="width: 80%;">' + '<p>To start, fill out the form, choose the file you want to upload, and ensure it is in the correct format (First Name, Last Name, RFID Tag, Age, Gender). Click upload. This will automatically create all information.</p><br><br>' 
+    );
+      $('#paragraph2').append(
+        '<p>First go to the Live View page.</p>'+
+        '<img src="../../static/img/Tutorial9.png" style="width: 80%;"><br><br>' + '<p>Then click on a workout from the workout menu or calendar. The split information from each athlete in the workout will appear. At the bottom an icon with the word "Download" will appear. Click it, and a CSV file will be generated that can be formatted into Excel.</p><br><br>' 
+    );
+  }
+    if(page==5){
+    $('#step1').append(
+        '<h1>Frequently Asked Questions</h1>' +
+        '<div id="header" class="pull-left"></div>'
+    );
+    $('#header').append(
+        '<h2 style="text-align: left;">Reference for the TRAC system</h2>' +
+        '<div id="subheader" class="pull-left"></div>' +
+        '<div id="subheader2" class="pull-left"></div>' +
+        '<div id="subheader3" class="pull-left"></div>' +
+        '<div id="subheader4" class="pull-left"></div>'
+    );
+    $('#subheader').append(
+        '<h3 style="text-align: left;">Hardware Questions</h3>' +
         '<div id="paragraph"></div>'
     );
     $('#paragraph').append(
-        '<p>Text and pics</p>'
+        '<ul><li type="circle"><a href="/Tutorial//#subheader4">This is a question?</a></li><li type="circle"><a href="">This is a question?</a></li><li type="circle"><a href="">This is a question?</a></li></ul>'
+    );
+    $('#subheader2').append(
+        '<h3 style="text-align: left;">Software Questions</h3>' +
+        '<div id="paragraph2"></div>'
+    );
+    $('#paragraph2').append(
+        '<ul><li type="circle"><a href="">This is a question, it is very very very very very very very very very very very long?</a></li><li type="circle"><a href="">This is a question?</a></li><li type="circle"><a href="">This is a question?</a></li></ul>'
+    );
+    $('#subheader3').append(
+        '<h3 style="text-align: left;">Other Questions</h3>' +
+        '<div id="paragraph3"></div>'
+    );
+    $('#paragraph3').append(
+        '<ul><li type="circle"><a href="">This is a question, it is very very very very very very very very very very very long?</a></li><li type="circle"><a href="">This is a question?</a></li><li type="circle"><a href="">This is a question?</a></li></ul>'
+    );
+    $('#subheader4').append(
+        '<p>This is an answer.</p>'
+    );
+    
+  }
+    if(page==6){
+    $('#step1').append(
+        '<h1 >Hardware Guide</h1>' +
+        '<div id="header" class="pull-left"></div>'
+    );
+    $('#header').append(
+        '<h2 style="text-align: left;">Using your TRAC Reader</h2>' +
+        '<div id="subheader" class="pull-left"></div>'+
+        '<div id="subheader2" class="pull-left"></div>'
+    );
+    $('#subheader').append(
+        '<h3 style="text-align: left;">Turn it on</h3>' +
+        '<div id="paragraph"></div>'
+    );
+    $('#paragraph').append(
+        '<p>Press the green button on top of the TRAC box. Within 8 seconds, the "Power" light will turn on indicating the system is on. Within another minute, the "Connectivity" LED should light up. It will flash rapidly when it has connected to the Internet, and turn solid when the system is ready to use. If the "Connectivity" LED does not turn on, you may not have cellular connectivity in your area.</p>'
+    );
+    $('#subheader2').append(
+        '<h3 style="text-align: left;">Ready to Run?</h3>' +
+        '<div id="paragraph2"></div>'
+    );
+    $('#paragraph2').append(
+        '<p>If both the "Power" & "Connectivity" LEDs are solid, the system is ready to use. Everytime a runner wearing a tag passes the box, the "Connectivity" LED will flash. The system will operate on a single charge for around 6 hours.</p>'
     );
   }
+if(page==7){
+    $('#step1').append(
+        '<h1 >Mobile Apps</h1>' +
+        '<div id="header" class="pull-left"></div>'
+    );
+    $('#header').append(
+        '<h2 style="text-align: left;">Using the apps</h2>' +
+        '<div id="subheader" class="pull-left"></div>'+
+        '<div id="subheader2" class="pull-left"></div>'
+    );
+    $('#subheader').append(
+        '<h3 style="text-align: left;">iPhone</h3>' +
+        '<div id="paragraph"></div>'
+    );
+    $('#paragraph').append(
+        '<p>Login and navigate to your workout using the calendar view. Use the search icon at the top to find a specific workout. The "+" sign allows you to create workouts on the go using pre-set default settings. After you select a workout, the live page updates every five seconds. Select the settings page for race management type features. </p>'
+    );
+    $('#subheader2').append(
+        '<h3 style="text-align: left;">Android</h3>' +
+        '<div id="paragraph2"></div>'
+    );
+    $('#paragraph2').append(
+        '<p>Login and navigate to your workout using the calendar view. To create a workout on the go, click on the expand icon, and select "Create Workout." After you select a workout, the live page updates every five seconds. Select the settings page for race management type features. </p>'
+    );
+  }
+
 });
 </script>
 <div class="container fluid content">
@@ -154,12 +260,13 @@ $(document).ready(function(){
           </div>
           <div id="articles" class="pull-right" style="border-left: 1px solid #eee; padding-left: 2%;">
             <h2 style="text-align: left;">Articles</h2>
+            <a id="h" href="/Tutorial/6">Hardware Guide</a></br>
             <a id="r" href="/Tutorial/1">Reader Setup</a></br>
             <a id="c" href="/Tutorial/2">Create Workout</a></br>
             <a id="m" href="/Tutorial/3">Manage Race</a></br>
             <a id="v" href="/Tutorial/4">Advanced Features</a></br>
+            <a id="i" href="/Tutorial/7">Mobile Applications</a></br>
             <a id="f" href="/Tutorial/5">Frequently Asked Questions</a></br>
-            <a id="h" href="/Tutorial/6">Hardware Guide</a></br>
           </div>
     </div>
 </div>
