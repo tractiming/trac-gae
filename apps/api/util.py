@@ -27,7 +27,6 @@ def create_split(reader_id, tag_id, time):
     tt = TagTime(tag_id=tag.id, time=dtime, reader_id=reader.id, milliseconds=ms)
     try:
         tt.save()
-        print reader.active_sessions
     except:
         return -1
 
