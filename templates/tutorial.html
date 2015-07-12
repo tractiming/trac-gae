@@ -180,24 +180,61 @@ $(document).ready(function(){
         '<div id="paragraph"></div>'
     );
     $('#paragraph').append(
-        '<ul><li type="circle"><a href="/Tutorial//#subheader4">This is a question?</a></li><li type="circle"><a href="">This is a question?</a></li><li type="circle"><a href="">This is a question?</a></li></ul>'
+        '<ul><li type="circle"><a href="/Tutorial/5/#1">Can you give me an overview of how the system works?</a></li><li type="circle"><a href="/Tutorial/5/#2">How do I know that the system is on?</a></li><li type="circle"><a href="/Tutorial/5/#3">How do I know that the system is working? That it’s connected to the server?</a></li><li type="circle"><a href="">Where can I wear the bib or tag?</a></li><li type="circle"><a href="">How accurate is the system?</a></li><li type="circle"><a href="">What’s the reading range of the reader?</a></li><li type="circle"><a href="">What’s that beep I keep hearing?</a></li><li type="circle"><a href="">Why does the battery light indicator change colors? What do these colors mean?</a></li><li type="circle"><a href="">How do I charge the battery?</a></li><li type="circle"><a href="">How do I know when it’s time to charge the battery?</a></li><li type="circle"><a href="">Which way is up? How do I orient the box?</a></li><li type="circle"><a href="">Why does it come with a tripod?</a></li><li type="circle"><a href="">Do I have to use it with a tripod?</a></li><li type="circle"><a href="">Does the system work with any type of bib tag?</a></li><li type="circle"><a href="">The box is putting off heat, should I be concerned?</a></li><li type="circle"><a href="">Does the system work outside? In inclement weather?</a>'
     );
     $('#subheader2').append(
         '<h3 style="text-align: left;">Software Questions</h3>' +
         '<div id="paragraph2"></div>'
     );
     $('#paragraph2').append(
-        '<ul><li type="circle"><a href="">This is a question, it is very very very very very very very very very very very long?</a></li><li type="circle"><a href="">This is a question?</a></li><li type="circle"><a href="">This is a question?</a></li></ul>'
+        '<ul><li type="circle"><a href="">How do I create a workout?</a></li><li type="circle"><a href="">What does the filter do?</a></li><li type="circle"><a href="">What do the start, stop, & go buttons do?</a></li><li type="circle"><a href="">What does the private setting do?</a></li><li type="circle"><a href="">How often do the results update?</a></li><li type="circle"><a href="">Do the final results update?</a></li><li type="circle"><a href="">How do I add a reader?</a></li><li type="circle"><a href="">If I want to use another coaches reader in a race, how do I set that up?</a></li><li type="circle"><a href="">How many readers should I use in a workout?</a></li><li type="circle"><a href="">How many people can be in a workout/race?</a></li><li type="circle"><a href="">How does the CSV file work?</a></li><li type="circle"><a href="">How do I access my times?</a></li><li type="circle"><a href="">How do I export my times to an excel spreadsheet?</a></li></ul>'
     );
     $('#subheader3').append(
         '<h3 style="text-align: left;">Other Questions</h3>' +
         '<div id="paragraph3"></div>'
     );
     $('#paragraph3').append(
-        '<ul><li type="circle"><a href="">This is a question, it is very very very very very very very very very very very long?</a></li><li type="circle"><a href="">This is a question?</a></li><li type="circle"><a href="">This is a question?</a></li></ul>'
+        '<ul><li type="circle"><a href="">Can the system be used for other types of races?</a></li><li type="circle"><a href="">Can you rent systems?</a></li><li type="circle"><a href="">My box seems to be broken. How can I get it repaired or replaced?</a></li><li type="circle"><a href="">I lost/damaged my tag. Can I get a replacement?</a></li><li type="circle"><a href="">My times don’t appear on the app/website. How can I fix this?</a></li><li type="circle"><a href="">Where can I purchase the system or more tags?</a></li><li type="circle"><a href=""> Is the app available on iOS and Android?</a></li><li type="circle"><a href="">Do your tags work with other systems?</a></li><li type="circle"><a href="">Does the system come with a warranty?</a></li><li type="circle"><a href="">Do I need to do any maintenance on the box?</a></li><li type="circle"><a href="">Will I need to update the box?</a></li></ul>'
     );
     $('#subheader4').append(
-        '<p>This is an answer.</p>'
+        '<p id="1" class="question">Q: Can you give me an overview of how the system works?</p>'+
+    '<p>A: Each runner is given an RFID tag which registers each time the runner passes the reader. The reader then records the difference in time between each time the runner passes the reader.</p><br>'+ '<p id="2">Q: How do I know that the system is on?</p>'+
+        '<p>A: When the system is on, you should notice a green light on the box. </p><br>'+ '<p id="3">Q: How do I know that the system is working? That it’s connected to the server?</p>'+
+        '<p>A: To check the system’s connectivity a red light should flash each time a tag passes the reader. About a minute after the green LED comes on, the red LED should start rapidly flashing to indicate that the system is connected to the internet, but not ready to operate. When it turns a solid red, the system is ready to use. </p><br>'+ '<p>Q: Where can I wear the bib or tag?</p>'+
+        '<p>A: Depending on the tag type, they are designed to be worn on the chest, foot, or wrist.</p><br>'+ '<p>Q: How accurate is the system?</p>'+
+        '<p>A:The system is more accurate than hand time, but not as accurate as fully automated timing systems. Our delay is 0.18 seconds when compared to fully automated timing.</p><br>'+ '<p>Q: What’s the reading range of the reader?</p>'+
+        '<p>A: Depending on the type of tag being used, the maximum range of the reader is 25 feet.</p><br>'+ '<p>Q: What’s that beep I keep hearing?</p>'+
+        '<p>A: The beeps refer to the reader registering when a runner bases the system.</p><br>'+ '<p>Q: Why does the battery light indicator change colors? What do these colors mean?</p>'+
+        '<p>A: Four lights (full charge), three lights (mostly charged), two lights (needs charging), one light (charge immediately)</p><br>'+ '<p>Q: How do I charge the battery?</p>'+
+        '<p>A: The battery can be charged using the provided cord, which attaches to the box and any standard power outlet. Use only the provided charger.</p><br>'+ '<p>Q: How do I know when it’s time to charge the battery?</p>'+
+        '<p>A: The battery light indicator alerts you when it is time to charge the battery. If you see one or two lights it is time to charge the battery.</p><br>'+ '<p>Q: Which way is up? How do I orient the box?</p>'+
+        '<p>A: Place the box with the handle up and the TRAC logo facing the area you are trying to register.</p><br>'+ '<p>Q:  Why does it come with a tripod?</p>'+
+        '<p>A: It is ideal to place the reader on a tripod when the runners are wearing tags on their chest. This helps the system obtain the best splits. If using foot tags, the system will still operate on the ground, but will perform optimally when placed on the tripod. </p><br>'+ '<p>Q: Do I have to use it with a tripod?</p>'+
+        '<p>A: You do not have to use it with a tripod. However it is encouraged to achieve the best results.</p><br>'+ '<p>Q: Does the system work with any type of bib tag?</p>'+
+        '<p>A: Yes, however, for optimal performance, we recommend using tags provided by TRAC.</p><br>'+ '<p>Q: The box is putting off heat, should I be concerned?</p>'+
+        '<p>A: All electronics equipment puts off heat. There is nothing to be worried about.</p><br>'+ '<p>Q: Does the system work outside? In inclement weather?</p>'+
+        '<p>A: Yes, the system is weatherproof and waterproof. It is not submersible in water.</p><br>'+ '<p>Q: How do I create a workout?</p>'+
+        '<p>A: See the tutorials page for more details on how to create a workout.</p><br>'+ '<p>Q: What does the filter do?</p>'+
+        '<p>A: The filter will try not include any splits in a workout that are less than a standard value, such as times from repetitively walking around the reader in less than 10 second intervals. </p><br>'+ '<p>Q: What do the start, stop, & go buttons do?</p>'+
+        '<p>A: See the tutorial for details on these buttons.</p><br>'+ '<p>Q: What does the private setting do?</p>'+
+        '<p>A: The private setting allows only certain people to view a runner’s times. If set to “false,” the workout will be publically viewable through the external live splits page. </p><br>'+ '<p>Q: How often do the results update?</p>'+
+        '<p>A: The results update every five seconds on every platform.</p><br>'+ '<p>Q: Do the final results update?</p>'+
+        '<p>A: The final results only update when you select them from the select dropdowns. To refresh them, re-select the desired criteria.</p><br>'+ '<p>Q: How do I add a reader?</p>'+
+        '<p>A: See the tutorial on readers for details. </p><br>'+ '<p>Q: If I want to use another coaches reader in a race, how do I set that up?</p>'+
+        '<p>A: To register another coach\'s reader, the prefered method is to register it through the CSV file on the “Race Management” page. This will one time register the reader to the workout, however you will also need to register your own readers to this workout.</p><br>'+ '<p>Q: How many readers should I use in a workout?</p>'+
+        '<p>A: One reader should be sufficient for a basic workout. However if you are trying to measure additional splits at various intervals, a reader would be necessary for each of these locations.</p><br>'+ '<p>Q: How many people can be in a workout/race?</p>'+
+        '<p>A: The reader has the capability to register as many racers as desired. However there may be costs for additional data usage if the race is particularly large.</p><br>'+ '<p>Q: How does the CSV file work?</p>'+
+        '<p>A: The CSV file is a quick and efficient way to create workouts and add athletes. It is best suited for races. See the tutorial for more details on uploading CSV files. </p><br>'+ '<p>Q: How do I access my times?</p>'+
+        '<p>A: There are several ways to access your times in both real time and after the race or workout is over. On the website, navigate to “Live Results,” use the workout menu to select your session and use the four tabs to see live splits, graphs, and filtered results. On mobile, log into your account and select your workout to see live splits.</p><br>'+ '<p>Q: How do I export my times to an excel spreadsheet?</p>'+
+        '<p>A: On the website, log in and go to “Live Results.” Use the workout menu to select the session and click the “Download” button at the bottom of the page. All of the times will be populated into a spreadsheet automatically.</p><br>'+ '<p>Q: Can the system be used for other types of races?</p>'+
+        '<p>A: The system can be a replacement for any type of race or workout that would be traditionally timed by stopwatch.</p><br>'+ '<p>Q: Can you rent systems?</p>'+
+        '<p>A: Yes, we have an rental plans for both individual meets and seasons. Send us an email for more information.</p><br>'+'<p>Q: My box seems to be broken. How can I get it repaired or replaced?</p>'+'<p>A: Please contact us for specific technical issues.</p><br>'+ 
+         '<p>Q: I lost/damaged my tag. Can I get a replacement?</p>'+
+        '<p>A: Yes, we can send you a replacement tag. We can’t do anything to fix a damaged tag, but we can send you a new one. </p><br>'+ '<p>Q: My times don’t appear on the app/website. How can I fix this?</p>'+
+        '<p>A: There are a few possible reasons why a tag might not be showing up. First check that the tag has been registered and assigned to a user. Second, check that the workout is set up to receive times from that tag. Finally, make sure that the tag is being worn correctly on the shoe or bib and is coming within range of the reader.</p><br>'+ '<p>Q: Does the system come with a warranty?</p>'+
+        '<p>A: The system comes with a six month warranty. An additional year warranty can be purchased if desired. </p><br>'
+        
+        
     );
     
   }
@@ -241,18 +278,23 @@ if(page==7){
         '<div id="paragraph"></div>'
     );
     $('#paragraph').append(
-        '<p>Login and navigate to your workout using the calendar view. Use the search icon at the top to find a specific workout. The "+" sign allows you to create workouts on the go using pre-set default settings. After you select a workout, the live page updates every five seconds. Select the settings page for race management type features. </p>'
+        '<p>Login and navigate to your workout using the calendar view. Use the search icon at the top to find a specific workout. The "+" sign allows you to create workouts on the go using pre-set default settings. After you select a workout, the "Live" page updates every five seconds. The "Summary" page displays a summary of every split for every runner in the workout. Pull the screen down to refresh the data. Select the "Settings" page for race management type features: "Calibrate Workout," "Go!, "Stop Workout," and "Reset Workout." These same features are available on the website, except for the "Reset" Button which will delete all athletes in the workout.</p>'
     );
     $('#subheader2').append(
         '<h3 style="text-align: left;">Android</h3>' +
         '<div id="paragraph2"></div>'
     );
     $('#paragraph2').append(
-        '<p>Login and navigate to your workout using the calendar view. To create a workout on the go, click on the expand icon, and select "Create Workout." After you select a workout, the live page updates every five seconds. Select the settings page for race management type features. </p>'
+        '<p>Login and navigate to your workout using the calendar view. To create a workout on the go, click on the expand icon, and select "Create Workout." After you select a workout, the "Live" page updates every five seconds. The "Summary" page displays a summary of every split for every runner in the workout. Pull the screen down to refresh the data. Select the "Settings" page for race management type features: "Calibrate Workout," "Go!, "Stop Workout," and "Reset Workout." These same features are available on the website, except for the "Reset" Button which will delete all athletes in the workout. </p>'
     );
   }
-
+    $('body').on('click', '.question', function(e) {
+        e.preventDefault();
+        e.run();
+        window.scrollY+=60;
+    });
 });
+
 </script>
 <div class="container fluid content">
     <div class="content" id="content">
