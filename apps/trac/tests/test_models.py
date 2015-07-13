@@ -142,68 +142,6 @@ class TimingSessionTest(TestCase):
         self.assertEqual(res[0], total_times[1]-total_times[0])
         self.assertEqual(res[1], total_times[2]-total_times[1])
 
-    def test_team_results(self):
-        """
-        Test that team scores are calculated correctly.
-        """
-        # Create two teams.
-        team_a = Group.objects.create(name='Team A')
-        team_b = Group.objects.create(name='Team B')
-
-        # Create users and assign tags for two teams.
-        a1 = User.objects.create(username='Runner1A')
-        ta1 = Tag.objects.create(id_str='A001', user=a1)
-        a1.groups.add(team_a.pk)
-        a2 = User.objects.create(username='Runner2A')
-        ta2 = Tag.objects.create(id_str='A002', user=a2)
-        a2.groups.add(team_a.pk)
-        a3 = User.objects.create(username='Runner3A')
-        ta3 = Tag.objects.create(id_str='A003', user=a3)
-        a3.groups.add(team_a.pk)
-        a4 = User.objects.create(username='Runner4A')
-        ta4 = Tag.objects.create(id_str='A004', user=a4)
-        a4.groups.add(team_a.pk)
-        a5 = User.objects.create(username='Runner5A')
-        ta5 = Tag.objects.create(id_str='A005', user=a5)
-        a5.groups.add(team_a.pk)
-
-        b1 = User.objects.create(username='Runner1B')
-        tb1 = Tag.objects.create(id_str='B001', user=b1)
-        b1.groups.add(team_b.pk)
-        b2 = User.objects.create(username='Runner2B')
-        tb2 = Tag.objects.create(id_str='B002', user=b2)
-        b2.groups.add(team_b.pk)
-        b3 = User.objects.create(username='Runner3B')
-        tb3 = Tag.objects.create(id_str='B003', user=b3)
-        b3.groups.add(team_b.pk)
-        b4 = User.objects.create(username='Runner4B')
-        tb4 = Tag.objects.create(id_str='B004', user=b4)
-        b4.groups.add(team_b.pk)
-        b5 = User.objects.create(username='Runner5B')
-        tb5 = Tag.objects.create(id_str='B005', user=b5)
-        b5.groups.add(team_b.pk)
-        
-        # Add results to the session.
-        self.ts._overwrite_final_time(ta1.id, 0, 14, 35, 0)
-        self.ts._overwrite_final_time(tb1.id, 0, 14, 41, 0)
-        self.ts._overwrite_final_time(ta2.id, 0, 14, 44, 0)
-        self.ts._overwrite_final_time(ta3.id, 0, 14, 50, 0)
-        self.ts._overwrite_final_time(tb2.id, 0, 14, 54, 0)
-        self.ts._overwrite_final_time(tb3.id, 0, 15, 00, 0)
-        self.ts._overwrite_final_time(ta4.id, 0, 15, 10, 0)
-        self.ts._overwrite_final_time(tb4.id, 0, 15, 15, 0)
-        self.ts._overwrite_final_time(tb5.id, 0, 15, 17, 0)
-        self.ts._overwrite_final_time(ta5.id, 0, 15, 23, 0)
-
-        # Calculate the final score and check the accuracy.
-        res = self.ts.get_team_results(num_scorers=5)
-        res_a = [a for a in res if a['name']=='Team A'][0]
-        res_b = [a for a in res if a['name']=='Team B'][0]
-        self.assertEqual(res_a['place'], 1)
-        self.assertEqual(res_b['place'], 2)
-        self.assertEqual(res_a['score'], 25)
-        self.assertEqual(res_b['score'], 30)
-
     def test_archive(self):
         """
         Test the functionality of archiving tags and names.
