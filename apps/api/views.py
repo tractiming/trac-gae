@@ -8,6 +8,8 @@ from django.db.models import Q
 from django.db import IntegrityError
 from django.utils import timezone
 from django.core.cache import cache
+from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
 
 from rest_framework import viewsets, permissions, renderers, status, serializers, views
 from rest_framework.response import Response
@@ -15,6 +17,7 @@ from rest_framework.decorators import link, api_view, permission_classes, detail
 from rest_framework.parsers import MultiPartParser, FormParser
 
 from provider.oauth2.models import Client, AccessToken
+
 
 from serializers import (UserSerializer, RegistrationSerializer, TagSerializer, 
                          TimingSessionSerializer, ReaderSerializer, CoachSerializer,
@@ -628,7 +631,12 @@ def WorkoutTags(request):
                     tag.user = user
                     tag.save()
                 except ObjectDoesNotExist:
-                    tag = Tag.objects.create(id_str=request.POST.get('id_str'), user=user)
+                    try:
+                        tag = Tag.objects.get(user = user)
+                        tag.id_str = request.POST.get('id_str')
+                        tag.save()
+                    except ObjectDoesNotExist:
+                        tag = Tag.objects.create(id_str=request.POST.get('id_str'), user=user)
                 ts.registered_tags.add(tag.pk)
                 ts.save()
                 return HttpResponse(status.HTTP_200_OK)
@@ -643,8 +651,13 @@ def ManyDefaultTags(request):
         data = json.loads(request.body)
         for athlete in data['athletes']:
             atl = User.objects.get(username=athlete['username'])
-            tag = Tag.objects.get(user=atl)
             ts = TimingSession.objects.get(id=data['id'])
+            try:
+                tag = Tag.objects.get(user = atl)
+            except:
+                tag = Tag.objects.create(user = atl)
+                tag.id_str = 'edit tag'
+            tag.save()
             ts.registered_tags.add(tag.pk)
         ts.save()
         return HttpResponse(status.HTTP_200_OK)
@@ -671,7 +684,12 @@ def edit_athletes(request):
             cp = CoachProfile.objects.get(user = i_user)
             user, created = User.objects.get_or_create(username = request.POST.get('username'), first_name = request.POST.get('first_name'), last_name = request.POST.get('last_name'))
             atl, created = AthleteProfile.objects.get_or_create(user = user)
-            tag, created = Tag.objects.get_or_create(user = user, id_str = request.POST.get('id_str'))
+            #tag, created = Tag.objects.get_or_create(user = user, id_str = request.POST.get('id_str'))
+            try:
+                tag = Tag.objects.get(id_str = request.POST.get('id_str'))
+                tag.user = user
+            except ObjectDoesNotExist:
+                tag = Tag.objects.create(user = user, id_str = request.POST.get('id_str'))
             cp.athletes.add(atl.pk)
             tag.save()
             atl.save()
@@ -718,6 +736,29 @@ def IndividualTimes(request):
         final_array += temp_array
     final_array = final_array[::-1]
     return Response(final_array)
+
+@api_view(['POST'])
+@login_required()
+@permission_classes((permissions.IsAuthenticated,))
+def reset_password(request):
+    user = request.user
+    token = request.auth
+    if token.expires < timezone.now():
+            return Http404
+    if user.is_authenticated():
+        user.set_password(request.POST.get('password'))
+        user.save()
+    else:
+        return HttpResponse(status.HTTP_403_FORBIDDEN)
+    return HttpResponse(status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes((permissions.AllowAny,))
+def send_email(request):
+    email = request.POST.get('email')
+    user = User.objects.get(email = email)
+    send_mail('HelloWorld', 'HelloWorld', 'tracchicago@gmail.com', ['NicolaRhyan2016@u.northwestern.edu'], fail_silently=False)
+    return HttpResponse(status.HTTP_200_OK)
 
 ######################### Do we need these? ###########################
 #@api_view(['GET'])

@@ -36,6 +36,8 @@ urlpatterns = [
         url(r'^edit_athletes/$', views.edit_athletes),
         url(r'^edit_split/$', views.edit_split),
         url(r'^individual_splits/$', views.IndividualTimes),
+        url(r'^reset_password/$', views.reset_password),
+        url(r'^send_email/$', views.send_email),
         #url(r'^IndividualTimes/$', views.IndividualTimes.as_view()),
 
         # Endpoint for readers.
