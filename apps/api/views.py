@@ -396,6 +396,23 @@ def filtered_results(request):
     results = session.get_filtered_results(gender=g, age_range=age_range)
     return Response(results, status.HTTP_200_OK)
 
+@api_view(['GET'])
+@permission_classes((permissions.IsAuthenticated,))
+def team_results(request):
+    """
+    Return the team scores for a given session.
+    """
+    data = request.GET
+
+    # Get the session.
+    try:
+        session = TimingSession.objects.get(id=data['id'])
+    except ObjectDoesNotExist:
+        return HttpResponse(status.HTTP_404_NOT_FOUND)
+
+    team_results = session.get_team_results()
+    return Response(team_results, status.HTTP_200_OK)
+
 @csrf_exempt
 @api_view(['POST','GET'])
 @permission_classes((permissions.AllowAny,))
