@@ -13,6 +13,7 @@ google.setOnLoadCallback(function(){
 		var idArray = [],
 				currentID, currentView,												// used to identify current session and view
 				updateHandler, idleHandler,										// interval handlers
+				ajaxRequest,																	// used to keep track of current ajax request
 				spinner, opts, target, teamSpinners = {},			// spinner variables
 				currentTeamID, currentTeam,										// used in team results tab
 				calendarEvents,																// holds list of sessions formatted for fullcalendar
@@ -85,8 +86,11 @@ google.setOnLoadCallback(function(){
 		function update(idjson, view) {			
 			var last_url = '/api/sessions/'+ idjson;
 			
-			//start ajax request
-			$.ajax({
+			// abort current update and start new ajax request
+			if (ajaxRequest)
+				ajaxRequest.abort();
+
+			ajaxRequest = $.ajax({
 				url: last_url,
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'text',			//force to handle it as text
@@ -584,6 +588,7 @@ google.setOnLoadCallback(function(){
 							var splitRowsAll = $('table#splits-'+runnerID+' tbody tr')
 							if (splitRow.index() === splitRowsAll.length-1) {
 								var latestSplit = $('table#splits-'+runnerID+' tbody tr:nth-child('+(splitRowsAll.length-1)+')').find('td.split-time').html();
+								latestSplit = latestSplit || 'NT';
 								$('tr#results-'+runnerID+'>td#latest-split-'+runnerID).html(latestSplit);
 							}
 
@@ -793,6 +798,7 @@ google.setOnLoadCallback(function(){
 		//==================================== TEAM RESULTS VIEW ====================================
 
 		function drawTeam(){
+			$('.notification').hide();
 			$('#team-table-canvas').empty();
 			spinner.spin(target);
 			$.ajax({
@@ -801,6 +807,13 @@ google.setOnLoadCallback(function(){
 				dataType: 'text',
 				success: function(data) {
 					var results = $.parseJSON(data).results;
+
+					if (results == '') {
+						spinner.stop();
+						$('.notification.no-team-data').show();
+						$('#results-team').show();
+						return;
+					}
 
 					// create table header
 					$('#team-table-canvas').append(
@@ -1050,6 +1063,7 @@ google.setOnLoadCallback(function(){
 				$('.results-tab-content').hide();
 				$('#results-graph>#graph-canvas').empty();
 				$('#results-graph #graph-toggle-options').empty();
+				$('#download-container').hide();
 				currentID = idArray[indexClicked];
 				spinner.spin(target);
 				update(currentID, currentView);
