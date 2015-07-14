@@ -388,7 +388,7 @@ $("body").on('click', 'tr',function(){
 	      $.ajax({
            type: "DELETE",
            dataType:'json',
-           url: "/api/time_create/"+id,
+           url: "/api/sessions/"+id,
 	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
          
            // Login was successful.
@@ -465,7 +465,7 @@ $("body").on('click', 'tr',function(){
 	      $.ajax({
            type: "POST",
            dataType:'json',
-           url: "/api/sessions/",
+           url: "/api/time_create/",
 	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
 	   data: {
 	   		   id: id,
