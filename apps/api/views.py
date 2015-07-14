@@ -10,6 +10,8 @@ from django.utils import timezone
 from django.core.cache import cache
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
+from django.core import serializers
+from django.core.serializers import serialize
 
 from rest_framework import viewsets, permissions, renderers, status, serializers, views
 from rest_framework.response import Response
@@ -31,6 +33,8 @@ from util import create_split
 import json
 import ast
 import dateutil.parser
+import uuid
+import hashlib
 
 class verifyLogin(views.APIView):
 	permission_classes = ()
@@ -471,6 +475,26 @@ def edit_split(request):
 
     return HttpResponse(status.HTTP_202_ACCEPTED)
 
+@api_view(['GET'])
+@permission_classes((permissions.AllowAny,))
+def get_sessions_with_paginated_results(request):
+    wid = int(request.GET.get('id'))
+    begin = int(request.GET.get('i1'))
+    stop = int(request.GET.get('i2'))
+    user = request.user
+
+    if is_coach(user):
+        ts = TimingSession.objects.filter(manager=user)
+    else:
+        ts = TimingSession.objects.filter(private='false')
+    new_ts = []
+    for row in ts:
+        if row.id == wid:
+            run = row.get_results(m=begin, n=stop).get('runners')
+            for r in run:
+                temp_ts = {'id': row.id, 'name': row.name, 'runners': r}
+                new_ts.append(temp_ts)
+    return Response(new_ts, status.HTTP_200_OK)
 #pagination endpoint
 @api_view(['GET'])
 @permission_classes((permissions.AllowAny,))
@@ -755,28 +779,37 @@ def IndividualTimes(request):
     return Response(final_array)
 
 @api_view(['POST'])
-@login_required()
-@permission_classes((permissions.IsAuthenticated,))
+#@login_required()
+@permission_classes((permissions.AllowAny,))
 def reset_password(request):
-    user = request.user
-    token = request.auth
-    if token.expires < timezone.now():
-            return Http404
-    if user.is_authenticated():
-        user.set_password(request.POST.get('password'))
-        user.save()
-    else:
-        return HttpResponse(status.HTTP_403_FORBIDDEN)
+    print 'a'
+    user = User.objects.get(password = request.POST.get('token'))
+    #token = request.auth
+    #if token.expires < timezone.now():
+            #return Http404
+    #if user.is_authenticated():
+    user.set_password(request.POST.get('password'))
+    user.save()
+    #else:
+        #return HttpResponse(status.HTTP_403_FORBIDDEN)
     return HttpResponse(status.HTTP_200_OK)
 
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))
 def send_email(request):
-    email = request.POST.get('email')
-    user = User.objects.get(email = email)
-    send_mail('HelloWorld', 'HelloWorld', 'tracchicago@gmail.com', ['NicolaRhyan2016@u.northwestern.edu'], fail_silently=False)
+    #email = request.POST.get('email')
+    user = User.objects.get(id = 1)
+    random = str(uuid.uuid4())
+    random = hashlib.sha256(random).hexdigest()
+    user.password = random
+    print user.accesstoken_set.all()
+    c = {
+        'email': "Joon.975.711@gmail.com",
+        'domain': request.META['HTTP_HOST']
+    }
+    url = '127.0.0.1:8000/UserSettings/' + user.password + '/' + user.accesstoken_set.all().latest() + '/'
+    send_mail('HelloWorld', url, 'tracchicago@gmail.com', ['Joon.975.711@gmail.com'], fail_silently=False)
     return HttpResponse(status.HTTP_200_OK)
-
 ######################### Do we need these? ###########################
 #@api_view(['GET'])
 #@permission_classes((permissions.AllowAny,))

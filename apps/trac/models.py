@@ -212,7 +212,7 @@ class TimingSession(models.Model):
         else:
             return tag.uname
                 
-    def calc_results(self, tag_ids=None, read_cache=False, save_cache=False):
+    def calc_results(self, tag_ids=None, read_cache=False, save_cache=False, m=0, n=1):
         """
         Calculates the raw results (user_id, user_name, team_name, splits,
         cumul_time). Can optionally filter by passing a list of tag ids to use.
@@ -232,7 +232,7 @@ class TimingSession(models.Model):
         if not results:
 
             results = []
-            for tag_id in tag_ids:
+            for tag_id in tag_ids[m:n]:
 
                 # Get the name of the tag's owner.
                 name = self.get_tag_name(tag_id)
@@ -256,8 +256,7 @@ class TimingSession(models.Model):
 
             # Save to the cache.
             if save_cache:
-                cache.set(('ts_%i_results' %self.id), results)    
-
+                cache.set(('ts_%i_results' %self.id), results)   
         return results
 
     def get_team_results(self, num_scorers=5):
@@ -308,10 +307,9 @@ class TimingSession(models.Model):
                                  'time': res[i][4] } for i in range(len(res))]}
         return res_dict
 
-    def get_results(self, force_update=False, sort=False):
+    def get_results(self, force_update=False, sort=False, m=0, n=1):
         """Get full results, formatted for mobile."""
-        results = self.calc_results(read_cache=(not force_update), save_cache=True)
-
+        results = self.calc_results(read_cache=(not force_update), save_cache=True, m=m, n=n)
         if sort:
             results = sorted(sorted(results, key=lambda x: x[4]), reverse=True,
                     key=lambda x: len(x[3]))
