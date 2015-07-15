@@ -467,11 +467,11 @@ def edit_split(request):
     tag = Tag.objects.filter(user_id=int(data['user_id']), id__in=all_tags)
     
     if data['action'] == 'edit':
-        ts._edit_split(tag.id, int(data['indx']), float(data['val']))
+        ts._edit_split(tag[0].id, int(data['indx']), float(data['val']))
     elif data['action'] == 'insert':
-        ts._insert_split(tag.id, int(data['indx']), float(data['val']))
+        ts._insert_split(tag[0].id, int(data['indx']), float(data['val']))
     elif data['action'] == 'delete':
-        ts._delete_split(tag.id, int(data['indx']))
+        ts._delete_split(tag[0].id, int(data['indx']))
     else:
 		return HttpResponse(status.HTTP_404_NOT_FOUND)
 

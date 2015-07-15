@@ -65,8 +65,28 @@ tr.splits {
 		background-color: inherit !important; }
 	tr.splits>td {
 		padding: 0 !important; 
-		border-style: none !important;
-}
+		border-style: none !important; }
+		tr.splits table td {
+			vertical-align: middle !important; }
+			tr.splits table td.split-time { }
+				tr.splits table td.split-time input {
+					width: 90px;
+					margin: 0 auto; }
+			tr.splits table td.split-edit-options {
+				width: 200px; }
+				tr.splits table td.split-edit-options .modify-splits {
+					display: table;
+					margin: 0 auto; }
+					tr.splits table td.split-edit-options .modify-splits>div {
+						float: left; }
+					tr.splits table td.split-edit-options .modify-splits span.glyphicon {
+						margin-right: 10px }
+					tr.splits table td.split-edit-options .modify-splits div.insert-split span.glyphicon:hover {
+						color: #3c763d; }
+					tr.splits table td.split-edit-options .modify-splits div.edit-split span.glyphicon:hover {
+						color: #f0b922; }
+					tr.splits table td.split-edit-options .modify-splits div.delete-split span.glyphicon:hover {
+						color: #d9534f; }
 
 tr.team-runners { 
 	color: #888;
