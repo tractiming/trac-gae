@@ -4,30 +4,13 @@
 
 {% block stylesheets %}
 <link rel="stylesheet" href="{% static "css/new/main.css" %}" />
-<link rel="stylesheet" href="{% static "css/new/score.css" %}" />
 <link rel="stylesheet" href="{% static "css/new/create.css" %}" />
 {% endblock %}
 
 {% block js_scripts %}
-<script type="text/javascript" src="{% static "js/timeConversion.js" %}" />
+<script type="text/javascript" src="{% static "js/timeConversion.js" %}"></script>
 <script type="text/javascript" src="{% static "js/access_token.js" %}"></script>
-<script>
-if (sessionStorage.access_token == null) {
-    //link to login page
-    location.href="/login";
-}
-else{
-    
-}
-
-    $(document).ready(function() {
-$("li a.logout").click(function(){
-    sessionStorage.clear();
-    location.href="/login";
-});
-    });
-
-</script>
+<script type="text/javascript" src="{% static "js/new/create.js" %}"></script>
 {% endblock %}
 
 {% block nav-items %}
@@ -53,473 +36,31 @@ $("li a.logout").click(function(){
 {% endblock %}
 
 {% block content %}
-
-<script>
-	var mostInstance= 0;
-	var instanceFirst = 1;
-	var instanceLast = 11;
-	if (sessionStorage.usertype == 'athlete'){
-			    location.href="/home.html";
-		}
-
-</script>
-<script>
-  //step by step jquery plugin that explains each box of form
-	jQuery(document).ready(function($) {
-
-
-		/*$("#myform").progression({
-		  tooltipWidth: '200',
-		  tooltipPosition: 'left',
-		  tooltipOffset: '50',
-		  showProgressBar: false,
-		  showHelper: true,
-		  tooltipFontSize: '15',
-		  tooltipFontColor: 'fff',
-		  progressBarBackground: 'fff',
-		  progressBarColor: '6EA5E1',
-		  tooltipBackgroundColor:'F0B922',
-		  tooltipPadding: '10',
-		  tooltipAnimate: true
-		}); */
-
-	});
-
-	</script>
 	<script>
-$(document).ready(function() {
-	$(".modal-animate").show();
-	var opts = {
-		lines: 13, 							// The number of lines to draw
-	  length: 28, 						// The length of each line
-		width: 14, 							// The line thickness
-		radius: 42, 						// The radius of the inner circle
-		scale: 0.3, 						// Scales overall size of the Spinner
-		corners: 1, 						// Corner roundness (0..1)
-		color: '#3577a8', 			// #rgb or #rrggbb or array of colors
-		opacity: 0.25, 					// Opacity of the lines
-		rotate: 0, 							// The rotation offset
-		direction: 1, 					// 1: clockwise, -1: counterclockwise
-		speed: 1, 							// Rounds per second
-		trail: 60, 							// Afterglow percentage
-		fps: 20, 								// Frames per second when using setTimeout() as a fallback for CSS
-		zIndex: 1,	 						// The z-index (defaults to 2000000000)
-		className: 'spinner', 	// The CSS class to assign to the spinner
-		top: '50%', 						// Top position relative to parent
-		left: '50%', 						// Left position relative to parent
-		shadow: false, 					// Whether to render a shadow
-		hwaccel: false, 				// Whether to use hardware acceleration
-		position: 'absolute'	 	// Element positioning
-	}
-	var target = document.getElementById('spinner');
-	var spinner = new Spinner(opts);
-		loadworkouts();
-
-      //on submit prevent default of form and show spinner,
-        $("input#save").click( function(e){
-            e.preventDefault();
-	    $(".modal-animate").show();
-            var form = $(this);
-	    //validate that form is correclty filled out
-           
-
-	    //if valid perform ajax request
-	    
-            
-	             var title=$('input[id=title]').val();
-		      var start_date=$('input[id=start_date]').val();
-		     var end_date=$('input[id=end_date]').val();
-		     var distance=$('input[id=distance]').val();
-		      var size=$('input[id=size]').val();
-		     var filter=$('#filter option:selected').val();
-		     var privateselect=$('#private option:selected').val();
-		     var sT = local2UTC(start_date);
-		     var eT = local2UTC(end_date);
-	      $.ajax({
-           type: "POST",
-           dataType:'json',
-           url: "/api/time_create/",
-	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
-           data: {
-               id: 0,
-               name: title,
-               start_time: sT,
-               stop_time: eT,
-               rest_time: '0',
-               track_size: size,
-               interval_distance: distance,
-               interval_number:'0',
-               filter_choice:filter,
-               private:privateselect,
-           }, 
-
-           // Login was successful.
-           success: function(data) {
-		    //hide spinner, success modal, and reset form
-		    $(".modal-animate").hide();
-		    $("div.notification.notification-critical").hide();
-		    $("div.notification.update-success").hide();
-		    $("div.notification.delete-success").hide();
-		    $("div.notification.notification-success").show();
-		    $("#myform")[0].reset();
-		    $(".outer").show();
-            $("div.notification.notification-default").hide();
-		    loadworkouts();
-                   
-           },
-
-           // Login request failed.
-           error: function(xhr, errmsg, err) {
-	    //hide spinner, show error modal
-	    $(".modal-animate").hide();
-	    $("div.notification.notification-success").hide();
-	     $("div.notification.update-success").hide();
-		    $("div.notification.delete-success").hide();
-               $("div.notification.notification-critical").show();
-           }
-           
-      });
-               
-            
-        });
-function loadworkouts(){
-	spinner.spin(target);
-			 $('#results').empty();
-		   $.ajax({
-             url: "/api/session_Pag/",
-		     headers: {Authorization: "Bearer " + sessionStorage.access_token},
-                    //force to handle it as text
-                    data: {
-                    	i1: instanceFirst,
-                    	i2: instanceLast,
-                    },
-                    dataType: "text",
-                    success: function(data) {
-                        //alert(data);
-                        //data downloaded so we call parseJSON function 
-                        //and pass downloaded data
-                        //console.log(data);
-                        var json = $.parseJSON(data);
-                       //alert(json[0].id_str)
-                       json = json.reverse();
-
-                       if (json == "") {
-			  $(".outer").hide();
-			  $(".modal-animate").hide();
-			  $('#results').empty();
-  		      $('button#next').hide();
-  		      $('button#prev').show();			  
-			    $("div.notification.notification-default").show();
-
-			}
-			// show name and date, dont show message, but show button
-			else {
-                       $(".outer").show();
-                        $("div.notification.notification-default").hide();
-                        $('#results').append(
-                        '<table id="results-table" class="table table-striped table-hover">' +
-                        	'<thead>' +
-			    				'<tr>' +
-			    				'<th class="hidden-xs hidden-sm hidden-md hidden-lg">id</th>'+
-			    					'<th>Workout Name</th>'+
-			    					'<th>Start Date</th>'+
-			    					'<th class="hidden-xs hidden-sm">End Date</th>'+
-			    					'<th class="hidden-xs hidden-sm">Distance</th>'+
-			    					'<th class="hidden-xs hidden-sm">Track</th>'+
-			    					'<th>Filtered</th>'+
-			    					'<th class="hidden-xs hidden-sm">Private</th>'+
-			    				'</tr>'+
-			    			'</thead>'+
-			    			'<tbody>'+
-			    			'</tbody>'+
-			    		'</tbody>');
-			    		$('#results').addClass('col-md-6 col-md-offset-0 colr-sm-8 col-sm-offset-0');
-			    		var maximum = 0;
-                       for (var ii=0; ii < json.length;ii++){
-						   //alert(ii);
-						   if (ii > maximum){
-						   	maximum = ii;
-						   }
-						   id = json[ii].id;
-						   name = json[ii].name;
-						   distance = json[ii].interval_distance;
-						   track = json[ii].track_size;
-						  // time = time.slice(0,10);
-						   filter= json[ii].filter_choice;
-						   privateselect = json [ii].private;
-						   var sTS = UTC2local(json[ii].start_time);
-						   sTS = sTS.substring(0, 25);
-						   var sTE = UTC2local(json[ii].stop_time);
-						   sTE = sTE.substring(0,25);
-			    			$('#results tbody').append(
-			    				'<tr>'+
-			    				'<td class="hidden-xs hidden-sm hidden-md hidden-lg">' + id + '</td>' +
-			    					'<td>'+name+'</td>'+
-			    					'<td>'+sTS+'</td>'+
-			    					'<td class="hidden-xs hidden-sm">'+sTE+'</td>'+
-			    					'<td class="hidden-xs hidden-sm">'+distance+'</td>'+
-			    					'<td class="hidden-xs hidden-sm">'+track+'</td>'+
-			    					'<td>'+filter+'</td>'+
-			    					'<td class="hidden-xs hidden-sm">'+privateselect+'</td>'+
-			    				'</tr>');
-						   }
-						   if (maximum < 8){
-						   	$('button#next').hide();
-						   }
-						   else{
-						   	$('button#next').show();
-						   }
-						   if (instanceFirst == 1){
-						   	$('button#prev').hide();
-						   }
-						   else{
-						   	$('button#prev').show();
-						   }
-					   }
-
-			}
-			
-			
-			
-                    });
-spinner.stop();
-		   
-}
-	  
-$("body").on('click', 'tr',function(){
-	//alert($(this).html());
-	$('#myModal').modal('toggle');
-	var value = $(this).html();
-	$("button#delete").show();
-	$("input#update").show();
-	$("div.button-container-two").show();
-	$("input#create").show();
-	$("p#idnumber").show();
-	$("input#save").hide();
-	$(value).each(function(index){
-		//alert( $(this).html() );
-		if (index ==0)
-		{
-			var input =$('input#idnumber');
-			input.val($(this).html() );
-		}
-		else if (index ==1)
-		{
-			var input =$('input#title');
-			input.val($(this).html() );
-			}
-		else if (index ==2)
-		{
-			var input =$('input#start_date');
-			var format = new Date($(this).html());
-			format = format.toISOString();
-			format = localISOString(format);
-			format = format.replace(/T/g,' ');
-			format = format.substring(0,19);
-			format = format.replace(/;/g, ':');
-			input.val(format);
-			}
-			else if (index ==3)
-		{
-			var input =$('input#end_date');
-			var format = new Date($(this).html());
-			format = format.toISOString();
-			format = localISOString(format);
-			format = format.replace(/T/g,' ');
-			format = format.substring(0,19);
-			format = format.replace(/;/g, ':');
-			input.val(format);
-			}
-		else if (index ==4){
-			var input =$('input#distance');
-	input.val($(this).html() );
-	}
-		else if (index ==5){
-			var input =$('input#size');
-	input.val($(this).html() );}
-	
-	else if (index ==6){
-			var input =$('select#filter');
-	input.val($(this).html() );}
-	else if (index ==7){
-			var input =$('select#private');
-	input.val($(this).html() );}
-
-	});
-	
-	
-
-	
-	
-	});
-	
-	$("body").on('click', 'button#create', function(e){
-	//alert($(this).html());
-	  e.preventDefault();
-	  $("#myform")[0].reset();
-	var value = $(this).html();
-	$("button#delete").hide();
-	$("input#update").hide();
-	$("input#save").show();
-	$("p#idnumber").hide();
-	//$("input#create").hide();
-
-	});
-
-	$("button#delete").off('click');
-	$("body").on('click', 'button#delete', function(f){
-	//alert($(this).html());
-	  f.preventDefault();
-	  $("div.notification.notification-warning").show();
-	  $("div.notification.notification-critical").hide();
-	  $("div.notification.notification-critical").hide();
-	  $("div.notification.notification-success").hide();
-	  $("div.notification.update-success").hide();
-	});
-	  
-	$("body").on('click', 'button#warning-yes', function(event){
-	var value = $(this).html();
-	 $(".modal-animate").show();
-	  
-	 var id=$('input[id=idnumber]').val();
-	//alert(id);
-	
-		//alert(filter);
-	      $.ajax({
-           type: "DELETE",
-           dataType:'json',
-           url: "/api/time_create/"+id,
-	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
-         
-           // Login was successful.
-           success: function(data) {
-		    //hide spinner, success modal, and reset form
-		    $(".modal-animate").hide();
-		    $("div.notification.notification-critical").hide();
-		    $("div.notification.notification-success").hide();
-		     $("div.notification.update-success").hide();
-		    $("div.notification.delete-success").show();
-		     $("div.notification.notification-warning").hide();
-		    $("#myform")[0].reset();
-		    	$("button#delete").hide();
-	$("input#update").hide();
-	$("input#save").show();
-	$("p#idnumber").hide();
-	//$("input#create").hide();
-	$("#results").empty();
-		    loadworkouts();     
-           },
-
-           // Login request failed.
-           error: function(xhr, errmsg, err) {
-	    //hide spinner, show error modal
-	    $(".modal-animate").hide();
-	    $("div.notification.notification-success").hide();
-	     $("div.notification.notification-warning").hide();
-	      $("div.notification.update-success").hide();
-		    $("div.notification.delete-success").hide();
-               $("div.notification.notification-critical").show();
-           }
-           
-      });
-});
-		$("button#warning-no").click(function(event){
-		$(".modal-animate").hide();
-	    $("div.notification.notification-success").hide();
-	    $("div.notification.notification-warning").hide();
-	 });
+	  //step by step jquery plugin that explains each box of form
+		jQuery(document).ready(function($) {
 
 
-		$("body").on('hidden.bs.modal', '#notificationModal', function(){
-			$("div.notification.delete-success").hide();
-			$("div.notification.notification-warning").hide();
+			/*$("#myform").progression({
+			  tooltipWidth: '200',
+			  tooltipPosition: 'left',
+			  tooltipOffset: '50',
+			  showProgressBar: false,
+			  showHelper: true,
+			  tooltipFontSize: '15',
+			  tooltipFontColor: 'fff',
+			  progressBarBackground: 'fff',
+			  progressBarColor: '6EA5E1',
+			  tooltipBackgroundColor:'F0B922',
+			  tooltipPadding: '10',
+			  tooltipAnimate: true
+			}); */
+
 		});
-		$("body").on('click', 'button#prev',function(f){
-			if(instanceFirst != 1){
-				instanceFirst -= 10;
-				instanceLast -= 10;
-			}
-			loadworkouts();
-		});
-		$("body").on('click', 'button#next',function(f){
-			instanceFirst += 10;
-			instanceLast += 10;
-			loadworkouts();
-		});
-		$("body").on('click', 'input#update',function(f){
-	//alert($(this).html());
-	  f.preventDefault();
-	   $(".modal-animate").show();
-	 var id=$('input[id=idnumber]').val();
-	 var title=$('input[id=title]').val();
-		      var start_date=$('input[id=start_date]').val();
-		     var end_date=$('input[id=end_date]').val();
-		     var distance=$('input[id=distance]').val();
-		      var size=$('input[id=size]').val();
-		     var filter=$('#filter option:selected').val();
-		     var privateselect=$('#private option:selected').val();
-		     var sT = local2UTC(start_date);
-		     var eT = local2UTC(end_date);
-	
-		//alert(filter);
-	      $.ajax({
-           type: "POST",
-           dataType:'json',
-           url: "/api/sessions/",
-	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
-	   data: {
-	   		   id: id,
-               name: title,
-               start_time: sT,
-               stop_time: eT,
-               rest_time: '0',
-               track_size: size,
-               interval_distance: distance,
-               interval_number:'0',
-               filter_choice:filter,
-               private:privateselect,
-               
-           },
 
-           // Login was successful.
-           success: function(data) {
-		    //hide spinner, success modal, and reset form
-		    $(".modal-animate").hide();
-		    $("div.notification.notification-critical").hide();
-		    $("div.notification.notification-success").hide();
-		    $("div.notification.delete-success").hide();
-		    $("div.notification.update-success").show();
-		    $("#myform")[0].reset();
-		    	$("button#delete").hide();
-	$("input#update").hide();
-	$("input#save").show();
-	$("p#idnumber").hide();
-	//$("input#create").hide();
-		    loadworkouts();
-                   
-           },
-
-           // Login request failed.
-           error: function(xhr, errmsg, err) {
-	    //hide spinner, show error modal
-	    $(".modal-animate").hide();
-	    $("div.notification.notification-success").hide();
-	     $("div.notification.notification-warning").hide();
-	      $("div.notification.update-success").hide();
-		    $("div.notification.delete-success").hide();
-               $("div.notification.notification-critical").show();
-           }
-           
-      });
-	
-	});
-
-
-    });
-	
 	</script>
 	
-  	<style>
+  <style>
 		#myform{
 			width:300px;
 			margin: 0 auto;
@@ -531,125 +72,118 @@ $("body").on('click', 'tr',function(){
 			width:75%;
 		}
 	</style>
-    <div class="container-fluid">  
- </div>
- <div id="create" class="container">
- 	<div class="modal fade" id="notificationModal" role="dialog">
- 		<div class="modal-dialog">
- 			<div class ="modalcontent">
- 				<div class="modal-body">
- 					<div id="notifications">
-    					<div class="notification notification-critical" role="alert">Some information you entered isn't right.</div>
-						<div class="notification notification-success" role="alert">You have successfully created a workout!</div>
-						<div class="notification update-success" role="alert">You have successfully updated a workout!</div>
-						<div class="notification delete-success" role="alert">You have successfully deleted a workout!</div>
-						<div class="notification notification-warning" role="alert">Are you sure? <div id="screen-selector"><button href="#" type="button" id="warning-yes" class="btn btn-danger" style="color:#FFF;">Yes</button><button id="warning-no" href="#" type="button" style="float:right; color:#FFF;" data-dismiss="modal" data-toggle="modal" data-target="#myModal" class="btn btn-primary">Cancel</button></div></div>
+
+	<div id="create" class="container">
+		<div class="modal fade" id="notificationModal" role="dialog">
+			<div class="modal-dialog">
+				<div class ="modalcontent">
+					<div class="modal-body">
+						<div id="notifications">
+							<div class="notification notification-critical" role="alert">Some information you entered isn't right.</div>
+							<div class="notification notification-success" role="alert">You have successfully created a workout!</div>
+							<div class="notification update-success" role="alert">You have successfully updated a workout!</div>
+							<div class="notification delete-success" role="alert">You have successfully deleted a workout!</div>
+							<div class="notification notification-warning" role="alert">Are you sure? 
+								<div id="screen-selector">
+									<button href="#" type="button" id="warning-yes" class="btn btn-danger" style="color:#FFF;">Yes</button>
+									<button id="warning-no" href="#" type="button" style="float:right; color:#FFF;" data-dismiss="modal" data-toggle="modal" data-target="#myModal" class="btn btn-primary">Cancel</button>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-</div>
 
-   <div class="container">
- <div class="modal fade" id="myModal" role="dialog">
- 	<div class="modal-dialog">
- 	<div class="modal-content">
- 		<div class="modal-header">
- 		</div>
-    	<div class="modal-body">
-			<form name="tracform" id="myform" method="POST" data-parsley-validate>
-				<div class="button-container-two">
-		    	</div>
-		    	<p id="idnumber">
-		       
-		      	<input type="hidden" id="idnumber" value="" placeholder="" required data-parsley-group="block1" readonly/>
-		  	</p>
-		 	 <p>
-		     	 <label for="">Workout Title:</label> 
-		     	 <input data-progression="" type="text" id="title" value="" placeholder="" required data-parsley-group="block1" />
-		 	 </p>
-		   	<p>
-		   	   <label for="">Start Date:</label> 
-		   	   <input data-progression="" type="text" id="start_date" value="" placeholder="" required data-parsley-group="block1" />
-		 	 </p>
-		 	   <p>
-		  	    <label for="">End Date:</label> 
-		  	    <input data-progression="" type="text" id="end_date" value="" placeholder="" required data-parsley-group="block1"/>
-		  	</p>
-		  	   <p>
-		  	    <label for="">Interval Distance:</label> 
-		   	   <input data-progression="" type="text" id="distance" value="" placeholder=""/>
-		  	</p>
-		  	   <p>
-		  	    <label for="">Track Size:</label> 
-		   	   <input data-progression="" type="text" id="size" value="" placeholder=""/>
-		 	 </p>
-		     
-		    	 <p>
-		      
-		    	  <label>Filter Splits?</label>
-							<span>
-								<select id="filter">
-										<option value="true">Yes</option>
-										<option value="false">No</option>
-								</select>
-							</span>
-		    	 </p>
-		    	 <p>
-		      
-		    	  <label>Private?</label>
-							<span>
-								<select id="private">
-										<option value="true">Yes</option>
-										<option value="false">No</option>
-								</select>
-							</span>
-		   	  </p>
-		  	  <br>
-		     
-		          <div class="button-container modal-footer">
-			<button name="" class="btn btn-danger col-md-3 col-sm-3 col-xs-3" id="delete" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal" style="text-align: center;">Delete</button>
-		    <input type="submit" name="" class="btn btn-primary" id="save" value="Save" />
-		    <input type="submit" name="" class="btn btn-primary col-md-5 col-sm-5 col-xs-5" id="update" value="Update" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal" />
-	                         </div>
-	                         
-		</form>		
-		</div>				
-    </div>
-</div>
-</div>
-</div>
-    <div class= "container-fluid content">
-    <div id="container" class="container">
-    	<div class="row">
-     		<div align="right">
-     			<button type="button" class="btn btn-default" id="create" data-toggle="modal" data-target="#myModal">
-     				<span class="glyphicon glyphicon-plus" aria-hidden="true"> </span>
-     			</button>
-     		</div>
-     	</div>
-      <div class="row">
-      	<h1 id="score-title">Recent Workouts</h1>
-       <div id="results" class="table"></div>
-     	<button type="button" class="btn btn-default" id="prev">
-     				<span class="glyphicon glyphicon-triangle-left" aria-hidden="true"> </span>
-     			</button>
-     	<button type="button" class="btn btn-default" id="next">
-     				<span class="glyphicon glyphicon-triangle-right" aria-hidden="true"> </span>
-     			</button>
-       </div>
-       <div class="spinner-container" style="position:relative; top:50px;">
+	<div class="container">
+		<div class="modal fade" id="myModal" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+					</div>
+					<div class="modal-body">
+						<form name="tracform" id="myform" method="POST" data-parsley-validate>
+							<p id="idnumber">
+								<input type="hidden" id="idnumber" value="" placeholder="" required data-parsley-group="block1" readonly/>
+							</p>
+							<p>
+								<label for="">Workout Title:</label> 
+								<input data-progression="" type="text" id="title" value="" placeholder="" required data-parsley-group="block1" />
+							</p>
+							<p>
+								<label for="">Start Date:</label> 
+								<input data-progression="" type="text" id="start_date" value="" placeholder="" required data-parsley-group="block1" />
+							</p>
+							<p>
+								<label for="">End Date:</label> 
+								<input data-progression="" type="text" id="end_date" value="" placeholder="" required data-parsley-group="block1"/>
+							</p>
+							<p>
+								<label for="">Interval Distance:</label> 
+								<input data-progression="" type="text" id="distance" value="" placeholder=""/>
+							</p>
+							<p>
+								<label for="">Track Size:</label> 
+								<input data-progression="" type="text" id="size" value="" placeholder=""/>
+							</p>
+							<p>
+								<label>Filter Splits?</label>
+								<span>
+									<select id="filter">
+											<option value="true">Yes</option>
+											<option value="false">No</option>
+									</select>
+								</span>
+							</p>
+							<p>
+								<label>Private?</label>
+								<span>
+									<select id="private">
+											<option value="true">Yes</option>
+											<option value="false">No</option>
+									</select>
+								</span>
+							</p>
+							<br>
+
+							<div class="button-container modal-footer">
+								<button name="" class="btn btn-danger col-md-3 col-sm-3 col-xs-3" id="delete" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal" style="text-align: center;">Delete</button>
+								<input type="submit" name="" class="btn btn-primary" id="save" value="Save" />
+								<input type="submit" name="" class="btn btn-primary col-md-5 col-sm-5 col-xs-5" id="update" value="Update" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal" />
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class= "container-fluid content">
+		<div id="container" class="container">
+			<div class="row">
+				<div align="right">
+					<button type="button" class="btn btn-default" id="create" data-toggle="modal" data-target="#myModal">
+						<span class="glyphicon glyphicon-plus" aria-hidden="true"> </span>
+					</button>
+				</div>
+			</div>
+			<div class="row">
+				<h1 id="score-title">Recent Workouts</h1>
+				<div id="results" class="table"></div>
+				<button type="button" class="btn btn-default" id="prev">
+					<span class="glyphicon glyphicon-triangle-left" aria-hidden="true"> </span>
+				</button>
+				<button type="button" class="btn btn-default" id="next">
+					<span class="glyphicon glyphicon-triangle-right" aria-hidden="true"> </span>
+				</button>
+			</div>
+			<div class="spinner-container" style="position:relative; top:50px;">
 				<div id="spinner"></div>
 			</div>
-       </div>
-   </div>
-       <div id="notifications">
-        <div class="notification notification-default" role="alert">There are currently no workouts to show.</div>
-    </div>
-    {% endblock %} 
-    
-    
-    
-</html>
-
+		</div>
+	</div>
+	<div id="notifications">
+		<div class="notification notification-default" role="alert">There are currently no workouts to show.</div>
+	</div>
+{% endblock %}
