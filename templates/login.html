@@ -30,7 +30,6 @@ else{
 
 
 {% block content %}
-
 	<div id="content" class="container-fluid" style="background: url(&quot;{% static 'img/track.jpg' %}&quot;) no-repeat fixed center; background-size: cover;">
 		<div class="container">
 			<div class="row">
@@ -61,7 +60,28 @@ else{
 										<button type="submit" id="submit" class="btn btn-primary">Sign in</button>
 									</div>
 								</div>
+								<a href="#" id ="passwordlink">Forgot your Password?</a>
 							</form>
+							<div class="modal fade" id="pModal" role="dialog">
+    							<div class="modal-dialog">
+      								<div class ="modal-content">
+       									<div class="modal-body">
+											<form id="uform" style="margin: 2%;" method="post">
+												{% csrf_token %}
+												<div class="form-group">
+      												<label for="uname">Username</label>
+     	 											<input type="text" id="uname" class='form-control'>
+     	 										</div>
+     	 										<div class="form-group">
+      												<label for="uemail">Email</label>
+      												<input type="text" id="uemail" class="form-control">
+      											</div>
+      											<button type="submit" id="edit-submit" class="btn btn-primary" style="margin-right:10px;">Submit</button>
+											</form>
+										</div>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>

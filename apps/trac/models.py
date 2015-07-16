@@ -255,8 +255,7 @@ class TimingSession(models.Model):
 
             # Save to the cache.
             if save_cache:
-                cache.set(('ts_%i_results' %self.id), results)    
-
+                cache.set(('ts_%i_results' %self.id), results)   
         return results
 
     def get_team_results(self, num_scorers=5):
@@ -311,7 +310,6 @@ class TimingSession(models.Model):
     def get_results(self, force_update=False, sort=False):
         """Get full results, formatted for mobile."""
         results = self.calc_results(read_cache=(not force_update), save_cache=True)
-
         if sort:
             results = sorted(sorted(results, key=lambda x: x[4]), reverse=True,
                     key=lambda x: len(x[3]))

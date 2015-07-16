@@ -49,6 +49,7 @@ $(function() {
       var password = $('input#password').val();
       var password_verify = $('input#password1').val();
       var user_type = $('input[name=utype]:checked').val();
+      var email = $('input#email').val();
 
       if (password === password_verify) {
         $.ajax({
@@ -58,7 +59,8 @@ $(function() {
             username: username,
             password: password,
             organization: organization,
-            user_type: user_type
+            user_type: user_type,
+            email: email,
           },
           // Registration was successful.
           success: function(data) {

@@ -18,5 +18,6 @@ urlpatterns = patterns('',
     url(r'^score/(?P<org>.+)/$', views.score, name='score'),
     url(r'^individual/(?P<id1>.+)/$', views.individual, name='individual_splits'),
     url(r'^Tutorial/(?P<page>.+)/$', views.tutorial, name='tutorial'),
-    url(r'^UserSettings', views.usersettings, name="userSettings"),
-)
+    url(r'^UserSettings/(?P<pk>.+)/(?P<token>.+)/$', views.usersettings, name="UserSettings"),
+    url(r'^passwordreset/$', views.passwordreset, name='passwordreset'),
+    )

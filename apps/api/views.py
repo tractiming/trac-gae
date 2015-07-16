@@ -10,6 +10,10 @@ from django.utils import timezone
 from django.core.cache import cache
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
+from django.core import serializers
+from django.core.serializers import serialize
+from django.utils.encoding import force_bytes
+from django.template import loader, RequestContext
 
 from rest_framework import viewsets, permissions, renderers, status, serializers, views
 from rest_framework.response import Response
@@ -28,9 +32,13 @@ from trac.models import (TimingSession, AthleteProfile, CoachProfile,
 from trac.util import is_athlete, is_coach
 from util import create_split
 
+
 import json
 import ast
 import dateutil.parser
+import uuid
+import hashlib
+import base64
 
 class verifyLogin(views.APIView):
 	permission_classes = ()
@@ -79,10 +87,10 @@ class RegistrationView(views.APIView):
             return HttpResponse(serializer.errors,
                     status=status.HTTP_400_BAD_REQUEST)
         data = serializer.data
-
         # Create the user in the database.
         user = User.objects.create(username=data['username'])
         user.set_password(data['password'])
+        user.email = request.DATA['email']
         user.save()
 
         user_type = data['user_type']
@@ -476,7 +484,7 @@ def edit_split(request):
 		return HttpResponse(status.HTTP_404_NOT_FOUND)
 
     return HttpResponse(status.HTTP_202_ACCEPTED)
-
+    
 #pagination endpoint
 @api_view(['GET'])
 @permission_classes((permissions.AllowAny,))
@@ -608,6 +616,9 @@ def create_race(request):
             tag.save()
         except ObjectDoesNotExist:
             tag = Tag.objects.create(id_str=tag_id, user=user)
+        except MultipleObjectsReturned:
+            tag = Tag.objects.create(id_str= 'colliding tag', user=user)
+
 
         ts.registered_tags.add(tag.pk)
     return HttpResponse(status.HTTP_201_CREATED)
@@ -763,26 +774,54 @@ def IndividualTimes(request):
 @api_view(['POST'])
 @login_required()
 @permission_classes((permissions.IsAuthenticated,))
+def token_validation(request):
+    return HttpResponse(status.HTTP_200_OK)
+
+@api_view(['POST'])
+@login_required()
+@permission_classes((permissions.AllowAny,))
 def reset_password(request):
-    user = request.user
+    name =  base64.urlsafe_b64decode(request.POST.get('user').encode('utf-8'))
+    user = User.objects.get(pk = name)
     token = request.auth
+    if token not in user.accesstoken_set.all():
+            return HttpResponse(status.HTTP_403_FORBIDDEN)
     if token.expires < timezone.now():
-            return Http404
+            return HttpResponse(status.HTTP_403_FORBIDDEN)
     if user.is_authenticated():
         user.set_password(request.POST.get('password'))
         user.save()
     else:
         return HttpResponse(status.HTTP_403_FORBIDDEN)
+    user.accesstoken_set.get(token = token).delete()
     return HttpResponse(status.HTTP_200_OK)
 
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))
 def send_email(request):
     email = request.POST.get('email')
-    user = User.objects.get(email = email)
-    send_mail('HelloWorld', 'HelloWorld', 'tracchicago@gmail.com', ['NicolaRhyan2016@u.northwestern.edu'], fail_silently=False)
-    return HttpResponse(status.HTTP_200_OK)
-
+    name = request.POST.get('user')
+    u = User.objects.get(email = email)
+    user2 = User.objects.get(username = name)
+    if u == user2:
+        uidb64 = base64.urlsafe_b64encode(force_bytes(u.pk))
+        token = AccessToken(user = u, client = u.oauth2_client.get(user = u), expires = timezone.now()+timezone.timedelta(minutes=5))
+        token.save()
+        c = {
+            'email': email,
+            'domain': request.META['HTTP_HOST'],
+            'site_name': 'TRAC',
+            'uid': uidb64,
+            'user': u,
+            'token': str(token),
+            'protocol': 'https',
+        }
+        url = c['domain'] + '/UserSettings/' + c['uid'] + '/' + c['token'] + '/'
+        email_body = loader.render_to_string('../templates/email_template.html', c)
+        send_mail('Reset Password Request', email_body, 'tracchicago@gmail.com', [c['email'],], fail_silently=False)
+        return HttpResponse(status.HTTP_200_OK)
+    else:
+        return HttpResponse(status.HTTP_403_FORBIDDEN)
 ######################### Do we need these? ###########################
 #@api_view(['GET'])
 #@permission_classes((permissions.AllowAny,))

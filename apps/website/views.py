@@ -48,5 +48,8 @@ def individual(request, id1 = 0):
 def tutorial(request, page = 1):
     return render(request, 'tutorial.html', {'page': page})
 
-def usersettings(request):
-    return render(request, 'UserSettings.html', {})
+def usersettings(request, pk= None, token = None):
+    return render(request, 'UserSettings.html', {'pk': pk, 'token' : token})
+
+def passwordreset(request):
+    return render(request, 'passwordreset.html')
