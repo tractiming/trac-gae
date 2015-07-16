@@ -404,6 +404,7 @@ $("body").on('click', 'button#cl', function(e){
     background-color:#000;
     opacity:0.05;
     position: relative;
+    border-radius:10px;
     }
 </style>
 
@@ -411,15 +412,15 @@ $("body").on('click', 'button#cl', function(e){
         <div class="container-fluid content">
           <div id="container" class="container">
             <div class="row">
-              <div id="tutorial" class="panel panel-default" style="margin: 2%;">
+              <div id="tutorial" class="panel panel-default hidden-sm hidden-xs" style="margin: 2%;">
                 <div class="panel-heading clearfix">
-                    <h1 class="panel-title pull-left">T(utorial)RAC</h1>
-                    <button id="cl" class="pull-right"><span class="glyphicon glyphicon-remove"></span></button>
+                    <h1 class="panel-title pull-left">TRAC Tutorial</h1>
+                    <button id="cl" class="close"><span class="glyphicon glyphicon-remove"></span></button>
                 </div>
                 <div class="panel-body">
                   <ul align="center" style="padding: 0px;">
                     <li class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                      <div class="row" style="height:80%; background: linear-gradient(rgb(255,255,200), rgb(255,255,153), rgb(255,255,200)); color: white; margin: 1%; border-style: solid; border-color: yellow;">
+                      <div class="row" style="height:80%; background: white; color: white; margin: 1%; border-style: solid; border-color: white;">
                         <a href="/Tutorial/1">
                         <div class="image" style="height:200px;"><div class="overlay" style="height: 100%; width: 100%;"><img width="100%" src="static/img/case.png"></div></div>
                         <div>Register Readers</div>
@@ -427,7 +428,7 @@ $("body").on('click', 'button#cl', function(e){
                       </div>
                     </li>
                     <li class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                      <div class="row" style="height:80%; background: linear-gradient(rgb(255,255,200), rgb(255,255,153), rgb(255,255,200)); color: white; margin: 1%; border-style: solid; border-color: yellow;">
+                      <div class="row" style="height:80%; background: white; color: white; margin: 1%; border-style: solid; border-color: white;">
                         <a href="/Tutorial/2">
                         <div class="image" style="height:200px;"><div class="overlay" style="height: 100%; width: 100%;"><img width="100%" src="static/img/start.png"></div></div>
                         <div>Create Workouts</div>
@@ -435,7 +436,7 @@ $("body").on('click', 'button#cl', function(e){
                       </div>
                     </li>
                     <li class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                      <div class="row" style="height:80%; background: linear-gradient(rgb(255,255,200), rgb(255,255,153), rgb(255,255,200)); color: white; margin:1%; border-style: solid; border-color: yellow;">
+                      <div class="row" style="height:80%; background: white; color: white; margin:1%; border-style: solid; border-color: white;">
                         <a href="/Tutorial/3">
                         <div class="image" style="height:200px;"><div class="overlay" style="height: 100%; width: 100%;"><img width="100%" src="static/img/stopwatch.png"></div></div>
                         <div>Race Management</div>
@@ -443,7 +444,7 @@ $("body").on('click', 'button#cl', function(e){
                   </div>
                     </li>
                     <li class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                      <div class="row" style="height:80%; background: linear-gradient(rgb(255,255,200), rgb(255,255,153), rgb(255,255,200)); color: white; margin: 1%; border-style: solid; border-color: yellow;">
+                      <div class="row" style="height:80%; background: white; color: white; margin: 1%; border-style: solid; border-color: white;">
                         <a href="/Tutorial/4">
                         <div class="image" style="height:200px;"><div class="overlay" style="height: 100%; width: 100%;"><img width="100%" src="static/img/gears.png"></div></div>
                         <div>Advanced Features</div>
@@ -455,7 +456,7 @@ $("body").on('click', 'button#cl', function(e){
               </div>
               <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
               <h1 id="score-title">Home</h1>
-              <button type="button" class="btn btn-default" id="plus" data-toggle="modal" data-target="#myModal">
+              <button type="button" class="btn btn-default" id="plus" data-toggle="modal" data-target="#myModal" style="margin-bottom:2%">
                   <span class="glyphicon glyphicon-plus" aria-hidden="true"> </span>
               </button>
               <div id="athletes" class="table">
