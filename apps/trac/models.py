@@ -212,7 +212,7 @@ class TimingSession(models.Model):
         else:
             return tag.uname
                 
-    def calc_results(self, tag_ids=None, read_cache=False, save_cache=False, m=0, n=1):
+    def calc_results(self, tag_ids=None, read_cache=False, save_cache=False):
         """
         Calculates the raw results (user_id, user_name, team_name, splits,
         cumul_time). Can optionally filter by passing a list of tag ids to use.
@@ -232,7 +232,7 @@ class TimingSession(models.Model):
         if not results:
 
             results = []
-            for tag_id in tag_ids[m:n]:
+            for tag_id in tag_ids:
 
                 # Get the name of the tag's owner.
                 name = self.get_tag_name(tag_id)
@@ -307,9 +307,9 @@ class TimingSession(models.Model):
                                  'time': res[i][4] } for i in range(len(res))]}
         return res_dict
 
-    def get_results(self, force_update=False, sort=False, m=0, n=1):
+    def get_results(self, force_update=False, sort=False):
         """Get full results, formatted for mobile."""
-        results = self.calc_results(read_cache=(not force_update), save_cache=True, m=m, n=n)
+        results = self.calc_results(read_cache=(not force_update), save_cache=True)
         if sort:
             results = sorted(sorted(results, key=lambda x: x[4]), reverse=True,
                     key=lambda x: len(x[3]))
