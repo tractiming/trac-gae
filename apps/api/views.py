@@ -637,8 +637,9 @@ def WorkoutTags(request):
             table = TimingSession.objects.get(id=id_num)
             result = table.registered_tags.all()        
             for instance in result:
-                u_name = instance.user.username
-                array.append({'id': instance.id, 'user': u_name, 'id_str': instance.id_str})
+                u_first = instance.user.first_name
+                u_last = instance.user.last_name
+                array.append({'id': instance.id, 'first': u_first, 'last': u_last, 'id_str': instance.id_str})
             return Response(array, status.HTTP_200_OK)
     elif request.method == 'POST':
         id_num = request.POST.get('id')
