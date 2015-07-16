@@ -478,27 +478,7 @@ def edit_split(request):
 		return HttpResponse(status.HTTP_404_NOT_FOUND)
 
     return HttpResponse(status.HTTP_202_ACCEPTED)
-
-@api_view(['GET'])
-@permission_classes((permissions.AllowAny,))
-def get_sessions_with_paginated_results(request):
-    wid = int(request.GET.get('id'))
-    begin = int(request.GET.get('i1'))
-    stop = int(request.GET.get('i2'))
-    user = request.user
-
-    if is_coach(user):
-        ts = TimingSession.objects.filter(manager=user)
-    else:
-        ts = TimingSession.objects.filter(private='false')
-    new_ts = []
-    for row in ts:
-        if row.id == wid:
-            run = row.get_results(m=begin, n=stop).get('runners')
-            for r in run:
-                temp_ts = {'id': row.id, 'name': row.name, 'runners': r}
-                new_ts.append(temp_ts)
-    return Response(new_ts, status.HTTP_200_OK)
+    
 #pagination endpoint
 @api_view(['GET'])
 @permission_classes((permissions.AllowAny,))
