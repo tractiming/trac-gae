@@ -156,7 +156,7 @@ $(function() {
 		e.preventDefault();
 
 		// set modal title and reset form
-		$('#session-modal .modal-title').html('Create New Workout');
+		$('#form-modal .modal-title').html('Create New Workout');
 		$('#session-form')[0].reset();
 		
 		// show corrent buttons
@@ -234,9 +234,11 @@ $(function() {
 
 				var distance = $('input[id=distance]').val();
 				var size = $('input[id=size]').val();
-				var filter = $('#filter option:selected').val();
-				var privateselect = $('#private option:selected').val();
+				var filter = $('input[name=filter]:checked').val();
+				var privateselect = $('input[name=filter]:checked').val();
+				console.log(filter);
 
+				//*
 				$.ajax({
 					type: 'POST',
 					dataType:'json',
@@ -264,7 +266,7 @@ $(function() {
 						$('.notification.create-success').show();
 
 						// switch modals
-						$('#session-modal').modal('hide');
+						$('#form-modal').modal('hide');
 						$('#notifications-modal').modal('show');
 
 						// clear form and reload data
@@ -281,10 +283,11 @@ $(function() {
 						$('.notification.form-data-error').show();
 
 						// switch modals
-						$('#session-modal').modal('hide');
+						$('#form-modal').modal('hide');
 						$('#notifications-modal').modal('show');
 					}
 				});
+				//*/
 			}
 		});
 	});
@@ -292,8 +295,8 @@ $(function() {
 	// editing workout session
 	$('body').on('click', '#results-table tr', function(){
 		// set modal title and show
-		$('#session-modal .modal-title').html('Edit Workout Session');
-		$('#session-modal').modal('show');
+		$('#form-modal .modal-title').html('Edit Workout Session');
+		$('#form-modal').modal('show');
 
 		// show corrent buttons
 		$('#session-form .session-form-buttons').hide();
@@ -303,6 +306,44 @@ $(function() {
 		$('input#idnumber').val($(data[0]).html());
 		$('input#title').val($(data[1]).html());
 
+		var startDate = new Date($(data[2]).html());
+		$('input#start-date').datepicker('update', startDate);
+
+		var startTime = startDate.toTimeString().substring(0,8);
+		var startHours = startDate.getHours();
+		if (startHours < 12) {
+			$('select#start-am-pm').val('AM');
+			if (startHours == 0)
+				startTime = '12' + startTime.substring(2);
+			else if (startHours < 10)
+				startTime = startTime.substring(1);
+		} else {
+			$('select#start-am-pm').val('PM');
+			if (startHours > 12)
+				startTime = (startHours-12) + startTime.substring(2);
+		}
+		$('input#start-time').val(startTime);
+
+		var endDate = new Date($(data[3]).html());
+		$('input#end-date').datepicker('update', endDate);
+
+		var endTime = endDate.toTimeString().substring(0,8);
+		var endHours = endDate.getHours();
+		if (endHours < 12) {
+			$('select#end-am-pm').val('AM');
+			if (endHours == 0)
+				endTime = '12' + endTime.substring(2);
+			else if (endHours < 10)
+				endTime = endTime.substring(1);
+		} else {
+			$('select#end-am-pm').val('PM');
+			if (endHours > 12)
+				endTime = (endHours-12) + endTime.substring(2);
+		}
+		$('input#end-time').val(endTime);
+
+		$('input#distance').val($(data[4]).html());
+		$('input#size').val($(data[5]).html());
 		/*
 		var value = $(this).html();
 		$(value).each(function(index){

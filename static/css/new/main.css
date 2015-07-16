@@ -102,7 +102,7 @@ a {
 .notification-error { color: #b94a48; }
 
 
-p.parsley-error {
+.parsley-error {
 	color: #B94A48;
   background-color: #F2DEDE;
   border: 1px solid #EED3D7;

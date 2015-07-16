@@ -1,4 +1,9 @@
 /* All CSS rules for create page */
+
+label {
+  display: block;
+}
+
 /*
 li#dropdown-button{
     padding-top:12px;

@@ -4,7 +4,6 @@
 
 {% block stylesheets %}
 	<link href="{% static "css/bootstrap-datepicker3.min.css" %}" rel="stylesheet" type="text/css">
-	<link rel="stylesheet" href="{% static "css/new/main.css" %}" />
 	<link rel="stylesheet" href="{% static "css/new/create.css" %}" />
 {% endblock %}
 
@@ -65,12 +64,6 @@
 			width:300px;
 			margin: 0 auto;
 		}
-		label{
-			display:block;
-		}
-		input,textarea{
-			width:75%;
-		}
 	</style>
 
 	<div class="modal fade" id="notifications-modal" role="dialog">
@@ -84,7 +77,7 @@
 					<div class="notification notification-warning" role="alert">Are you sure? 
 					<div id="screen-selector">
 						<button href="#" type="button" id="warning-yes" class="btn btn-danger" style="color:#FFF;">Yes</button>
-						<button id="warning-no" href="#" type="button" style="float:right; color:#FFF;" data-dismiss="modal" data-toggle="modal" data-target="#session-modal" class="btn btn-primary">Cancel</button>
+						<button id="warning-no" href="#" type="button" style="float:right; color:#FFF;" data-dismiss="modal" data-toggle="modal" data-target="#form-modal" class="btn btn-primary">Cancel</button>
 					</div>
 				</div>
 				</div>
@@ -92,7 +85,7 @@
 		</div>
 	</div>
 
-	<div class="modal fade" id="session-modal" role="dialog">
+	<div class="modal fade" id="form-modal" role="dialog">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -158,24 +151,21 @@
 							<input type="text" id="size" name="size" class="form-control" required data-parsley-group="block1" data-parsley-type="number">
 						</div>
 
-						<div class="form-group">
-							<label>Filter Splits?</label>
-							<span>
-								<select id="filter">
-										<option value="true">Yes</option>
-										<option value="false">No</option>
-								</select>
-							</span>
-						</div>
-
-						<div class="form-group">
-							<label>Private?</label>
-							<span>
-								<select id="private">
-										<option value="true">Yes</option>
-										<option value="false">No</option>
-								</select>
-							</span>
+						<div class="form-group" style="overflow:hidden;">
+							<div style="width:50%; float:left; padding-right:5px;">
+								<label for="filter">Filter Splits?</label>
+								<div style="padding-left:5px; border-radius:4px;">
+									<input type="radio" name="filter" id="filter-true" value="true" required> Yes
+									<input type="radio" name="filter" id="filter-false" value="false" style="margin-left:10px;"> No
+								</div>
+							</div>
+							<div style="width:50%; float:left; padding-left:5px;">
+								<label for="private">Private?</label>
+								<div style="padding-left:5px; border-radius:4px;">
+									<input type="radio" name="private" id="private-true" value="true" required> Yes
+									<input type="radio" name="private" id="private-false" value="false" style="margin-left:10px;"> No
+								</div>
+							</div>
 						</div>
 
 						<div class="modal-footer">
@@ -208,7 +198,7 @@
 					</button>
 				</div>
 				<div style="width:50%; float:left; text-align:right;">
-					<button type="button" class="btn btn-default" id="new-session" data-toggle="modal" data-target="#session-modal">
+					<button type="button" class="btn btn-default" id="new-session" data-toggle="modal" data-target="#form-modal">
 						<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> <span class="hidden-xs">New Session</span>
 					</button>
 				</div>
