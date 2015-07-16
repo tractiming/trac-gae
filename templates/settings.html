@@ -91,7 +91,7 @@ $("li a.logout").click(function(){
                                                     '<th class="hidden-xs hidden-sm hidden-md hidden-lg">id</th>'+
                                                     '<th>First Name</th>'+
                                                     '<th>Last Name</th>' + 
-                                                    '<th>Username</th>' + 
+                                                    '<th style="display:none">Username</th>' + 
                                               '</tr>'+
                                         '</thead>'+
                                         '<tbody>'+
@@ -106,11 +106,11 @@ $("li a.logout").click(function(){
                                 uname = json[ii].username;
                                 $('#roster tbody').append(
                                       '<tr class="ath">'+
-                                          '<td><input type="checkbox" id="check" style="width:10px; height:10px;"/></td>' +
+                                          '<td><input type="checkbox" id="check" style="width:12px; height:12px;"/></td>' +
                                           '<td class="hidden-xs hidden-sm hidden-md hidden-lg">' + id + '</td>' +
                                           '<td id="fname">'+fname+'</td>'+
                                           '<td id="lname">'+lname+'</td>'+
-                                          '<td id="uname">'+uname+'</td>' +
+                                          '<td id="uname" style="display:none">'+uname+'</td>' +
                                       '</tr>');
                           }
                     }
@@ -132,7 +132,7 @@ $("li a.logout").click(function(){
               '<thead>' +
                   '<tr>' +
                     '<th class="hidden-xs hidden-sm hidden-md hidden-lg">id</th>'+
-                    '<th>Username</th>'+
+                    '<th>Name</th>'+
                     '<th>Tag ID</th>' +
                   '</tr>'+
                 '</thead>'+
@@ -143,12 +143,13 @@ $("li a.logout").click(function(){
         for (var ii=0;ii < json.length;ii++){
                //alert(ii);
                id = json[ii].id;
-               fname = json[ii].user;
+               fname = json[ii].first;
+               lname = json[ii].last;
                tag = json[ii].id_str;
                 $('#athletes tbody').append(
                   '<tr>'+
                     '<td class="hidden-xs hidden-sm hidden-md hidden-lg">' + id + '</td>' +
-                    '<td>'+fname+'</td>'+
+                    '<td>'+fname+' '+lname+'</td>'+
                     '<td>'+tag+'</td>' +
                   '</tr>');
       }
@@ -657,7 +658,7 @@ $('ul.menulist li a').off('click');
   <div class="site-overlay"></div>
     <div id="content">  
         <div class="container-fluid content">
-          <div id="container" class="container"> 
+          <div  class="container"> 
             <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
             <div class="row">
         <div class="col-md-3 col-sm-4 col-xs-6" style="margin: 2%">
@@ -687,9 +688,12 @@ $('ul.menulist li a').off('click');
           <div  class=" col-lg-5 col-md-5 col-sm-5 col-xs-5" align="center">
             <div class="row">
               <button type="button" class="btn btn-primary" id="open" style="margin: 2%;">Open</button>
-              <button type="button" class="btn btn-warning" id="stop" style="margin: 2%;">Stop</button>
               <button type="button" class="btn btn-success" id="start" style="margin: 2%;">Start</button>
+              <button type="button" class="btn btn-warning" id="stop" style="margin: 2%;">Stop</button>
             </div>
+            <button type="button" class="btn btn-default pull-right" id="plus2" data-toggle="modal" data-target="#athleteModal" style="margin-bottom:2%">
+                  <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Roster
+            </button>
             <div class="row">
               <div id="roster" class="table">
               </div>
@@ -709,7 +713,7 @@ $('ul.menulist li a').off('click');
             <div class="notification notification-success" role="alert">You have successfully added tag(s) to a workout!</div>
             <div class="notification update-success" role="alert">You have successfully updated a tag!</div>
             <div class="notification delete-success" role="alert">You have successfully delinked a tag from the workout!</div>
-            <div class="notification notification-warning" role="alert">Are you sure? <div id="screen-selector"><button href="#" type="button" id="warning-yes">Yes</button><button id="warning-no" href="#" type="button" style="float:right" data-dismiss="modal" data-toggle="modal" data-target="#myModal">Cancel</button></div></div>
+            <div class="notification notification-warning" role="alert">Are you sure? <div id="screen-selector"><button href="#" type="button" id="warning-yes" class="btn btn-primary" >Yes</button><button id="warning-no" href="#" type="button" style="float:right" data-dismiss="modal" data-toggle="modal" data-target="#myModal">Cancel</button></div></div>
           </div>
         </div>
       </div>
@@ -722,22 +726,22 @@ $('ul.menulist li a').off('click');
       <div class ="modal-content">
         <div class="modal-body">
           <form name="csvform" id="csvform"  data-parsley-validate>
-      <p>
-          <label for="">Workout Name:</label> 
-          <input data-progression="" type="text" data-helper="" id="name" value="" placeholder="" />
-      </p>
-       <p>
-          <label for="">Workout Date:</label> 
-          <input data-progression="" type="text" data-helper="" id="date" value="" placeholder="" />
-      </p>
-      <p>
-          <label for="">Confirm Username:</label> 
-          <input data-progression="" type="text" data-helper="" id="coach_username" value="" placeholder=""  />
-      </p>
-       <p>
-          <label for="">Readers:</label> 
-          <input data-progression="" type="text" data-helper="" id="readers" value="" placeholder="" />
-      </p>
+          <div class="form-group">
+            <label for="">Workout Name:</label> 
+            <input data-progression="" type="text" data-helper="" id="name" value="" placeholder="" class="form-control"/>
+          </div>
+          <div class="form-group">
+            <label for="">Workout Date:</label> 
+            <input data-progression="" type="text" data-helper="" id="date" value="" placeholder="" class="form-control"/>
+          </div>
+          <div class="form-group">
+            <label for="">Confirm Username:</label> 
+            <input data-progression="" type="text" data-helper="" id="coach_username" value="" placeholder="" class="form-control" />
+          </div>
+          <div>
+            <label for="">Readers:</label> 
+            <input data-progression="" type="text" data-helper="" id="readers" value="" placeholder="" class="form-control"/>
+          </div>
        <div class="button-container">
         <input type="file" id="file" name="myfile" class="btn btn-warning" value="Choose File">
         <input type="submit" class="gen_btn btn btn-primary" id="upload" name ="upload" value="Upload">
@@ -777,14 +781,51 @@ $('ul.menulist li a').off('click');
            
             <input type="hidden" id="idnumber" value="" placeholder="" required data-parsley-group="block1" readonly/>
         </p>
-       <p>
+       <div class="form-group">
            <label for="">Username:</label> 
-           <input data-progression="" type="text" id="username" value="" placeholder="" required data-parsley-group="block1" />
-       </p>
-        <p>
+           <input data-progression="" type="text" id="username" value="" placeholder="" required data-parsley-group="block1" class="form-control"/>
+       </div>
+        <div class="form-group">
            <label for="">TagID:</label> 
-           <input data-progression="" type="text" id="tag" value="" placeholder="" required data-parsley-group="block1" />
-       </p>
+           <input data-progression="" type="text" id="tag" value="" placeholder="" required data-parsley-group="block1" class="form-control"/>
+       </div>
+          <br>
+         
+              <div class="button-container modal-footer">
+      <button name="" class="btn btn-primary col-md-3 col-sm-3 col-xs-3" id="delete" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal">Delete</button>
+        <input type="submit" name="" class="btn btn-primary" id="save" value="Save" />
+        <input type="submit" name="" class="btn btn-primary col-md-5 col-sm-5 col-xs-5" id="update" value="Update" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal" />
+                           </div>
+                        </form>   
+                     </div>        
+                 </div>
+              </div>
+          </div>
+      <div class="modal fade" id="athleteModal" role="dialog">
+  <div class="modal-dialog">
+  <div class="modal-content">
+    <div class="modal-header">
+    </div>
+      <div class="modal-body">
+      <form name="tracform" id="coachform" method="POST" data-parsley-validate>
+        <div class="button-container-two">
+          </div>
+          <p id="idnumber">
+           
+            <input type="hidden" id="idnumber" value="" placeholder="" required data-parsley-group="block1" readonly/>
+        </p>
+       <div class="form-group">
+           <label for="">First Name:</label> 
+           <input data-progression="" type="text" id="first_name" value="" placeholder="" required data-parsley-group="block1" class="form-control"/>
+       </div>
+        <div class="form-group">
+           <label for="">Last Name:</label> 
+           <input data-progression="" type="text" id="last_name" value="" placeholder="" required data-parsley-group="block1" class="form-control"/>
+       </div>
+       <div class="form-group">
+        <label for="" id="id_str">Tag ID:</label>
+        <input data-progression="" type="text" id="id_str" value="" placeholder="" required data-parsley-group="block1" class="form-control" />
+      </div>
           <br>
          
               <div class="button-container modal-footer">
