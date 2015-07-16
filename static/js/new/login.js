@@ -31,6 +31,51 @@ $(function() {
 	$('p.notification.notification-critical').hide();
 
 	// submit form
+	$('body').on('click', 'a#passwordlink', function(e){
+		e.preventDefault();
+		$('#pModal').modal('show');
+	});
+    $('body').on('submit', 'form#uform', function(e){
+    e.preventDefault();
+    var uname =  $('input#uname').val();
+    var uemail =  $('input#uemail').val();
+    name = escapeString(uname);
+    email = escapeString(uemail);
+    function escapeString(string){
+      var specialChars = { 
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': '&quot;',
+      "'": '&#39;',
+      "/": '&#x2F;'
+    };
+      string = String(string).replace(/[&<>"'\/]/g, function(s){
+        return specialChars[s];
+      });
+      return string;
+    }
+    $.ajax({
+      type:"POST",
+      url:"/api/send_email/",
+      data: {
+        user: name,
+        email: email,
+      },
+      success: function(data){
+      	if(data == 403){
+      		alert('Username and Email do not match');
+      	}
+      	else{
+      		alert('email sent');
+      	}
+      },
+      error: function(xhr, errmsg, err){
+      	alert('something went wrong');
+      }
+    });
+  });
+    
 	$('#login-form').on('submit', function(e) {
 		e.preventDefault();
 

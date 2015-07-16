@@ -33,7 +33,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'first_name', 'last_name', 'username', 'tags')
+        fields = ('id', 'first_name', 'last_name', 'username', 'tags', 'email')
 
 class CoachSerializer(serializers.ModelSerializer):
     organization = serializers.CharField(source='groups.all', read_only=True)

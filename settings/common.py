@@ -141,7 +141,7 @@ else:
         dbn = 'tracdb'
 
         # Uncomment the next line to force sqlite, even if mysql is configured.
-        #raise MySQLdb.Error
+        raise MySQLdb.Error
 
         db = MySQLdb.connect(host=host, user=user, db=dbn)
         db.close()
@@ -215,3 +215,11 @@ TEMPLATE_DIRS = (
 ############################################
 
 WSGI_APPLICATION = 'main.application'
+
+########### EMAIL CONFIG ###################
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'tracchicago@gmail.com'
+EMAIL_HOST_PASSWORD = 'trac2015'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+############################################
