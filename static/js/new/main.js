@@ -39,16 +39,17 @@ function idleCheck(handler, resetFunction, resetInterval, resetTimeout, redirect
 }
 
 function escapeString(string){
-      var specialChars = { 
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': '&quot;',
-      "'": '&#39;',
-      "/": '&#x2F;'
-    };
-      string = String(string).replace(/[&<>"'\/]/g, function(s){
-        return specialChars[s];
-      });
-      return string;
-    }
+	var specialChars = { 
+		"&": "&amp;",
+		"<": "&lt;",
+		">": "&gt;",
+		'"': '&quot;',
+		"'": '&#39;',
+		"/": '&#x2F;'
+	};
+	string = String(string).replace(/[&<>"'\/]/g, function(s){
+		return specialChars[s];
+	});
+	
+	return string;
+}

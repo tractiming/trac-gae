@@ -184,7 +184,7 @@ $(function() {
 			target.css('height', 50);
 			spinner.spin(target[0]);
 
-			var title = $('input[id=title]').val();
+			var title = escapeString($('input[id=title]').val());
 
 			// get start date and time
 			var startDate = $('input[id=start-date]').val().trim().split(/[\/-]/),
@@ -383,7 +383,7 @@ $(function() {
 			spinner.spin(target[0]);
 
 			var id = $('input[id=idnumber]').val();
-			var title = $('input[id=title]').val();
+			var title = escapeString($('input[id=title]').val());
 
 			// get start date and time
 			var startDate = $('input[id=start-date]').val().trim().split(/[\/-]/),
