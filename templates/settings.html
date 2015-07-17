@@ -60,6 +60,31 @@ $("li a.logout").click(function(){
 {% block content %}
 <script>
 	$(document).ready(function(){
+    // initialize spinner
+     var opts = {
+        lines: 13,              // The number of lines to draw
+        length: 28,             // The length of each line
+        width: 14,              // The line thickness
+        radius: 42,             // The radius of the inner circle
+        scale: 0.5,             // Scales overall size of the Spinner
+        corners: 1,             // Corner roundness (0..1)
+        color: '#3577a8',       // #rgb or #rrggbb or array of colors
+        opacity: 0.25,          // Opacity of the lines
+        rotate: 0,              // The rotation offset
+        direction: 1,           // 1: clockwise, -1: counterclockwise
+        speed: 1,               // Rounds per second
+        trail: 60,              // Afterglow percentage
+        fps: 20,                // Frames per second when using setTimeout() as a fallback for CSS
+        zIndex: 1,              // The z-index (defaults to 2000000000)
+        className: 'spinner',   // The CSS class to assign to the spinner
+        top: '50%',             // Top position relative to parent
+        left: '50%',            // Left position relative to parent
+        shadow: false,          // Whether to render a shadow
+        hwaccel: false,         // Whether to use hardware acceleration
+        position: 'relative'    // Element positioning
+      }
+      var target = document.getElementById('spinner');
+      var spinner = new Spinner(opts);
 	if (sessionStorage.usertype == 'athlete'){
 		$("div.right").hide();
 		 $('div.pictures').css('padding-left','200px');
@@ -89,8 +114,8 @@ $("li a.logout").click(function(){
                                               '<tr>' +
                                               '<th></th>' +
                                                     '<th class="hidden-xs hidden-sm hidden-md hidden-lg">id</th>'+
-                                                    '<th>First Name</th>'+
-                                                    '<th>Last Name</th>' + 
+                                                    '<th>Name</th>'+
+                                                    '<th>Tag ID</th>' + 
                                                     '<th style="display:none">Username</th>' + 
                                               '</tr>'+
                                         '</thead>'+
@@ -104,13 +129,21 @@ $("li a.logout").click(function(){
                                 fname = json[ii].first_name;
                                 lname = json[ii].last_name;
                                 uname = json[ii].username;
+                                tag_nest = json[ii].tags;
+                                var unnested_tags = $.parseJSON(tag_nest);
+                                user_tag = unnested_tags.ids[0];
+
+
+
                                 $('#roster tbody').append(
                                       '<tr class="ath">'+
                                           '<td><input type="checkbox" id="check" style="width:12px; height:12px;"/></td>' +
                                           '<td class="hidden-xs hidden-sm hidden-md hidden-lg">' + id + '</td>' +
-                                          '<td id="fname">'+fname+'</td>'+
-                                          '<td id="lname">'+lname+'</td>'+
+                                          '<td id="fname" style="display:none">'+fname+'</td>'+
+                                          '<td id="lname" style="display:none">'+lname+'</td>'+
                                           '<td id="uname" style="display:none">'+uname+'</td>' +
+                                          '<td id="full_name">'+fname+' '+lname+'</td>'+
+                                         '<td id="u_tag">'+user_tag+'</td>' +
                                       '</tr>');
                           }
                     }
@@ -133,6 +166,7 @@ $("li a.logout").click(function(){
                   '<tr>' +
                     '<th class="hidden-xs hidden-sm hidden-md hidden-lg">id</th>'+
                     '<th>Name</th>'+
+                    '<th style="display:none">Username</th>'+
                     '<th>Tag ID</th>' +
                   '</tr>'+
                 '</thead>'+
@@ -145,10 +179,15 @@ $("li a.logout").click(function(){
                fname = json[ii].first;
                lname = json[ii].last;
                tag = json[ii].id_str;
+               uname = json[ii].username;
+               
                 $('#athletes tbody').append(
                   '<tr>'+
                     '<td class="hidden-xs hidden-sm hidden-md hidden-lg">' + id + '</td>' +
                     '<td>'+fname+' '+lname+'</td>'+
+                    '<td style="display:none">'+fname+'</td>'+
+                    '<td style="display:none">'+lname+'</td>'+
+                    '<td style="display:none">'+uname+'</td>'+
                     '<td>'+tag+'</td>' +
                   '</tr>');
       }
@@ -346,7 +385,7 @@ function printStats(msg)
     }
   </style>
 <script>
-$(document).ready(function() {
+/*$(document).ready(function() {
     $("#coachform").on('submit', function(e){
          e.preventDefault();
          var form = $(this);  
@@ -376,19 +415,19 @@ $(document).ready(function() {
            }
            
       });
-});
+});*/
 </script>
 <script>
     
 $("body").on('click', '#athletes tr' ,function(){
   $('#myModal').modal('toggle');
   var value = $(this).html();
-  $("button#delete").show();
-  $("input#update").show();
+  $("button#delete2").show();
+  $("button#update2").show();
   $("div.button-container-two").show();
   $("input#create").show();
   $("p#idnumber").show();
-  $("input#save").hide();
+  $("button#save2").hide();
   $(value).each(function(index){
     //alert( $(this).html() );
     console.log( index+ ":"+ $(this).html());
@@ -397,12 +436,22 @@ $("body").on('click', '#athletes tr' ,function(){
       var input =$('input#idnumber');
       input.val($(this).html() );
     }
-    else if (index ==1)
+    else if (index ==2)
     {
-      var input =$('input#username');
+      var input =$('input#fname');
       input.val($(this).html() );
       }
-    else if (index ==2)
+      else if (index ==3)
+    {
+      var input =$('input#lname');
+      input.val($(this).html() );
+      }
+      else if (index ==4)
+    {
+      var input =$('input#uname');
+      input.val($(this).html() );
+      }
+    else if (index ==5)
     {
       var input =$('input#tag');
       input.val($(this).html() );
@@ -410,7 +459,7 @@ $("body").on('click', '#athletes tr' ,function(){
   });
 });
 
-$("body").on('click', 'button#plus', function(e){
+/*$("body").on('click', 'button#plus', function(e){
   //alert($(this).html());
     e.preventDefault();
     $("#coachform")[0].reset();
@@ -422,68 +471,20 @@ $("body").on('click', 'button#plus', function(e){
   //$("input#create").hide();
 
   });
-
-$("button#delete").off('click');
-  $("body").on('click', 'button#delete', function(f){
+*/
+$("button#delete2").off('click');
+  $("body").on('click', 'button#delete2', function(f){
   //alert($(this).html());
     f.preventDefault();
     $("div.notification.notification-warning").show();
+    $("button#warning-yes").hide();
+    $("button#warning-yes2").show();
     $("div.notification.notification-critical").hide();
     $("div.notification.notification-critical").hide();
     $("div.notification.notification-success").hide();
     $("div.notification.update-success").hide();
   });
 
-  
-  $("body").on('click', 'button#warning-yes', function(event){
-  console.log("On:", event.target);
-  var value = $(this).html();
-   $(".modal-animate").show();
-    
-   var id=$('input[id=idnumber]').val();
-   var id2=id_helper;
-  //alert(id);
-  
-    //alert(filter);
-        $.ajax({
-           type: "POST",
-           dataType:'json',
-           url: "/api/reg_tag/",
-           data:
-           {id: id2,
-            id2: id,
-        	submethod: 'Delete'},
-     headers: {Authorization: "Bearer " + sessionStorage.access_token},
-         
-           // Login was successful.
-           success: function(data) {
-                  $(".modal-animate").hide();
-                   $("div.notification.notification-critical").hide();
-                    $("div.notification.notification-success").hide();
-                   $("div.notification.update-success").hide();
-                  $("div.notification.delete-success").show();
-                 $("div.notification.notification-warning").hide();
-                $("#coachform")[0].reset();
-               $("button#delete").hide();
-               $("input#update").hide();
-                $("input#save").show();
-                 $("p#idnumber").hide();
-                 //$("input#create").hide();
-                  $("#athletes").empty();
-                 loadAthletes();
-              },
-              // Login request failed.
-           error: function(xhr, errmsg, err) {
-      //hide spinner, show error modal
-      $(".modal-animate").hide();
-      $("div.notification.notification-success").hide();
-       $("div.notification.notification-warning").hide();
-        $("div.notification.update-success").hide();
-        $("div.notification.delete-success").hide();
-        $("div.notification.notification-critical").show();
-           }
-            });  
-});
 
 $("button#warning-no").click(function(event){
     $(".modal-animate").hide();
@@ -508,7 +509,7 @@ $('body').on('click', '#register', function(e){
       }
   });
   var json = '{"id":"'+id_helper+'", "athletes":'+JSON.stringify(atlList)+'}';
-  console.log(json);
+  //console.log(json);
   $.ajax({
     type: 'POST',
     dataType: 'json',
@@ -526,7 +527,7 @@ $('body').on('click', '#register', function(e){
   });
 });
 $("body").on('click', '#open', function(e){
-  console.log('pressing Open');
+  //console.log('pressing Open');
           $.ajax({
               type: 'POST',
               dataType: 'json',
@@ -591,7 +592,7 @@ $('ul.menulist li a').off('click');
   $('body').on('click', 'ul.menulist li a', function(){
       var name = ($(this).html() );
       var id;
-      console.log(name);
+      //console.log(name);
   if (name == 'See More'){
       instance_first += numitems;
       instance_last += numitems;
@@ -622,10 +623,12 @@ $('ul.menulist li a').off('click');
     }
   });
 
-   $("body").on('click','input#update', function(e){
+   $("body").on('click','button#update2', function(e){
          e.preventDefault();
          	var it=$('input[id=idnumber]').val();   
-            var fname=$('input[id=username]').val();
+            var uname=$('input[id=uname]').val();
+            var fname=$('input[id=fname]').val();
+            var lname=$('input[id=uname]').val();
             var ti=$('input[id=tag]').val();
             console.log(fname);
         $.ajax({
@@ -636,12 +639,14 @@ $('ul.menulist li a').off('click');
            data: {
            	   id: id_helper,
            	   id2: it,
-               username: fname,
+               username: uname,
                id_str: ti,
+               firstname:fname,
+               lastname:lname,
                submethod: 'Update'
            }, 
                       success: function(data) {
-                      console.log(fname);
+                      //console.log(fname);
                       $("#coachform")[0].reset();
                       loadAthletes();
                       $("div.notification.update-success").show();
@@ -649,6 +654,254 @@ $('ul.menulist li a').off('click');
                 });
            
       });
+
+$("body").on('click', '#roster tr' ,function(e){
+   var target = $( event.target );
+  if ( target.is( "input" ) ) {
+    return;
+  }
+  $('#athleteModal').modal('toggle');
+  var value = $(this).html();
+  $("button#delete").show();
+  $("button#update").show();
+  $("div.button-container-two").show();
+  //$("input#create").show();
+  $("p#idnumber").show();
+  //$("label#id_str").hide();
+  //$("input#id_str").hide();
+  $("button#save").hide();
+  $(value).each(function(index){
+    //alert( $(this).html() );
+    //console.log( index+ ":"+ $(this).html());
+    if (index ==1)
+    {
+      var input =$('input#idnumber2');
+      input.val($(this).html() );
+    }
+    else if (index ==2)
+    {
+      var input =$('input#first_name');
+      input.val($(this).html() );
+      }
+    else if (index == 3)
+    {
+      var input = $('input#last_name');
+       input.val($(this).html() );
+    }
+    else if (index == 6)
+    {
+      var input = $('input#id_str');
+       input.val($(this).html() );
+    }
+  });
+
+});
+
+$("body").on('click', 'button#plus2', function(e){
+  //alert($(this).html());
+    e.preventDefault();
+    $("#rosterform")[0].reset();
+  var value = $(this).html();
+  $("button#delete").hide();
+  $("button#update").hide();
+  $("button#save").show();
+  $("p#idnumber").hide();
+  $("label#id_str").show();
+  $("input#id_str").show();
+  //$("input#create").hide();
+
+  });
+
+//Both Delete buttons link to same modal
+$("button#delete").off('click');
+  $("body").on('click', 'button#delete', function(f){
+  //alert($(this).html());
+    f.preventDefault();
+    $("div.notification.notification-warning").show();
+    $("button#warning-yes").show();
+    $("button#warning-yes2").hide();
+    $("div.notification.notification-critical").hide();
+    $("div.notification.notification-critical").hide();
+    $("div.notification.notification-success").hide();
+    $("div.notification.update-success").hide();
+  });
+
+//Roster Delete Warning Button 
+  $("body").on('click', 'button#warning-yes', function(event){
+  //console.log("On:", event.target);
+  var value = $(this).html();
+   $(".modal-animate").show();
+    
+   var id=$('input[id=idnumber2]').val();
+   console.log("On:", id);
+  //alert(id);
+  
+    //alert(filter);
+        $.ajax({
+           type: "POST",
+           dataType:'json',
+           url: "/api/edit_athletes/",
+           data:
+           {id: id,
+          submethod: 'Delete'},
+          headers: {Authorization: "Bearer " + sessionStorage.access_token},
+         
+           // Login was successful.
+           success: function(data) {
+                  $(".modal-animate").hide();
+                   $("div.notification.notification-critical").hide();
+                    $("div.notification.notification-success").hide();
+                   $("div.notification.update-success").hide();
+                  $("div.notification.delete-success").show();
+                 $("div.notification.notification-warning").hide();
+                $("#coachform")[0].reset();
+               $("button#delete").hide();
+               $("input#update").hide();
+                $("input#save").show();
+                 $("p#idnumber").hide();
+                 //$("input#create").hide();
+                  $("#athletes").empty();
+                 loadRoster();
+              },
+              // Login request failed.
+           error: function(xhr, errmsg, err) {
+      //hide spinner, show error modal
+      $(".modal-animate").hide();
+      $("div.notification.notification-success").hide();
+       $("div.notification.notification-warning").hide();
+        $("div.notification.update-success").hide();
+        $("div.notification.delete-success").hide();
+        $("div.notification.notification-critical").show();
+           }
+            });  
+});
+
+//Unlink Delete Button
+$("body").on('click', 'button#warning-yes2', function(event){
+          var it=$('input[id=idnumber]').val();   
+            var fname=$('input[id=username]').val();
+            var ti=$('input[id=tag]').val();
+            //console.log(fname);
+        $.ajax({
+           type: "POST",
+           dataType:'json',
+           url: "/api/reg_tag/",
+           headers: {Authorization: "Bearer " + sessionStorage.access_token},
+           data: {
+               id: id_helper,
+               id2: it,
+               username: fname,
+               id_str: ti,
+               submethod: 'Delete'
+           }, 
+         
+         
+           // Login was successful.
+           success: function(data) {
+                  $(".modal-animate").hide();
+                   $("div.notification.notification-critical").hide();
+                    $("div.notification.notification-success").hide();
+                   $("div.notification.update-success").hide();
+                  $("div.notification.delete-success").show();
+                 $("div.notification.notification-warning").hide();
+                $("#coachform")[0].reset();
+               $("button#delete").hide();
+               $("input#update").hide();
+                $("input#save").show();
+                 $("p#idnumber").hide();
+                 //$("input#create").hide();
+                  $("#athletes").empty();
+                 loadAthletes();
+              },
+              // Login request failed.
+           error: function(xhr, errmsg, err) {
+      //hide spinner, show error modal
+      $(".modal-animate").hide();
+      $("div.notification.notification-success").hide();
+       $("div.notification.notification-warning").hide();
+        $("div.notification.update-success").hide();
+        $("div.notification.delete-success").hide();
+        $("div.notification.notification-critical").show();
+           }
+            });  
+});
+
+$("button#warning-no").click(function(event){
+    $(".modal-animate").hide();
+      $("div.notification.notification-success").hide();
+      $("div.notification.notification-warning").hide();
+   });
+
+
+$("body").on('hidden.bs.modal', '#notificationModal', function(){
+          $("div.notification.delete-success").hide();
+          $("div.notification.notification-warning").hide();
+    });
+$("body").on('click', 'button#cl', function(e){
+  e.preventDefault();
+  $('div#tutorial').slideUp();
+});
+
+//Roster Update
+   $("body").on('click','button#update', function(e){
+         e.preventDefault();
+          var id=$('input[id=idnumber2]').val();   
+            var fname=$('input[id=first_name]').val();
+            var lname=$('input[id=last_name]').val();
+            var tagid=$('input[id=id_str]').val();
+        $.ajax({
+           type: "POST",
+           dataType:'json',
+           url: "/api/edit_athletes/",
+           headers: {Authorization: "Bearer " + sessionStorage.access_token},
+           data: {
+               id: id,
+               first_name: fname,
+               last_name: lname,
+               id_str:tagid,
+
+               submethod: 'Update'
+           }, 
+                      success: function(data) {
+                      $("#coachform")[0].reset();
+                      loadRoster();
+                      $("div.notification.update-success").show();
+                    }
+                });
+           
+      });
+
+//Roster Save Button
+   $("body").on('click','button#save', function(e){
+
+         e.preventDefault();
+         var form = $(this);  
+        $("#rosterform").parsley().validate();
+         if ( $("#rosterform").parsley().isValid()){ 
+            var fname=$('input[id=first_name]').val();
+            var lname=$('input[id=last_name]').val();
+            var tag = $('input[id=id_str]').val();
+        $.ajax({
+           type: "POST",
+           dataType:'json',
+           url: "/api/edit_athletes/",
+           headers: {Authorization: "Bearer " + sessionStorage.access_token},
+           data: {
+               first_name: fname,
+               last_name: lname,
+               username: fname + "" + lname,
+               id_str: tag,
+               submethod: 'Create',
+           }, 
+                      success: function(data) {
+                      $("#coachform")[0].reset();
+                      loadRoster();
+                    }
+                });
+           }
+      });
+
+
 </script>
 <nav class="pushy pushy-left">
     <ul class="menulist">      
@@ -668,11 +921,11 @@ $('ul.menulist li a').off('click');
       </div>
             <div class="row">
               <div class="col-lg-offset-10 col-md-offset-10 col-sm-offset-10 col-xs-offset-10">
-              <button type="button" class="btn btn-default" id="plus" data-toggle="modal" data-target="#myModal">
-                  <span class="glyphicon glyphicon-plus" aria-hidden="true"> </span>
+              <button type="button" class="btn btn-default" id="plus" data-toggle="modal" data-target="#csvModal">
+                  <span class="glyphicon glyphicon-plus" aria-hidden="true"> </span> CSV Upload
               </button>
             </div>
-            <h1 id="score-title">Athletes</h1>
+            <h1 id="score-title">Registration</h1>
             </div>
             <div class="row">
               <div id="athletes" class="table">
@@ -712,7 +965,7 @@ $('ul.menulist li a').off('click');
             <div class="notification notification-success" role="alert">You have successfully added tag(s) to a workout!</div>
             <div class="notification update-success" role="alert">You have successfully updated a tag!</div>
             <div class="notification delete-success" role="alert">You have successfully delinked a tag from the workout!</div>
-            <div class="notification notification-warning" role="alert">Are you sure? <div id="screen-selector"><button href="#" type="button" id="warning-yes" class="btn btn-primary" >Yes</button><button id="warning-no" href="#" type="button" style="float:right" data-dismiss="modal" data-toggle="modal" data-target="#myModal">Cancel</button></div></div>
+            <div class="notification notification-warning" role="alert">Are you sure? <div id="screen-selector"><button href="#" type="button" id="warning-yes" class="btn btn-danger" >Yes</button><button href="#" type="button" id="warning-yes2" class="btn btn-danger" >Yes</button><button id="warning-no" href="#" type="button" style="float:right" data-dismiss="modal" data-toggle="modal" data-target="#myModal" class="btn btn-primary">Cancel</button></div></div>
           </div>
         </div>
       </div>
@@ -723,6 +976,9 @@ $('ul.menulist li a').off('click');
   <div class="modal fade" id="csvModal" role="dialog">
     <div class="modal-dialog">
       <div class ="modal-content">
+        <div class="modal-header">
+          CSV Upload <button id="cl" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button>
+        </div>
         <div class="modal-body">
           <form name="csvform" id="csvform"  data-parsley-validate>
           <div class="form-group">
@@ -766,12 +1022,12 @@ $('ul.menulist li a').off('click');
   </div>
 </div>
       <div class="container">
- <div class="modal fade" id="myModal" role="dialog">
+  <div class="modal fade" id="myModal" role="dialog">
   <div class="modal-dialog">
   <div class="modal-content">
     <div class="modal-header">
-      <button name="" class="btn btn-primary" id="csv" data-dismiss="modal" data-toggle="modal" data-target="#csvModal">Upload CSV</button>
-    </div>
+          Edit Registered Athlete <button id="cl" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button>
+        </div>
       <div class="modal-body">
       <form name="tracform" id="coachform" method="POST" data-parsley-validate>
         <div class="button-container-two">
@@ -781,37 +1037,48 @@ $('ul.menulist li a').off('click');
             <input type="hidden" id="idnumber" value="" placeholder="" required data-parsley-group="block1" readonly/>
         </p>
        <div class="form-group">
-           <label for="">Username:</label> 
-           <input data-progression="" type="text" id="username" value="" placeholder="" required data-parsley-group="block1" class="form-control"/>
+           <label for="">First Name:</label> 
+           <input data-progression="" type="text" id="fname" value="" placeholder="" required data-parsley-group="block1" class="form-control"/>
        </div>
+       <div class="form-group">
+           <label for="">Last Name:</label> 
+           <input data-progression="" type="text" id="lname" value="" placeholder="" required data-parsley-group="block1" class="form-control"/>
+       </div>
+       <input type="hidden" id="uname" value="" placeholder="" required data-parsley-group="block1" readonly/>
         <div class="form-group">
            <label for="">TagID:</label> 
            <input data-progression="" type="text" id="tag" value="" placeholder="" required data-parsley-group="block1" class="form-control"/>
        </div>
           <br>
          
-              <div class="button-container modal-footer">
-      <button name="" class="btn btn-primary col-md-3 col-sm-3 col-xs-3" id="delete" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal">Delete</button>
-        <input type="submit" name="" class="btn btn-primary" id="save" value="Save" />
-        <input type="submit" name="" class="btn btn-primary col-md-5 col-sm-5 col-xs-5" id="update" value="Update" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal" />
-                           </div>
+              
                         </form>   
-                     </div>        
+                     </div> 
+                        <div class="modal-footer">
+                          <div class="button-container" style="display:table; margin:0 auto;">
+                            <button name="" class="btn btn-primary" id="save2">Save</button>
+                            <button name="" class="btn btn-primary" id="update2"  data-dismiss="modal" data-toggle="modal" data-target="#notificationModal">Update</button>
+                            <button name="" class="btn btn-danger" id="delete2" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal">Delete</button>
+                           </div>
+                     </div> 
+
+
                  </div>
               </div>
-          </div>
+          </div> 
       <div class="modal fade" id="athleteModal" role="dialog">
   <div class="modal-dialog">
   <div class="modal-content">
     <div class="modal-header">
-    </div>
+          Roster Addition <button id="cl" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button>
+        </div>
       <div class="modal-body">
-      <form name="tracform" id="coachform" method="POST" data-parsley-validate>
+      <form name="tracform" id="rosterform" method="POST" data-parsley-validate>
         <div class="button-container-two">
           </div>
           <p id="idnumber">
            
-            <input type="hidden" id="idnumber" value="" placeholder="" required data-parsley-group="block1" readonly/>
+            <input type="hidden" id="idnumber2" value="" placeholder="" required data-parsley-group="block1" readonly/>
         </p>
        <div class="form-group">
            <label for="">First Name:</label> 
@@ -827,12 +1094,14 @@ $('ul.menulist li a').off('click');
       </div>
           <br>
          
-              <div class="button-container modal-footer">
-      <button name="" class="btn btn-primary col-md-3 col-sm-3 col-xs-3" id="delete" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal">Delete</button>
-        <input type="submit" name="" class="btn btn-primary" id="save" value="Save" />
-        <input type="submit" name="" class="btn btn-primary col-md-5 col-sm-5 col-xs-5" id="update" value="Update" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal" />
-                           </div>
                         </form>   
+                     </div>
+                     <div class="modal-footer">
+                          <div class="button-container" style="display:table; margin:0 auto;">
+                            <button name="" class="btn btn-primary" id="save">Save</button>
+                            <button name="" class="btn btn-primary" id="update"  data-dismiss="modal" data-toggle="modal" data-target="#notificationModal">Update</button>
+                            <button name="" class="btn btn-danger" id="delete" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal">Delete</button>
+                           </div>
                      </div>        
                  </div>
               </div>
