@@ -62,10 +62,10 @@ $(function() {
 	var numSessions = 0,
 			sessionFirst = 1,
 			sessionLast = 10;
-	loadworkouts();
+	loadWorkouts();
 
 	
-	function loadworkouts() {
+	function loadWorkouts() {
 		$('#results').empty();
 		spinner.spin(document.getElementById('spinner-main'));
 		$.ajax({
@@ -155,7 +155,7 @@ $(function() {
 	$('body').on('click', 'button#new-session', function(e){
 		e.preventDefault();
 
-		// set modal title and reset form
+		// set modal title
 		$('#form-modal .modal-title').html('Create New Workout');
 		$('#session-form')[0].reset();
 		
@@ -172,132 +172,136 @@ $(function() {
 			var form = $('#session-form');
 			form.parsley().validate();
 
-			//if (form.parsley().isValid()) {
-			if (true) {
-				// reset parsley styling
-				form.parsley().reset();
+			if (!form.parsley().isValid())
+				return;
 
-				// hide button and show spinner
-				$('#session-form .session-form-buttons').hide();
-				target = $('#spinner-form');
-				target.css('height', 50);
-				spinner.spin(target[0]);
+			// reset parsley styling
+			form.parsley().reset();
 
-				var title = $('input[id=title]').val();
+			// hide button and show spinner
+			$('#session-form .session-form-buttons').hide();
+			target = $('#spinner-form');
+			target.css('height', 50);
+			spinner.spin(target[0]);
 
-				// get start date and time
-				var startDate = $('input[id=start-date]').val().trim().split(/[\/-]/),
-						startTime = $('input[id=start-time]').val().trim().split(':').map(Number),
-						startAMPM = $('select#start-am-pm').val();
-				
-				// create start date object
-				var startDateTime = new Date();
-				startDateTime.setFullYear(startDate[2]);
-				startDateTime.setMonth(startDate[0]-1);
-				startDateTime.setDate(startDate[1]);
+			var title = $('input[id=title]').val();
 
-				if ((startAMPM == 'PM' ) && (startTime[0] < 12))
-					startDateTime.setHours(startTime[0]+12);
-				else if ((startAMPM == 'AM') && (startTime[0] == 12))
-					startDateTime.setHours(startTime[0]-12);
-				else
-					startDateTime.setHours(startTime[0]);
+			// get start date and time
+			var startDate = $('input[id=start-date]').val().trim().split(/[\/-]/),
+					startTime = $('input[id=start-time]').val().trim().split(':').map(Number),
+					startAMPM = $('select#start-am-pm').val();
+			
+			// create start date object
+			var startDateTime = new Date();
+			startDateTime.setFullYear(startDate[2]);
+			startDateTime.setMonth(startDate[0]-1);
+			startDateTime.setDate(startDate[1]);
 
-				startDateTime.setMinutes(startTime[1]);
+			if ((startAMPM == 'PM' ) && (startTime[0] < 12))
+				startDateTime.setHours(startTime[0]+12);
+			else if ((startAMPM == 'AM') && (startTime[0] == 12))
+				startDateTime.setHours(startTime[0]-12);
+			else
+				startDateTime.setHours(startTime[0]);
 
-				if (startTime.length > 2)
-					startDateTime.setSeconds(startTime[2]);
-				else
-					startDateTime.setSeconds(0);
+			startDateTime.setMinutes(startTime[1]);
 
-				// get end date and time 
-				var endDate = $('input[id=end-date]').val().trim().split(/[\/-]/),
-						endTime = $('input[id=end-time]').val().trim().split(':').map(Number),
-						endAMPM = $('select#end-am-pm').val();
+			if (startTime.length > 2)
+				startDateTime.setSeconds(startTime[2]);
+			else
+				startDateTime.setSeconds(0);
 
-				// create end date object
-				var endDateTime = new Date();
-				endDateTime.setFullYear(endDate[2]);
-				endDateTime.setMonth(endDate[0]-1);
-				endDateTime.setDate(endDate[1]);
+			// get end date and time 
+			var endDate = $('input[id=end-date]').val().trim().split(/[\/-]/),
+					endTime = $('input[id=end-time]').val().trim().split(':').map(Number),
+					endAMPM = $('select#end-am-pm').val();
 
-				if ((endAMPM == 'PM' ) && (endTime[0] < 12))
-					endDateTime.setHours(endTime[0]+12);
-				else if ((endAMPM == 'AM') && (endTime[0] == 12))
-					endDateTime.setHours(endTime[0]-12);
-				else
-					endDateTime.setHours(endTime[0]);
+			// create end date object
+			var endDateTime = new Date();
+			endDateTime.setFullYear(endDate[2]);
+			endDateTime.setMonth(endDate[0]-1);
+			endDateTime.setDate(endDate[1]);
 
-				endDateTime.setMinutes(endTime[1]);
-				if (endTime.length > 2)
-					endDateTime.setSeconds(endTime[2]);
-				else
-					endDateTime.setSeconds(0);
+			if ((endAMPM == 'PM' ) && (endTime[0] < 12))
+				endDateTime.setHours(endTime[0]+12);
+			else if ((endAMPM == 'AM') && (endTime[0] == 12))
+				endDateTime.setHours(endTime[0]-12);
+			else
+				endDateTime.setHours(endTime[0]);
 
-				var distance = $('input[id=distance]').val();
-				var size = $('input[id=size]').val();
-				var filter = $('input[name=filter]:checked').val() == 'yes';
-				var privateselect = $('input[name=private]:checked').val() == 'yes';
+			endDateTime.setMinutes(endTime[1]);
+			if (endTime.length > 2)
+				endDateTime.setSeconds(endTime[2]);
+			else
+				endDateTime.setSeconds(0);
 
-				//*
-				$.ajax({
-					type: 'POST',
-					dataType:'json',
-					url: '/api/time_create/',
-					headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
-					data: {
-						id: 0,
-						name: title,
-						start_time: startDateTime.toISOString(),
-						stop_time: endDateTime.toISOString(),
-						rest_time: '0',
-						track_size: size,
-						interval_distance: distance,
-						interval_number: '0',
-						filter_choice: filter,
-						private: privateselect
-					},
-					success: function(data) {
-						// hide spinner
-						spinner.stop();
-						target.css('height', '');
-						
-						// show success message
-						$('.notification').hide();
-						$('.notification.create-success').show();
+			var distance = $('input[id=distance]').val();
+			var size = $('input[id=size]').val();
+			var filter = $('input[name=filter]:checked').val() == 'yes';
+			var privateselect = $('input[name=private]:checked').val() == 'yes';
 
-						// switch modals
-						$('#form-modal').modal('hide');
-						$('#notifications-modal').modal('show');
+			//*
+			$.ajax({
+				type: 'POST',
+				dataType:'json',
+				url: '/api/time_create/',
+				headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+				data: {
+					id: 0,
+					name: title,
+					start_time: startDateTime.toISOString(),
+					stop_time: endDateTime.toISOString(),
+					rest_time: '0',
+					track_size: size,
+					interval_distance: distance,
+					interval_number: '0',
+					filter_choice: filter,
+					private: privateselect
+				},
+				success: function(data) {
+					// hide spinner
+					spinner.stop();
+					target.css('height', '');
+					
+					// show success message
+					$('.notification').hide();
+					$('.notification.create-success').show();
 
-						// clear form and reload data
-						$('#session-form')[0].reset();
-						loadworkouts();
-					},
-					error: function(xhr, errmsg, err) {
-						// hide spinner
-						spinner.stop();
-						target.css('height', '');
-						
-						// show error message
-						$('.notification').hide();
-						$('.notification.form-data-error').show();
+					// switch modals
+					$('#form-modal').modal('hide');
+					$('#notifications-modal').modal('show');
 
-						// switch modals
-						$('#form-modal').modal('hide');
-						$('#notifications-modal').modal('show');
-					}
-				});
-				//*/
-			}
+					// clear form and reload data
+					$('#session-form')[0].reset();
+					loadWorkouts();
+				},
+				error: function(xhr, errmsg, err) {
+					// hide spinner
+					spinner.stop();
+					target.css('height', '');
+					
+					// show error message
+					$('.notification').hide();
+					$('.notification.form-data-error').show();
+
+					// switch modals
+					$('#form-modal').modal('hide');
+					$('#notifications-modal').modal('show');
+				}
+			});
+			//*/
 		});
 	});
 
 	// editing workout session
-	$('body').on('click', '#results-table tr', function(){
+	$('body').on('click', '#results-table tbody tr', function(){
 		// set modal title and show
 		$('#form-modal .modal-title').html('Edit Workout Session');
 		$('#form-modal').modal('show');
+
+		// clear form
+		$('#session-form').parsley().reset();
+		//$('#session-form')[0].reset();
 
 		// populate form with current data
 		var data = $(this).children();
@@ -362,146 +366,215 @@ $(function() {
 		$('body').on('click', 'button#update', function(e) {
 			e.preventDefault();
 
+			//validate that form is correctly filled out
+			var form = $('#session-form');
+			form.parsley().validate();
+
+			if (!form.parsley().isValid())
+				return;
+
+			// reset parsley styling
+			form.parsley().reset();
+
+			// hide button and show spinner
+			$('#session-form .session-form-buttons').hide();
+			target = $('#spinner-form');
+			target.css('height', 50);
+			spinner.spin(target[0]);
+
+			var title = $('input[id=title]').val();
+
+			// get start date and time
+			var startDate = $('input[id=start-date]').val().trim().split(/[\/-]/),
+					startTime = $('input[id=start-time]').val().trim().split(':').map(Number),
+					startAMPM = $('select#start-am-pm').val();
+			
+			// create start date object
+			var startDateTime = new Date();
+			startDateTime.setFullYear(startDate[2]);
+			startDateTime.setMonth(startDate[0]-1);
+			startDateTime.setDate(startDate[1]);
+
+			if ((startAMPM == 'PM' ) && (startTime[0] < 12))
+				startDateTime.setHours(startTime[0]+12);
+			else if ((startAMPM == 'AM') && (startTime[0] == 12))
+				startDateTime.setHours(startTime[0]-12);
+			else
+				startDateTime.setHours(startTime[0]);
+
+			startDateTime.setMinutes(startTime[1]);
+
+			if (startTime.length > 2)
+				startDateTime.setSeconds(startTime[2]);
+			else
+				startDateTime.setSeconds(0);
+
+			// get end date and time 
+			var endDate = $('input[id=end-date]').val().trim().split(/[\/-]/),
+					endTime = $('input[id=end-time]').val().trim().split(':').map(Number),
+					endAMPM = $('select#end-am-pm').val();
+
+			// create end date object
+			var endDateTime = new Date();
+			endDateTime.setFullYear(endDate[2]);
+			endDateTime.setMonth(endDate[0]-1);
+			endDateTime.setDate(endDate[1]);
+
+			if ((endAMPM == 'PM' ) && (endTime[0] < 12))
+				endDateTime.setHours(endTime[0]+12);
+			else if ((endAMPM == 'AM') && (endTime[0] == 12))
+				endDateTime.setHours(endTime[0]-12);
+			else
+				endDateTime.setHours(endTime[0]);
+
+			endDateTime.setMinutes(endTime[1]);
+			if (endTime.length > 2)
+				endDateTime.setSeconds(endTime[2]);
+			else
+				endDateTime.setSeconds(0);
+
+			var distance = $('input[id=distance]').val();
+			var size = $('input[id=size]').val();
+			var filter = $('input[name=filter]:checked').val() == 'yes';
+			var privateselect = $('input[name=private]:checked').val() == 'yes';
+
+			//*
+			$.ajax({
+				type: 'POST',
+				dataType:'json',
+				url: '/api/time_create/',
+				headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+				data: {
+					id: 0,
+					name: title,
+					start_time: startDateTime.toISOString(),
+					stop_time: endDateTime.toISOString(),
+					rest_time: '0',
+					track_size: size,
+					interval_distance: distance,
+					interval_number: '0',
+					filter_choice: filter,
+					private: privateselect
+				},
+				success: function(data) {
+					// hide spinner
+					spinner.stop();
+					target.css('height', '');
+					
+					// show success message
+					$('.notification').hide();
+					$('.notification.update-success').show();
+
+					// switch modals
+					$('#form-modal').modal('hide');
+					$('#notifications-modal').modal('show');
+
+					// clear form and reload data
+					$('#session-form')[0].reset();
+					loadWorkouts();
+				},
+				error: function(xhr, errmsg, err) {
+					// hide spinner
+					spinner.stop();
+					target.css('height', '');
+					
+					// show error message
+					$('.notification').hide();
+					$('.notification.form-data-error').show();
+
+					// switch modals
+					$('#form-modal').modal('hide');
+					$('#notifications-modal').modal('show');
+				}
+			});
+			//*/
+		});
+
+		$('body').off('click', 'button#delete');
+		$('body').on('click', 'button#delete', function(e) {
+			e.preventDefault();
+
+			// ask for confirmation
+			$('#session-form .session-form-buttons').hide();
+			$('#session-form #session-delete-buttons').show();
+
+			$('body').off('click', 'button#delete-yes');
+			$('body').on('click', 'button#delete-yes', function(e){
+				e.preventDefault();
+
+				// hide buttons and show spinner
+				$('#session-form .session-form-buttons').hide();
+				target = $('#spinner-form');
+				target.css('height', 50);
+				spinner.spin(target[0]);
+
+				var id = $('input[id=idnumber]').val();
+
+				$.ajax({
+					type: 'DELETE',
+					dataType:'json',
+					url: '/api/sessions/'+id,
+					headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+					success: function(data) {
+						// hide spinner
+						spinner.stop();
+						target.css('height', '');
+						
+						// show success message
+						$('.notification').hide();
+						$('.notification.delete-success').show();
+
+						// switch modals
+						$('#form-modal').modal('hide');
+						$('#notifications-modal').modal('show');
+
+						// clear form and reload data
+						$('#session-form')[0].reset();
+						loadWorkouts();
+					},
+					error: function(xhr, errmsg, err) {
+						// hide spinner
+						spinner.stop();
+						target.css('height', '');
+						
+						// show error message
+						$('.notification').hide();
+						$('.notification.form-data-error').show();
+
+						// switch modals
+						$('#form-modal').modal('hide');
+						$('#notifications-modal').modal('show');
+					}
+				});
+			});
+
+			$('body').off('click', 'button#delete-no');
+			$('body').on('click', 'button#delete-no', function(e){
+				e.preventDefault();
+
+				// show edit buttons
+				$('#session-form .session-form-buttons').hide();
+				$('#session-form #session-edit-buttons').show();
+			});
 		});
 	});
 
-	
+	$('body').on('click', 'button.prev', function(e){
+		e.preventDefault();
 
-	$('body').off('click', 'button#delete');
-	$('body').on('click', 'button#delete', function(f){
-	//alert($(this).html());
-		f.preventDefault();
-		$('div.notification.notification-warning').show();
-		$('div.notification.notification-critical').hide();
-		$('div.notification.notification-critical').hide();
-		$('div.notification.create-success').hide();
-		$('div.notification.update-success').hide();
-	});
-
-	$('body').on('click', 'button#warning-yes', function(event){
-		var value = $(this).html();
-		$('.modal-animate').show();
-
-		var id=$('input[id=idnumber]').val();
-		//alert(id);
-		//alert(filter);
-
-		$.ajax({
-			type: 'DELETE',
-			dataType:'json',
-			url: '/api/sessions/'+id,
-			headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-			success: function(data) {
-				//hide spinner, success modal, and reset form
-				$('.modal-animate').hide();
-				$('div.notification.notification-critical').hide();
-				$('div.notification.create-success').hide();
-				$('div.notification.update-success').hide();
-				$('div.notification.delete-success').show();
-				$('div.notification.notification-warning').hide();
-				$('#session-form')[0].reset();
-				$('button#delete').hide();
-				$('input#update').hide();
-				$('input#save').show();
-				$('p#idnumber').hide();
-				//$('input#create').hide();
-				$('#results').empty();
-				loadworkouts();
-			},
-			error: function(xhr, errmsg, err) {
-				//hide spinner, show error modal
-				$('.modal-animate').hide();
-				$('div.notification.create-success').hide();
-				$('div.notification.notification-warning').hide();
-				$('div.notification.update-success').hide();
-				$('div.notification.delete-success').hide();
-				$('div.notification.notification-critical').show();
-			}
-		});
-	});
-
-	$('button#warning-no').click(function(event){
-		$('.modal-animate').hide();
-		$('div.notification.create-success').hide();
-		$('div.notification.notification-warning').hide();
-	});
-
-	$('body').on('hidden.bs.modal', '#notificationModal', function(){
-		$('div.notification.delete-success').hide();
-		$('div.notification.notification-warning').hide();
-	});
-
-	$('body').on('click', 'button.prev', function(f){
-		if(sessionFirst != 1){
+		if (sessionFirst != 1) {
 			sessionFirst -= 10;
 			sessionLast -= 10;
 		}
 
-		loadworkouts();
+		loadWorkouts();
 	});
 
-	$('body').on('click', 'button.next',function(f){
+	$('body').on('click', 'button.next', function(e){
+		e.preventDefault();
+
 		sessionFirst += 10;
 		sessionLast += 10;
-		loadworkouts();
-	});
-
-	$('body').on('click', 'input#update',function(f){
-		//alert($(this).html());
-		f.preventDefault();
-		$('.modal-animate').show();
-		var id=$('input[id=idnumber]').val();
-		var title=$('input[id=title]').val();
-		var startDate=$('input[id=start-date]').val();
-		var endDate=$('input[id=end-date]').val();
-		var distance=$('input[id=distance]').val();
-		var size=$('input[id=size]').val();
-		var filter=$('#filter option:selected').val();
-		var privateselect=$('#private option:selected').val();
-		var sT = local2UTC(startDate);
-		var eT = local2UTC(endDate);
-
-		$.ajax({
-			type: 'POST',
-			dataType:'json',
-			url: '/api/time_create/',
-			headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-			data: {
-				id: id,
-				name: title,
-				start_time: sT,
-				stop_time: eT,
-				rest_time: '0',
-				track_size: size,
-				interval_distance: distance,
-				interval_number:'0',
-				filter_choice:filter,
-				private:privateselect,
-			},
-			success: function(data) {
-				//hide spinner, success modal, and reset form
-				$('.modal-animate').hide();
-				$('div.notification.notification-critical').hide();
-				$('div.notification.create-success').hide();
-				$('div.notification.delete-success').hide();
-				$('div.notification.update-success').show();
-				$('#session-form')[0].reset();
-				$('button#delete').hide();
-				$('input#update').hide();
-				$('input#save').show();
-				$('p#idnumber').hide();
-				//$('input#create').hide();
-				loadworkouts();
-			},
-			error: function(xhr, errmsg, err) {
-				//hide spinner, show error modal
-				$('.modal-animate').hide();
-				$('div.notification.create-success').hide();
-				$('div.notification.notification-warning').hide();
-				$('div.notification.update-success').hide();
-				$('div.notification.delete-success').hide();
-				$('div.notification.notification-critical').show();
-			}
-		});
+		loadWorkouts();
 	});
 });

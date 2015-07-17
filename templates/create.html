@@ -70,16 +70,10 @@
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-body">
-					<div class="notification form-data-error" role="alert">Some information you entered isn't right.</div>
+					<div class="notification form-data-error" role="alert">Oops! Something went wrong. Please try again.</div>
 					<div class="notification create-success" role="alert">You have successfully created a workout!</div>
 					<div class="notification update-success" role="alert">You have successfully updated a workout!</div>
 					<div class="notification delete-success" role="alert">You have successfully deleted a workout!</div>
-					<div class="notification notification-warning" role="alert">Are you sure? 
-					<div id="screen-selector">
-						<button href="#" type="button" id="warning-yes" class="btn btn-danger" style="color:#FFF;">Yes</button>
-						<button id="warning-no" href="#" type="button" style="float:right; color:#FFF;" data-dismiss="modal" data-toggle="modal" data-target="#form-modal" class="btn btn-primary">Cancel</button>
-					</div>
-				</div>
 				</div>
 			</div>
 		</div>
@@ -172,6 +166,11 @@
 							<div id="session-edit-buttons" class="session-form-buttons" style="display: table; margin: 0 auto;">
 								<button type="submit" id="update" class="btn btn-primary" style="margin-right:10px;">Update</button>
 								<button type="submit" id="delete" class="btn btn-danger">Delete</button>
+							</div>
+							<div id="session-delete-buttons" class="session-form-buttons" style="display: table; margin: 0 auto;">
+								<p style="text-align:center;">Confirm Delete</p>
+									<button type="submit" id="delete-yes" class="btn btn-danger" style="margin-right:10px;">Delete</button>
+									<button type="submit" id="delete-no" class="btn btn-default">Cancel</button>
 							</div>
 							<div id="session-create-buttons" class="session-form-buttons" style="display: table; margin: 0 auto;">
 							  <button type="submit" id="create" class="btn btn-primary">Create</button>
