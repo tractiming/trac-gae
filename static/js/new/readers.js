@@ -115,8 +115,8 @@ $(function() {
 				$('#results-table').hide();
 				spinner.spin(target);
 
-				var name = $('input#create-name').val();
-				var idstr = $('input#create-id-str').val();
+				var name = escapeString($('input#create-name').val());
+				var idstr = escapeString($('input#create-id-str').val());
 				
 				form.parsley().reset();
 				form[0].reset();
@@ -161,9 +161,9 @@ $(function() {
 			$('#results-table').hide();
 			spinner.spin(target);
 
-			var id = $('input#edit-id').val();
-			var name = $('input#edit-name').val();
-			var idstr = $('input#edit-id-str').val();
+			var id = escapeString($('input#edit-id').val());
+			var name = escapeString($('input#edit-name').val());
+			var idstr = escapeString($('input#edit-id-str').val());
 			$.ajax({
 				type: 'PUT',
 				dataType:'json',
