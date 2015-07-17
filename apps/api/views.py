@@ -779,7 +779,7 @@ def token_validation(request):
 
 @api_view(['POST'])
 @login_required()
-@permission_classes((permissions.AllowAny,))
+@permission_classes((permissions.IsAuthenticated,))
 def reset_password(request):
     name =  base64.urlsafe_b64decode(request.POST.get('user').encode('utf-8'))
     user = User.objects.get(pk = name)
@@ -794,6 +794,23 @@ def reset_password(request):
     else:
         return HttpResponse(status.HTTP_403_FORBIDDEN)
     user.accesstoken_set.get(token = token).delete()
+    return HttpResponse(status.HTTP_200_OK)
+
+@api_view(['POST'])
+@login_required()
+@permission_classes((permissions.IsAuthenticated,))
+def change_password(request):
+    user = request.auth
+    token = request.auth
+    if token not in user.accesstoken_set.all():
+            return HttpResponse(status.HTTP_403_FORBIDDEN)
+    if token.expires < timezone.now():
+            return HttpResponse(status.HTTP_403_FORBIDDEN)
+    if user.is_authenticated():
+        user.set_password(request.POST.get('password'))
+        user.save()
+    else:
+        return HttpResponse(status.HTTP_403_FORBIDDEN)
     return HttpResponse(status.HTTP_200_OK)
 
 @api_view(['POST'])
