@@ -125,9 +125,9 @@ function loadworkouts(){
                         //console.log(data);
                         var json = $.parseJSON(data);
                        //alert(json[0].id_str)
-                       json = json.reverse();
+                       var results = json.results;
 
-                       if (json == "") {
+                       if (results == "") {
         $(".outer").hide();
         $(".modal-animate").hide();
         $('#workouts').empty();
@@ -159,21 +159,21 @@ function loadworkouts(){
               '</tbody>');
               $('#workouts').addClass('col-md-6 col-md-offset-0 colr-sm-8 col-sm-offset-0');
               var maximum = 0;
-                       for (var ii=0; ii < json.length;ii++){
+                       for (var ii=0; ii < results.length;ii++){
                //alert(ii);
                if (ii > maximum){
                 maximum = ii;
                }
-               id = json[ii].id;
-               name = json[ii].name;
-               distance = json[ii].interval_distance;
-               track = json[ii].track_size;
+               id = results[ii].id;
+               name = results[ii].name;
+               distance = results[ii].interval_distance;
+               track = results[ii].track_size;
               // time = time.slice(0,10);
-               filter= json[ii].filter_choice;
-               privateselect = json [ii].private;
-               var sTS = UTC2local(json[ii].start_time);
+               filter= results[ii].filter_choice;
+               privateselect = results [ii].private;
+               var sTS = UTC2local(results[ii].start_time);
                sTS = sTS.substring(0, 25);
-               var sTE = UTC2local(json[ii].stop_time);
+               var sTE = UTC2local(results[ii].stop_time);
                sTE = sTE.substring(0,25);
                 $('#workouts tbody').append(
                   '<tr>'+

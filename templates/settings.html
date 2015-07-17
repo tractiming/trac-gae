@@ -169,14 +169,16 @@ function findScores(){
              i2: instance_last,},
       success: function(data){
         var json = $.parseJSON(data);
-        json = json.reverse();
+        
+        var results = json.results;
+
           var arr = [];
-          for (var i=0; i < json.length; i++){
-            $('#linkedlist').append('<tr><td>'+json[i].name+'</td></tr>');
-            $('ul.menulist').append('<li><a href="#">'+json[i].name+'</a></li>');
-            arr.push(json[i].id);
+          for (var i=0; i < results.length; i++){
+            $('#linkedlist').append('<tr><td>'+results[i].name+'</td></tr>');
+            $('ul.menulist').append('<li><a href="#">'+results[i].name+'</a></li>');
+            arr.push(results[i].id);
           }
-          if (json.length == 5){
+          if (results.length == 5){
           $('#linkedlist').append('<tr id="sM"><td>SeeMore</td></tr>');
           $('ul.menulist').append('<li id="sM"><a href="#SeeMore">See More</a></li>');
         }
