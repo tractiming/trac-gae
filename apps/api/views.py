@@ -518,8 +518,8 @@ def sessions_paginate(request):
                 #if indices are in the range of pagination, append to return list
                 result.append(instance)
             i += 1
-        result = list(reversed(result))
-        return Response(result, status.HTTP_200_OK)
+        #result = list(reversed(result))
+        return Response({'results': result, 'numSessions': len(table)}, status.HTTP_200_OK)
 
 def string2bool(string):
     if string == 'true':

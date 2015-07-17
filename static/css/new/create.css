@@ -3,3 +3,7 @@
 label {
   display: block;
 }
+
+.sessions-page-number, .sessions-show-status {
+	padding: 0 10px;
+}
