@@ -3,7 +3,7 @@ from django.views.generic import TemplateView
 import views
 
 urlpatterns = patterns('',
-    url(r'^$', views.index, name='index'),
+    url(r'^$', views.home, name='home'),
     url(r'^login', views.login, name='login'),
     url(r'^register', views.register, name='register'),
     url(r'^liveview', views.live_view, name='liveview'),

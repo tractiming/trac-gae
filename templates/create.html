@@ -3,31 +3,15 @@
 
 
 {% block stylesheets %}
-<link rel="stylesheet" href="{% static "css/new/main.css" %}" />
-<link rel="stylesheet" href="{% static "css/new/score.css" %}" />
-<link rel="stylesheet" href="{% static "css/new/create.css" %}" />
+	<link href="{% static "css/bootstrap-datepicker3.min.css" %}" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" href="{% static "css/new/create.css" %}" />
 {% endblock %}
 
 {% block js_scripts %}
-<script type="text/javascript" src="{% static "js/timeConversion.js" %}" />
-<script type="text/javascript" src="{% static "js/access_token.js" %}"></script>
-<script>
-if (sessionStorage.access_token == null) {
-    //link to login page
-    location.href="/login";
-}
-else{
-    
-}
-
-    $(document).ready(function() {
-$("li a.logout").click(function(){
-    sessionStorage.clear();
-    location.href="/login";
-});
-    });
-
-</script>
+	<script src="{% static "js/bootstrap-datepicker.min.js" %}" type="text/javascript"></script>
+	<script type="text/javascript" src="{% static "js/timeConversion.js" %}"></script>
+	<script type="text/javascript" src="{% static "js/access_token.js" %}"></script>
+	<script type="text/javascript" src="{% static "js/new/create.js" %}"></script>
 {% endblock %}
 
 {% block nav-items %}
@@ -38,7 +22,7 @@ $("li a.logout").click(function(){
   <li><a class="hidden-sm hidden-md hidden-lg" href="/readers">Readers</a></li>
   <li><a class="hidden-sm hidden-md hidden-lg" href="/settings">Settings</a></li>
   <li><a class="logout hidden-sm hidden-md hidden-lg" href="">Logout</a></li>
-<!-- Single button -->
+	<!-- Single button -->
   <li id="dropdown-button" class="btn-group hidden-xs">
     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
       <span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>
@@ -53,603 +37,172 @@ $("li a.logout").click(function(){
 {% endblock %}
 
 {% block content %}
-
-<script>
-	var mostInstance= 0;
-	var instanceFirst = 1;
-	var instanceLast = 11;
-	if (sessionStorage.usertype == 'athlete'){
-			    location.href="/home.html";
-		}
-
-</script>
-<script>
-  //step by step jquery plugin that explains each box of form
-	jQuery(document).ready(function($) {
-
-
-		/*$("#myform").progression({
-		  tooltipWidth: '200',
-		  tooltipPosition: 'left',
-		  tooltipOffset: '50',
-		  showProgressBar: false,
-		  showHelper: true,
-		  tooltipFontSize: '15',
-		  tooltipFontColor: 'fff',
-		  progressBarBackground: 'fff',
-		  progressBarColor: '6EA5E1',
-		  tooltipBackgroundColor:'F0B922',
-		  tooltipPadding: '10',
-		  tooltipAnimate: true
-		}); */
-
-	});
-
-	</script>
-	<script>
-$(document).ready(function() {
-	$(".modal-animate").show();
-	var opts = {
-		lines: 13, 							// The number of lines to draw
-	  length: 28, 						// The length of each line
-		width: 14, 							// The line thickness
-		radius: 42, 						// The radius of the inner circle
-		scale: 0.3, 						// Scales overall size of the Spinner
-		corners: 1, 						// Corner roundness (0..1)
-		color: '#3577a8', 			// #rgb or #rrggbb or array of colors
-		opacity: 0.25, 					// Opacity of the lines
-		rotate: 0, 							// The rotation offset
-		direction: 1, 					// 1: clockwise, -1: counterclockwise
-		speed: 1, 							// Rounds per second
-		trail: 60, 							// Afterglow percentage
-		fps: 20, 								// Frames per second when using setTimeout() as a fallback for CSS
-		zIndex: 1,	 						// The z-index (defaults to 2000000000)
-		className: 'spinner', 	// The CSS class to assign to the spinner
-		top: '50%', 						// Top position relative to parent
-		left: '50%', 						// Left position relative to parent
-		shadow: false, 					// Whether to render a shadow
-		hwaccel: false, 				// Whether to use hardware acceleration
-		position: 'absolute'	 	// Element positioning
-	}
-	var target = document.getElementById('spinner');
-	var spinner = new Spinner(opts);
-		loadworkouts();
-
-      //on submit prevent default of form and show spinner,
-        $("input#save").click( function(e){
-            e.preventDefault();
-	    $(".modal-animate").show();
-            var form = $(this);
-	    //validate that form is correclty filled out
-           
-
-	    //if valid perform ajax request
-	    
-            
-	             var title=escapeString($('input[id=title]').val());
-		      var start_date=$('input[id=start_date]').val();
-		     var end_date=$('input[id=end_date]').val();
-		     var distance=escapeString($('input[id=distance]').val());
-		      var size=escapeString($('input[id=size]').val());
-		     var filter=$('#filter option:selected').val();
-		     var privateselect=$('#private option:selected').val();
-		     var sT = escapeString(local2UTC(start_date));
-		     var eT = escapeString(local2UTC(end_date));
-	      $.ajax({
-           type: "POST",
-           dataType:'json',
-           url: "/api/time_create/",
-	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
-           data: {
-               id: 0,
-               name: title,
-               start_time: sT,
-               stop_time: eT,
-               rest_time: '0',
-               track_size: size,
-               interval_distance: distance,
-               interval_number:'0',
-               filter_choice:filter,
-               private:privateselect,
-           }, 
-
-           // Login was successful.
-           success: function(data) {
-		    //hide spinner, success modal, and reset form
-		    $(".modal-animate").hide();
-		    $("div.notification.notification-critical").hide();
-		    $("div.notification.update-success").hide();
-		    $("div.notification.delete-success").hide();
-		    $("div.notification.notification-success").show();
-		    $("#myform")[0].reset();
-		    $(".outer").show();
-            $("div.notification.notification-default").hide();
-		    loadworkouts();
-                   
-           },
-
-           // Login request failed.
-           error: function(xhr, errmsg, err) {
-	    //hide spinner, show error modal
-	    $(".modal-animate").hide();
-	    $("div.notification.notification-success").hide();
-	     $("div.notification.update-success").hide();
-		    $("div.notification.delete-success").hide();
-               $("div.notification.notification-critical").show();
-           }
-           
-      });
-               
-            
-        });
-function loadworkouts(){
-	spinner.spin(target);
-			 $('#results').empty();
-		   $.ajax({
-             url: "/api/session_Pag/",
-		     headers: {Authorization: "Bearer " + sessionStorage.access_token},
-                    //force to handle it as text
-                    data: {
-                    	i1: instanceFirst,
-                    	i2: instanceLast,
-                    },
-                    dataType: "text",
-                    success: function(data) {
-                        //alert(data);
-                        //data downloaded so we call parseJSON function 
-                        //and pass downloaded data
-                        //console.log(data);
-                        var json = $.parseJSON(data);
-                       //alert(json[0].id_str)
-                       json = json.reverse();
-
-                       if (json == "") {
-			  $(".outer").hide();
-			  $(".modal-animate").hide();
-			  $('#results').empty();
-  		      $('button#next').hide();
-  		      $('button#prev').show();			  
-			    $("div.notification.notification-default").show();
-
-			}
-			// show name and date, dont show message, but show button
-			else {
-                       $(".outer").show();
-                        $("div.notification.notification-default").hide();
-                        $('#results').append(
-                        '<table id="results-table" class="table table-striped table-hover">' +
-                        	'<thead>' +
-			    				'<tr>' +
-			    				'<th class="hidden-xs hidden-sm hidden-md hidden-lg">id</th>'+
-			    					'<th>Workout Name</th>'+
-			    					'<th>Start Date</th>'+
-			    					'<th class="hidden-xs hidden-sm">End Date</th>'+
-			    					'<th class="hidden-xs hidden-sm">Distance</th>'+
-			    					'<th class="hidden-xs hidden-sm">Track</th>'+
-			    					'<th>Filtered</th>'+
-			    					'<th class="hidden-xs hidden-sm">Private</th>'+
-			    				'</tr>'+
-			    			'</thead>'+
-			    			'<tbody>'+
-			    			'</tbody>'+
-			    		'</tbody>');
-			    		$('#results').addClass('col-md-6 col-md-offset-0 colr-sm-8 col-sm-offset-0');
-			    		var maximum = 0;
-                       for (var ii=0; ii < json.length;ii++){
-						   //alert(ii);
-						   if (ii > maximum){
-						   	maximum = ii;
-						   }
-						   id = json[ii].id;
-						   name = json[ii].name;
-						   distance = json[ii].interval_distance;
-						   track = json[ii].track_size;
-						  // time = time.slice(0,10);
-						   filter= json[ii].filter_choice;
-						   privateselect = json [ii].private;
-						   var sTS = UTC2local(json[ii].start_time);
-						   sTS = sTS.substring(0, 25);
-						   var sTE = UTC2local(json[ii].stop_time);
-						   sTE = sTE.substring(0,25);
-			    			$('#results tbody').append(
-			    				'<tr>'+
-			    				'<td class="hidden-xs hidden-sm hidden-md hidden-lg">' + id + '</td>' +
-			    					'<td>'+name+'</td>'+
-			    					'<td>'+sTS+'</td>'+
-			    					'<td class="hidden-xs hidden-sm">'+sTE+'</td>'+
-			    					'<td class="hidden-xs hidden-sm">'+distance+'</td>'+
-			    					'<td class="hidden-xs hidden-sm">'+track+'</td>'+
-			    					'<td>'+filter+'</td>'+
-			    					'<td class="hidden-xs hidden-sm">'+privateselect+'</td>'+
-			    				'</tr>');
-						   }
-						   if (maximum < 8){
-						   	$('button#next').hide();
-						   }
-						   else{
-						   	$('button#next').show();
-						   }
-						   if (instanceFirst == 1){
-						   	$('button#prev').hide();
-						   }
-						   else{
-						   	$('button#prev').show();
-						   }
-					   }
-
-			}
-			
-			
-			
-                    });
-spinner.stop();
-		   
-}
-	  
-$("body").on('click', 'tr',function(){
-	//alert($(this).html());
-	$('#myModal').modal('toggle');
-	var value = $(this).html();
-	$("button#delete").show();
-	$("input#update").show();
-	$("div.button-container-two").show();
-	$("input#create").show();
-	$("p#idnumber").show();
-	$("input#save").hide();
-	$(value).each(function(index){
-		//alert( $(this).html() );
-		if (index ==0)
-		{
-			var input =$('input#idnumber');
-			input.val($(this).html() );
-		}
-		else if (index ==1)
-		{
-			var input =$('input#title');
-			input.val($(this).html() );
-			}
-		else if (index ==2)
-		{
-			var input =$('input#start_date');
-			var format = new Date($(this).html());
-			format = format.toISOString();
-			format = localISOString(format);
-			format = format.replace(/T/g,' ');
-			format = format.substring(0,19);
-			format = format.replace(/;/g, ':');
-			input.val(format);
-			}
-			else if (index ==3)
-		{
-			var input =$('input#end_date');
-			var format = new Date($(this).html());
-			format = format.toISOString();
-			format = localISOString(format);
-			format = format.replace(/T/g,' ');
-			format = format.substring(0,19);
-			format = format.replace(/;/g, ':');
-			input.val(format);
-			}
-		else if (index ==4){
-			var input =$('input#distance');
-	input.val($(this).html() );
-	}
-		else if (index ==5){
-			var input =$('input#size');
-	input.val($(this).html() );}
-	
-	else if (index ==6){
-			var input =$('select#filter');
-	input.val($(this).html() );}
-	else if (index ==7){
-			var input =$('select#private');
-	input.val($(this).html() );}
-
-	});
-	
-	
-
-	
-	
-	});
-	
-	$("body").on('click', 'button#create', function(e){
-	//alert($(this).html());
-	  e.preventDefault();
-	  $("#myform")[0].reset();
-	var value = $(this).html();
-	$("button#delete").hide();
-	$("input#update").hide();
-	$("input#save").show();
-	$("p#idnumber").hide();
-	//$("input#create").hide();
-
-	});
-
-	$("button#delete").off('click');
-	$("body").on('click', 'button#delete', function(f){
-	//alert($(this).html());
-	  f.preventDefault();
-	  $("div.notification.notification-warning").show();
-	  $("div.notification.notification-critical").hide();
-	  $("div.notification.notification-critical").hide();
-	  $("div.notification.notification-success").hide();
-	  $("div.notification.update-success").hide();
-	});
-	  
-	$("body").on('click', 'button#warning-yes', function(event){
-	var value = $(this).html();
-	 $(".modal-animate").show();
-	  
-	 var id=$('input[id=idnumber]').val();
-	//alert(id);
-	
-		//alert(filter);
-	      $.ajax({
-           type: "DELETE",
-           dataType:'json',
-           url: "/api/sessions/"+id,
-	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
-         
-           // Login was successful.
-           success: function(data) {
-		    //hide spinner, success modal, and reset form
-		    $(".modal-animate").hide();
-		    $("div.notification.notification-critical").hide();
-		    $("div.notification.notification-success").hide();
-		     $("div.notification.update-success").hide();
-		    $("div.notification.delete-success").show();
-		     $("div.notification.notification-warning").hide();
-		    $("#myform")[0].reset();
-		    	$("button#delete").hide();
-	$("input#update").hide();
-	$("input#save").show();
-	$("p#idnumber").hide();
-	//$("input#create").hide();
-	$("#results").empty();
-		    loadworkouts();     
-           },
-
-           // Login request failed.
-           error: function(xhr, errmsg, err) {
-	    //hide spinner, show error modal
-	    $(".modal-animate").hide();
-	    $("div.notification.notification-success").hide();
-	     $("div.notification.notification-warning").hide();
-	      $("div.notification.update-success").hide();
-		    $("div.notification.delete-success").hide();
-               $("div.notification.notification-critical").show();
-           }
-           
-      });
-});
-		$("button#warning-no").click(function(event){
-		$(".modal-animate").hide();
-	    $("div.notification.notification-success").hide();
-	    $("div.notification.notification-warning").hide();
-	 });
-
-
-		$("body").on('hidden.bs.modal', '#notificationModal', function(){
-			$("div.notification.delete-success").hide();
-			$("div.notification.notification-warning").hide();
-		});
-		$("body").on('click', 'button#prev',function(f){
-			if(instanceFirst != 1){
-				instanceFirst -= 10;
-				instanceLast -= 10;
-			}
-			loadworkouts();
-		});
-		$("body").on('click', 'button#next',function(f){
-			instanceFirst += 10;
-			instanceLast += 10;
-			loadworkouts();
-		});
-		$("body").on('click', 'input#update',function(f){
-	//alert($(this).html());
-	  f.preventDefault();
-	   $(".modal-animate").show();
-	 var id=escapeString($('input[id=idnumber]').val());
-	 var title=escapeString($('input[id=title]').val());
-		      var start_date=$('input[id=start_date]').val();
-		     var end_date=$('input[id=end_date]').val();
-		     var distance=escapeString($('input[id=distance]').val());
-		      var size=escapeString($('input[id=size]').val());
-		     var filter=$('#filter option:selected').val();
-		     var privateselect=$('#private option:selected').val();
-		     var sT = escapeString(local2UTC(start_date));
-		     var eT = escapeString(local2UTC(end_date));
-		     console.log(title);
-		//alert(filter);
-	      $.ajax({
-           type: "POST",
-           dataType:'json',
-           url: "/api/time_create/",
-	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
-	   data: {
-	   		   id: id,
-               name: title,
-               start_time: sT,
-               stop_time: eT,
-               rest_time: '0',
-               track_size: size,
-               interval_distance: distance,
-               interval_number:'0',
-               filter_choice:filter,
-               private:privateselect,
-               
-           },
-
-           // Login was successful.
-           success: function(data) {
-		    //hide spinner, success modal, and reset form
-		    $(".modal-animate").hide();
-		    $("div.notification.notification-critical").hide();
-		    $("div.notification.notification-success").hide();
-		    $("div.notification.delete-success").hide();
-		    $("div.notification.update-success").show();
-		    $("#myform")[0].reset();
-		    	$("button#delete").hide();
-	$("input#update").hide();
-	$("input#save").show();
-	$("p#idnumber").hide();
-	//$("input#create").hide();
-		    loadworkouts();
-                   
-           },
-
-           // Login request failed.
-           error: function(xhr, errmsg, err) {
-	    //hide spinner, show error modal
-	    $(".modal-animate").hide();
-	    $("div.notification.notification-success").hide();
-	     $("div.notification.notification-warning").hide();
-	      $("div.notification.update-success").hide();
-		    $("div.notification.delete-success").hide();
-               $("div.notification.notification-critical").show();
-           }
-           
-      });
-	
-	});
-
-
-    });
-	
-	</script>
-	
-  	<style>
-		#myform{
-			width:300px;
-			margin: 0 auto;
-		}
-		label{
-			display:block;
-		}
-		input,textarea{
-			width:75%;
-		}
-	</style>
-    <div class="container-fluid">  
- </div>
- <div id="create" class="container">
- 	<div class="modal fade" id="notificationModal" role="dialog">
- 		<div class="modal-dialog">
- 			<div class ="modalcontent">
- 				<div class="modal-body">
- 					<div id="notifications">
-    					<div class="notification notification-critical" role="alert">Some information you entered isn't right.</div>
-						<div class="notification notification-success" role="alert">You have successfully created a workout!</div>
-						<div class="notification update-success" role="alert">You have successfully updated a workout!</div>
-						<div class="notification delete-success" role="alert">You have successfully deleted a workout!</div>
-						<div class="notification notification-warning" role="alert">Are you sure? <div id="screen-selector"><button href="#" type="button" id="warning-yes" class="btn btn-danger" style="color:#FFF;">Yes</button><button id="warning-no" href="#" type="button" style="float:right; color:#FFF;" data-dismiss="modal" data-toggle="modal" data-target="#myModal" class="btn btn-primary">Cancel</button></div></div>
+	<div class="modal fade" id="notifications-modal" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-body">
+					<div class="center">
+						<p class="notification notification-error server-error" role="alert">
+							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Oops. Something went wrong. Please try again.
+						</p>
+						<p class="notification notification-success create-success" role="alert">
+							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> You have successfully created a workout!
+						</p>
+						<p class="notification notification-success update-success" role="alert">
+							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> You have successfully updated a workout!
+						</p>
+						<p class="notification notification-success delete-success" role="alert">
+							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> You have successfully deleted a workout!
+						</p>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-</div>
 
-   <div class="container">
- <div class="modal fade" id="myModal" role="dialog">
- 	<div class="modal-dialog">
- 	<div class="modal-content">
- 		<div class="modal-header">
- 		</div>
-    	<div class="modal-body">
-			<form name="tracform" id="myform" method="POST" data-parsley-validate>
-				<div class="button-container-two">
-		    	</div>
-		    	<p id="idnumber">
-		       
-		      	<input type="hidden" id="idnumber" value="" placeholder="" required data-parsley-group="block1" readonly/>
-		  	</p>
-		 	 <p>
-		     	 <label for="">Workout Title:</label> 
-		     	 <input data-progression="" type="text" id="title" value="" placeholder="" required data-parsley-group="block1" />
-		 	 </p>
-		   	<p>
-		   	   <label for="">Start Date:</label> 
-		   	   <input data-progression="" type="text" id="start_date" value="" placeholder="" required data-parsley-group="block1" />
-		 	 </p>
-		 	   <p>
-		  	    <label for="">End Date:</label> 
-		  	    <input data-progression="" type="text" id="end_date" value="" placeholder="" required data-parsley-group="block1"/>
-		  	</p>
-		  	   <p>
-		  	    <label for="">Interval Distance:</label> 
-		   	   <input data-progression="" type="text" id="distance" value="" placeholder=""/>
-		  	</p>
-		  	   <p>
-		  	    <label for="">Track Size:</label> 
-		   	   <input data-progression="" type="text" id="size" value="" placeholder=""/>
-		 	 </p>
-		     
-		    	 <p>
-		      
-		    	  <label>Filter Splits?</label>
-							<span>
-								<select id="filter">
-										<option value="true">Yes</option>
-										<option value="false">No</option>
-								</select>
-							</span>
-		    	 </p>
-		    	 <p>
-		      
-		    	  <label>Private?</label>
-							<span>
-								<select id="private">
-										<option value="true">Yes</option>
-										<option value="false">No</option>
-								</select>
-							</span>
-		   	  </p>
-		  	  <br>
-		     
-		          <div class="button-container modal-footer">
-			<button name="" class="btn btn-danger col-md-3 col-sm-3 col-xs-3" id="delete" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal" style="text-align: center;">Delete</button>
-		    <input type="submit" name="" class="btn btn-primary" id="save" value="Save" />
-		    <input type="submit" name="" class="btn btn-primary col-md-5 col-sm-5 col-xs-5" id="update" value="Update" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal" />
-	                         </div>
-	                         
-		</form>		
-		</div>				
-    </div>
-</div>
-</div>
-</div>
-    <div class= "container-fluid content">
-    <div id="container" class="container">
-    	<div class="row">
-     		<div align="right">
-     			<button type="button" class="btn btn-default" id="create" data-toggle="modal" data-target="#myModal">
-     				<span class="glyphicon glyphicon-plus" aria-hidden="true"> </span>
-     			</button>
-     		</div>
-     	</div>
-      <div class="row">
-      	<h1 id="score-title">Recent Workouts</h1>
-       <div id="results" class="table"></div>
-     	<button type="button" class="btn btn-default" id="prev">
-     				<span class="glyphicon glyphicon-triangle-left" aria-hidden="true"> </span>
-     			</button>
-     	<button type="button" class="btn btn-default" id="next">
-     				<span class="glyphicon glyphicon-triangle-right" aria-hidden="true"> </span>
-     			</button>
-       </div>
-       <div class="spinner-container" style="position:relative; top:50px;">
-				<div id="spinner"></div>
+	<div class="modal fade" id="form-modal" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title"></h4>
+				</div>
+				<div class="modal-body">
+					<form id="session-form" name="session-form" method="POST">
+						<input type="hidden" id="idnumber" name="idnumber" value="">
+						
+						<div class="form-group">
+							<label for="title">Workout Title:</label>
+							<input type="text" id="title" name="title" class="form-control" required autofocus data-parsley-group="block1">
+						</div>
+
+						<div class="form-group" style="overflow:hidden;">
+							<div style="width:50%; float:left; padding-right:5px;">
+								<label for="start-date">Start Date:</label>
+								<input type="text" id="start-date" name="start-date" class="form-control" required data-parsley-group="block1" data-parsley-date>
+							</div>
+							<div style="width:50%; float:left; padding-left:5px;">
+								<label for="start-time">Start Time:</label>
+								<div style="width:60%; float:left; padding-right:5px;">
+									<input type="text" id="start-time" name="start-time" class="form-control" required data-parsley-group="block1" data-parsley-time>
+								</div>
+								<div style="width:40%; float:left; padding-left:5px;">
+									<label for="start-am-pm" class="sr-only">AM/PM</label>
+									<select class="form-control" id="start-am-pm">
+										<option selected>AM</option>
+										<option>PM</option>
+									</select>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group" style="overflow:hidden;">
+							<div style="width:50%; float:left; padding-right:5px;">
+								<label for="end-date">End Date:</label>
+								<input type="text" id="end-date" name="end-date" class="form-control" required data-parsley-group="block1" data-parsley-date>
+							</div>
+							<div style="width:50%; float:left; padding-left:5px;">
+								<label for="end-time">End Time:</label>
+								<div style="width:60%; float:left; padding-right:5px;">
+									<input type="text" id="end-time" name="end-time" class="form-control" required data-parsley-group="block1" data-parsley-time>
+								</div>
+								<div style="width:40%; float:left; padding-left:5px;">
+									<label for="end-am-pm" class="sr-only">AM/PM</label>
+									<select class="form-control" id="end-am-pm">
+										<option selected>AM</option>
+										<option>PM</option>
+									</select>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="distance">Interval Distance:</label>
+							<input type="text" id="distance" name="distance" class="form-control" required data-parsley-group="block1" data-parsley-type="number">
+						</div>
+
+						<div class="form-group">
+							<label for="size">Track Size:</label> 
+							<input type="text" id="size" name="size" class="form-control" required data-parsley-group="block1" data-parsley-type="number">
+						</div>
+
+						<div class="form-group" style="overflow:hidden;">
+							<div style="width:50%; float:left; padding-right:5px;">
+								<label for="filter">Filter Splits?</label>
+								<div style="padding-left:5px; border-radius:4px;">
+									<input type="radio" name="filter" id="filter-yes" value="yes" required> Yes
+									<input type="radio" name="filter" id="filter-no" value="no" style="margin-left:10px;"> No
+								</div>
+							</div>
+							<div style="width:50%; float:left; padding-left:5px;">
+								<label for="private">Private?</label>
+								<div style="padding-left:5px; border-radius:4px;">
+									<input type="radio" name="private" id="private-yes" value="yes" required> Yes
+									<input type="radio" name="private" id="private-no" value="no" style="margin-left:10px;"> No
+								</div>
+							</div>
+						</div>
+
+						<div class="modal-footer">
+							<div id="session-edit-buttons" class="session-form-buttons center">
+								<button type="submit" id="update" class="btn btn-primary" style="margin-right:10px;">Update</button>
+								<button type="submit" id="delete" class="btn btn-danger">Delete</button>
+							</div>
+							<div id="session-delete-buttons" class="session-form-buttons center">
+								<p style="text-align:center;">Confirm Delete</p>
+									<button type="submit" id="delete-yes" class="btn btn-danger" style="margin-right:10px;">Delete</button>
+									<button type="submit" id="delete-no" class="btn btn-default">Cancel</button>
+							</div>
+							<div id="session-create-buttons" class="session-form-buttons center">
+							  <button type="submit" id="create" class="btn btn-primary">Create</button>
+							</div>
+							<div id="spinner-form"></div>
+						</div>
+					</form>
+				</div>
 			</div>
-       </div>
-   </div>
-       <div id="notifications">
-        <div class="notification notification-default" role="alert">There are currently no workouts to show.</div>
-    </div>
-    {% endblock %} 
-    
-    
-    
-</html>
+		</div>
+	</div>
 
+	<div id="content" class="container-fluid">
+		<div class="container">
+			<div class="row">
+				<h1>Recent Workouts</h1>
+			</div>
+			<div class="row">
+				<div style="width:50%; float:left; display:table;">
+					<button type="button" class="prev btn btn-default" style="margin-right:3px;">
+						<span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span>
+					</button>
+					<button type="button" class="next btn btn-default">
+						<span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
+					</button>
+				</div>
+				<div style="width:50%; float:left; text-align:right;">
+					<button type="button" class="btn btn-default" id="new-session" data-toggle="modal" data-target="#form-modal">
+						<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> <span class="hidden-xs">New Session</span>
+					</button>
+				</div>
+			</div>
+			<div class="row">
+				<div id="results" class="table"></div>
+			</div>
+			<div class="row" style="margin-bottom:30px;">
+				<div class="center">
+					<button type="button" class="prev btn btn-default" style="margin-right:3px;">
+						<span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span>
+					</button>
+					<button type="button" class="next btn btn-default">
+						<span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
+					</button>
+				</div>
+			</div>
+
+			<div id="spinner-main"></div>
+			
+		</div>
+	</div>
+	<div id="notifications">
+		<p class="notification notification-error no-sessions" role="alert">There are currently no workouts to show.</p>
+	</div>
+{% endblock %}

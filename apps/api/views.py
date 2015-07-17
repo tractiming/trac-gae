@@ -536,7 +536,7 @@ def time_create(request):
     begin_time = dateutil.parser.parse(data['start_time'])
     stop_time = dateutil.parser.parse(data['stop_time'])    #KEY: parsing date and time into datetime objects before putting into database.
     if int(data['id']) == 0: #for new instances
-        ts, created = TimingSession.objects.get_or_create(name=data['name'], manager=user, start_time=begin_time, stop_time=stop_time, track_size=data['track_size'], interval_distance=data['interval_distance'], filter_choice=data['filter_choice'], private=string2bool(data['private']))
+        ts, created = TimingSession.objects.get_or_create(name=data['name'], manager=user, start_time=begin_time, stop_time=stop_time, track_size=data['track_size'], interval_distance=data['interval_distance'], filter_choice=string2bool(data['filter_choice']), private=string2bool(data['private']))
     else:
         ts= TimingSession.objects.get(id=int(data['id'])) #for updated instances
         ts.name = data['name']
@@ -545,7 +545,7 @@ def time_create(request):
         ts.stop_time = stop_time
         ts.track_size = data['track_size']
         ts.interval_distance = data['interval_distance']
-        ts.filter_choice = data['filter_choice']
+        ts.filter_choice = string2bool(data['filter_choice'])
         ts.private = string2bool(data['private'])
     r = Reader.objects.filter(owner=user)
     ts.readers.add(*r)
