@@ -126,15 +126,15 @@ $(document).ready(function() {
 	    //if valid perform ajax request
 	    
             
-	             var title=$('input[id=title]').val();
+	             var title=escapeString($('input[id=title]').val());
 		      var start_date=$('input[id=start_date]').val();
 		     var end_date=$('input[id=end_date]').val();
-		     var distance=$('input[id=distance]').val();
-		      var size=$('input[id=size]').val();
+		     var distance=escapeString($('input[id=distance]').val());
+		      var size=escapeString($('input[id=size]').val());
 		     var filter=$('#filter option:selected').val();
 		     var privateselect=$('#private option:selected').val();
-		     var sT = local2UTC(start_date);
-		     var eT = local2UTC(end_date);
+		     var sT = escapeString(local2UTC(start_date));
+		     var eT = escapeString(local2UTC(end_date));
 	      $.ajax({
            type: "POST",
            dataType:'json',
@@ -450,17 +450,17 @@ $("body").on('click', 'tr',function(){
 	//alert($(this).html());
 	  f.preventDefault();
 	   $(".modal-animate").show();
-	 var id=$('input[id=idnumber]').val();
-	 var title=$('input[id=title]').val();
+	 var id=escapeString($('input[id=idnumber]').val());
+	 var title=escapeString($('input[id=title]').val());
 		      var start_date=$('input[id=start_date]').val();
 		     var end_date=$('input[id=end_date]').val();
-		     var distance=$('input[id=distance]').val();
-		      var size=$('input[id=size]').val();
+		     var distance=escapeString($('input[id=distance]').val());
+		      var size=escapeString($('input[id=size]').val());
 		     var filter=$('#filter option:selected').val();
 		     var privateselect=$('#private option:selected').val();
-		     var sT = local2UTC(start_date);
-		     var eT = local2UTC(end_date);
-	
+		     var sT = escapeString(local2UTC(start_date));
+		     var eT = escapeString(local2UTC(end_date));
+		     console.log(title);
 		//alert(filter);
 	      $.ajax({
            type: "POST",
