@@ -266,7 +266,7 @@ $("body").on('click', '#athletes tr' ,function(){
 */
 });
 
-$("body").on('click', 'button#plus', function(e){
+/*$("body").on('click', 'button#plus', function(e){
   //alert($(this).html());
     e.preventDefault();
     $("#coachform")[0].reset();
@@ -352,13 +352,13 @@ $("button#warning-no").click(function(event){
 $("body").on('hidden.bs.modal', '#notificationModal', function(){
           $("div.notification.delete-success").hide();
           $("div.notification.notification-warning").hide();
-    });
+    });*/
 $("body").on('click', 'button#cl', function(e){
   e.preventDefault();
   $('div#tutorial').slideUp();
 });
 
-   $("body").on('click','input#update', function(e){
+/*   $("body").on('click','input#update', function(e){
          e.preventDefault();
           var id=$('input[id=idnumber]').val();   
             var fname=$('input[id=first_name]').val();
@@ -381,7 +381,7 @@ $("body").on('click', 'button#cl', function(e){
                     }
                 });
            
-      });
+      });*/
 
 </script>
 
@@ -455,10 +455,7 @@ $("body").on('click', 'button#cl', function(e){
                 </div>
               </div>
               <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
-              <h1 id="score-title">Home</h1>
-              <button type="button" class="btn btn-default" id="plus" data-toggle="modal" data-target="#myModal" style="margin-bottom:2%">
-                  <span class="glyphicon glyphicon-plus" aria-hidden="true"> </span>
-              </button>
+              <h1 id="score-title">Roster</h1>
               <div id="athletes" class="table">
               </div>
             </div>

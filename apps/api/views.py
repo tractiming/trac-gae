@@ -638,12 +638,16 @@ def WorkoutTags(request):
             table = TimingSession.objects.get(id=id_num)
             result = table.registered_tags.all()        
             for instance in result:
-                u_name = instance.user.username
-                array.append({'id': instance.id, 'user': u_name, 'id_str': instance.id_str})
+                u_first = instance.user.first_name
+                u_last = instance.user.last_name
+                username = instance.user.username
+                array.append({'id': instance.id, 'first': u_first, 'last': u_last, 'username': username, 'id_str': instance.id_str})
             return Response(array, status.HTTP_200_OK)
     elif request.method == 'POST':
         id_num = request.POST.get('id')
         tag_id = request.POST.get('id2')
+        fname = request.POST.get('firstname')
+        lname = request.POST.get('lastname')
         i_user = request.user
         if not is_coach(i_user):
             return HttpResponse(status.HTTP_403_FORBIDDEN)
@@ -662,9 +666,12 @@ def WorkoutTags(request):
                     cp.athletes.add(a.pk)
                 a.save()
                 try:  #if tag exists update user. Or create tag.
+                    user.first_name = fname
+                    user.last_name = lname
                     tag = Tag.objects.get(id_str = request.POST.get('id_str'))
                     tag.user = user
                     tag.save()
+                    user.save()
                 except ObjectDoesNotExist:
                     try:
                         tag = Tag.objects.get(user = user)
@@ -715,6 +722,19 @@ def edit_athletes(request):
             atl.user.first_name = request.POST.get('first_name')
             atl.user.last_name = request.POST.get('last_name')
             atl.user.save()
+            try:  #if tag exists update user. Or create tag.
+                tag = Tag.objects.get(id_str = request.POST.get('id_str'))
+                tag.user = atl.user
+                tag.save()
+            except ObjectDoesNotExist:
+                try:
+                    tag = Tag.objects.get(user = atl.user)
+                    tag.id_str = request.POST.get('id_str')
+                    tag.save()
+                except ObjectDoesNotExist:
+                    tag = Tag.objects.create(id_str=request.POST.get('id_str'), user=atl.user)
+            return HttpResponse(status.HTTP_200_OK)
+
         elif request.POST.get('submethod') == 'Create':
             cp = CoachProfile.objects.get(user = i_user)
             user, created = User.objects.get_or_create(username = request.POST.get('username'), first_name = request.POST.get('first_name'), last_name = request.POST.get('last_name'))
