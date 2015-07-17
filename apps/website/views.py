@@ -51,5 +51,5 @@ def tutorial(request, page = 1):
 def usersettings(request, pk= None, token = None):
     return render(request, 'UserSettings.html', {'pk': pk, 'token' : token})
 
-def passwordreset(request):
-    return render(request, 'passwordreset.html')
+def account_settings(request):
+    return render(request, 'account_settings.html')

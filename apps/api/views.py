@@ -9,6 +9,7 @@ from django.db import IntegrityError
 from django.utils import timezone
 from django.core.cache import cache
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.hashers import check_password
 from django.core.mail import send_mail
 from django.core import serializers
 from django.core.serializers import serialize
@@ -730,6 +731,25 @@ def edit_athletes(request):
             user.save()
         return HttpResponse(status.HTTP_200_OK)
 
+@api_view(['POST'])
+@permission_classes((permissions.IsAuthenticated,))
+def edit_info(request):
+    data = request.POST
+    user = request.user
+    group = user.groups.get(id=1)
+    group = data['org']
+    user.username = data['name']
+    user.email = data['email']
+    user.save()
+    return HttpResponse(status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes((permissions.IsAuthenticated,))
+def get_info(request):
+    user = request.user
+    result = {'org': user.groups.get(id=1).name, 'name': user.username, 'email': user.email}
+    return Response(result, status.HTTP_200_OK)
+
 @api_view(['GET'])
 @permission_classes((permissions.AllowAny,))
 def IndividualTimes(request):
@@ -800,15 +820,19 @@ def reset_password(request):
 @login_required()
 @permission_classes((permissions.IsAuthenticated,))
 def change_password(request):
-    user = request.auth
+    user = request.user
     token = request.auth
     if token not in user.accesstoken_set.all():
             return HttpResponse(status.HTTP_403_FORBIDDEN)
     if token.expires < timezone.now():
             return HttpResponse(status.HTTP_403_FORBIDDEN)
     if user.is_authenticated():
-        user.set_password(request.POST.get('password'))
-        user.save()
+        p_verify = request.POST.get('o_password')
+        if check_password(p_verify, user.password):
+            user.set_password(request.POST.get('password'))
+            user.save()
+        else:
+            return HttpResponse(status.HTTP_403_FORBIDDEN)
     else:
         return HttpResponse(status.HTTP_403_FORBIDDEN)
     return HttpResponse(status.HTTP_200_OK)
