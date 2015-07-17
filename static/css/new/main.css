@@ -22,6 +22,11 @@ a {
   a:visited { text-decoration: none;
 }
 
+.center {
+	display: table;
+	margin: 0 auto;
+}
+
 
 
 /* Header */
