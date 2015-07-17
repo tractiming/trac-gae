@@ -19,5 +19,6 @@ urlpatterns = patterns('',
     url(r'^individual/(?P<id1>.+)/$', views.individual, name='individual_splits'),
     url(r'^Tutorial/(?P<page>.+)/$', views.tutorial, name='tutorial'),
     url(r'^UserSettings/(?P<pk>.+)/(?P<token>.+)/$', views.usersettings, name="UserSettings"),
-    url(r'^passwordreset/$', views.passwordreset, name='passwordreset'),
+    url(r'^account_settings/$', views.account_settings, name='account_settings'),
+
     )

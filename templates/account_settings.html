@@ -1,0 +1,172 @@
+{% extends "base_new.html" %}
+{% load static %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static "css/new/main.css" %}" />
+<link rel="stylesheet" href="{% static "css/new/score.css" %}" />
+<link rel="stylesheet" href="{% static "css/new/create.css" %}" />
+{% endblock %}
+
+{% block js_scripts %}
+
+<script>
+if (sessionStorage.access_token == null) {
+    //link to login page
+    location.href="/login";
+}
+else{
+    
+}
+
+    $(document).ready(function() {
+$("li a.logout").click(function(){
+    sessionStorage.clear();
+    location.href="/login";
+});
+    });
+
+</script>
+<script type="text/javascript" src="{% static "js/timeConversion.js" %}" />
+{% endblock %}
+
+{% block nav-items %}
+  <li><a href="/home">Home</a></li>
+  <li><a href="/liveview">Live View</a></li>
+  <li><a href="/create">Create</a></li>
+  <li><a href="/settings">Race Management</a></li>
+  <li><a class="hidden-sm hidden-md hidden-lg" href="/readers">Readers</a></li>
+  <li><a class="hidden-sm hidden-md hidden-lg" href="/settings">Settings</a></li>
+  <li><a class="logout hidden-sm hidden-md hidden-lg" href="">Logout</a></li>
+<!-- Single button -->
+  <li id="dropdown-button" class="btn-group hidden-xs">
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>
+    </button>
+    <ul class="dropdown-menu" >
+      <li><a href="/readers">Readers</a></li>
+      <li><a href="/settings">Settings</a></li>
+      <li role="separator" class="divider"></li>
+      <li><a class="logout" href="">Logout</a></li>
+    </ul>
+  </li>
+{% endblock %}
+
+{% block content %}
+
+<script>
+$(document).ready(function(){
+      $('body').on('click', 'a#e_profile', function(e){
+          e.preventDefault();
+          $('#edit-password').hide();
+          $('#edit-information').fadeIn(500);
+          $.ajax({
+                  type: "GET",
+                  url: "/api/get_info/",
+                  headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+                  success: function(data){
+                    $('#edit-information #organization').val(data['org']);
+                    $('#edit-information #username').val(data['name']);
+                    $('#edit-information #email').val(data['email']);
+                  },
+                  error: function(xhr, errmsg, err){
+                  }
+          });
+      });
+      $('body').on('click', 'a#e_password', function(e){
+          e.preventDefault();
+          $('#edit-information').hide();          
+          $('#edit-password').fadeIn(500);
+      });
+      $('#edit-information').on('submit', function(e){
+          e.preventDefault();
+          $('#edit-information').hide();
+          var organization = escapeString($('input#organization').val());
+          var username = escapeString($('input#username').val());
+          var email = escapeString($('input#email').val());
+          $.ajax({
+                  type: "POST",
+                  url: "/api/edit_info/",
+                  headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+                  data: {
+                    org: organization,
+                    name: username,
+                    email: email,
+                  },
+                  success: function(data){
+                    alert('Profile Information Edited');
+                  },
+                  error: function(xhr, errmsg, err){
+
+                  }
+          });
+      });
+      $('#edit-password').on('submit', function(e){
+          e.preventDefault();
+          $('#edit-password').hide();
+          var o_password = escapeString($('input#o_password').val());
+          var password = escapeString($('input#n_password').val());
+          var c_password = escapeString($('input#c_password').val());
+          if(password === c_password){
+          $.ajax({
+                  type: "POST",
+                  url: "/api/change_password/",
+                  headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+                  data: {
+                    o_password: o_password,
+                    password: password,
+                  },
+                  success: function(data){
+                    if (data != 403){
+                      alert('Password Changed');
+                    }
+                    else{
+                      alert('Unauthorized');
+                    }
+
+                  },
+                  error: function(xhr, errmsg, err){
+                    alert('Could Not Change Password');
+                  }
+          });
+        }
+        else{
+          alert('passwords mismatch');
+        }
+      });      
+});
+</script>
+<div class="container fluid-content">
+  <div class="content" id ="content">
+    <h3 style="text-align: left;">Account Settings</h3><br>
+    <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5 pull-left">
+      <a href="somewhere" id="e_profile">Edit Profile Information</a><br>
+      <a href="somewhere" id="e_password">Change Your Password</a><br>
+      <a href="somewhere">Set up and Edit Paypal Information</a>
+    </div>
+    <div class = "col-lg-7 col-md-7 col-sm-7 col-xs-7">
+      <form id="edit-information" name="edit-information" style="display: none;" data-parsley-validate>
+        <div class="form-group">
+          <label for="organization">Organization</label><br>
+          <input type="text" id="organization" name="organization" class="form-group" required autofocus data-parsley-group="block1">
+          <label for="username">Username</label><br>
+          <input type="text" id="username" name="username" class="form-group" required autofocus data-parsley-group="block1">
+          <label for="email">Email</label><br>
+          <input type="text" id="email" name="email" class="form-group" required autofocus data-parsley-group="block1">
+          <button type="submit" id="submit" class="btn btn-primary">Make Changes</button>
+        </div>
+      </form>
+      <form id="edit-password" name="edit-password" style="display: none;" data-parsley-validate>
+        <div class="form-group">
+          <label for="o_password">Old Password</label><br>
+          <input type="password" id="o_password" name="o_password" class="form-group" required autofocus data-parsley-group="block1">
+          <label for="n_password">New Password</label><br>
+          <input type="password" id="n_password" name="n_password" class="form-group" required autofocus data-parsley-group="block1">
+          <label for="c_password">Confirm Password</label><br>
+          <input type="password" id="c_password" name="c_password" class="form-group" required autofocus data-parsley-group="block1">
+          <button type="submit" id="submit" class="btn btn-primary">Change Password</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
