@@ -170,15 +170,19 @@
 				<h1>Recent Workouts</h1>
 			</div>
 			<div class="row">
-				<div style="width:50%; float:left; display:table;">
-					<button type="button" class="prev btn btn-default" style="margin-right:3px;">
-						<span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span>
-					</button>
-					<button type="button" class="next btn btn-default">
-						<span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
-					</button>
+				<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6" style="padding-left:0;">
+					<div class="sessions-navigate">
+						<button type="button" class="prev btn btn-default">
+							<span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span>
+						</button>
+						<span class="sessions-page-number"></span>
+						<button type="button" class="next btn btn-default">
+							<span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
+						</button>
+						<span class="sessions-show-status"></span>
+					</div>
 				</div>
-				<div style="width:50%; float:left; text-align:right;">
+				<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6" style="padding-right:0; text-align:right;">
 					<button type="button" class="btn btn-default" id="new-session" data-toggle="modal" data-target="#form-modal">
 						<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> <span class="hidden-xs">New Session</span>
 					</button>
@@ -186,23 +190,26 @@
 			</div>
 			<div class="row">
 				<div id="results" class="table"></div>
+				<div id="notifications">
+					<p class="notification notification-error no-sessions" role="alert">There are currently no workouts to show.</p>
+				</div>
 			</div>
 			<div class="row" style="margin-bottom:30px;">
 				<div class="center">
-					<button type="button" class="prev btn btn-default" style="margin-right:3px;">
-						<span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span>
-					</button>
-					<button type="button" class="next btn btn-default">
-						<span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
-					</button>
+					<div id="sessions-navigate-footer" class="sessions-navigate">
+						<button type="button" class="prev btn btn-default">
+							<span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span>
+						</button>
+						<span class="sessions-page-number"></span>
+						<button type="button" class="next btn btn-default">
+							<span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
+						</button>
+					</div>
 				</div>
 			</div>
 
 			<div id="spinner-main"></div>
 			
 		</div>
-	</div>
-	<div id="notifications">
-		<p class="notification notification-error no-sessions" role="alert">There are currently no workouts to show.</p>
 	</div>
 {% endblock %}

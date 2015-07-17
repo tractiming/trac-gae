@@ -58,10 +58,13 @@ $(function() {
 	$('input#start-date').datepicker(datepickerOptions);
 	$('input#end-date').datepicker(datepickerOptions);
 
-	
+	//===================================== create.js functions =======================================
+	var SESSIONS_PER_PAGE = 10;
+
 	var numSessions = 0,
+			currentPage = 1,
 			sessionFirst = 1,
-			sessionLast = 10;
+			sessionLast = SESSIONS_PER_PAGE;
 	loadWorkouts();
 
 	
@@ -78,16 +81,21 @@ $(function() {
 			dataType: 'text',
 			success: function(data) {
 				var json = $.parseJSON(data);
-				json = json.reverse();
 
-				if (json == '') {
+				var results = json.results
+				numSessions = json.numSessions;
+
+				if (numSessions == 0) {
 					$('#results').empty();
 					$('button.next').attr('disabled', true);
-					$('button.prev').attr('disabled', false);
+					$('button.prev').attr('disabled', true);
 					$('.notification.no-sessions').show();
+					$('.sessions-navigate').hide();
 				} else {
 					// show name and date, dont show message, but show button
 					$('.notification.no-sessions').hide();
+					$('.sessions-navigate').show();
+
 					$('#results').append(
 						'<table id="results-table" class="table table-striped table-hover">' +
 							'<thead>' +
@@ -107,17 +115,17 @@ $(function() {
 						'</table>'
 					);
 
-					for (var i=0; i < json.length; i++) {
+					for (var i=0; i < results.length; i++) {
 
-						id = json[i].id;
-						name = json[i].name;
-						distance = json[i].interval_distance;
-						track = json[i].track_size;
-						filter= json[i].filter_choice == true ? 'Yes' : 'No';
-						privateselect = json[i].private == true ? 'Yes' : 'No';
-						var sTS = UTC2local(json[i].start_time);
+						id = results[i].id;
+						name = results[i].name;
+						distance = results[i].interval_distance;
+						track = results[i].track_size;
+						filter= results[i].filter_choice == true ? 'Yes' : 'No';
+						privateselect = results[i].private == true ? 'Yes' : 'No';
+						var sTS = UTC2local(results[i].start_time);
 						sTS = sTS.substring(0, 25);
-						var sTE = UTC2local(json[i].stop_time);
+						var sTE = UTC2local(results[i].stop_time);
 						sTE = sTE.substring(0,25);
 
 						$('#results tbody').append(
@@ -134,17 +142,24 @@ $(function() {
 						);
 					}
 
-					if (json.length < 10) {
+					if (numSessions < SESSIONS_PER_PAGE) {
+						$('button.prev').attr('disabled', true);
 						$('button.next').attr('disabled', true);
 					} else {
-						$('button.next').attr('disabled', false);
+						if ((results.length < SESSIONS_PER_PAGE) || (sessionLast == numSessions))
+							$('button.next').attr('disabled', true);
+						else
+							$('button.next').attr('disabled', false);
+
+						if (sessionFirst == 1)
+							$('button.prev').attr('disabled', true);
+						else
+							$('button.prev').attr('disabled', false);
 					}
 
-					if (sessionFirst == 1){
-						$('button.prev').attr('disabled', true);
-					} else {
-						$('button.prev').attr('disabled', false);
-					}
+					// add page number and status
+					$('.sessions-page-number').html(currentPage);
+					$('.sessions-show-status').html('Showing '+sessionFirst+' - '+sessionLast+' of '+numSessions+' results');
 				}
 				spinner.stop();
 			}
@@ -564,8 +579,9 @@ $(function() {
 		e.preventDefault();
 
 		if (sessionFirst != 1) {
-			sessionFirst -= 10;
-			sessionLast -= 10;
+			sessionFirst -= SESSIONS_PER_PAGE;
+			sessionLast -= SESSIONS_PER_PAGE;
+			currentPage--;
 		}
 
 		loadWorkouts();
@@ -574,8 +590,10 @@ $(function() {
 	$('body').on('click', 'button.next', function(e){
 		e.preventDefault();
 
-		sessionFirst += 10;
-		sessionLast += 10;
+		sessionFirst += SESSIONS_PER_PAGE;
+		sessionLast += SESSIONS_PER_PAGE;
+		currentPage++;
+
 		loadWorkouts();
 	});
 });

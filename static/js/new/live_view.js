@@ -935,18 +935,21 @@ google.setOnLoadCallback(function(){
 				},
 				success: function(data){
 					var json = $.parseJSON(data);
+
+					var results = json.results,
+							numSessions = json.numSessions;
 					
-					if ((json.length == 0) && (!$.trim($('ul.menulist').html()))) {
+					if ((results.length == 0) && (!$.trim($('ul.menulist').html()))) {
 						$('.notification.no-sessions').show();
 						spinner.stop();
 					} else {
 						$('.notification').hide();
-						for (var i=json.length-1; i >= 0; i--){
+						for (var i=0; i<results.length; i++){
 							// add events to event menu
-							$('ul.menulist').append('<li><a href="#">'+json[i].name+'</a></li>');
-							idArray.push(json[i].id);
+							$('ul.menulist').append('<li><a href="#">'+results[i].name+'</a></li>');
+							idArray.push(results[i].id);
 						}
-						if (json.length == 15){
+						if (results.length == 15){
 							$('ul.menulist').append('<li id="see-more"><a href="#">See More</a></li>');
 						}
 					}
@@ -982,13 +985,17 @@ google.setOnLoadCallback(function(){
 				},
 				success: function(data){
 					var json = $.parseJSON(data);
+
+					var results = json.results,
+							numSessions = json.numSessions;
+
 					calendarEvents = [];
-					for (var i=0; i < json.length; i++){
+					for (var i=0; i < results.length; i++){
 						// add events to calendar event list
-						var url = json[i].id;
-						var str = json[i].start_time;
+						var url = results[i].id;
+						var str = results[i].start_time;
 						str = str.slice(0,10);
-						calendarEvents.push({title : json[i].name, url : url, start : str});
+						calendarEvents.push({title : results[i].name, url : url, start : str});
 					}
 					$('#calendar').fullCalendar('removeEvents');
 					$('#calendar').fullCalendar('addEventSource', calendarEvents);	
