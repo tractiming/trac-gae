@@ -282,7 +282,7 @@ $(function() {
 					
 					// show error message
 					$('.notification').hide();
-					$('.notification.form-data-error').show();
+					$('.notification.server-error').show();
 
 					// switch modals
 					$('#form-modal').modal('hide');
@@ -382,6 +382,7 @@ $(function() {
 			target.css('height', 50);
 			spinner.spin(target[0]);
 
+			var id = $('input[id=idnumber]').val();
 			var title = $('input[id=title]').val();
 
 			// get start date and time
@@ -445,7 +446,7 @@ $(function() {
 				url: '/api/time_create/',
 				headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
 				data: {
-					id: 0,
+					id: id,
 					name: title,
 					start_time: startDateTime.toISOString(),
 					stop_time: endDateTime.toISOString(),
@@ -480,7 +481,7 @@ $(function() {
 					
 					// show error message
 					$('.notification').hide();
-					$('.notification.form-data-error').show();
+					$('.notification.server-error').show();
 
 					// switch modals
 					$('#form-modal').modal('hide');
@@ -539,7 +540,7 @@ $(function() {
 						
 						// show error message
 						$('.notification').hide();
-						$('.notification.form-data-error').show();
+						$('.notification.server-error').show();
 
 						// switch modals
 						$('#form-modal').modal('hide');

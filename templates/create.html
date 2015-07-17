@@ -37,43 +37,24 @@
 {% endblock %}
 
 {% block content %}
-	<script>
-		//step by step jquery plugin that explains each box of form
-		jQuery(document).ready(function($) {
-
-
-			/*$("#myform").progression({
-			  tooltipWidth: '200',
-			  tooltipPosition: 'left',
-			  tooltipOffset: '50',
-			  showProgressBar: false,
-			  showHelper: true,
-			  tooltipFontSize: '15',
-			  tooltipFontColor: 'fff',
-			  progressBarBackground: 'fff',
-			  progressBarColor: '6EA5E1',
-			  tooltipBackgroundColor:'F0B922',
-			  tooltipPadding: '10',
-			  tooltipAnimate: true
-			}); */
-		});
-	</script>
-	
-  <style>
-		#myform{
-			width:300px;
-			margin: 0 auto;
-		}
-	</style>
-
 	<div class="modal fade" id="notifications-modal" role="dialog">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-body">
-					<div class="notification form-data-error" role="alert">Oops! Something went wrong. Please try again.</div>
-					<div class="notification create-success" role="alert">You have successfully created a workout!</div>
-					<div class="notification update-success" role="alert">You have successfully updated a workout!</div>
-					<div class="notification delete-success" role="alert">You have successfully deleted a workout!</div>
+					<div style="display:table; margin: 0 auto;">
+						<p class="notification notification-error server-error" role="alert">
+							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Oops. Something went wrong. Please try again.
+						</p>
+						<p class="notification notification-success create-success" role="alert">
+							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> You have successfully created a workout!
+						</p>
+						<p class="notification notification-success update-success" role="alert">
+							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> You have successfully updated a workout!
+						</p>
+						<p class="notification notification-success delete-success" role="alert">
+							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> You have successfully deleted a workout!
+						</p>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -183,13 +164,14 @@
 		</div>
 	</div>
 
-	<div class= "container-fluid content">
-		<div id="container" class="container">
-			<div class="row" style="padding-bottom:30px;">
+	<div id="content" class="container-fluid">
+		<div class="container">
+			<div class="row">
 				<h1>Recent Workouts</h1>
-
+			</div>
+			<div class="row">
 				<div style="width:50%; float:left; display:table;">
-					<button type="button" class="prev btn btn-default" style="margin-right:10px;">
+					<button type="button" class="prev btn btn-default" style="margin-right:3px;">
 						<span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span>
 					</button>
 					<button type="button" class="next btn btn-default">
@@ -201,19 +183,21 @@
 						<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> <span class="hidden-xs">New Session</span>
 					</button>
 				</div>
-
+			</div>
+			<div class="row">
 				<div id="results" class="table"></div>
-
+			</div>
+			<div class="row" style="margin-bottom:30px;">
 				<div style="display:table; margin: 0 auto;">
-					<button type="button" class="prev btn btn-default" style="margin-right:10px;">
+					<button type="button" class="prev btn btn-default" style="margin-right:3px;">
 						<span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span>
 					</button>
 					<button type="button" class="next btn btn-default">
 						<span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
 					</button>
 				</div>
-				
 			</div>
+
 			<div id="spinner-main"></div>
 			
 		</div>
