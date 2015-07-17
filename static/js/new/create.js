@@ -113,8 +113,8 @@ $(function() {
 						name = json[i].name;
 						distance = json[i].interval_distance;
 						track = json[i].track_size;
-						filter= json[i].filter_choice;
-						privateselect = json[i].private;
+						filter= json[i].filter_choice == true ? 'Yes' : 'No';
+						privateselect = json[i].private == true ? 'Yes' : 'No';
 						var sTS = UTC2local(json[i].start_time);
 						sTS = sTS.substring(0, 25);
 						var sTE = UTC2local(json[i].stop_time);
@@ -172,7 +172,8 @@ $(function() {
 			var form = $('#session-form');
 			form.parsley().validate();
 
-			if (form.parsley().isValid()) {
+			//if (form.parsley().isValid()) {
+			if (true) {
 				// reset parsley styling
 				form.parsley().reset();
 
@@ -186,7 +187,7 @@ $(function() {
 
 				// get start date and time
 				var startDate = $('input[id=start-date]').val().trim().split(/[\/-]/),
-						startTime = $('input[id=start-time]').val().trim().split(':'),
+						startTime = $('input[id=start-time]').val().trim().split(':').map(Number),
 						startAMPM = $('select#start-am-pm').val();
 				
 				// create start date object
@@ -211,8 +212,9 @@ $(function() {
 
 				// get end date and time 
 				var endDate = $('input[id=end-date]').val().trim().split(/[\/-]/),
-						endTime = $('input[id=end-time]').val().trim().split(':'),
+						endTime = $('input[id=end-time]').val().trim().split(':').map(Number),
 						endAMPM = $('select#end-am-pm').val();
+
 				// create end date object
 				var endDateTime = new Date();
 				endDateTime.setFullYear(endDate[2]);
@@ -234,9 +236,8 @@ $(function() {
 
 				var distance = $('input[id=distance]').val();
 				var size = $('input[id=size]').val();
-				var filter = $('input[name=filter]:checked').val();
-				var privateselect = $('input[name=filter]:checked').val();
-				console.log(filter);
+				var filter = $('input[name=filter]:checked').val() == 'yes';
+				var privateselect = $('input[name=private]:checked').val() == 'yes';
 
 				//*
 				$.ajax({
@@ -298,10 +299,7 @@ $(function() {
 		$('#form-modal .modal-title').html('Edit Workout Session');
 		$('#form-modal').modal('show');
 
-		// show corrent buttons
-		$('#session-form .session-form-buttons').hide();
-		$('#session-form #session-edit-buttons').show();
-
+		// populate form with current data
 		var data = $(this).children();
 		$('input#idnumber').val($(data[0]).html());
 		$('input#title').val($(data[1]).html());
@@ -344,48 +342,27 @@ $(function() {
 
 		$('input#distance').val($(data[4]).html());
 		$('input#size').val($(data[5]).html());
-		/*
-		var value = $(this).html();
-		$(value).each(function(index){
-			if (index ==0) {
-				var input = $('input#idnumber');
-				input.val($(this).html() );
-			} else if (index ==1) {
-				var input =$('input#title');
-				input.val($(this).html() );
-			} else if (index ==2) {
-				var input =$('input#start-date');
-				var format = new Date($(this).html());
-				format = format.toISOString();
-				format = localISOString(format);
-				format = format.replace(/T/g,' ');
-				format = format.substring(0,19);
-				format = format.replace(/;/g, ':');
-				input.val(format);
-			} else if (index ==3) {
-				var input =$('input#end-date');
-				var format = new Date($(this).html());
-				format = format.toISOString();
-				format = localISOString(format);
-				format = format.replace(/T/g,' ');
-				format = format.substring(0,19);
-				format = format.replace(/;/g, ':');
-				input.val(format);
-			} else if (index ==4) {
-				var input =$('input#distance');
-				input.val($(this).html() );
-			} else if (index ==5) {
-				var input =$('input#size');
-				input.val($(this).html() );
-			} else if (index ==6) {
-				var input =$('select#filter');
-				input.val($(this).html() );
-			} else if (index ==7) {
-				var input =$('select#private');
-				input.val($(this).html() );
-			}
+
+		if ($(data[6]).html() === 'Yes')
+			$('input#filter-yes').prop('checked', true);
+		else
+			$('input#filter-no').prop('checked', true);
+
+		if ($(data[7]).html() === 'Yes')
+			$('input#private-yes').prop('checked', true);
+		else
+			$('input#private-no').prop('checked', true);
+
+		// show corrent buttons
+		$('#session-form .session-form-buttons').hide();
+		$('#session-form #session-edit-buttons').show();
+
+		// bind handler to update button
+		$('body').off('click', 'button#update');
+		$('body').on('click', 'button#update', function(e) {
+			e.preventDefault();
+
 		});
-		//*/
 	});
 
 	
