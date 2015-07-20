@@ -2,15 +2,49 @@ google.load('visualization', '1', {packages:['corechart']});
 google.setOnLoadCallback(function(){
 	$(function(){
 
-		var baseData, compareData;
+		var spinner, opts, target,					// spinner variables
+				baseData, compareData;					// saved data for compare tab
+
+
+		//===================================== spinner configuration =====================================
+		// initialize spinner
+		opts = {
+			lines: 13, 							// The number of lines to draw
+			length: 28, 						// The length of each line
+			width: 14, 							// The line thickness
+			radius: 42, 						// The radius of the inner circle
+			scale: 0.5, 						// Scales overall size of the Spinner
+			corners: 1, 						// Corner roundness (0..1)
+			color: '#3577a8', 			// #rgb or #rrggbb or array of colors
+			opacity: 0.25, 					// Opacity of the lines
+			rotate: 0, 							// The rotation offset
+			direction: 1, 					// 1: clockwise, -1: counterclockwise
+			speed: 1, 							// Rounds per second
+			trail: 60, 							// Afterglow percentage
+			fps: 20, 								// Frames per second when using setTimeout() as a fallback for CSS
+			zIndex: 1,	 						// The z-index (defaults to 2000000000)
+			className: 'spinner', 	// The CSS class to assign to the spinner
+			top: '50%', 						// Top position relative to parent
+			left: '50%', 						// Left position relative to parent
+			shadow: false, 					// Whether to render a shadow
+			hwaccel: false, 				// Whether to use hardware acceleration
+			position: 'relative'	 	// Element positioning
+		}
+		target = document.getElementById('spinner');
+		spinner = new Spinner(opts);
 		
+
+
 		loadIndividual();
 
 		function loadIndividual() {
-			// show correct content
+			// show spinner
+			$('#spinner').css('height', 150);
+			spinner.spin(target);
+
+			// reset content
 			$('.results-tab-content').hide();
 			$('#results-table #workouts-table tbody').empty();
-			$('#results-table').show();
 
 			$.ajax({
 				type: 'GET',
@@ -38,6 +72,13 @@ google.setOnLoadCallback(function(){
 						
 						addNewRow(id, date, name, interval);
 					}
+
+					// hide spinner
+					spinner.stop();
+					$('#spinner').css('height', '');
+
+					// show results
+					$('#results-table').show();
 				}
 			});
 		}
@@ -92,9 +133,14 @@ google.setOnLoadCallback(function(){
 		}
 
 		function graphIndividual() {
+			// show spinner
+			$('#spinner').css('height', 150);
+			spinner.spin(target);
+
 			// show corrent content
 			$('.results-tab-content').hide();
 			$('#graph-canvas').empty();
+			$('#graph-toggle-container').hide();
 			$('#results-graph').show();
 
 			$.ajax({
@@ -191,6 +237,12 @@ google.setOnLoadCallback(function(){
 
 					var chart = new google.visualization.ScatterChart(document.getElementById('graph-canvas'));
 					chart.draw(graph, options);
+
+					// hide spinner and show results
+					spinner.stop();
+					$('#spinner').css('height', '');
+
+					$('#graph-toggle-container').show();
 				}
 			});
 		}
@@ -285,6 +337,10 @@ google.setOnLoadCallback(function(){
 				if (!$('#base-workout-select').val() || !$('#compare-workout-select').val())
 					return;
 
+				// show spinner
+				$('#spinner').css('height', 150);
+				spinner.spin(target);
+
 				// get the correct session data
 				var baseSession = baseData.sessions[$('#base-workout-select option:selected').index()-1],
 						compareSession = compareData.sessions[$('#compare-workout-select option:selected').index()-1];
@@ -342,6 +398,10 @@ google.setOnLoadCallback(function(){
 
 				var chart = new google.visualization.ScatterChart(document.getElementById('compare-graph-canvas'));
 				chart.draw(graph, options);
+
+				// hide spinner
+				spinner.stop();
+				$('#spinner').css('height', '');
 			});
 		}
 

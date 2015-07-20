@@ -25,7 +25,7 @@ google.setOnLoadCallback(function(){
 			// initialize spinner
 			opts = {
 				lines: 13, 							// The number of lines to draw
-			  length: 28, 						// The length of each line
+				length: 28, 						// The length of each line
 				width: 14, 							// The line thickness
 				radius: 42, 						// The radius of the inner circle
 				scale: 0.5, 						// Scales overall size of the Spinner
