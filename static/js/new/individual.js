@@ -2,7 +2,8 @@ google.load('visualization', '1', {packages:['corechart']});
 google.setOnLoadCallback(function(){
 	$(function(){
 
-		var spinner, opts, target,					// spinner variables
+		var ajaxRequest,										// used to keep track of current ajax request
+				spinner, opts, target,					// spinner variables
 				baseData, compareData;					// saved data for compare tab
 
 
@@ -46,7 +47,12 @@ google.setOnLoadCallback(function(){
 			$('.results-tab-content').hide();
 			$('#results-table #workouts-table tbody').empty();
 
-			$.ajax({
+			// abort current update and start new ajax request
+			if (ajaxRequest) {
+				ajaxRequest.abort();
+			}
+
+			ajaxRequest = $.ajax({
 				type: 'GET',
 				url: '/api/individual_splits/',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
@@ -143,7 +149,12 @@ google.setOnLoadCallback(function(){
 			$('#graph-toggle-container').hide();
 			$('#results-graph').show();
 
-			$.ajax({
+			// abort current update and start new ajax request
+			if (ajaxRequest) {
+				ajaxRequest.abort();
+			}
+
+			ajaxRequest = $.ajax({
 				type: 'GET',
 				url: '/api/individual_splits/',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
@@ -256,7 +267,12 @@ google.setOnLoadCallback(function(){
 			$('.workout-select option:nth-child(1)').nextAll().remove();
 			$('.athlete-select option:nth-child(1)').nextAll().remove();
 
-			$.ajax({
+			// abort current update and start new ajax request
+			if (ajaxRequest) {
+				ajaxRequest.abort();
+			}
+
+			ajaxRequest = $.ajax({
 				type: 'GET',
 				url: '/api/individual_splits/',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
@@ -405,9 +421,13 @@ google.setOnLoadCallback(function(){
 			});
 		}
 
+		// register handler for tab click
 		$('body').on('click', 'ul#results-nav>li', function(e) {
 			e.preventDefault();
 			// update tab navbar
+			if ($(this).hasClass('active'))
+				return;
+
 			$(this).parent().children().removeClass('active');
 			$(this).addClass('active');
 
