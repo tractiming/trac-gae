@@ -705,14 +705,21 @@ google.setOnLoadCallback(function(){
 				height = 500;
 
 			var options = {
-			  title: json.name,
-			  height: height,
-			  hAxis: { title: 'Split #', minValue: 1, viewWindow: { min: 1 } },
-			  vAxis: { title: 'Time'},
-			  //hAxis: {title: 'Split', minValue: 0, maxValue: 10},
-			  //vAxis: {title: 'Time', minValue: 50, maxValue: 100},
-			  series: series,
-			  legend: { position: 'right' }
+				title: json.name,
+				height: height,
+				hAxis: { title: 'Split #', minValue: 1, viewWindow: { min: 1 } },
+				vAxis: { title: 'Time'},
+				axes: {
+					y: {
+						all: {
+							format: {
+								pattern: 'decimal'
+							}
+						}
+					}
+				},
+				series: series,
+				legend: { position: 'right' }
 			};
 
 			var chart = new google.visualization.ScatterChart(document.getElementById('graph-canvas'));

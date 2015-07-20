@@ -278,14 +278,70 @@ google.setOnLoadCallback(function(){
 			// register handler for selecting workouts for comparison
 			$('body').off('change', '#results-compare select');
 			$('body').on('change', '#results-compare select', function() {
-				console.log($('#base-workout-select').val()+' '+$('#compare-workout-select').val());
+				// clear graph
+				$('#compare-graph-canvas').empty();
 
 				// don't do anything if user hasn't select workouts to compare
 				if (!$('#base-workout-select').val() || !$('#compare-workout-select').val())
 					return;
 
-				// make a comparison table?
+				// get the correct session data
+				var baseSession = baseData.sessions[$('#base-workout-select option:selected').index()-1],
+						compareSession = compareData.sessions[$('#compare-workout-select option:selected').index()-1];
 
+				var baseLabel = baseSession.runner.name + ' - ' + baseSession.name,
+						compareLabel = compareSession.runner.name + ' - ' + compareSession.name;
+
+				var baseSplits = baseSession.runner.interval,
+						compareSplits = compareSession.runner.interval;
+
+				// init graph and add the columns
+				var graph = new google.visualization.DataTable();
+				graph.addColumn('number', 'Split');
+				graph.addColumn('number', baseLabel);
+				graph.addColumn('number', compareLabel);
+
+				// add the splits
+				var numSplits = (baseSplits.length > compareSplits.length) ? baseSplits.length : compareSplits.length;
+				for (var i=0; i<numSplits; i++) {
+					var row = [i+1];
+
+					if (baseSplits[i])
+						row.push({v: Number(baseSplits[i][0]), f: baseSplits[i][0]})
+					else
+						row.push(NaN);
+
+					if (compareSplits[i])
+						row.push(Number(compareSplits[i][0]))
+					else
+						row.push(NaN);
+
+					graph.addRow(row);
+				}
+
+				var height = 300;
+				if (window.innerWidth > 768)
+					height = 500;
+
+				var options = {
+					title: 'Comparison',
+					height: height,
+					hAxis: { title: 'Split #', minValue: 1, viewWindow: { min: 1 } },
+					vAxis: { title: 'Time'},
+					axes: {
+						y: {
+							all: {
+								format: {
+									pattern: 'decimal'
+								}
+							}
+						}
+					},
+					legend: { position: 'right' }
+				};
+
+				var chart = new google.visualization.ScatterChart(document.getElementById('compare-graph-canvas'));
+				chart.draw(graph, options);
 			});
 		}
 
