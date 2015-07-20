@@ -1,6 +1,8 @@
 google.load('visualization', '1', {packages:['corechart']});
 google.setOnLoadCallback(function(){
 	$(function(){
+
+		var baseData, compareData;
 		
 		loadIndividual();
 
@@ -20,9 +22,13 @@ google.setOnLoadCallback(function(){
 				},
 				success: function(data){
 					var name = data.name,
-							sessions = data.sessions.reverse();
+							sessions = data.sessions;
 
 					$('#athlete-title').html(name);
+
+					if (sessions.length == 0) {
+						return;
+					}
 
 					for(i=0; i<sessions.length; i++) {
 						var name = sessions[i].name,
@@ -101,7 +107,11 @@ google.setOnLoadCallback(function(){
 				},
 				success: function(data){
 					var name = data.name,
-							sessions = data.sessions.reverse();
+							sessions = data.sessions;
+
+					if (sessions.length == 0) {
+						return;
+					}
 
 					var toggleOptions = $('#results-graph #graph-toggle-options');
 
@@ -186,8 +196,97 @@ google.setOnLoadCallback(function(){
 		}
 
 		function compareIndividual() {
+			// show correct content
 			$('.results-tab-content').hide();
 			$('#results-compare').show();
+
+			// clear select options
+			$('.workout-select option:nth-child(1)').nextAll().remove();
+			$('.athlete-select option:nth-child(1)').nextAll().remove();
+
+			$.ajax({
+				type: 'GET',
+				url: '/api/individual_splits/',
+				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				dataType: 'json',
+				data: {
+					id: athleteID,
+				},
+				success: function(data) {
+					baseData = data;
+
+					var name = data.name,
+							sessions = data.sessions;
+
+					$('#base-athlete-select').append('<option disabled selected>'+name+'</option>');
+
+					for (var i=0; i<sessions.length; i++) {
+						$('#base-workout-select').append('<option value="'+sessions[i].id+'">'+sessions[i].name+'</option>');
+					}
+
+					$.ajax({
+						type: 'GET',
+						url: '/api/athletes/',
+						headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+						dataType: 'json',
+						success: function(data2) {
+							for (var i=0; i<data2.length; i++) {
+								$('#compare-athlete-select').append(
+									'<option value="'+data2[i].id+'">' +
+										data2[i].first_name + ' ' + data2[i].last_name +
+									'</option>'
+								);
+							}
+						}
+					});
+
+					// register handler for compare athlete select
+					$('body').off('change', '#compare-athlete-select');
+					$('body').on('change', '#compare-athlete-select', function() {
+						// get selected athlete ID
+						var id = $('#compare-athlete-select').val();
+
+						// clear workout select options
+						$('#compare-workout-select option:nth-child(1)').nextAll().remove();
+
+						$.ajax({
+							type: 'GET',
+							url: '/api/individual_splits/',
+							headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+							dataType: 'json',
+							data: {
+								id: id,
+							},
+							success: function(data) {
+								compareData = data;
+
+								var sessions = data.sessions;
+
+								for (var i=0; i<sessions.length; i++) {
+									$('#compare-workout-select').append(
+										'<option value="'+sessions[i].id+'">' +
+											sessions[i].name +
+										'</option>'
+									);
+								}
+							}
+						});
+					});
+				}
+			});
+	
+			// register handler for selecting workouts for comparison
+			$('body').off('change', '#results-compare select');
+			$('body').on('change', '#results-compare select', function() {
+				console.log($('#base-workout-select').val()+' '+$('#compare-workout-select').val());
+
+				// don't do anything if user hasn't select workouts to compare
+				if (!$('#base-workout-select').val() || !$('#compare-workout-select').val())
+					return;
+
+				// make a comparison table?
+
+			});
 		}
 
 		$('body').on('click', 'ul#results-nav>li', function(e) {
