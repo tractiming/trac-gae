@@ -304,9 +304,59 @@ google.setOnLoadCallback(function(){
 		$('body').on('click', '.modify-splits>div', function(e) {
 			e.preventDefault();
 			
+			console.log(jsonData.filter_choice);
 			// prompt to disable filter choice if on
 			if (jsonData.filter_choice) {
+				$('#filter-disable-modal').modal('show');
 
+				$('body').off('click', '#filter-disable-modal #filter-disable-confirm');
+				$('body').on('click', '#filter-disable-modal #filter-disable-confirm', function(e) {
+					e.preventDefault();
+
+					// make ajax call to turn off filter
+					var id = jsonData.id,
+							name = jsonData.name,
+							start = jsonData.start_time,
+							stop = jsonData.stop_time,
+							restTime = jsonData.rest_time,
+							distance = jsonData.interval_distance,
+							size = jsonData.track_size,
+							intervalNumber = jsonData.interval_number,
+							privateSelect = jsonData.private,
+							filter = false;
+
+					$.ajax({
+						type: 'POST',
+						dataType:'json',
+						url: '/api/time_create/',
+						headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+						data: {
+							id: id,
+							name: name,
+							start_time: start,
+							stop_time: stop,
+							rest_time: restTime,
+							track_size: size,
+							interval_distance: distance,
+							interval_number: intervalNumber,
+							filter_choice: filter,
+							private: privateSelect
+						},
+						success: function(data) {
+							// update front end data
+							jsonData.filter_choice = false;
+
+							// then hide confirmation modal
+							$('#filter-disable-modal').modal('hide');
+						}
+					});
+				});
+
+				$('body').off('click', '#filter-disable-modal #filter-disable-cancel');
+				$('body').on('click', '#filter-disable-modal #filter-disable-cancel', function(e) {
+					e.preventDefault();
+					$('#filter-disable-modal').modal('hide');
+				});
 				return;
 			}
 
