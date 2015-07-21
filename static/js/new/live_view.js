@@ -2,6 +2,8 @@
 google.load('visualization', '1', {packages:['corechart']});
 google.setOnLoadCallback(function(){
 	$(function() {
+
+		//===================================== CONSTANTS & variables =====================================
 		var TABLE_VIEW = 0,
 				GRAPH_VIEW = 1,
 				IND_FINAL_VIEW = 2,
@@ -13,59 +15,59 @@ google.setOnLoadCallback(function(){
 		var idArray = [],
 				currentID, currentView,												// used to identify current session and view
 				updateHandler, idleHandler,										// interval handlers
-				ajaxRequest,																	// used to keep track of current ajax request
+				ajaxRequest, jsonData,												// used to keep track of current ajax request
 				spinner, opts, target, teamSpinners = {},			// spinner variables
 				currentTeamID, currentTeam,										// used in team results tab
 				calendarEvents,																// holds list of sessions formatted for fullcalendar
 				sessionFirst = 1, sessionLast = 15,						// used for sessions pagination
 				cStart, cStop;																// used for date-based sessions query
 
-		(function init(){
 
-			// initialize spinner
-			opts = {
-				lines: 13, 							// The number of lines to draw
-			  length: 28, 						// The length of each line
-				width: 14, 							// The line thickness
-				radius: 42, 						// The radius of the inner circle
-				scale: 0.5, 						// Scales overall size of the Spinner
-				corners: 1, 						// Corner roundness (0..1)
-				color: '#3577a8', 			// #rgb or #rrggbb or array of colors
-				opacity: 0.25, 					// Opacity of the lines
-				rotate: 0, 							// The rotation offset
-				direction: 1, 					// 1: clockwise, -1: counterclockwise
-				speed: 1, 							// Rounds per second
-				trail: 60, 							// Afterglow percentage
-				fps: 20, 								// Frames per second when using setTimeout() as a fallback for CSS
-				zIndex: 1,	 						// The z-index (defaults to 2000000000)
-				className: 'spinner', 	// The CSS class to assign to the spinner
-				top: '50%', 						// Top position relative to parent
-				left: '50%', 						// Left position relative to parent
-				shadow: false, 					// Whether to render a shadow
-				hwaccel: false, 				// Whether to use hardware acceleration
-				position: 'absolute'	 	// Element positioning
-			}
-			target = document.getElementById('spinner');
-			spinner = new Spinner(opts);
+		//===================================== spinner configuration =====================================
+		opts = {
+			lines: 13, 							// The number of lines to draw
+		  length: 28, 						// The length of each line
+			width: 14, 							// The line thickness
+			radius: 42, 						// The radius of the inner circle
+			scale: 0.5, 						// Scales overall size of the Spinner
+			corners: 1, 						// Corner roundness (0..1)
+			color: '#3577a8', 			// #rgb or #rrggbb or array of colors
+			opacity: 0.25, 					// Opacity of the lines
+			rotate: 0, 							// The rotation offset
+			direction: 1, 					// 1: clockwise, -1: counterclockwise
+			speed: 1, 							// Rounds per second
+			trail: 60, 							// Afterglow percentage
+			fps: 20, 								// Frames per second when using setTimeout() as a fallback for CSS
+			zIndex: 1,	 						// The z-index (defaults to 2000000000)
+			className: 'spinner', 	// The CSS class to assign to the spinner
+			top: '50%', 						// Top position relative to parent
+			left: '50%', 						// Left position relative to parent
+			shadow: false, 					// Whether to render a shadow
+			hwaccel: false, 				// Whether to use hardware acceleration
+			position: 'absolute'	 	// Element positioning
+		}
+		target = document.getElementById('spinner');
+		spinner = new Spinner(opts);
 
-			// default view to table
-			currentView = TABLE_VIEW;
+		//====================================== page initialization ======================================
+		// default view to table
+		currentView = TABLE_VIEW;
 
-			// hide notifications and results
-			$('.notification').hide();
-			$('#results-nav').hide();
-			$('.results-tab-content').hide();
-			$('#download-container').hide();
+		// hide notifications and results
+		$('.notification').hide();
+		$('#results-nav').hide();
+		$('.results-tab-content').hide();
+		$('#download-container').hide();
 
-			// query for all workout sessions
-			spinner.spin(target);
-			findScores();
-			loadCalendar();
+		// query for all workout sessions
+		spinner.spin(target);
+		findScores();
+		loadCalendar();
 
-			// start updates
-			startUpdates();
-		})();
+		// start updates
+		startUpdates();
 
+		//====================================== live_view functions ======================================
 		function startUpdates() {
 			// refresh the view every 5 seconds to update
 			updateHandler = setInterval(lastSelected, UPDATE_INTERVAL);
@@ -93,10 +95,10 @@ google.setOnLoadCallback(function(){
 			ajaxRequest = $.ajax({
 				url: last_url,
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-				dataType: 'text',			//force to handle it as text
+				dataType: 'json',
 				success: function(data) {
-					var json = $.parseJSON(data);
-
+					//var json = $.parseJSON(data);
+					
 					/*
 	      	json = {
 						"id": 24, 
@@ -116,7 +118,11 @@ google.setOnLoadCallback(function(){
 						"private": true
 					};
 					//*/
-					var results = $.parseJSON(json.results);
+					//var results = $.parseJSON(json.results);
+
+					jsonData = data;
+					var json = data;
+					var results = data.results;
 
 					// add heat name
 					$('#results-title').html('Live Results: ' + json.name);
@@ -298,7 +304,13 @@ google.setOnLoadCallback(function(){
 		$('body').on('click', '.modify-splits>div', function(e) {
 			e.preventDefault();
 			
-			// pause updates 
+			// prompt to disable filter choice if on
+			if (jsonData.filter_choice) {
+
+				return;
+			}
+
+			// pause updates
 			stopUpdates();
 
 			var runnerID = $(this).parent().attr('class').toString().split(' ')[1].split('-')[2].trim();
@@ -928,16 +940,14 @@ google.setOnLoadCallback(function(){
 			$.ajax({
 				url: '/api/session_Pag/',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-				dataType: 'text',			//force to handle it as text
+				dataType: 'json',
 				data: {
 					i1: sessionFirst,
 					i2: sessionLast,
 				},
 				success: function(data){
-					var json = $.parseJSON(data);
-
-					var results = json.results,
-							numSessions = json.numSessions;
+					var results = data.results,
+							numSessions = data.numSessions;
 					
 					if ((results.length == 0) && (!$.trim($('ul.menulist').html()))) {
 						$('.notification.no-sessions').show();
@@ -979,18 +989,16 @@ google.setOnLoadCallback(function(){
 			$.ajax({
 				url:'/api/session_Pag/',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-				dataType: 'text',
+				dataType: 'json',
 				data: {
 					i1: 0, i2: 0, start_date: cStart, stop_date: cStop,
 				},
 				success: function(data){
-					var json = $.parseJSON(data);
-
-					var results = json.results,
-							numSessions = json.numSessions;
+					var results = data.results,
+							numSessions = data.numSessions;
 
 					calendarEvents = [];
-					for (var i=0; i < results.length; i++){
+					for (var i=0; i<results.length; i++){
 						// add events to calendar event list
 						var url = results[i].id;
 						var str = results[i].start_time;

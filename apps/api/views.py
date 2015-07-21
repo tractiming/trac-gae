@@ -510,7 +510,7 @@ def sessions_paginate(request):
             table = TimingSession.objects.filter(Q(private='false') & Q(start_time__range=(start_date, stop_date))).values()
         #reset indices for pagination without changing id
     if begin == 0 and stop == 0:
-        return Response(table, status.HTTP_200_OK)
+        return Response({'results': table, 'numSessions': len(table)}, status.HTTP_200_OK)
     else:
         i = 1
         result = []
