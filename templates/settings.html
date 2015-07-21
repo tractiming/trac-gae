@@ -10,8 +10,10 @@
 
 {% block js_scripts %}
 <script>
-var instance_first = 1;
-var instance_last = 5;
+var sessionFirst = 1;
+var sessionLast = 15,
+currentID,currentView;
+var idArray = []
 var numitems = 0;
 var gl_helper;
 var id_helper = 0;
@@ -58,6 +60,18 @@ $("li a.logout").click(function(){
 {% endblock %}
 
 {% block content %}
+<style>
+    #coachform{
+      width:300px;
+      margin: 0 auto;
+    }
+    label{
+      display:block;
+    }
+    input,textarea{
+      width:75%;
+    }
+  </style>
 <script>
 	$(document).ready(function(){
     // initialize spinner
@@ -90,6 +104,7 @@ $("li a.logout").click(function(){
 		 $('div.pictures').css('padding-left','200px');
 		 $('div.text').css('padding-left','200px');
 		}
+    
     loadAthletes();
     var pushyheight = $('.pushy').height();
     var itemheight = 56;
@@ -98,7 +113,7 @@ $("li a.logout").click(function(){
     instance_last = numitems;
     findScores();
     loadRoster();
-	});
+
  function loadRoster(){
     $('#roster').empty();
         $.ajax({
@@ -152,6 +167,7 @@ $("li a.logout").click(function(){
               });
   }
   function loadAthletes(){
+    spinner.spin(target);
    $('#athletes').empty();
    if (id_helper!=0){
    $.ajax({
@@ -162,6 +178,7 @@ $("li a.logout").click(function(){
     success: function(data){
       var json = $.parseJSON(data);
       json = json.reverse();
+      spinner.stop();
       $('p#inputnoneheader').hide();
       $('p#inputheader').hide();
       if(json.length==0){
@@ -209,46 +226,56 @@ $("li a.logout").click(function(){
     }
 }
 
-function findScores(){
-    $.ajax({
-      url: '/api/session_Pag/',
-      headers: {Authorization: "Bearer " + sessionStorage.access_token},
-      dataType: 'text',
-      data: {i1: instance_first,
-             i2: instance_last,},
-      success: function(data){
-        var json = $.parseJSON(data);
-        var results = json.results.reverse();
+    function findScores(){
+      //spinner.spin(target);
 
-          var arr = [];
-          for (var i=0; i < results.length; i++){
-            $('#linkedlist').append('<tr><td>'+results[i].name+'</td></tr>');
-            $('ul.menulist').append('<li><a href="#">'+results[i].name+'</a></li>');
-            arr.push(results[i].id);
+      $.ajax({
+        url: '/api/session_Pag/',
+        headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+        dataType: 'text',     //force to handle it as text
+        data: {
+          i1: sessionFirst,
+          i2: sessionLast,
+        },
+        success: function(data){
+          var json = $.parseJSON(data);
+
+          var results = json.results,
+              numSessions = json.numSessions;
+          
+          if ((results.length == 0) && (!$.trim($('ul.menulist').html()))) {
+            
+            spinner.stop();
+          } else {
+            
+            for (var i=0; i<results.length; i++){
+              // add events to event menu
+              $('ul.menulist').append('<li><a href="#">'+results[i].name+'</a></li>');
+              idArray.push(results[i].id);
+            }
+            if (results.length == 15){
+              $('ul.menulist').append('<li id="see-more"><a href="#">See More</a></li>');
+            }
           }
-          if (results.length == 5){
-          $('#linkedlist').append('<tr id="sM"><td>SeeMore</td></tr>');
-          $('ul.menulist').append('<li id="sM"><a href="#SeeMore">See More</a></li>');
+          // show most recent workout, edit: do not show more recent workout
+          currentID = currentID || idArray[0];
+          //update(currentID, currentView);
         }
-          idArray = arr;
-        }
-    });
-  }
-    
+      });
+    }
 function resetScores(){
     $('#linkedlist tr#sM').remove();
     $('ul.menulist li#sM').remove();
   }
   // attach handler for heat menu item click
-</script>
 
-<script>
     var stepped = 0, rowCount = 0, errorCount = 0, firstError;
     var inputType = "string";
-    $(document).ready(function(){
+
       
       $("#csvform").on('submit', function(e){
       e.preventDefault();
+
       var config = buildConfig();
       
 $('#file').parse({
@@ -274,7 +301,7 @@ $('#file').parse({
       }
     });
   });
-});
+
   function now()
 {
   return typeof window.performance !== 'undefined'
@@ -355,8 +382,8 @@ function completeFn(results)
      headers: {Authorization: "Bearer " + sessionStorage.access_token},
            data:json,
            // Login was successful.
-           success: function(data) {alert('yes'); resetScores(); $('ul.menulist').empty(); findScores();},
-           error: function(xhr, errmsg, err) {alert('error')}
+           success: function(data) {alert('Successful Submission'); resetScores(); $('ul.menulist').empty(); findScores();},
+           error: function(xhr, errmsg, err) {alert('Upload Error')}
      });
       
       $('#file').val('');
@@ -381,54 +408,7 @@ function printStats(msg)
   if (errorCount)
     console.log("First error:", firstError);
 }
-</script>
-<style>
-    #coachform{
-      width:300px;
-      margin: 0 auto;
-    }
-    label{
-      display:block;
-    }
-    input,textarea{
-      width:75%;
-    }
-  </style>
-<script>
-/*$(document).ready(function() {
-    $("#coachform").on('submit', function(e){
-         e.preventDefault();
-         var form = $(this);  
-         form.parsley().validate();
-         if (form.parsley().isValid()){
-         	var it=$('input[id=idnumber]').val();   
-            var fname=$('input[id=username]').val();
-            var ti=$('input[id=tag]').val();
-        $.ajax({
-           type: "POST",
-           dataType:'json',
-           url: "/api/reg_tag/",
-           headers: {Authorization: "Bearer " + sessionStorage.access_token},
-           data: {
-           	   id: id_helper,
-           	   id2: it,
-               username: fname,
-               id_str: ti,
-               submethod: 'Update'
-           }, 
-                      success: function(data) {
-                      console.log(fname);
-                      $("#coachform")[0].reset();
-                      loadAthletes();
-                    }
-                });
-           }
-           
-      });
-});*/
-</script>
-<script>
-    
+
 $("body").on('click', '#athletes tr' ,function(){
   $('#myModal').modal('toggle');
   var value = $(this).html();
@@ -536,27 +516,34 @@ $('body').on('click', '#register', function(e){
   });
 });
 $("body").on('click', '#open', function(e){
-  //console.log('pressing Open');
+  if(id_helper == 0){
+     $('.notification-critical').show();
+   return
+  }
           $.ajax({
+
               type: 'POST',
               dataType: 'json',
               url: '/api/open_session/',
               data: {id: id_helper},
               headers: {Authorization: "Bearer " + sessionStorage.access_token},
               success: function(data){
-                 // alert ('session open');
-                  isOpen = true;
+
+                 $('.notification').hide();
+                     $('div.notification.open-success').show();
+                 // isOpen = true;
               },
               error: function(xhr, errmsg, err){
                  // alert ("session couldn't open");
+                 $('.notification-critical').show();
               }
           });
 });
 
 $("body").on('click', 'button#stop', function(e){
-            var id = id_helper;
-            if (isOpen == false){
-             // alert('Session is not open');
+            if(id_helper == 0){
+               $('.notification-critical').show();
+                return
             }
             else{
             $.ajax({
@@ -567,20 +554,23 @@ $("body").on('click', 'button#stop', function(e){
                     headers: {Authorization: "Bearer " + sessionStorage.access_token},
                     success: function(data){
                      // alert ('session closed');
-                      isOpen=false;
+                      $('.notification').hide();
+                     $('div.notification.close-success').show();
+                     // isOpen=false;
                     },
                     error: function(xhr, errmsg, err){
                      // alert ("couldn't close session");
+                     $('.notification-critical').show();
                     }
             });
           }
 });
 
 $("body").on('click', 'button#start', function(e){
-            var id = id_helper;
-            if (isOpen == false){
-             // alert('Session not open');
-            }
+            if(id_helper == 0){
+                $('.notification-critical').show();
+               return
+              }
             else{
             $.ajax({
                     type: 'POST',
@@ -590,48 +580,41 @@ $("body").on('click', 'button#start', function(e){
                     headers:{Authorization: "Bearer " + sessionStorage.access_token},
                     success: function(data){
                      // alert ('session started');
+                     $('.notification').hide();
+                     $('div.notification.start-success').show();
+
                     },
                     error: function(xhr, errmsg, err){
                     //  alert ("couldn't start session");
+                    $('.notification-critical').show();
                     }
             });
           }
 });
-$('ul.menulist li a').off('click');
-  $('body').on('click', 'ul.menulist li a', function(){
-      var name = ($(this).html() );
-      var id;
-      console.log(name);
-      console.log(id);
-  if (name == 'See More'){
-      instance_first += numitems;
-      instance_last += numitems;
-      resetScores();
-      findScores();
-  }
-  else {
-      $.ajax({
-      type: 'GET',
-      url: '/api/sessions/',
-      headers: {Authorization: "Bearer " + sessionStorage.access_token},
-      success: function(data){
-          var json = data;
-          json = json.reverse();
-          for (var ii=0; ii < json.length; ii++)
-          {
-              if(json[ii].name == name){
-                  id = json[ii].id;
-                  id_helper = id;
-              }
-          }
-          loadAthletes();
-      },
-      error: function(xhr, errmsg, err){
-        alert ("couldn't find workout");
+
+
+    // attach handler for heat menu item click
+    $('body').on('click', 'ul.menulist li a', function(){
+      var value = $(this).html();
+      if (value == 'See More'){
+        sessionFirst += 15;
+        sessionLast += 15;
+        $('ul.menulist li#see-more').remove();
+        findScores();
+      } else {
+        var indexClicked = $( 'ul.menulist li a' ).index( $(this) );
+        
+        // reset canvases and set new session id
+        $('.notification').hide();
+
+        currentID = idArray[indexClicked];
+        id_helper = currentID;
+        loadAthletes();
+        //spinner.spin(target);
+        //update(currentID, currentView);
       }
-  });
-    }
-  });
+    });
+
 
    $("body").on('click','button#update2', function(e){
          e.preventDefault();
@@ -900,13 +883,13 @@ $("body").on('click', 'button#cl', function(e){
                submethod: 'Create',
            }, 
                       success: function(data) {
-                      $("#coachform")[0].reset();
+                      $("#rosterform")[0].reset();
                       loadRoster();
                     }
                 });
            }
       });
-
+});
 
 </script>
 <nav class="pushy pushy-left">
@@ -925,6 +908,7 @@ $("body").on('click', 'button#cl', function(e){
           </div>
         </div>
       </div>
+
             <div class="row">
               <div class="col-lg-offset-10 col-md-offset-10 col-sm-offset-10 col-xs-offset-10">
               <button type="button" class="btn btn-default" id="plus" data-toggle="modal" data-target="#csvModal">
@@ -933,6 +917,7 @@ $("body").on('click', 'button#cl', function(e){
             </div>
             <h1 id="score-title">Registration</h1>
             </div>
+
             <div class="row">
               <div id="athletes" class="table">
               </div>
@@ -948,9 +933,9 @@ $("body").on('click', 'button#cl', function(e){
           </div>
           <div  class=" col-lg-5 col-md-5 col-sm-5 col-xs-5" align="center">
             <div class="row">
-              <button type="button" class="btn btn-primary" id="open" style="margin: 2%;">Open</button>
-              <button type="button" class="btn btn-success" id="start" style="margin: 2%;">Start</button>
-              <button type="button" class="btn btn-warning" id="stop" style="margin: 2%;">Stop</button>
+              <button type="button" class="btn btn-primary" id="open" style="margin: 2%;" data-target="#notificationModal" data-dismiss="modal" data-toggle="modal">Open</button>
+              <button type="button" class="btn btn-success" id="start" style="margin: 2%;" data-target="#notificationModal" data-dismiss="modal" data-toggle="modal">Start</button>
+              <button type="button" class="btn btn-warning" id="stop" style="margin: 2%;" data-target="#notificationModal" data-dismiss="modal" data-toggle="modal">Stop</button>
             </div>
             <button type="button" class="btn btn-default pull-right" id="plus2" data-toggle="modal" data-target="#athleteModal" style="margin-bottom:2%">
                   <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Roster
@@ -965,12 +950,16 @@ $("body").on('click', 'button#cl', function(e){
         </div>
       </div>
       <div id="create" class="container">
+
   <div class="modal fade" id="notificationModal" role="dialog">
     <div class="modal-dialog">
       <div class ="modal-content">
         <div class="modal-body">
           <div id="notifications">
               <div class="notification notification-critical" role="alert">Some information you entered isn't right.</div>
+              <div class="notification start-success" role="alert">You have started a workout!</div>
+              <div class="notification open-success" role="alert">You have opened a workout!</div>
+               <div class="notification close-success" role="alert">You have closed a workout!</div>
             <div class="notification notification-success" role="alert">You have successfully added tag(s) to a workout!</div>
             <div class="notification delete-success" role="alert">You have successfully delinked a tag from the workout!</div>
             <div class="notification update-success" role="alert">You have successfully updated a tag!</div>
@@ -1006,7 +995,7 @@ $("body").on('click', 'button#cl', function(e){
             <label for="">Readers:</label> 
             <input data-progression="" type="text" data-helper="" id="readers" value="" placeholder="" class="form-control"/>
           </div>
-       <div class="button-container">
+       <div class="button-container" style="display:table;margin:0 auto;">
         <input type="file" id="file" name="myfile" class="btn btn-warning" value="Choose File">
         <input type="submit" class="gen_btn btn btn-primary" id="upload" name ="upload" value="Upload">
                            </div>
