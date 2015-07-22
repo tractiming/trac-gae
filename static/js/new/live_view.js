@@ -182,6 +182,7 @@ google.setOnLoadCallback(function(){
 							'<th>Name</th>' +
 							'<th>Latest Split</th>' +
 							'<th>Total Time</th>' +
+							'<th style="width:200px;">Edit Total</th>' +
 						'</tr>' +
 					'</thead>' +
 					'<tbody id="">' +
@@ -208,9 +209,9 @@ google.setOnLoadCallback(function(){
 							var split = String(Number(interval[j][0]).toFixed(3));
 							$('table#splits-'+id+'>tbody').append(
 								'<tr>' + 
-									'<td class="split-number col-md-2 col-sm-2">' + (j+1) + '</td>' + 
-									'<td class="split-time col-md-7 col-sm-7">' + split + '</td>' + 
-									'<td class="split-edit-options col-md-3 col-sm-3 hidden-xs">' +
+									'<td class="split-number">' + (j+1) + '</td>' + 
+									'<td class="split-time">' + split + '</td>' + 
+									'<td class="split-edit-options hidden-xs">' +
 										'<div class="modify-splits modify-splits-'+id+'" style="display:none;">' +
 											'<div class="insert-split"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></div>' +
 											'<div class="insert-split"><span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span></div>' +
@@ -249,10 +250,15 @@ google.setOnLoadCallback(function(){
 					'<td>' + name + '</td>' + 
 					'<td id="latest-split-'+id+'">' + split + '</td>' + 
 					'<td id="total-time-'+id+'"></td>' + 
+					'<td id="modify-total-time-'+id+'" style="width:200px;">' +
+						'<div class="modify-total-time center" style="display:none;">' +
+							'<div class="edit-total"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
+						'</div>' +
+					'</td>' +
 				'</tr>' + 
 				'<tr></tr>'	+		// for correct stripes 
 				'<tr class="splits">' +
-					'<td colspan="3">' +
+					'<td colspan="4">' +
 						'<div id="collapse-'+id+'" class="accordion-body collapse" aria-labelledby="results-'+id+'">' + 
 							'<table id="splits-'+id+'" class="table" style="text-align:center; background-color:transparent">' +
 								'<tbody>' +
@@ -271,10 +277,10 @@ google.setOnLoadCallback(function(){
 				// add splits to subtable
 				$('table#splits-'+id+'>tbody').append(
 					'<tr>' + 
-						'<td class="split-number col-md-2 col-sm-2">' + (j+1) + '</td>' + 
-						'<td class="split-time col-md-7 col-sm-7">' + split + '</td>' + 
-						'<td class="split-edit-options col-md-3 col-sm-3 hidden-xs">' +
-							'<div class="modify-splits modify-splits-'+id+'" style="display:none;">' +
+						'<td class="split-number">' + (j+1) + '</td>' + 
+						'<td class="split-time">' + split + '</td>' + 
+						'<td class="split-edit-options hidden-xs">' +
+							'<div class="modify-splits modify-splits-'+id+' center" style="display:none;">' +
 								'<div class="insert-split"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></div>' +
 								'<div class="insert-split"><span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span></div>' +
 								'<div class="edit-split"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
@@ -293,6 +299,14 @@ google.setOnLoadCallback(function(){
 			$('#table-canvas>tbody #results-'+id+'>td#total-time-'+id).html(total);
 			//*/
 		}
+
+		// register handler for edit total time
+		$('body').on('mouseover', '#table-canvas>tbody tr', function() {
+			$(this).find('.modify-total-time').show();
+		});
+		$('body').on('mouseleave', '#table-canvas>tbody tr', function() {
+			$(this).find('.modify-total-time').hide();
+		});
 
 		// register handler for editing splits
 		$('body').on('mouseover', 'tr.splits table tbody tr', function() {
@@ -393,11 +407,11 @@ google.setOnLoadCallback(function(){
 			var newSplitRow = {};
 			var newSplitRowHTML = '' +
 				'<tr>' + 
-					'<td class="split-number col-md-2 col-sm-2">' + (indx+1) + '</td>' + 
-					'<td class="split-time col-md-7 col-sm-7">' + 
+					'<td class="split-number">' + (indx+1) + '</td>' + 
+					'<td class="split-time">' + 
 						'<input type="text" id="insert-'+runnerID+'-'+indx+'" class="form-control" placeholder="Split value" style="color:#3c763d;" autofocus>' + 
 					'</td>' + 
-					'<td class="split-edit-options col-md-3 col-sm-3 hidden-xs">' +
+					'<td class="split-edit-options hidden-xs">' +
 						'<div class="modify-splits modify-splits-'+runnerID+'" style="display:none;">' +
 							'<div class="insert-split"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></div>' +
 							'<div class="insert-split"><span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span></div>' +
@@ -903,7 +917,7 @@ google.setOnLoadCallback(function(){
 							'</tr>' +
 							'<tr></tr>'	+
 							'<tr class="team-runners">' +
-								'<td colspan="3">' +
+								'<td colspan="4">' +
 									'<div id="collapse-team'+id+'" class="accordion-body collapse" aria-labelledby="team'+id+'">' +
 										'<table id="runners-team'+id+'" class="table" style="text-align:center; background-color:transparent">' +
 											'<thead>' +
