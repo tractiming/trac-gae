@@ -74,11 +74,17 @@ google.setOnLoadCallback(function(){
 
 			// idle check after 20 minutes
 			idleHandler = setTimeout(function(){ idleCheck(updateHandler, lastSelected, UPDATE_INTERVAL, IDLE_TIMEOUT, 'http://www.trac-us.com'); }, IDLE_TIMEOUT);
+
+			console.log('start updates');
 		}
 
 		function stopUpdates() {
+			if (ajaxRequest)
+				ajaxRequest.abort();
+
 			clearInterval(updateHandler);
 			clearTimeout(idleHandler);
+			console.log('stop updates');
 		}
 
 		function lastSelected(){
@@ -182,7 +188,7 @@ google.setOnLoadCallback(function(){
 							'<th>Name</th>' +
 							'<th>Latest Split</th>' +
 							'<th>Total Time</th>' +
-							'<th style="width:200px;">Edit Total</th>' +
+							'<th class="hidden-xs" style="width:50px;"></th>' +
 						'</tr>' +
 					'</thead>' +
 					'<tbody id="">' +
@@ -250,8 +256,8 @@ google.setOnLoadCallback(function(){
 					'<td>' + name + '</td>' + 
 					'<td id="latest-split-'+id+'">' + split + '</td>' + 
 					'<td id="total-time-'+id+'"></td>' + 
-					'<td id="modify-total-time-'+id+'" style="width:200px;">' +
-						'<div class="modify-total-time center" style="display:none;">' +
+					'<td id="modify-total-time-'+id+'" class="hidden-xs" style="width:50px;">' +
+						'<div class="modify-total-time pull-right" style="display:none;">' +
 							'<div class="edit-total"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
 						'</div>' +
 					'</td>' +
@@ -301,12 +307,87 @@ google.setOnLoadCallback(function(){
 		}
 
 		// register handler for edit total time
-		$('body').on('mouseover', '#table-canvas>tbody tr', function() {
+		$('body').on('mouseover', '#table-canvas>tbody>tr', function() {
 			$(this).find('.modify-total-time').show();
 		});
-		$('body').on('mouseleave', '#table-canvas>tbody tr', function() {
+		$('body').on('mouseleave', '#table-canvas>tbody>tr', function() {
 			$(this).find('.modify-total-time').hide();
 		});
+		$('body').on('click', '.modify-total-time>div', function(e) {
+			e.stopPropagation();
+
+			// stop updates
+			stopUpdates();
+
+			// show warning modal
+			$('.notification').hide();
+			$('.notification.edit-total').show();
+			$('#modify-total-time-modal input').val('');
+			$('#modify-total-time-modal').modal('show');
+
+			var runnerID = $(this).closest('td').attr('id').split('-')[3];
+
+			// force numbers on input field
+			$('#modify-total-time-modal input').keypress(function(e) {
+				return /\d/.test(String.fromCharCode(e.keyCode));
+			});
+
+			// register handlers for button clicks
+			$('body').off('click', '#modify-total-time-confirm');
+			$('body').on('click', '#modify-total-time-confirm', function(e) {
+				e.preventDefault();
+
+				var hrs = Number($('#total-hrs').val()),
+						mins = Number($('#total-mins').val()),
+						secs = Number($('#total-secs').val()),
+						ms = Number($('#total-ms').val());
+
+				if ((mins > 59) || (secs > 59) || (ms > 999)) {
+					$('.notification.total-time-error').show();
+					return;
+				}
+
+				console.log(hrs+':'+mins+':'+secs+'.'+ms);
+
+				//*
+				$.ajax({
+					method: 'POST',
+					url: 'api/edit_split/',
+					headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+					data: { id: currentID,
+									user_id: runnerID,
+									action: 'total_time',
+									hour: hrs,
+									min: mins,
+									sec: secs,
+									mil: ms },
+					success: function(data) {
+						$('#table-canvas').empty();
+						spinner.spin(target);
+						update(currentID, currentView);
+					},
+					error: function(jqXHR, exception) {
+						$('.notification.server-error').show();
+					}
+				});
+				//*/
+
+				// hide modal
+				$('#modify-total-time-modal').modal('hide');
+			});
+
+			$('body').off('click', '#modify-total-time-cancel');
+			$('body').on('click', '#modify-total-time-cancel', function(e) {
+				e.preventDefault();
+				$('#modify-total-time-modal').modal('hide');
+			});
+
+			// start updates after modal is hidden
+			$('#modify-total-time-modal').off('hidden.bs.modal');
+			$('#modify-total-time-modal').on('hidden.bs.modal', function(e) {
+				startUpdates();
+			});
+		})
 
 		// register handler for editing splits
 		$('body').on('mouseover', 'tr.splits table tbody tr', function() {
@@ -318,7 +399,6 @@ google.setOnLoadCallback(function(){
 		$('body').on('click', '.modify-splits>div', function(e) {
 			e.preventDefault();
 			
-			console.log(jsonData.filter_choice);
 			// prompt to disable filter choice if on
 			if (jsonData.filter_choice) {
 				$('#filter-disable-modal').modal('show');
