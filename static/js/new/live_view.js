@@ -2,6 +2,8 @@
 google.load('visualization', '1', {packages:['corechart']});
 google.setOnLoadCallback(function(){
 	$(function() {
+
+		//===================================== CONSTANTS & variables =====================================
 		var TABLE_VIEW = 0,
 				GRAPH_VIEW = 1,
 				IND_FINAL_VIEW = 2,
@@ -13,59 +15,58 @@ google.setOnLoadCallback(function(){
 		var idArray = [],
 				currentID, currentView,												// used to identify current session and view
 				updateHandler, idleHandler,										// interval handlers
-				ajaxRequest,																	// used to keep track of current ajax request
+				ajaxRequest, jsonData,												// used to keep track of current ajax request
 				spinner, opts, target, teamSpinners = {},			// spinner variables
 				currentTeamID, currentTeam,										// used in team results tab
 				calendarEvents,																// holds list of sessions formatted for fullcalendar
 				sessionFirst = 1, sessionLast = 15,						// used for sessions pagination
 				cStart, cStop;																// used for date-based sessions query
 
-		(function init(){
+		//===================================== spinner configuration =====================================
+		opts = {
+			lines: 13, 							// The number of lines to draw
+		  length: 28, 						// The length of each line
+			width: 14, 							// The line thickness
+			radius: 42, 						// The radius of the inner circle
+			scale: 0.5, 						// Scales overall size of the Spinner
+			corners: 1, 						// Corner roundness (0..1)
+			color: '#3577a8', 			// #rgb or #rrggbb or array of colors
+			opacity: 0.25, 					// Opacity of the lines
+			rotate: 0, 							// The rotation offset
+			direction: 1, 					// 1: clockwise, -1: counterclockwise
+			speed: 1, 							// Rounds per second
+			trail: 60, 							// Afterglow percentage
+			fps: 20, 								// Frames per second when using setTimeout() as a fallback for CSS
+			zIndex: 1,	 						// The z-index (defaults to 2000000000)
+			className: 'spinner', 	// The CSS class to assign to the spinner
+			top: '50%', 						// Top position relative to parent
+			left: '50%', 						// Left position relative to parent
+			shadow: false, 					// Whether to render a shadow
+			hwaccel: false, 				// Whether to use hardware acceleration
+			position: 'absolute'	 	// Element positioning
+		}
+		target = document.getElementById('spinner');
+		spinner = new Spinner(opts);
 
-			// initialize spinner
-			opts = {
-				lines: 13, 							// The number of lines to draw
-				length: 28, 						// The length of each line
-				width: 14, 							// The line thickness
-				radius: 42, 						// The radius of the inner circle
-				scale: 0.5, 						// Scales overall size of the Spinner
-				corners: 1, 						// Corner roundness (0..1)
-				color: '#3577a8', 			// #rgb or #rrggbb or array of colors
-				opacity: 0.25, 					// Opacity of the lines
-				rotate: 0, 							// The rotation offset
-				direction: 1, 					// 1: clockwise, -1: counterclockwise
-				speed: 1, 							// Rounds per second
-				trail: 60, 							// Afterglow percentage
-				fps: 20, 								// Frames per second when using setTimeout() as a fallback for CSS
-				zIndex: 1,	 						// The z-index (defaults to 2000000000)
-				className: 'spinner', 	// The CSS class to assign to the spinner
-				top: '50%', 						// Top position relative to parent
-				left: '50%', 						// Left position relative to parent
-				shadow: false, 					// Whether to render a shadow
-				hwaccel: false, 				// Whether to use hardware acceleration
-				position: 'absolute'	 	// Element positioning
-			}
-			target = document.getElementById('spinner');
-			spinner = new Spinner(opts);
+		//====================================== page initialization ======================================
+		// default view to table
+		currentView = TABLE_VIEW;
 
-			// default view to table
-			currentView = TABLE_VIEW;
+		// hide notifications and results
+		$('.notification').hide();
+		$('#results-nav').hide();
+		$('.results-tab-content').hide();
+		$('#download-container').hide();
 
-			// hide notifications and results
-			$('.notification').hide();
-			$('#results-nav').hide();
-			$('.results-tab-content').hide();
-			$('#download-container').hide();
+		// query for all workout sessions
+		spinner.spin(target);
+		findScores();
+		loadCalendar();
 
-			// query for all workout sessions
-			spinner.spin(target);
-			findScores();
-			loadCalendar();
+		// start updates
+		startUpdates();
 
-			// start updates
-			startUpdates();
-		})();
-
+		//====================================== live_view functions ======================================
 		function startUpdates() {
 			// refresh the view every 5 seconds to update
 			updateHandler = setInterval(lastSelected, UPDATE_INTERVAL);
@@ -75,6 +76,9 @@ google.setOnLoadCallback(function(){
 		}
 
 		function stopUpdates() {
+			if (ajaxRequest)
+				ajaxRequest.abort();
+
 			clearInterval(updateHandler);
 			clearTimeout(idleHandler);
 		}
@@ -93,10 +97,10 @@ google.setOnLoadCallback(function(){
 			ajaxRequest = $.ajax({
 				url: last_url,
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-				dataType: 'text',			//force to handle it as text
+				dataType: 'json',
 				success: function(data) {
-					var json = $.parseJSON(data);
-
+					//var json = $.parseJSON(data);
+					
 					/*
 	      	json = {
 						"id": 24, 
@@ -116,7 +120,11 @@ google.setOnLoadCallback(function(){
 						"private": true
 					};
 					//*/
-					var results = $.parseJSON(json.results);
+					//var results = $.parseJSON(json.results);
+
+					jsonData = data;
+					var json = data;
+					var results = data.results;
 
 					// add heat name
 					$('#results-title').html('Live Results: ' + json.name);
@@ -176,6 +184,7 @@ google.setOnLoadCallback(function(){
 							'<th>Name</th>' +
 							'<th>Latest Split</th>' +
 							'<th>Total Time</th>' +
+							'<th class="hidden-xs" style="width:50px;"></th>' +
 						'</tr>' +
 					'</thead>' +
 					'<tbody id="">' +
@@ -202,9 +211,9 @@ google.setOnLoadCallback(function(){
 							var split = String(Number(interval[j][0]).toFixed(3));
 							$('table#splits-'+id+'>tbody').append(
 								'<tr>' + 
-									'<td class="split-number col-md-2 col-sm-2">' + (j+1) + '</td>' + 
-									'<td class="split-time col-md-7 col-sm-7">' + split + '</td>' + 
-									'<td class="split-edit-options col-md-3 col-sm-3 hidden-xs">' +
+									'<td class="split-number">' + (j+1) + '</td>' + 
+									'<td class="split-time">' + split + '</td>' + 
+									'<td class="split-edit-options hidden-xs">' +
 										'<div class="modify-splits modify-splits-'+id+'" style="display:none;">' +
 											'<div class="insert-split"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></div>' +
 											'<div class="insert-split"><span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span></div>' +
@@ -243,10 +252,15 @@ google.setOnLoadCallback(function(){
 					'<td>' + name + '</td>' + 
 					'<td id="latest-split-'+id+'">' + split + '</td>' + 
 					'<td id="total-time-'+id+'"></td>' + 
+					'<td id="modify-total-time-'+id+'" class="hidden-xs" style="width:50px;">' +
+						'<div class="modify-total-time pull-right" style="display:none;">' +
+							'<div class="edit-total"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
+						'</div>' +
+					'</td>' +
 				'</tr>' + 
 				'<tr></tr>'	+		// for correct stripes 
 				'<tr class="splits">' +
-					'<td colspan="3">' +
+					'<td colspan="4">' +
 						'<div id="collapse-'+id+'" class="accordion-body collapse" aria-labelledby="results-'+id+'">' + 
 							'<table id="splits-'+id+'" class="table" style="text-align:center; background-color:transparent">' +
 								'<tbody>' +
@@ -265,10 +279,10 @@ google.setOnLoadCallback(function(){
 				// add splits to subtable
 				$('table#splits-'+id+'>tbody').append(
 					'<tr>' + 
-						'<td class="split-number col-md-2 col-sm-2">' + (j+1) + '</td>' + 
-						'<td class="split-time col-md-7 col-sm-7">' + split + '</td>' + 
-						'<td class="split-edit-options col-md-3 col-sm-3 hidden-xs">' +
-							'<div class="modify-splits modify-splits-'+id+'" style="display:none;">' +
+						'<td class="split-number">' + (j+1) + '</td>' + 
+						'<td class="split-time">' + split + '</td>' + 
+						'<td class="split-edit-options hidden-xs">' +
+							'<div class="modify-splits modify-splits-'+id+' center" style="display:none;">' +
 								'<div class="insert-split"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></div>' +
 								'<div class="insert-split"><span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span></div>' +
 								'<div class="edit-split"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
@@ -288,6 +302,87 @@ google.setOnLoadCallback(function(){
 			//*/
 		}
 
+		// register handler for edit total time
+		$('body').on('mouseover', '#table-canvas>tbody>tr', function() {
+			$(this).find('.modify-total-time').show();
+		});
+		$('body').on('mouseleave', '#table-canvas>tbody>tr', function() {
+			$(this).find('.modify-total-time').hide();
+		});
+		$('body').on('click', '.modify-total-time>div', function(e) {
+			e.stopPropagation();
+
+			// stop updates
+			stopUpdates();
+
+			// show warning modal
+			$('.notification').hide();
+			$('.notification.edit-total').show();
+			$('#modify-total-time-modal input').val('');
+			$('#modify-total-time-modal').modal('show');
+
+			var runnerID = $(this).closest('td').attr('id').split('-')[3];
+
+			// force numbers on input field
+			$('#modify-total-time-modal input').keypress(function(e) {
+				return /\d/.test(String.fromCharCode(e.keyCode));
+			});
+
+			// register handlers for button clicks
+			$('body').off('click', '#modify-total-time-confirm');
+			$('body').on('click', '#modify-total-time-confirm', function(e) {
+				e.preventDefault();
+
+				var hrs = Number($('#total-hrs').val()),
+						mins = Number($('#total-mins').val()),
+						secs = Number($('#total-secs').val()),
+						ms = Number($('#total-ms').val());
+
+				if ((mins > 59) || (secs > 59) || (ms > 999)) {
+					$('.notification.total-time-error').show();
+					return;
+				}
+
+				console.log(hrs+':'+mins+':'+secs+'.'+ms);
+
+				$.ajax({
+					method: 'POST',
+					url: 'api/edit_split/',
+					headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+					data: { id: currentID,
+									user_id: runnerID,
+									action: 'total_time',
+									hour: hrs,
+									min: mins,
+									sec: secs,
+									mil: ms },
+					success: function(data) {
+						$('#table-canvas').empty();
+						spinner.spin(target);
+						update(currentID, currentView);
+					},
+					error: function(jqXHR, exception) {
+						$('.notification.server-error').show();
+					}
+				});
+
+				// hide modal
+				$('#modify-total-time-modal').modal('hide');
+			});
+
+			$('body').off('click', '#modify-total-time-cancel');
+			$('body').on('click', '#modify-total-time-cancel', function(e) {
+				e.preventDefault();
+				$('#modify-total-time-modal').modal('hide');
+			});
+
+			// start updates after modal is hidden
+			$('#modify-total-time-modal').off('hidden.bs.modal');
+			$('#modify-total-time-modal').on('hidden.bs.modal', function(e) {
+				startUpdates();
+			});
+		})
+
 		// register handler for editing splits
 		$('body').on('mouseover', 'tr.splits table tbody tr', function() {
 			$(this).find('.modify-splits').show();
@@ -298,7 +393,62 @@ google.setOnLoadCallback(function(){
 		$('body').on('click', '.modify-splits>div', function(e) {
 			e.preventDefault();
 			
-			// pause updates 
+			// prompt to disable filter choice if on
+			if (jsonData.filter_choice) {
+				$('#filter-disable-modal').modal('show');
+
+				$('body').off('click', '#filter-disable-modal #filter-disable-confirm');
+				$('body').on('click', '#filter-disable-modal #filter-disable-confirm', function(e) {
+					e.preventDefault();
+
+					// make ajax call to turn off filter
+					var id = jsonData.id,
+							name = jsonData.name,
+							start = jsonData.start_time,
+							stop = jsonData.stop_time,
+							restTime = jsonData.rest_time,
+							distance = jsonData.interval_distance,
+							size = jsonData.track_size,
+							intervalNumber = jsonData.interval_number,
+							privateSelect = jsonData.private,
+							filter = false;
+
+					$.ajax({
+						type: 'POST',
+						dataType:'json',
+						url: '/api/time_create/',
+						headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+						data: {
+							id: id,
+							name: name,
+							start_time: start,
+							stop_time: stop,
+							rest_time: restTime,
+							track_size: size,
+							interval_distance: distance,
+							interval_number: intervalNumber,
+							filter_choice: filter,
+							private: privateSelect
+						},
+						success: function(data) {
+							// update front end data
+							jsonData.filter_choice = false;
+
+							// then hide confirmation modal
+							$('#filter-disable-modal').modal('hide');
+						}
+					});
+				});
+
+				$('body').off('click', '#filter-disable-modal #filter-disable-cancel');
+				$('body').on('click', '#filter-disable-modal #filter-disable-cancel', function(e) {
+					e.preventDefault();
+					$('#filter-disable-modal').modal('hide');
+				});
+				return;
+			}
+
+			// pause updates
 			stopUpdates();
 
 			var runnerID = $(this).parent().attr('class').toString().split(' ')[1].split('-')[2].trim();
@@ -331,11 +481,11 @@ google.setOnLoadCallback(function(){
 			var newSplitRow = {};
 			var newSplitRowHTML = '' +
 				'<tr>' + 
-					'<td class="split-number col-md-2 col-sm-2">' + (indx+1) + '</td>' + 
-					'<td class="split-time col-md-7 col-sm-7">' + 
+					'<td class="split-number">' + (indx+1) + '</td>' + 
+					'<td class="split-time">' + 
 						'<input type="text" id="insert-'+runnerID+'-'+indx+'" class="form-control" placeholder="Split value" style="color:#3c763d;" autofocus>' + 
 					'</td>' + 
-					'<td class="split-edit-options col-md-3 col-sm-3 hidden-xs">' +
+					'<td class="split-edit-options hidden-xs">' +
 						'<div class="modify-splits modify-splits-'+runnerID+'" style="display:none;">' +
 							'<div class="insert-split"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></div>' +
 							'<div class="insert-split"><span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span></div>' +
@@ -848,7 +998,7 @@ google.setOnLoadCallback(function(){
 							'</tr>' +
 							'<tr></tr>'	+
 							'<tr class="team-runners">' +
-								'<td colspan="3">' +
+								'<td colspan="4">' +
 									'<div id="collapse-team'+id+'" class="accordion-body collapse" aria-labelledby="team'+id+'">' +
 										'<table id="runners-team'+id+'" class="table" style="text-align:center; background-color:transparent">' +
 											'<thead>' +
@@ -935,16 +1085,14 @@ google.setOnLoadCallback(function(){
 			$.ajax({
 				url: '/api/session_Pag/',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-				dataType: 'text',			//force to handle it as text
+				dataType: 'json',
 				data: {
 					i1: sessionFirst,
 					i2: sessionLast,
 				},
 				success: function(data){
-					var json = $.parseJSON(data);
-
-					var results = json.results,
-							numSessions = json.numSessions;
+					var results = data.results,
+							numSessions = data.numSessions;
 					
 					if ((results.length == 0) && (!$.trim($('ul.menulist').html()))) {
 						$('.notification.no-sessions').show();
@@ -986,18 +1134,16 @@ google.setOnLoadCallback(function(){
 			$.ajax({
 				url:'/api/session_Pag/',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-				dataType: 'text',
+				dataType: 'json',
 				data: {
 					i1: 0, i2: 0, start_date: cStart, stop_date: cStop,
 				},
 				success: function(data){
-					var json = $.parseJSON(data);
-
-					var results = json.results,
-							numSessions = json.numSessions;
+					var results = data.results,
+							numSessions = data.numSessions;
 
 					calendarEvents = [];
-					for (var i=0; i < results.length; i++){
+					for (var i=0; i<results.length; i++){
 						// add events to calendar event list
 						var url = results[i].id;
 						var str = results[i].start_time;
@@ -1169,7 +1315,10 @@ function createFullCSV(idjson){
 						//interate over subarrays and pull out each individually and print
 						//do a little math to move from seconds to minutes and seconds
 						var subinterval = results.runners[i].interval[j][k];
-						CSV += subinterval+',';
+						if (k != results.runners[i].interval[j].length-1)
+							CSV += subinterval+',';
+						else
+							CSV += subinterval;
 					}
 				}
 

@@ -481,8 +481,10 @@ def edit_split(request):
         ts._insert_split(tag[0].id, int(data['indx']), float(data['val']))
     elif data['action'] == 'delete':
         ts._delete_split(tag[0].id, int(data['indx']))
+    elif data['action'] == 'total_time':
+        ts._overwrite_final_time(tag[0].id, int(data['hour']), int(data['min']), int(data['sec']), int(data['mil']))
     else:
-		return HttpResponse(status.HTTP_404_NOT_FOUND)
+        return HttpResponse(status.HTTP_404_NOT_FOUND)
 
     return HttpResponse(status.HTTP_202_ACCEPTED)
     
@@ -510,7 +512,7 @@ def sessions_paginate(request):
             table = TimingSession.objects.filter(Q(private='false') & Q(start_time__range=(start_date, stop_date))).values()
         #reset indices for pagination without changing id
     if begin == 0 and stop == 0:
-        return Response(table, status.HTTP_200_OK)
+        return Response({'results': table, 'numSessions': len(table)}, status.HTTP_200_OK)
     else:
         i = 1
         result = []

@@ -448,17 +448,26 @@ class TimingSession(models.Model):
         """
         # Delete all existing times for this tag.
         times = TagTime.objects.filter(timingsession=self, tag__id=tag_id)
-        times.delete()
+
+        first_tt = times[0]
+
+        times.exclude(pk=times[0].pk).delete()
 
         # If the start button has not been set, we need to set it.
-        if not self.start_button_active():
-            self.start_button_time = timezone.now()
+        #if not self.start_button_active():
+        #    self.start_button_time = timezone.now()
 
         r = self.readers.all()[0]
-        final_time = self.start_button_time+timezone.timedelta(hours=hr, 
-                                                    minutes=mn, seconds=sc) 
+        final_time = first_tt.full_time+timezone.timedelta(hours=hr, 
+                                                   minutes=mn, seconds=sc)
+
+        new_ms = first_tt.milliseconds + ms
+        if new_ms > 999:
+            final_time += timezone.timedelta(hours=0, minutes=0, seconds=1)
+            new_ms = new_ms % 1000
+
         tt = TagTime.objects.create(tag_id=tag_id, reader=r, time=final_time,
-                milliseconds=ms)
+                milliseconds=new_ms)
         self.tagtimes.add(tt.pk)
         self.save()
 

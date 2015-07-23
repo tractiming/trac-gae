@@ -53,7 +53,7 @@
 			<div class="container">
 				<div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-10 col-xs-offset-1 idle-dialog">
 					<p>Are you still using TRAC?</p>
-					<div style="display: table; margin: 0 auto;">
+					<div class="center">
 					  <button id="idle-yes" class="btn btn-primary btn-md" style="margin-right: 10px;">Yes</button>
 					  <button id="idle-no" class="btn btn-default btn-md">No</button>
 					</div>
@@ -66,6 +66,60 @@
 		<div class="calendar-container col-lg-7 col-md-7 col-sm-9 col-xs-12">
 			<div class="calendar-dialog">
 				<div id="calendar">
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="filter-disable-modal" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-body">
+					<p>It seems the filter is enabled for this workout. To edit individual splits, the filter has to be off. Would you like to turn it off? </p>
+					<div class="center">
+						<button id="filter-disable-confirm" class="btn btn-primary btn-md" style="margin-right: 10px;">Yes</button>
+						<button id="filter-disable-cancel" class="btn btn-danger btn-md">No</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="modify-total-time-modal" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-body">
+					<div class="center" style="">
+						<p class="notification notification-warning edit-total">Editing total time will delete all splits and replace them with a single split with the time you specify.</p>
+						<p class="notification notification-error total-time-error" role="alert">
+							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Looks like the input is an invalid time. Please try again.
+						</p>
+					</div>
+					<div class="center" style="margin-bottom:15px;">
+						<div class="modify-total-time-input">
+							<label for="total-hrs" class="sr-only">Hours</label>
+							<input type="text" id="total-hrs" name="total-hrs" class="form-control" placeholder="hh" autofocus>
+						</div>
+						<span class="modify-total-time-separator">:</span>
+						<div class="modify-total-time-input">
+							<label for="total-mins" class="sr-only">Minutes</label>
+							<input type="text" id="total-mins" name="total-mins" class="form-control" placeholder="mm">
+						</div>
+						<span class="modify-total-time-separator">:</span>
+						<div class="modify-total-time-input">
+							<label for="total-secs" class="sr-only">Seconds</label>
+							<input type="text" id="total-secs" name="total-secs" class="form-control" placeholder="ss">
+						</div>
+						<span class="modify-total-time-separator">.</span>
+						<div class="modify-total-time-input" style="width:60px;">
+							<label for="total-ms" class="sr-only">Milliseconds</label>
+							<input type="text" id="total-ms" name="total-ms" class="form-control" placeholder="ms">
+						</div>
+					</div>
+					<div class="center">
+						<button id="modify-total-time-confirm" class="btn btn-primary btn-md" style="margin-right: 10px;">Confirm</button>
+						<button id="modify-total-time-cancel" class="btn btn-danger btn-md">Cancel</button>
+					</div>
 				</div>
 			</div>
 		</div>
