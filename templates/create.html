@@ -68,6 +68,11 @@
 					<h4 class="modal-title"></h4>
 				</div>
 				<div class="modal-body">
+					<ul id="create-type-nav" class="nav nav-pills nav-justified" style="display:none;">
+						<li role="presentation" id="create-with-form" class="active"><a href="#">Form</a></li>
+						<li role="presentation" id="create-with-csv"><a href="#">CSV Upload</a></li>
+					</ul>
+
 					<form id="session-form" name="session-form" method="POST">
 						<input type="hidden" id="idnumber" name="idnumber" value="">
 						
@@ -141,6 +146,18 @@
 									<input type="radio" name="private" id="private-no" value="no" style="margin-left:10px;"> No
 								</div>
 							</div>
+						</div>
+					</form>
+
+					<form id="csv-form" name="csv-form" method="POST" style="display:none;">
+						<label for="csv-file">Select file:</label>
+						<div class="input-group">
+							<span class="input-group-btn">
+								<span class="btn btn-primary btn-file">
+									Browse&hellip; <input type="file" id="csv-file" name="csv-file" multiple>
+								</span>
+							</span>
+							<input type="text" class="form-control" readonly>
 						</div>
 					</form>
 				</div>

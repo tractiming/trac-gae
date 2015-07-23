@@ -1,8 +1,9 @@
 /* All CSS rules for create page */
 
-label {
-  display: block;
-}
+label { display: block; }
+
+ul#create-type-nav { margin-bottom: 10px; }
+ul#create-type-nav li a { padding: 5px 10px; }
 
 .sessions-page-number, .sessions-show-status {
 	padding: 0 10px;
