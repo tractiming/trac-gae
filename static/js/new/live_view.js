@@ -1311,14 +1311,14 @@ function createFullCSV(idjson){
 					//iterate over interval to get to nested time arrays
 					var interval = runner.interval[j];
 
-					for (var k=0; k < results.runners[i].interval[j].length; k++) {
+					for (var k=0; k < runner.interval[j].length; k++) {
 						//interate over subarrays and pull out each individually and print
 						//do a little math to move from seconds to minutes and seconds
-						var subinterval = results.runners[i].interval[j][k];
-						if (k != results.runners[i].interval[j].length-1)
-							CSV += subinterval+',';
-						else
-							CSV += subinterval;
+						var subinterval = runner.interval[j][k];
+						CSV += subinterval;
+
+						if (j != runner.interval.length-1)
+							CSV += ',';
 					}
 				}
 
