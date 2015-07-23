@@ -371,19 +371,20 @@ $(function() {
 					}
 				});
 			} else if (createType === CSV_CREATE) {
-				console.log();
+
+				var data;
 				$('#csv-form input[type=file]').parse({
 					config: {
 						delimiter: '',								// auto-detect
 						newline: '',									// auto-detect
 						header: false,								// no column names
-						dynamicTyping: false,					// turn numbers into numbers and booleans to booleans
+						dynamicTyping: true,					// convert numbers into numbers and booleans to booleans
 						preview: 0,										// parse all rows if 0, or specify number of rows
 						encoding: '',									// auto-detect
 						worker: true,									// run on separate thread--slower but won't lock webpage
 						comments: false,							// no comments in file
 						step: stepFn,									// callback executed after every row
-						complete: undefined,					// callback for when parsing is complete
+						complete: completeFn,					// callback for when parsing is complete
 						error: undefined,							// callback for when FileReader encounters an error
 						download: false,							// true for URL download, false otherwise
 						skipEmptyLines: true,					// skip empty lines
@@ -394,6 +395,7 @@ $(function() {
 					before: function(file, inputElem) {
 						// executed before parsing each file begins;
 						// what you return here controls the flow
+						data = [];
 					},
 					error: function(err, file, inputElem, reason) {
 						// executed if an error occurs while loading the file,
@@ -402,13 +404,20 @@ $(function() {
 					},
 					complete: function() {
 						// executed after all files are complete
-						console.log("Parsing complete:", results, file);
+						console.log('Finish parsing all files.');
 					}
 				});
 
 				function stepFn(results, parser) {
-					console.log("Row data:", results.data);
-					console.log("Row errors:", results.errors);
+					console.log('Row data:', results.data);
+					console.log('Row errors:', results.errors);
+					data.push(results.data[0]);
+				}
+
+				function completeFn(results, file) {
+					// executed after each file is complete
+					console.log('Parsing complete:', file);
+					console.log(data);
 				}
 			}
 		});
