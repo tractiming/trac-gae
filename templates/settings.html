@@ -98,6 +98,7 @@ $("li a.logout").click(function(){
         position: 'relative'    // Element positioning
       }
       var target = document.getElementById('spinner');
+      var modal_target = document.getElementById('spinner_modal');
       var spinner = new Spinner(opts);
 	if (sessionStorage.usertype == 'athlete'){
 		$("div.right").hide();
@@ -222,6 +223,7 @@ $("li a.logout").click(function(){
    });
     }
     else{
+      spinner.stop();
       $('#inputheader').show();
     }
 }
@@ -276,12 +278,21 @@ function resetScores(){
       $("#csvform").on('submit', function(e){
       e.preventDefault();
 
+      $("#csvform").parsley().validate();
+      if (!$("#csvform").parsley().isValid()){
+        return;
+      }
       var config = buildConfig();
       
 $('#file').parse({
       config:config,
       before: function(file, inputElem)
         {
+          $(modal_target).css("height",100);
+          spinner.spin(modal_target);
+          $("#csv_buttons").hide();
+
+
           start = now();
           console.log("Parsing file...", file);
         },
@@ -382,8 +393,8 @@ function completeFn(results)
      headers: {Authorization: "Bearer " + sessionStorage.access_token},
            data:json,
            // Login was successful.
-           success: function(data) {alert('Successful Submission'); resetScores(); $('ul.menulist').empty(); findScores();},
-           error: function(xhr, errmsg, err) {alert('Upload Error')}
+           success: function(data) {alert('Successful Submission'); resetScores(); $('ul.menulist').empty(); findScores(); $(modal_target).css("height",""); spinner.stop(); $("#csv_buttons").show(); $('#csvModal').modal('hide');},
+           error: function(xhr, errmsg, err) {alert('Upload Error'); $(modal_target).css("height",""); spinner.stop(); $("#csv_buttons").show();}
      });
       
       $('#file').val('');
@@ -517,6 +528,7 @@ $('body').on('click', '#register', function(e){
 });
 $("body").on('click', '#open', function(e){
   if(id_helper == 0){
+    $('.notification').hide();
      $('.notification-critical').show();
    return
   }
@@ -542,6 +554,7 @@ $("body").on('click', '#open', function(e){
 
 $("body").on('click', 'button#stop', function(e){
             if(id_helper == 0){
+              $('.notification').hide();
                $('.notification-critical').show();
                 return
             }
@@ -568,6 +581,7 @@ $("body").on('click', 'button#stop', function(e){
 
 $("body").on('click', 'button#start', function(e){
             if(id_helper == 0){
+              $('.notification').hide();
                 $('.notification-critical').show();
                return
               }
@@ -885,6 +899,7 @@ $("body").on('click', 'button#cl', function(e){
                       success: function(data) {
                       $("#rosterform")[0].reset();
                       loadRoster();
+                      $('#athleteModal').modal('hide');
                     }
                 });
            }
@@ -917,15 +932,17 @@ $("body").on('click', 'button#cl', function(e){
             </div>
             <h1 id="score-title">Registration</h1>
             </div>
-
+            <div class="spinner-container" style="position:relative; top:100px;">
+                <div id="spinner"></div>
+            </div>
             <div class="row">
               <div id="athletes" class="table">
               </div>
               <div style="text-align: center;">
-              <p id="inputheader" class="notification notification-error notification-default" role="alert">
+              <p id="inputheader" class="notification-error notification-default" role="alert">
               <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Please Select Workout to Manage from Heat Menu.
               </p>
-              <p id="inputnoneheader" class="notification notification-error notification-none" role="alert" style="display:none">
+              <p id="inputnoneheader" class="notification-error notification-none" role="alert" style="display:none">
               <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Add Athletes from Roster to Workout.
               </p>
             </div>
@@ -981,24 +998,27 @@ $("body").on('click', 'button#cl', function(e){
           <form name="csvform" id="csvform"  data-parsley-validate>
           <div class="form-group">
             <label for="">Workout Name:</label> 
-            <input data-progression="" type="text" data-helper="" id="name" value="" placeholder="" class="form-control"/>
+            <input data-progression="" type="text" data-helper="" id="name" value="" placeholder="" class="form-control" required/>
           </div>
           <div class="form-group">
             <label for="">Workout Date:</label> 
-            <input data-progression="" type="text" data-helper="" id="date" value="" placeholder="" class="form-control"/>
+            <input data-progression="" type="text" data-helper="" id="date" value="" placeholder="" class="form-control" required/>
           </div>
           <div class="form-group">
             <label for="">Confirm Username:</label> 
-            <input data-progression="" type="text" data-helper="" id="coach_username" value="" placeholder="" class="form-control" />
+            <input data-progression="" type="text" data-helper="" id="coach_username" value="" placeholder="" class="form-control" required/>
           </div>
           <div>
             <label for="">Readers:</label> 
-            <input data-progression="" type="text" data-helper="" id="readers" value="" placeholder="" class="form-control"/>
+            <input data-progression="" type="text" data-helper="" id="readers" value="" placeholder="" class="form-control" required/>
           </div>
-       <div class="button-container" style="display:table;margin:0 auto;">
-        <input type="file" id="file" name="myfile" class="btn btn-warning" value="Choose File">
-        <input type="submit" class="gen_btn btn btn-primary" id="upload" name ="upload" value="Upload">
-                           </div>
+          <div class="spinner-container">
+                <div id="spinner_modal"></div>
+            </div>
+             <div class="button-container" id="csv_buttons"style="display:table;margin:0 auto;">
+                <input type="file" id="file" name="myfile" class="btn btn-warning form-control" required>
+                <input type="submit" class="gen_btn btn btn-primary form-control" id="upload" name ="upload" value="Upload">
+            </div>
           </form>
         </div>
       </div>
