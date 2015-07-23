@@ -789,7 +789,8 @@ def IndividualTimes(request):
     # If not a user or coach, no results can be found.
     else:
         return HttpResponse(status.HTTP_404_NOT_FOUND)
-    final_array = [{'Name':ap.username}]
+
+    temp_array = []
     sessions = ap.athlete.get_completed_sessions()
     #Iterate through each session to get all of a single users workouts
     for s in sessions:
@@ -806,10 +807,11 @@ def IndividualTimes(request):
         for r in run:
             if r['name'] == username:
                 temp = r
-        temp_array = [{'Name': t.name, 'Date': t.start_time, 'id': t.id, 'Runner': temp}]
-        final_array += temp_array
-    final_array = final_array[::-1]
-    return Response(final_array)
+        temp_array += [{'id': t.id, 'name': t.name, 'date': t.start_time, 'runner': temp}]
+
+    result = {'name': ap.username, 'sessions': temp_array}
+
+    return Response(result)
 
 @api_view(['POST'])
 @login_required()

@@ -4,284 +4,134 @@
 
 <!-- Head -->
 {% block stylesheets %}
-	<link href="{% static "css/new/score.css" %}" rel='stylesheet' type='text/css'>
+	<link href="{% static "css/new/individual.css" %}" rel='stylesheet' type='text/css'>
 {% endblock %}
 
 {% block js_scripts %}
-<script type="text/javascript" src="{% static "js/timeConversion.js" %}" ></script>
 	<script type="text/javascript">
-		var aid = "{{ id1 }}";
+		var athleteID = "{{ id }}";		// set athlete id passed through url
 	</script>
-	<script type="text/javascript">
-		if (sessionStorage.access_token == null) {
-    		//link to login page
-    		location.href="/login";
-		}
-		else{
-		}
-	</script>
-  <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+	<script type="text/javascript" src="{% static "js/timeConversion.js" %}" ></script>
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	<script type="text/javascript" src="{% static "js/new/individual.js" %}"></script>
 {% endblock %}
 
 <!-- Body -->
 {% block nav-items %}
-  <li><a href="/home">Home</a></li>
-  <li><a href="/liveview">Live View</a></li>
-  <li><a href="/create">Create</a></li>
-  <li><a href="/score">Race Management</a></li>
+	<li><a href="/home">Home</a></li>
+	<li><a href="/liveview">Live View</a></li>
+	<li><a href="/create">Create</a></li>
+	<li><a href="/settings">Race Management</a></li>
+	<li><a class="hidden-sm hidden-md hidden-lg" href="/readers">Readers</a></li>
+	<li><a class="hidden-sm hidden-md hidden-lg" href="/settings">Settings</a></li>
+	<li><a class="logout hidden-sm hidden-md hidden-lg" href="">Logout</a></li>
+	<li id="dropdown-button" class="btn-group hidden-xs">
+		<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>
+		</button>
+		<ul class="dropdown-menu" >
+			<li><a href="/readers">Readers</a></li>
+			<li><a href="/settings">Settings</a></li>
+			<li role="separator" class="divider"></li>
+			<li><a class="logout" href="">Logout</a></li>
+		</ul>
+	</li>
 {% endblock %}
 
 {% block content %}
-<script>
-google.load('visualization', '1', {packages:['corechart']});
-google.setOnLoadCallback(function(){
-	$(document).ready(function(){
-		loadIndividual();
-    $('#results-graph').hide();
-    function graphIndividual(){
-          $.ajax({
-        type: "GET",
-        url: "/api/individual_splits/",
-        headers: {Authorization: "Bearer " + sessionStorage.access_token},
-        dataType: "json",
-        data: {
-            id: aid,
-        },
-        success: function(data){
-      // add toggle checkboxes 
-      data = data.reverse();
-      var toggleOptions = $('#results-graph #graph-toggle-options');
+	<div class="container-fluid content">
+		<div id="content" class="container">
+			<div class="row">
+				<h1 id="athlete-title" style="margin-top:40px;"></h1>
+				<ul id="results-nav" class="nav nav-tabs">
+					<li role="presentation" class="active" id="table"><a href="#">Table</a></li>
+					<li role="presentation" id="graph"><a href="#">Graph</a></li>
+					<li role="presentation" id="compare"><a href="#">Compare</a></li>
+				</ul>
 
-      if ($('#results-graph #graph-toggle-options label input#all').length !== 1)
-        toggleOptions.append(
-          '<label class="checkbox"><input type="checkbox" id="all" value="" checked>All</label>'
-        );
+				<div id="results-table" class="table results-tab-content">
+					<table id="workouts-table" class="table table-striped table-hover">
+						<thead>
+							<tr>
+								<th>Workout Name</th>
+								<th>Date</th>
+								<th>Final Time</th>
+							</tr>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
+				</div>
 
-      for (var i=1; i<data.length; i++) {
-        var id = data[i].id;
-        // create new checkbox if doesn't already exist
-        if ($('#results-graph #graph-toggle-options label input#'+id).length !== 1)
-          toggleOptions.append(
-            '<label class="checkbox"><input type="checkbox" id="'+id+'" value="" checked>' +
-              data[i].Name +
-            '</label>'
-          );
-      }
+				<div id="results-graph" class="results-tab-content">
+					<div id="graph-canvas"></div>
+					<div id="graph-toggle-container">
+						<div id="graph-toggle-btn" style="display: table; margin: 0 auto;">
+							<button id="toggle" class="btn btn-default btn-md" data-toggle="collapse" data-parent="#graph-toggle-btn" data-target="#graph-toggle-options-container" aria-expanded="false" aria-controls="graph-toggle-options-container">Toggle</button>
+						</div>
+						<div id="graph-toggle-options-container" class="collapse" aria-labelledby="graph-toggle-btn">
+							<div id="graph-toggle-options" style="display:table; margin:0 auto;"></div>
+						</div>
+					</div>
+				</div>
 
-      // show graph
+				<div id="results-compare" class="results-tab-content">
+					<div class="container">
+						<div class="row">
+							<div class="compare-select col-lg-6 col-md-6 col-sm-6 col-xs-6">
+								<h4>Athlete:</h4>
+								<div class="row">
+									<div class="athlete-select-container col-lg-6 col-md-6">
+										<div class="form-group">
+											<label for="base-athlete-select" class="sr-only">Select athlete 1:</label>
+											<select class="athlete-select form-control" id="base-athlete-select" disabled>
+											</select>
+										</div>
+									</div>
+									<div class="workout-select-container col-lg-6 col-md-6">
+										<div class="form-group">
+											<label for="base-workout-select" class="sr-only">Select workout for athlete 1:</label>
+											<select class="workout-select form-control" id="base-workout-select">
+												<option disabled selected>Select workout</option>
+											</select>
+										</div>
+									</div>
+								</div>
+							</div>
+							
+							<div class="compare-select col-lg-6 col-md-6 col-sm-6 col-xs-6">
+								<h4>Compare to:</h4>
+								<div class="row">
+									<div class="athlete-select-container col-lg-6 col-md-6">
+										<div class="form-group">
+											<label for="base-athlete-select" class="sr-only">Select athlete 1:</label>
+											<select class="athlete-select form-control" id="compare-athlete-select">
+												<option disabled selected>Select athlete</option>
+											</select>
+										</div>
+									</div>
+									<div class="workout-select-container col-lg-6 col-md-6">
+										<div class="form-group">
+											<label for="base-workout-select" class="sr-only">Select workout for athlete 1:</label>
+											<select class="workout-select form-control" id="compare-workout-select">
+												<option disabled selected>Select workout</option>
+											</select>
+										</div>
+									</div>
+								</div>
+							</div>
 
-      var graph = new google.visualization.DataTable();
-      graph.addColumn('number', 'Split');
+						</div>
+						<div class="row">
+							<div id="compare-graph-canvas"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<div id="spinner"></div>
 
-      var rows = []; var series = [];
-      console.log(data);
-      for (var i=1; i<data.length; i++) {
-        var id = data[i].id;
-        var name = data[i].Name;
-        var interval = data[i].Runner.interval;
-        var numSplits = interval.length;
-        var skip = false;
-
-        graph.addColumn('number', name);
-        
-        // skip current runner if not toggled
-        if (!$('input#'+id).prop('checked')) {
-          skip = true;
-          series.push({visibleInLegend: false});
-        } else {
-          series.push({});
-        }
-
-        for (var j=0; j < numSplits; j++) {
-          // create row if doesn't exist
-          if (!rows[j])
-            rows[j] = [j+1];
-          
-          if (skip)
-            rows[j][i] = NaN;
-          else
-            rows[j][i] = Number(interval[j][0]);
-        }
-      }
-
-      // add NaN's to skipped spaces
-      for (var i=0; i<rows.length; i++)
-        for (var j=0; j<rows[0].length; j++)
-          if (typeof rows[i][j] === 'undefined')
-            rows[i][j] = NaN;
-      console.log(rows);
-      graph.addRows(rows);
-      var height = 300;
-      if (window.innerWidth > 768)
-        height = 500;
-
-      var options = {
-        title: data[0].Name,
-        height: height,
-        hAxis: { title: 'Split #', minValue: 1, viewWindow: { min: 1 } },
-        vAxis: { title: 'Time'},
-        //hAxis: {title: 'Split', minValue: 0, maxValue: 10},
-        //vAxis: {title: 'Time', minValue: 50, maxValue: 100},
-        series: series,
-        legend: { position: 'right' }
-      };
-      var chart = new google.visualization.ScatterChart(document.getElementById('graph-canvas'));
-      chart.draw(graph, options);
-    }
-  });
-}
-    function formatTime(timeStr) {
-       var time = Number(timeStr);
-       var mins = Math.floor(time / 60);
-        var secs = (time % 60).toFixed(3);
-        secs = Math.floor(secs / 10) == 0 ? '0'+secs : secs;
-          return mins.toString() + ':' + secs.toString();
-    }
-
-    function addNewRow(id, date, name, interval){
-      var split = 0;
-      if (interval.length > 0)
-        split = interval[interval.length-1][0];
-      else
-        split = 'NT';
-
-      $('#workouts-table>tbody').append(
-        '<tr id="results'+id+'" class="accordion-toggle" data-toggle="collapse" data-parent="#workouts-table" data-target="#collapse'+id+'" aria-expanded="false" aria-controls="collapse'+id+'">' + 
-          '<td>' + name + '</td>' +  
-          '<td>' + date + '</td>' +
-          '<td id="total-time'+id+'"></td>' + 
-        '</tr>' + 
-        '<tr></tr>' +   // for correct stripes 
-        '<tr class="splits">' +
-          '<td colspan="3" style="padding: 0px;">' +
-            '<div id="collapse'+id+'" class="accordion-body collapse" aria-labelledby="results'+id+'">' + 
-              '<table id="splits'+id+'" class="table" style="text-align:center; background-color:transparent">' +
-                '<tbody>' +
-                '</tbody>' +
-              '</table>' +
-            '</div>' + 
-          '</td>' +
-        '</tr>'
-      );
-
-      //*
-      var total = 0;
-      for (var j=0; j < interval.length; j++) {
-        var split = String(Number(interval[j][0]).toFixed(3));
-
-        // add splits to subtable
-        $('table#splits'+id+'>tbody').append(
-          '<tr>' + 
-            '<td>' + (j+1) + '</td>' + 
-            '<td>' + split + '</td>' + 
-          '</tr>'
-        );
-
-        // now calculate total time
-        total += Number(split);
-      }
-
-      // display total time
-      total = formatTime(String(total));
-      $('#workouts-table>tbody #results'+id+'>td#total-time'+id).html(total);
-      //*/
-    }
-
-
-		function loadIndividual(){
-			$.ajax({
-				type: "GET",
-				url: "/api/individual_splits/",
-				headers: {Authorization: "Bearer " + sessionStorage.access_token},
-				dataType: "json",
-				data: {
-					  id: aid,
-				},
-				success: function(data){
-          data = data.reverse();
-          console.log(data);
-					$('#athlete-title').append(''+data[0].Name+'');
-                    $('#workouts').append(
-                            '<table id="workouts-table" class="table table-striped table-hover">' +
-                                    '<thead>' +
-                                            '<tr>' +
-                                                    '<th>Workout Name</th>'+
-                                                    '<th>Date</th>' + 
-                                                    '<th>Final Time</th>' + 
-                                            '</tr>'+
-                                    '</thead>'+
-                                    '<tbody>'+
-                                    '</tbody>' +
-                            '</table>');
-                    $('#workouts').addClass('col-md-6 col-md-offset-0 colr-sm-8 col-sm-offset-0');	
-                    for(i=1; i < data.length; i++){
-                    	var name = data[i].Name;
-                    	var date = data[i].Date.slice(0,10);
-                      var date2 = data[i].Date.slice(11,19);
-                      date = UTC2local(date,date2);
-                      date = date.substring(0,25);
-                      var id = data[i].id;
-                    	var interval = data[i].Runner.interval;
-                      addNewRow(id, date, name, interval);
-				}
-      }
-			});
-		}
-        $('#results-nav>li#table').click(function(e){
-      e.preventDefault();
-      // update tab navbar
-      currentView = $(this).index();
-      $(this).parent().children().removeClass('active');
-      $(this).addClass('active');
-
-      $('#workouts-table').show();
-      $('#results-graph').hide();
-    });
-     $('#results-nav>li#graph').click(function(e){
-      e.preventDefault();
-      // update tab navbar
-      currentView = $(this).index();
-      $(this).parent().children().removeClass('active');
-      $(this).addClass('active');
-      graphIndividual();
-      $('#workouts-table').hide();
-      $('#results-graph').show();
-    });
-        $('#graph-toggle-options').click(function(e){
-      if (e.target.id === 'all')
-        if ($('#graph-toggle-options input#all').prop('checked'))
-          $('#graph-toggle-options input').prop('checked', true);
-        else
-          $('#graph-toggle-options input').prop('checked', false);
-        graphIndividual();
-    });
-	});
-});
-</script>
-<div class="container-fluid content">
-          <div id="container" class="container">
-            <div class="row">
-              <h1 id="athlete-title"></h1>
-              <ul id="results-nav" class="nav nav-tabs">
-                  <li role="presentation" class="active" id="table"><a href="#">Table</a></li>
-                  <li role="presentation" id="graph"><a href="#">Graph</a></li>
-              </ul>
-              <div id="workouts" class="table">
-            </div>
-            <div id="results-graph">
-            <div id="graph-canvas"></div>
-            <div id="graph-toggle-container">
-              <div id="graph-toggle-btn" style="display: table; margin: 0 auto;">
-                <button id="toggle" class="btn btn-default btn-md" data-toggle="collapse" data-parent="#graph-toggle-btn" data-target="#graph-toggle-options-container" aria-expanded="false" aria-controls="graph-toggle-options-container">Toggle</button>
-              </div>
-              <div id="graph-toggle-options-container" class="collapse" aria-labelledby="graph-toggle-btn">
-                <div id="graph-toggle-options" style="display:table; margin:0 auto;">
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-            </div>
-        </div>
-
+		</div>
+	</div>
 {% endblock %}
