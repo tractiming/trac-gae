@@ -125,32 +125,64 @@ class TimingSession(models.Model):
         self.start_button_time = timezone.datetime(1,1,1,1,1,1)
         self.save()
 
-    def calc_splits_by_tag(self, tag_id, filter_s=None):
+    def _calc_splits_by_tag(self, tag_id, filter_s=None, use_cache=True):
         """
         Calculates the splits for a given tag in the current session.
-        """
-        # Filter times by tag id.
-        tag = Tag.objects.get(id=tag_id)
-        times = TagTime.objects.filter(timingsession=self, tag=tag).order_by('time')
 
-        # Offset for start time if needed.
-        if self.start_button_time.year > 1:
-            s_tt = TagTime(time=self.start_button_time, milliseconds=0)
-            times = [s_tt]+list(times)
-        
-        # Calculate splits.
-        interval = []
-        for i in range(len(times)-1):
-            dt = times[i+1].full_time-times[i].full_time
-            interval.append(round(dt.total_seconds(), 3))
+        Parameters:
+            tag_id - unique tag id
+            filter_s - whether or not to filter splits
+            use_cache - if True, will read/write results to/from cache
+
+        Returns:
+            results - tuple of (user id, name, team, splits)
+        """
+        # Try to read from the cache. Note that results are cached on a per tag
+        # basis.
+        if use_cache:
+            results = cache.get(('ts_%i_tag_%i_results' %(self.id, tag_id)))
+        else:
+            results = None
+
+        if not results:    
+            
+            tag = Tag.objects.get(id=tag_id)
+            
+            # Get the name of the tag's owner and their team.
+            name = self.get_tag_name(tag_id)
+            try:
+                team = tag.user.groups.values_list('name',flat=True)[0]
+            except:
+                team = None
+
+            # Filter times by tag id.
+            times = TagTime.objects.filter(timingsession=self, tag=tag).order_by('time')
+
+            # Offset for start time if needed.
+            if self.start_button_time.year > 1:
+                s_tt = TagTime(time=self.start_button_time, milliseconds=0)
+                times = [s_tt]+list(times)
+            
+            # Calculate splits.
+            interval = []
+            for i in range(len(times)-1):
+                dt = times[i+1].full_time-times[i].full_time
+                interval.append(round(dt.total_seconds(), 3))
+
+            results = (user.id, name, team, interval)    
+            
+            # Save to the cache. Store the unfiltered results so that if the
+            # filter choice is changed, we don't need to recalculate.
+            if use_cache:
+                cache.set(('ts_%i_tag_%i_results' %(self.id, tag_id)), results)   
         
         # Filtering algorithm.
         if filter_s is None:
             filter_s = self.filter_choice
         if filter_s:
-            interval = filter_splits(interval, self.interval_distance, self.track_size)
+            interval = filter_splits(results[-1], self.interval_distance, self.track_size)
 
-        return interval
+        return (results[0], results[1], results[2], interval)
 
     def _build_tag_archive(self):
         """
@@ -211,7 +243,7 @@ class TimingSession(models.Model):
         else:
             return tag.uname
                 
-    def calc_results(self, tag_ids=None, read_cache=False, save_cache=False):
+    def calc_results(self, tag_ids=None, force_update=False):
         """
         Calculates the raw results (user_id, user_name, team_name, splits,
         cumul_time). Can optionally filter by passing a list of tag ids to use.
@@ -220,42 +252,20 @@ class TimingSession(models.Model):
         if tag_ids is None:
             tag_ids = self.tagtimes.values_list('tag_id',flat=True).distinct()
 
-        # Try to read from the cache. Be careful using this. Reading from the
-        # cache does not ensure the specified list of tag ids is being used.
-        if read_cache:
-            results = cache.get(('ts_%i_results' %self.id))
-        else:
-            results = None
+        results = []
+        for tag_id in tag_ids:
 
-        # Calculate the results.
-        if not results:
+            # Get the splits and cumulative time.
+            tag_results = self._calc_splits_by_tag(tag_id,
+                                use_cache=(not force_update))
+            cumul_time = sum(tag_results[-1])
 
-            results = []
-            for tag_id in tag_ids:
+            # Compile the data.
+            results.append((user.id, name, team, splits, cumul_time))
 
-                # Get the name of the tag's owner.
-                name = self.get_tag_name(tag_id)
-                user = Tag.objects.get(id=tag_id).user
-
-                # Get the name of the user's team.
-                try:
-                    team = user.groups.values_list('name',flat=True)[0]
-                except:
-                    team = None
-
-                # Get the splits and cumulative time.
-                splits = self.calc_splits_by_tag(tag_id)
-                cumul_time = sum(splits)
-
-                # Compile the data.
-                results.append((user.id, name, team, splits, cumul_time))
-
-            # Sort by cumulative time.
-            results.sort(key=itemgetter(4))
-
-            # Save to the cache.
-            if save_cache:
-                cache.set(('ts_%i_results' %self.id), results)   
+        # Sort by cumulative time.
+        results.sort(key=itemgetter(4))
+        
         return results
 
     def get_team_results(self, num_scorers=5):
@@ -331,35 +341,37 @@ class TimingSession(models.Model):
             r['interval'] = str(sum([float(t[0]) for t in r['interval']]))
         return res    
 
-    def get_athlete_names(self):
-        """
-        Returns a list of all users that are registered in the session.
-        """
-        names = cache.get(('ts_%i_athlete_names' %self.id))
-
-        if not names:
-            names = []
-            tag_ids = self.tagtimes.values_list('tag', flat=True).distinct()
-            
-            for tag_id in tag_ids:
-                name = self.get_tag_name(tag_id)
-    
-                if name not in names:
-                    names.append(name)
-            
-            cache.set(('ts_%i_athlete_names' %self.id), names)
-        
-        return names
+    # DEPRECATED
+    #def get_athlete_names(self):
+    #    """
+    #    Returns a list of all users that are registered in the session.
+    #    """
+    #    names = cache.get(('ts_%i_athlete_names' %self.id))
+    #
+    #    if not names:
+    #        names = []
+    #        tag_ids = self.tagtimes.values_list('tag', flat=True).distinct()
+    #        
+    #        for tag_id in tag_ids:
+    #            name = self.get_tag_name(tag_id)
+    # 
+    #            if name not in names:
+    #                names.append(name)
+    #        
+    #        cache.set(('ts_%i_athlete_names' %self.id), names)
+    #    
+    #    return names
 
     def clear_results(self):
         """Removes all the tagtimes that currently exist in the session."""
         self.tagtimes.clear()
         self.clear_cache()
 
-    def clear_cache(self):
-        """Clear the session's cached results."""
-        cache.delete(('ts_%i_results' %self.id))
-        cache.delete(('ts_%i_athlete_names' %self.id))
+    # DEPRECATED
+    #def clear_cache(self):
+    #    """Clear the session's cached results."""
+    #    cache.delete(('ts_%i_results' %self.id))
+    #    cache.delete(('ts_%i_athlete_names' %self.id))
 
     def _delete_split(self, tag_id, split_indx):
         """
