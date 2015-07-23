@@ -74,8 +74,6 @@ google.setOnLoadCallback(function(){
 
 			// idle check after 20 minutes
 			idleHandler = setTimeout(function(){ idleCheck(updateHandler, lastSelected, UPDATE_INTERVAL, IDLE_TIMEOUT, 'http://www.trac-us.com'); }, IDLE_TIMEOUT);
-
-			console.log('start updates');
 		}
 
 		function stopUpdates() {
@@ -84,7 +82,6 @@ google.setOnLoadCallback(function(){
 
 			clearInterval(updateHandler);
 			clearTimeout(idleHandler);
-			console.log('stop updates');
 		}
 
 		function lastSelected(){
@@ -349,7 +346,6 @@ google.setOnLoadCallback(function(){
 
 				console.log(hrs+':'+mins+':'+secs+'.'+ms);
 
-				//*
 				$.ajax({
 					method: 'POST',
 					url: 'api/edit_split/',
@@ -370,7 +366,6 @@ google.setOnLoadCallback(function(){
 						$('.notification.server-error').show();
 					}
 				});
-				//*/
 
 				// hide modal
 				$('#modify-total-time-modal').modal('hide');
