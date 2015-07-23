@@ -159,7 +159,11 @@ $(function() {
 
 					// add page number and status
 					$('.sessions-page-number').html(currentPage);
-					$('.sessions-show-status').html('Showing '+sessionFirst+' - '+sessionLast+' of '+numSessions+' results');
+					$('.sessions-show-status').html(
+						'Showing '+
+							sessionFirst+' - '+ 
+							(sessionLast > numSessions ? numSessions : sessionLast) +' of '+
+							numSessions+' results');
 				}
 				spinner.stop();
 			}
