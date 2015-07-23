@@ -1309,7 +1309,10 @@ function createFullCSV(idjson){
 						//interate over subarrays and pull out each individually and print
 						//do a little math to move from seconds to minutes and seconds
 						var subinterval = results.runners[i].interval[j][k];
-						CSV += subinterval+',';
+						if (k != results.runners[i].interval[j].length-1)
+							CSV += subinterval+',';
+						else
+							CSV += subinterval;
 					}
 				}
 
