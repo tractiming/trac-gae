@@ -2,10 +2,7 @@
 {% load static %}
 
 {% block stylesheets %}
-<link rel="stylesheet" href="{% static "css/new/main.css" %}" />
-<link rel="stylesheet" href="{% static "css/new/score.css" %}" />
-<link rel="stylesheet" href="{% static "css/new/create.css" %}" />
-<link rel="stylesheet" href="{% static "css/new/home.css" %}" />
+<link rel="stylesheet" href="{% static "css/new/settings.css" %}">
 {% endblock %}
 
 {% block js_scripts %}
@@ -114,6 +111,29 @@ $("li a.logout").click(function(){
     instance_last = numitems;
     findScores();
     loadRoster();
+
+  // add feedback on file selection
+  $('.btn-file :file').off('fileselect');
+  $('.btn-file :file').on('fileselect', function(e, numFiles, label) {
+    var input = $(this).parents('.input-group').find(':text'),
+        log = numFiles > 1 ? numFiles + ' files selected' : label;
+
+    if( input.length ) {
+      input.val(log);
+    } else {
+      if( log ) alert(log);
+    }
+  });
+
+  // trigger event on file selection
+  $('body').off('change', '.btn-file :file');
+  $('body').on('change', '.btn-file :file', function() {
+    var input = $(this),
+        numFiles = input.get(0).files ? input.get(0).files.length : 1,
+        label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+
+    input.trigger('fileselect', [numFiles, label]);
+  });
 
  function loadRoster(){
     $('#roster').empty();
@@ -918,7 +938,7 @@ $("body").on('click', 'button#cl', function(e){
             <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
             <div class="row">
         <div class="col-md-3 col-sm-4 col-xs-6" style="margin: 2%">
-          <div class="menu-btn" style="display: inline-block;">
+          <div id="menu-btn" class="menu-btn" style="display: inline-block;">
             <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span> Heat Menu
           </div>
         </div>
@@ -995,7 +1015,7 @@ $("body").on('click', 'button#cl', function(e){
           CSV Upload <button id="cl" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button>
         </div>
         <div class="modal-body">
-          <form name="csvform" id="csvform"  data-parsley-validate>
+          <form name="csvform" id="csvform" data-parsley-validate>
           <div class="form-group">
             <label for="">Workout Name:</label> 
             <input data-progression="" type="text" data-helper="" id="name" value="" placeholder="" class="form-control" required/>
@@ -1008,15 +1028,29 @@ $("body").on('click', 'button#cl', function(e){
             <label for="">Confirm Username:</label> 
             <input data-progression="" type="text" data-helper="" id="coach_username" value="" placeholder="" class="form-control" required/>
           </div>
-          <div>
+          <div class="form-group">
             <label for="">Readers:</label> 
             <input data-progression="" type="text" data-helper="" id="readers" value="" placeholder="" class="form-control" required/>
           </div>
           <div class="spinner-container">
                 <div id="spinner_modal"></div>
             </div>
+
+            <div class="form-group">
+              <label for="file">Select file:</label>
+              <div class="input-group">
+                <span class="input-group-btn">
+                  <span class="btn btn-warning btn-file">
+                    Browse&hellip; <input type="file" id="file" name="myfile" data-parsley-errors-container="#csv-parsley-errors">
+                  </span>
+                </span>
+                <input type="text" class="form-control" readonly required data-parsley-errors-container="#csv-parsley-errors">
+              </div>
+              <div id="csv-parsley-errors"></div>
+            </div>
+
              <div class="button-container" id="csv_buttons"style="display:table;margin:0 auto;">
-                <input type="file" id="file" name="myfile" class="btn btn-warning form-control" required>
+                <!--<input type="file" id="file" name="myfile" class="btn btn-warning form-control" required>-->
                 <input type="submit" class="gen_btn btn btn-primary form-control" id="upload" name ="upload" value="Upload">
             </div>
           </form>
