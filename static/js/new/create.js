@@ -378,7 +378,7 @@ $(function() {
 						delimiter: '',								// auto-detect
 						newline: '',									// auto-detect
 						header: false,								// no column names
-						dynamicTyping: true,					// convert numbers into numbers and booleans to booleans
+						dynamicTyping: false,					// convert numbers into numbers and booleans to booleans
 						preview: 0,										// parse all rows if 0, or specify number of rows
 						encoding: '',									// auto-detect
 						worker: true,									// run on separate thread--slower but won't lock webpage
@@ -395,6 +395,14 @@ $(function() {
 					before: function(file, inputElem) {
 						// executed before parsing each file begins;
 						// what you return here controls the flow
+
+						// hide button and show spinner
+						$('.session-form-buttons').hide();
+						target = $('#spinner-form');
+						target.css('height', 50);
+						spinner.spin(target[0]);
+
+						// initialize array of parsed data
 						data = [];
 					},
 					error: function(err, file, inputElem, reason) {
@@ -404,20 +412,104 @@ $(function() {
 					},
 					complete: function() {
 						// executed after all files are complete
-						console.log('Finish parsing all files.');
+						console.log('Finished parsing all files.');
 					}
 				});
 
 				function stepFn(results, parser) {
-					console.log('Row data:', results.data);
-					console.log('Row errors:', results.errors);
+					//console.log('Row data:', results.data);
+					//console.log('Row errors:', results.errors);
 					data.push(results.data[0]);
 				}
 
 				function completeFn(results, file) {
 					// executed after each file is complete
-					console.log('Parsing complete:', file);
-					console.log(data);
+					console.log('Finished parsing '+file.name, file);
+					
+					var title = data[0][1],
+							date = data[1][1],
+							time = data[2][1],
+							trackSize = Number(data[3][1]),
+							intervalDistance = Number(data[4][1]),
+							workoutResults = data.slice(6);
+
+					// format time to ISO string
+					var start_time = new Date(date+' '+time).toISOString();
+
+					// format results
+					results = [];
+					for(var i=0; i<workoutResults.length; i++) {
+						runner = workoutResults[i];
+						
+						// set corresponding fields in dictionary
+						temp = {};
+						temp.username = runner[0];
+						temp.last_name = runner[1];
+						temp.first_name = runner[2];
+						temp.splits = runner.slice(3);
+
+						for(var j=0; j<temp.splits.length; j++) {
+							var split = temp.splits[j];
+							if (split.indexOf(':') === -1) {
+								var s = split.split('.');
+
+								var remainder = Number(s[0])%60;
+								var secs = remainder < 10 ? '0'+remainder.toString() : remainder.toString();
+
+								temp.splits[j] = (Math.floor(Number(s[0])/60)).toString() +':'+ secs +'.'+ s[1];
+							}
+						}
+
+						// add to results
+						results.push(temp);
+					}
+
+					// construct json to send to server
+					var json = {
+						'title': title,
+						'start_time': start_time,
+						'track_size': trackSize,
+						'interval_distance': intervalDistance,
+						'results': results
+					};
+
+					$.ajax({
+						type: 'POST',
+						dataType: 'json',
+						url: '/api/upload_workouts/',
+						headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+						data: JSON.stringify(json),
+						success: function(data) {
+							// hide spinner
+							spinner.stop();
+							target.css('height', '');
+							
+							// show success message
+							$('.notification').hide();
+							$('.notification.create-success').show();
+
+							// switch modals
+							$('#form-modal').modal('hide');
+							$('#notifications-modal').modal('show');
+
+							// clear form and reload data
+							$('#session-form')[0].reset();
+							loadWorkouts();
+						},
+						error: function(xhr, errmsg, err) {
+							// hide spinner
+							spinner.stop();
+							target.css('height', '');
+							
+							// show error message
+							$('.notification').hide();
+							$('.notification.server-error').show();
+
+							// switch modals
+							$('#form-modal').modal('hide');
+							$('#notifications-modal').modal('show');
+						}
+					});
 				}
 			}
 		});

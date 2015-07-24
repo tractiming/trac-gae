@@ -554,6 +554,7 @@ def time_create(request):
     ts.readers.add(*r)
     ts.save()
     return HttpResponse(status.HTTP_201_CREATED)
+
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))
 def create_race(request):
@@ -814,6 +815,88 @@ def IndividualTimes(request):
     result = {'name': ap.username, 'sessions': temp_array}
 
     return Response(result)
+
+@api_view(['POST'])
+@permission_classes((permissions.IsAuthenticated,))
+def upload_workouts(request):
+    """ 
+    Create a complete workout through CSV file upload.
+    Parameters:
+        - title: workout title
+        - start_time: start date of workout in ISO string format
+        - track_size: size of track
+        - interval_distance: distance for each split
+        - results: list of dictionary of workout results as follows
+            - username: athlete username
+            - first_name:
+            - last_name
+            - splits: list of split times
+    Note: The created workout will be automatically set to filter splits and private.
+    """
+    data = json.loads(request.body)
+    user = request.user
+
+    if not is_coach(user):
+        return HttpResponse(status.HTTP_403_FORBIDDEN)
+
+    coach = user
+    start_time = dateutil.parser.parse(data['start_time'])
+    #stop_time = dateutil.parser.parse(data['start_time'])
+
+    ts = TimingSession(name=data['title'], manager=coach, start_time=start_time, stop_time=start_time, track_size=data['track_size'], interval_distance=data['interval_distance'], filter_choice=False, private=True)
+
+    # set start button time to start time
+    ts.start_button_time = start_time
+    ts.save()
+
+    results = data['results']
+    if results:
+        for runner in results:
+            new_user, created = User.objects.get_or_create(username=runner['username'], 
+                    defaults={ 'first_name': runner['first_name'], 'last_name': runner['last_name'], 'email': coach.email, 'password': 'password' })
+            if created:
+                # Register new athlete.
+                athlete = AthleteProfile()
+                athlete.user = new_user
+                athlete.save()
+
+                # add coach's org to new athlete's org
+                if coach.groups.all():
+                    group = c.groups.all()[0]
+                    new_user.groups.add(group.pk)
+                    new_user.save()
+
+                # Create the OAuth2 client.
+                #name = user.username
+                #client = Client(user=user, name=name, url=''+name,
+                #        client_id=name, client_secret='', client_type=1)
+                #client.save()
+            
+            tags = Tag.objects.filter(user=new_user)
+            if tags:
+                tag = tags[0]
+            else:
+                tag = Tag.objects.create(id_str=runner['username'], user=new_user)
+
+            reader, created = Reader.objects.get_or_create(id_str='ArchivedReader', 
+                    defaults={ 'name': 'Archived Reader', 'owner': coach })
+
+            # create reference tagtime
+            s_tt = TagTime(time=ts.start_button_time, milliseconds=0)
+            time = s_tt.full_time
+
+            for split in runner['splits']:
+                try:
+                    x = timezone.datetime.strptime(split, "%M:%S.%f")
+                except:
+                    x = timezone.datetime.strptime(split, "%S.%f")
+
+                time += timezone.timedelta(minutes=x.minute,seconds=x.second,microseconds=x.microsecond)
+
+                tt = TagTime.objects.create(tag_id=tag.id, time=time, reader_id=reader.id, milliseconds=time.microsecond/1000)
+                ts.tagtimes.add(tt.pk)
+
+    return HttpResponse(status.HTTP_201_CREATED)
 
 @api_view(['POST'])
 @login_required()

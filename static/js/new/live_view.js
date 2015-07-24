@@ -124,13 +124,13 @@ google.setOnLoadCallback(function(){
 
 					jsonData = data;
 					var json = data;
-					var results = data.results;
+					var results = $.parseJSON(data.results);
 
 					// add heat name
 					$('#results-title').html('Live Results: ' + json.name);
 
 					// if empty, hide spinner and show notification
-					if (results.runners == '') {
+					if (results.runners.length === 0) {
 						spinner.stop();
 						$('.notification.no-data').show();
 						$('#download-container').hide();
