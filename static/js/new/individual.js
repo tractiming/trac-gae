@@ -43,6 +43,9 @@ google.setOnLoadCallback(function(){
 			$('#spinner').css('height', 150);
 			spinner.spin(target);
 
+			// hide notifications
+			$('.notification').hide();
+
 			// reset content
 			$('.results-tab-content').hide();
 			$('#results-table #workouts-table tbody').empty();
@@ -67,24 +70,31 @@ google.setOnLoadCallback(function(){
 					$('#athlete-title').html(name);
 
 					if (sessions.length == 0) {
-						return;
+						// hide spinner
+						spinner.stop();
+						$('#spinner').css('height', '');
+
+						// show notification
+						$('.notification.no-data').show();
+
+					} else {
+
+						for(i=0; i<sessions.length; i++) {
+							var name = sessions[i].name,
+									date = new Date(sessions[i].date).toString().slice(0,25),
+									id = sessions[i].id,
+									interval = sessions[i].runner.interval;
+							
+							addNewRow(id, date, name, interval);
+						}
+
+						// hide spinner
+						spinner.stop();
+						$('#spinner').css('height', '');
+
+						// show results
+						$('#results-table').show();
 					}
-
-					for(i=0; i<sessions.length; i++) {
-						var name = sessions[i].name,
-								date = new Date(sessions[i].date).toString().slice(0,25),
-								id = sessions[i].id,
-								interval = sessions[i].runner.interval;
-						
-						addNewRow(id, date, name, interval);
-					}
-
-					// hide spinner
-					spinner.stop();
-					$('#spinner').css('height', '');
-
-					// show results
-					$('#results-table').show();
 				}
 			});
 		}
@@ -143,11 +153,13 @@ google.setOnLoadCallback(function(){
 			$('#spinner').css('height', 150);
 			spinner.spin(target);
 
+			// hide notifications
+			$('.notification').hide();
+
 			// show corrent content
 			$('.results-tab-content').hide();
 			$('#graph-canvas').empty();
 			$('#graph-toggle-container').hide();
-			$('#results-graph').show();
 
 			// abort current update and start new ajax request
 			if (ajaxRequest) {
@@ -167,98 +179,111 @@ google.setOnLoadCallback(function(){
 							sessions = data.sessions;
 
 					if (sessions.length == 0) {
-						return;
-					}
+						
+						// hide spinner
+						spinner.stop();
+						$('#spinner').css('height', '');
 
-					var toggleOptions = $('#results-graph #graph-toggle-options');
+						// show notification
+						$('.notification.no-data').show();
 
-					if ($('#results-graph #graph-toggle-options label input#all').length !== 1)
-						toggleOptions.append(
-							'<label class="checkbox"><input type="checkbox" id="all" value="" checked>All</label>'
-						);
+					} else {
+						// show so google charts can get correct width
+						$('#results-graph').show();
 
-					for (var i=0; i<sessions.length; i++) {
-						var id = sessions[i].id;
-						// create new checkbox if doesn't already exist
-						if ($('#results-graph #graph-toggle-options label input#'+id).length !== 1)
+						var toggleOptions = $('#results-graph #graph-toggle-options');
+
+						if ($('#results-graph #graph-toggle-options label input#all').length !== 1)
 							toggleOptions.append(
-								'<label class="checkbox"><input type="checkbox" id="'+id+'" value="" checked>' +
-									sessions[i].name +
-								'</label>'
+								'<label class="checkbox"><input type="checkbox" id="all" value="" checked>All</label>'
 							);
-					}
 
-					// draw graph
-					var graph = new google.visualization.DataTable();
-					graph.addColumn('number', 'Split');
-
-					var rows = []; var series = [];
-
-					for (var i=0; i<sessions.length; i++) {
-						var id = sessions[i].id;
-						var name = sessions[i].name;
-						var interval = sessions[i].runner.interval;
-						var numSplits = interval.length;
-						var skip = false;
-
-						graph.addColumn('number', name);
-
-						// skip current runner if not toggled
-						if (!$('input#'+id).prop('checked')) {
-							skip = true;
-							series.push({visibleInLegend: false});
-						} else {
-							series.push({});
+						for (var i=0; i<sessions.length; i++) {
+							var id = sessions[i].id;
+							// create new checkbox if doesn't already exist
+							if ($('#results-graph #graph-toggle-options label input#'+id).length !== 1)
+								toggleOptions.append(
+									'<label class="checkbox"><input type="checkbox" id="'+id+'" value="" checked>' +
+										sessions[i].name +
+									'</label>'
+								);
 						}
 
-						for (var j=0; j < numSplits; j++) {
-							// create row if doesn't exist
-							if (!rows[j])
-								rows[j] = [j+1];
+						// draw graph
+						var graph = new google.visualization.DataTable();
+						graph.addColumn('number', 'Split');
 
-							if (skip)
-								rows[j][i+1] = NaN;
-							else
-								rows[j][i+1] = Number(interval[j][0]);
+						var rows = []; var series = [];
+
+						for (var i=0; i<sessions.length; i++) {
+							var id = sessions[i].id;
+							var name = sessions[i].name;
+							var interval = sessions[i].runner.interval;
+							var numSplits = interval.length;
+							var skip = false;
+
+							graph.addColumn('number', name);
+
+							// skip current runner if not toggled
+							if (!$('input#'+id).prop('checked')) {
+								skip = true;
+								series.push({visibleInLegend: false});
+							} else {
+								series.push({});
+							}
+
+							for (var j=0; j < numSplits; j++) {
+								// create row if doesn't exist
+								if (!rows[j])
+									rows[j] = [j+1];
+
+								if (skip)
+									rows[j][i+1] = NaN;
+								else
+									rows[j][i+1] = Number(interval[j][0]);
+							}
 						}
+
+						// add NaN's to skipped spaces
+						for (var i=0; i<rows.length; i++)
+							for (var j=0; j<rows[0].length; j++)
+								if (typeof rows[i][j] === 'undefined')
+									rows[i][j] = NaN;
+
+						graph.addRows(rows);
+
+						var height = 300;
+						if (window.innerWidth > 768)
+							height = 500;
+
+						var options = {
+							title: name,
+							height: height,
+							hAxis: { title: 'Split #', minValue: 1, viewWindow: { min: 1 } },
+							vAxis: { title: 'Time'},
+							//hAxis: {title: 'Split', minValue: 0, maxValue: 10},
+							//vAxis: {title: 'Time', minValue: 50, maxValue: 100},
+							series: series,
+							legend: { position: 'right' }
+						};
+
+						var chart = new google.visualization.ScatterChart(document.getElementById('graph-canvas'));
+						chart.draw(graph, options);
+
+						// hide spinner and show results
+						spinner.stop();
+						$('#spinner').css('height', '');
+
+						$('#graph-toggle-container').show();
 					}
-
-					// add NaN's to skipped spaces
-					for (var i=0; i<rows.length; i++)
-						for (var j=0; j<rows[0].length; j++)
-							if (typeof rows[i][j] === 'undefined')
-								rows[i][j] = NaN;
-
-					graph.addRows(rows);
-
-					var height = 300;
-					if (window.innerWidth > 768)
-						height = 500;
-
-					var options = {
-						title: name,
-						height: height,
-						hAxis: { title: 'Split #', minValue: 1, viewWindow: { min: 1 } },
-						vAxis: { title: 'Time'},
-						//hAxis: {title: 'Split', minValue: 0, maxValue: 10},
-						//vAxis: {title: 'Time', minValue: 50, maxValue: 100},
-						series: series,
-						legend: { position: 'right' }
-					};
-
-					var chart = new google.visualization.ScatterChart(document.getElementById('graph-canvas'));
-					chart.draw(graph, options);
-
-					// hide spinner and show results
-					spinner.stop();
-					$('#spinner').css('height', '');
-
-					$('#graph-toggle-container').show();
 				}
 			});
 		}
 
 		function compareIndividual() {
+			// hide notifications
+			$('.notification').hide();
+
 			// show correct content
 			$('.results-tab-content').hide();
 			$('#results-compare').show();
