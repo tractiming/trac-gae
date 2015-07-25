@@ -42,7 +42,7 @@ urlpatterns = [
         url(r'^token_validation/$', views.token_validation),
         url(r'^reset_password/$', views.reset_password),
         url(r'^change_password/$', views.change_password),
-        url(r'^send_email/$', views.send_email),
+        #url(r'^send_email/$', views.send_email),
         #url(r'^IndividualTimes/$', views.IndividualTimes.as_view()),
 
         # Endpoint for readers.
