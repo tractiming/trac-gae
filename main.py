@@ -14,5 +14,5 @@ if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine'):
 else:
     settings = "settings.dev"
 
-os.environ["DJANGO_SETTINGS_MODULE"] = "settings.dev" #settings
+os.environ["DJANGO_SETTINGS_MODULE"] = settings
 application = django.core.handlers.wsgi.WSGIHandler()
