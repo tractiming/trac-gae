@@ -35,7 +35,7 @@ urlpatterns = [
         url(r'^time_create/$', views.time_create),
         url(r'^edit_athletes/$', views.edit_athletes),
         url(r'^edit_split/$', views.edit_split),
-        url(r'^individual_splits/$', views.IndividualTimes),
+        #url(r'^individual_splits/$', views.IndividualTimes),
         url(r'^edit_info/$', views.edit_info),
         url(r'^get_info/$', views.get_info),
         url(r'^team_results/$', views.team_results),
