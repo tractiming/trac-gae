@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.core.cache import cache
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import check_password
-#from django.core.mail import send_mail
+from django.core.mail import send_mail
 from django.core import serializers
 from django.core.serializers import serialize
 from django.utils.encoding import force_bytes
@@ -861,7 +861,6 @@ def change_password(request):
         return HttpResponse(status.HTTP_403_FORBIDDEN)
     return HttpResponse(status.HTTP_200_OK)
 
-'''
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))
 def send_email(request):
@@ -888,7 +887,6 @@ def send_email(request):
         return HttpResponse(status.HTTP_200_OK)
     else:
         return HttpResponse(status.HTTP_403_FORBIDDEN)
-'''
 ######################### Do we need these? ###########################
 #@api_view(['GET'])
 #@permission_classes((permissions.AllowAny,))

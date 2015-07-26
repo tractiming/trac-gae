@@ -217,9 +217,9 @@ TEMPLATE_DIRS = (
 WSGI_APPLICATION = 'main.application'
 
 ########### EMAIL CONFIG ###################
-#EMAIL_HOST = 'smtp.gmail.com'
-#EMAIL_HOST_USER = 'tracchicago@gmail.com'
-#EMAIL_HOST_PASSWORD = 'trac2015'
-#EMAIL_PORT = 587
-#EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'tracchicago@gmail.com'
+EMAIL_HOST_PASSWORD = 'trac2015'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
 ############################################
