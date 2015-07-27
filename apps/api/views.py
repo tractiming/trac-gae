@@ -862,7 +862,7 @@ def upload_workouts(request):
 
                 # add coach's org to new athlete's org
                 if coach.groups.all():
-                    group = c.groups.all()[0]
+                    group = coach.groups.all()[0]
                     new_user.groups.add(group.pk)
                     new_user.save()
 
