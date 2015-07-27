@@ -1,0 +1,18 @@
+/* All CSS rules for the settings view */
+
+#menu-btn {
+	cursor: pointer;
+}
+
+ul.menulist {
+	padding: 0;
+	list-style: none;
+	font-size: 1.2em; }
+	ul.menulist>li>a {
+		text-decoration: none; }
+		ul.menulist>li>a:hover {
+			text-decoration: none; }
+		ul.menulist>li>a:visited {
+			text-decoration: none;
+			color: #b3b3b1;
+}
