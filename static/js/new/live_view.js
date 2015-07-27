@@ -124,13 +124,13 @@ google.setOnLoadCallback(function(){
 
 					jsonData = data;
 					var json = data;
-					var results = data.results;
+					var results = $.parseJSON(data.results);
 
 					// add heat name
 					$('#results-title').html('Live Results: ' + json.name);
 
 					// if empty, hide spinner and show notification
-					if (results.runners == '') {
+					if (results.runners.length === 0) {
 						spinner.stop();
 						$('.notification.no-data').show();
 						$('#download-container').hide();
@@ -1287,13 +1287,16 @@ function createFullCSV(idjson){
 			var CSV = '';
 
 			// set report title in first row or line
-			CSV += reportTitle + '\r\n\n';
+			CSV += reportTitle + '\r\n\r\n';
 
 			// format date and time
 			var d = new Date(UTC2local(json.start_time));
 
 			CSV += 'Date,'+ d.toDateString() +'\r\n';
-			CSV += 'Time,'+ d.toLocaleTimeString() +'\r\n\n';
+			CSV += 'Time,'+ d.toLocaleTimeString() +'\r\n\r\n';
+
+			CSV += 'Track size,'+ json.track_size +'\r\n';
+			CSV += 'Interval Distance,'+ json.interval_distance +'\r\n\r\n';
 
 			CSV += 'Name\r\n';
 

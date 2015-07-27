@@ -68,6 +68,11 @@
 					<h4 class="modal-title"></h4>
 				</div>
 				<div class="modal-body">
+					<ul id="create-type-nav" class="nav nav-pills nav-justified" style="display:none;">
+						<li role="presentation" id="create-with-form" class="active"><a href="#">Form</a></li>
+						<li role="presentation" id="create-with-csv"><a href="#">CSV Upload</a></li>
+					</ul>
+
 					<form id="session-form" name="session-form" method="POST">
 						<input type="hidden" id="idnumber" name="idnumber" value="">
 						
@@ -142,23 +147,41 @@
 								</div>
 							</div>
 						</div>
+					</form>
 
-						<div class="modal-footer">
-							<div id="session-edit-buttons" class="session-form-buttons center">
-								<button type="submit" id="update" class="btn btn-primary" style="margin-right:10px;">Update</button>
-								<button type="submit" id="delete" class="btn btn-danger">Delete</button>
-							</div>
-							<div id="session-delete-buttons" class="session-form-buttons center">
-								<p style="text-align:center;">Confirm Delete</p>
-									<button type="submit" id="delete-yes" class="btn btn-danger" style="margin-right:10px;">Delete</button>
-									<button type="submit" id="delete-no" class="btn btn-default">Cancel</button>
-							</div>
-							<div id="session-create-buttons" class="session-form-buttons center">
-							  <button type="submit" id="create" class="btn btn-primary">Create</button>
-							</div>
-							<div id="spinner-form"></div>
+					<form id="csv-form" name="csv-form" method="POST" style="display:none;">
+						
+						<div class="center form-group">
+							<p class="notification-warning">
+								<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> CSV uploads must be in a specific format. Click <a href="{% static "files/upload_sample.csv" %}">here</a> for an example.
+							</p>
+						</div>
+
+						<label for="csv-file">Select file:</label>
+						<div class="input-group">
+							<span class="input-group-btn">
+								<span class="btn btn-warning btn-file">
+									Browse&hellip; <input type="file" id="csv-file" name="csv-file" multiple>
+								</span>
+							</span>
+							<input type="text" class="form-control" readonly>
 						</div>
 					</form>
+				</div>
+				<div class="modal-footer">
+					<div id="session-edit-buttons" class="session-form-buttons center">
+						<button type="submit" id="update" class="btn btn-primary" style="margin-right:10px;">Update</button>
+						<button type="submit" id="delete" class="btn btn-danger">Delete</button>
+					</div>
+					<div id="session-delete-buttons" class="session-form-buttons center">
+						<p style="text-align:center;">Confirm Delete</p>
+							<button type="submit" id="delete-yes" class="btn btn-danger" style="margin-right:10px;">Delete</button>
+							<button type="submit" id="delete-no" class="btn btn-default">Cancel</button>
+					</div>
+					<div id="session-create-buttons" class="session-form-buttons center">
+					  <button type="submit" id="create" class="btn btn-primary">Create</button>
+					</div>
+					<div id="spinner-form"></div>
 				</div>
 			</div>
 		</div>
@@ -191,7 +214,9 @@
 			<div class="row">
 				<div id="results" class="table"></div>
 				<div id="notifications">
-					<p class="notification notification-error no-sessions" role="alert">There are currently no workouts to show.</p>
+					<p class="notification notification-error no-sessions" role="alert">
+						<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> There are currently no workouts to show.
+					</p>
 				</div>
 			</div>
 			<div class="row" style="margin-bottom:30px;">

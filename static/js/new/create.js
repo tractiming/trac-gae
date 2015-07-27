@@ -59,7 +59,8 @@ $(function() {
 	$('input#end-date').datepicker(datepickerOptions);
 
 	//===================================== create.js functions =======================================
-	var SESSIONS_PER_PAGE = 10;
+	var SESSIONS_PER_PAGE = 10,
+			FORM_CREATE = 0, CSV_CREATE = 1;
 
 	var numSessions = 0,
 			currentPage = 1,
@@ -159,7 +160,11 @@ $(function() {
 
 					// add page number and status
 					$('.sessions-page-number').html(currentPage);
-					$('.sessions-show-status').html('Showing '+sessionFirst+' - '+sessionLast+' of '+numSessions+' results');
+					$('.sessions-show-status').html(
+						'Showing '+
+							sessionFirst+' - '+ 
+							(sessionLast > numSessions ? numSessions : sessionLast) +' of '+
+							numSessions+' results');
 				}
 				spinner.stop();
 			}
@@ -170,141 +175,343 @@ $(function() {
 	$('body').on('click', 'button#new-session', function(e){
 		e.preventDefault();
 
+		var createType;
+		if ($('#create-type-nav').find('.active').attr('id') === 'create-with-form')
+			createType = FORM_CREATE;
+		else
+			createType = CSV_CREATE;
+
 		// set modal title
 		$('#form-modal .modal-title').html('Create New Workout');
+		$('#create-type-nav').show();
+
+		// reset forms
 		$('#session-form')[0].reset();
+		$('#csv-form')[0].reset();
+
+		// show correct form
+		if ($('#create-type-nav').find('.active').attr('id') === 'create-with-form') {
+			$('#csv-form').hide();
+			$('#session-form').show();
+		} else {
+			$('#session-form').hide();
+			$('#csv-form').show();
+		}
 		
 		// show corrent buttons
-		$('#session-form .session-form-buttons').hide();
-		$('#session-form #session-create-buttons').show();
+		$('.session-form-buttons').hide();
+		$('#session-create-buttons').show();
 
-		// bind handler to create button
+		// register handler to upload type selection
+		$('body').off('click', 'ul#create-type-nav li');
+		$('body').on('click', 'ul#create-type-nav li', function(e) {
+			e.preventDefault();
+			$(this).parent().children().removeClass('active');
+			$(this).addClass('active');
+
+			if ($(this).attr('id') === 'create-with-form') {
+				$('#csv-form').hide();
+				$('#session-form').show();
+				createType = FORM_CREATE;
+			} else {
+				$('#session-form').hide();
+				$('#csv-form').show();
+				createType = CSV_CREATE;
+			}
+		});
+
+		// add feedback on file selection
+		$('.btn-file :file').off('fileselect');
+		$('.btn-file :file').on('fileselect', function(e, numFiles, label) {
+			var input = $(this).parents('.input-group').find(':text'),
+					log = numFiles > 1 ? numFiles + ' files selected' : label;
+
+			if( input.length ) {
+				input.val(log);
+			} else {
+				if( log ) alert(log);
+			}
+		});
+
+		// trigger event on file selection
+		$('body').off('change', '.btn-file :file');
+		$('body').on('change', '.btn-file :file', function() {
+			var input = $(this),
+					numFiles = input.get(0).files ? input.get(0).files.length : 1,
+					label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+
+			input.trigger('fileselect', [numFiles, label]);
+		});
+
+		// register handler to create button
 		$('body').off('click', '#session-create-buttons button#create');
 		$('body').on('click', '#session-create-buttons button#create', function(e){
 			e.preventDefault();
 
-			//validate that form is correctly filled out
-			var form = $('#session-form');
-			form.parsley().validate();
+			if (createType === FORM_CREATE) {
+				//validate that form is correctly filled out
+				var form = $('#session-form');
+				form.parsley().validate();
 
-			if (!form.parsley().isValid())
-				return;
+				if (!form.parsley().isValid())
+					return;
 
-			// reset parsley styling
-			form.parsley().reset();
+				// reset parsley styling
+				form.parsley().reset();
 
-			// hide button and show spinner
-			$('#session-form .session-form-buttons').hide();
-			target = $('#spinner-form');
-			target.css('height', 50);
-			spinner.spin(target[0]);
+				// hide button and show spinner
+				$('.session-form-buttons').hide();
+				target = $('#spinner-form');
+				target.css('height', 50);
+				spinner.spin(target[0]);
 
-			var title = escapeString($('input[id=title]').val());
+				var title = escapeString($('input[id=title]').val());
 
-			// get start date and time
-			var startDate = $('input[id=start-date]').val().trim().split(/[\/-]/),
-					startTime = $('input[id=start-time]').val().trim().split(':').map(Number),
-					startAMPM = $('select#start-am-pm').val();
-			
-			// create start date object
-			var startDateTime = new Date();
-			startDateTime.setFullYear(startDate[2]);
-			startDateTime.setMonth(startDate[0]-1);
-			startDateTime.setDate(startDate[1]);
+				// get start date and time
+				var startDate = $('input[id=start-date]').val().trim().split(/[\/-]/),
+						startTime = $('input[id=start-time]').val().trim().split(':').map(Number),
+						startAMPM = $('select#start-am-pm').val();
+				
+				// create start date object
+				var startDateTime = new Date();
+				startDateTime.setFullYear(startDate[2]);
+				startDateTime.setMonth(startDate[0]-1);
+				startDateTime.setDate(startDate[1]);
 
-			if ((startAMPM == 'PM' ) && (startTime[0] < 12))
-				startDateTime.setHours(startTime[0]+12);
-			else if ((startAMPM == 'AM') && (startTime[0] == 12))
-				startDateTime.setHours(startTime[0]-12);
-			else
-				startDateTime.setHours(startTime[0]);
+				if ((startAMPM == 'PM' ) && (startTime[0] < 12))
+					startDateTime.setHours(startTime[0]+12);
+				else if ((startAMPM == 'AM') && (startTime[0] == 12))
+					startDateTime.setHours(startTime[0]-12);
+				else
+					startDateTime.setHours(startTime[0]);
 
-			startDateTime.setMinutes(startTime[1]);
+				startDateTime.setMinutes(startTime[1]);
 
-			if (startTime.length > 2)
-				startDateTime.setSeconds(startTime[2]);
-			else
-				startDateTime.setSeconds(0);
+				if (startTime.length > 2)
+					startDateTime.setSeconds(startTime[2]);
+				else
+					startDateTime.setSeconds(0);
 
-			// get end date and time 
-			var endDate = $('input[id=end-date]').val().trim().split(/[\/-]/),
-					endTime = $('input[id=end-time]').val().trim().split(':').map(Number),
-					endAMPM = $('select#end-am-pm').val();
+				// get end date and time 
+				var endDate = $('input[id=end-date]').val().trim().split(/[\/-]/),
+						endTime = $('input[id=end-time]').val().trim().split(':').map(Number),
+						endAMPM = $('select#end-am-pm').val();
 
-			// create end date object
-			var endDateTime = new Date();
-			endDateTime.setFullYear(endDate[2]);
-			endDateTime.setMonth(endDate[0]-1);
-			endDateTime.setDate(endDate[1]);
+				// create end date object
+				var endDateTime = new Date();
+				endDateTime.setFullYear(endDate[2]);
+				endDateTime.setMonth(endDate[0]-1);
+				endDateTime.setDate(endDate[1]);
 
-			if ((endAMPM == 'PM' ) && (endTime[0] < 12))
-				endDateTime.setHours(endTime[0]+12);
-			else if ((endAMPM == 'AM') && (endTime[0] == 12))
-				endDateTime.setHours(endTime[0]-12);
-			else
-				endDateTime.setHours(endTime[0]);
+				if ((endAMPM == 'PM' ) && (endTime[0] < 12))
+					endDateTime.setHours(endTime[0]+12);
+				else if ((endAMPM == 'AM') && (endTime[0] == 12))
+					endDateTime.setHours(endTime[0]-12);
+				else
+					endDateTime.setHours(endTime[0]);
 
-			endDateTime.setMinutes(endTime[1]);
-			if (endTime.length > 2)
-				endDateTime.setSeconds(endTime[2]);
-			else
-				endDateTime.setSeconds(0);
+				endDateTime.setMinutes(endTime[1]);
+				if (endTime.length > 2)
+					endDateTime.setSeconds(endTime[2]);
+				else
+					endDateTime.setSeconds(0);
 
-			var distance = $('input[id=distance]').val();
-			var size = $('input[id=size]').val();
-			var filter = $('input[name=filter]:checked').val() == 'yes';
-			var privateselect = $('input[name=private]:checked').val() == 'yes';
+				var distance = $('input[id=distance]').val();
+				var size = $('input[id=size]').val();
+				var filter = $('input[name=filter]:checked').val() == 'yes';
+				var privateselect = $('input[name=private]:checked').val() == 'yes';
 
-			//*
-			$.ajax({
-				type: 'POST',
-				dataType:'json',
-				url: '/api/time_create/',
-				headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
-				data: {
-					id: 0,
-					name: title,
-					start_time: startDateTime.toISOString(),
-					stop_time: endDateTime.toISOString(),
-					rest_time: '0',
-					track_size: size,
-					interval_distance: distance,
-					interval_number: '0',
-					filter_choice: filter,
-					private: privateselect
-				},
-				success: function(data) {
-					// hide spinner
-					spinner.stop();
-					target.css('height', '');
-					
-					// show success message
-					$('.notification').hide();
-					$('.notification.create-success').show();
+				//*
+				$.ajax({
+					type: 'POST',
+					dataType:'json',
+					url: '/api/time_create/',
+					headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+					data: {
+						id: 0,
+						name: title,
+						start_time: startDateTime.toISOString(),
+						stop_time: endDateTime.toISOString(),
+						rest_time: '0',
+						track_size: size,
+						interval_distance: distance,
+						interval_number: '0',
+						filter_choice: filter,
+						private: privateselect
+					},
+					success: function(data) {
+						// hide spinner
+						spinner.stop();
+						target.css('height', '');
+						
+						// show success message
+						$('.notification').hide();
+						$('.notification.create-success').show();
 
-					// switch modals
-					$('#form-modal').modal('hide');
-					$('#notifications-modal').modal('show');
+						// switch modals
+						$('#form-modal').modal('hide');
+						$('#notifications-modal').modal('show');
 
-					// clear form and reload data
-					$('#session-form')[0].reset();
-					loadWorkouts();
-				},
-				error: function(xhr, errmsg, err) {
-					// hide spinner
-					spinner.stop();
-					target.css('height', '');
-					
-					// show error message
-					$('.notification').hide();
-					$('.notification.server-error').show();
+						// clear form and reload data
+						$('#session-form')[0].reset();
+						loadWorkouts();
+					},
+					error: function(xhr, errmsg, err) {
+						// hide spinner
+						spinner.stop();
+						target.css('height', '');
+						
+						// show error message
+						$('.notification').hide();
+						$('.notification.server-error').show();
 
-					// switch modals
-					$('#form-modal').modal('hide');
-					$('#notifications-modal').modal('show');
+						// switch modals
+						$('#form-modal').modal('hide');
+						$('#notifications-modal').modal('show');
+					}
+				});
+			} else if (createType === CSV_CREATE) {
+
+				var data;
+				$('#csv-form input[type=file]').parse({
+					config: {
+						delimiter: '',								// auto-detect
+						newline: '',									// auto-detect
+						header: false,								// no column names
+						dynamicTyping: false,					// convert numbers into numbers and booleans to booleans
+						preview: 0,										// parse all rows if 0, or specify number of rows
+						encoding: '',									// auto-detect
+						worker: true,									// run on separate thread--slower but won't lock webpage
+						comments: false,							// no comments in file
+						step: stepFn,									// callback executed after every row
+						complete: completeFn,					// callback for when parsing is complete
+						error: undefined,							// callback for when FileReader encounters an error
+						download: false,							// true for URL download, false otherwise
+						skipEmptyLines: true,					// skip empty lines
+						chunk: undefined,							// callback executed after every chunk
+						fastMode: undefined,					// speed up parsing for input without quoted fields
+						beforeFirstChunk: undefined,	// function to execute before parsing first chunk
+					},
+					before: function(file, inputElem) {
+						// executed before parsing each file begins;
+						// what you return here controls the flow
+
+						// hide button and show spinner
+						$('.session-form-buttons').hide();
+						target = $('#spinner-form');
+						target.css('height', 50);
+						spinner.spin(target[0]);
+
+						// initialize array of parsed data
+						data = [];
+					},
+					error: function(err, file, inputElem, reason) {
+						// executed if an error occurs while loading the file,
+						// or if before callback aborted for some reason
+						console.log(err);
+					},
+					complete: function() {
+						// executed after all files are complete
+						console.log('Finished parsing all files.');
+					}
+				});
+
+				function stepFn(results, parser) {
+					//console.log('Row data:', results.data);
+					//console.log('Row errors:', results.errors);
+					data.push(results.data[0]);
 				}
-			});
-			//*/
+
+				function completeFn(results, file) {
+					// executed after each file is complete
+					console.log('Finished parsing '+file.name, file);
+					
+					var title = data[0][1],
+							date = data[1][1],
+							time = data[2][1],
+							trackSize = Number(data[3][1]),
+							intervalDistance = Number(data[4][1]),
+							workoutResults = data.slice(6);
+
+					// format time to ISO string
+					var start_time = new Date(date+' '+time).toISOString();
+
+					// format results
+					results = [];
+					for(var i=0; i<workoutResults.length; i++) {
+						runner = workoutResults[i];
+						
+						// set corresponding fields in dictionary
+						temp = {};
+						temp.username = runner[0];
+						temp.last_name = runner[1];
+						temp.first_name = runner[2];
+						temp.splits = runner.slice(3);
+
+						for(var j=0; j<temp.splits.length; j++) {
+							var split = temp.splits[j];
+							if (split.indexOf(':') === -1) {
+								var s = split.split('.');
+
+								var remainder = Number(s[0])%60;
+								var secs = remainder < 10 ? '0'+remainder.toString() : remainder.toString();
+
+								temp.splits[j] = (Math.floor(Number(s[0])/60)).toString() +':'+ secs +'.'+ s[1];
+							}
+						}
+
+						// add to results
+						results.push(temp);
+					}
+
+					// construct json to send to server
+					var json = {
+						'title': title,
+						'start_time': start_time,
+						'track_size': trackSize,
+						'interval_distance': intervalDistance,
+						'results': results
+					};
+
+					$.ajax({
+						type: 'POST',
+						dataType: 'json',
+						url: '/api/upload_workouts/',
+						headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+						data: JSON.stringify(json),
+						success: function(data) {
+							// hide spinner
+							spinner.stop();
+							target.css('height', '');
+							
+							// show success message
+							$('.notification').hide();
+							$('.notification.create-success').show();
+
+							// switch modals
+							$('#form-modal').modal('hide');
+							$('#notifications-modal').modal('show');
+
+							// clear form and reload data
+							$('#session-form')[0].reset();
+							loadWorkouts();
+						},
+						error: function(xhr, errmsg, err) {
+							// hide spinner
+							spinner.stop();
+							target.css('height', '');
+							
+							// show error message
+							$('.notification').hide();
+							$('.notification.server-error').show();
+
+							// switch modals
+							$('#form-modal').modal('hide');
+							$('#notifications-modal').modal('show');
+						}
+					});
+				}
+			}
 		});
 	});
 
@@ -312,6 +519,9 @@ $(function() {
 	$('body').on('click', '#results-table tbody tr', function(){
 		// set modal title and show
 		$('#form-modal .modal-title').html('Edit Workout Session');
+		$('#create-type-nav').hide();
+		$('#csv-form').hide();
+		$('#session-form').show();
 		$('#form-modal').modal('show');
 
 		// clear form
@@ -373,8 +583,8 @@ $(function() {
 			$('input#private-no').prop('checked', true);
 
 		// show corrent buttons
-		$('#session-form .session-form-buttons').hide();
-		$('#session-form #session-edit-buttons').show();
+		$('.session-form-buttons').hide();
+		$('#session-edit-buttons').show();
 
 		// bind handler to update button
 		$('body').off('click', 'button#update');
@@ -392,7 +602,7 @@ $(function() {
 			form.parsley().reset();
 
 			// hide button and show spinner
-			$('#session-form .session-form-buttons').hide();
+			$('.session-form-buttons').hide();
 			target = $('#spinner-form');
 			target.css('height', 50);
 			spinner.spin(target[0]);
@@ -511,15 +721,15 @@ $(function() {
 			e.preventDefault();
 
 			// ask for confirmation
-			$('#session-form .session-form-buttons').hide();
-			$('#session-form #session-delete-buttons').show();
+			$('.session-form-buttons').hide();
+			$('#session-delete-buttons').show();
 
 			$('body').off('click', 'button#delete-yes');
 			$('body').on('click', 'button#delete-yes', function(e){
 				e.preventDefault();
 
 				// hide buttons and show spinner
-				$('#session-form .session-form-buttons').hide();
+				$('.session-form-buttons').hide();
 				target = $('#spinner-form');
 				target.css('height', 50);
 				spinner.spin(target[0]);
@@ -569,8 +779,8 @@ $(function() {
 				e.preventDefault();
 
 				// show edit buttons
-				$('#session-form .session-form-buttons').hide();
-				$('#session-form #session-edit-buttons').show();
+				$('.session-form-buttons').hide();
+				$('#session-edit-buttons').show();
 			});
 		});
 	});
