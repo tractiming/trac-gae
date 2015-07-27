@@ -150,10 +150,17 @@
 					</form>
 
 					<form id="csv-form" name="csv-form" method="POST" style="display:none;">
+						
+						<div class="center form-group">
+							<p class="notification-warning">
+								<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> CSV uploads must be in a specific format. Click <a href="{% static "files/upload_sample.csv" %}">here</a> for an example.
+							</p>
+						</div>
+
 						<label for="csv-file">Select file:</label>
 						<div class="input-group">
 							<span class="input-group-btn">
-								<span class="btn btn-primary btn-file">
+								<span class="btn btn-warning btn-file">
 									Browse&hellip; <input type="file" id="csv-file" name="csv-file" multiple>
 								</span>
 							</span>
@@ -207,7 +214,9 @@
 			<div class="row">
 				<div id="results" class="table"></div>
 				<div id="notifications">
-					<p class="notification notification-error no-sessions" role="alert">There are currently no workouts to show.</p>
+					<p class="notification notification-error no-sessions" role="alert">
+						<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> There are currently no workouts to show.
+					</p>
 				</div>
 			</div>
 			<div class="row" style="margin-bottom:30px;">

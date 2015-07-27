@@ -8,3 +8,5 @@ ul#create-type-nav li a { padding: 5px 10px; }
 .sessions-page-number, .sessions-show-status {
 	padding: 0 10px;
 }
+
+#csv-form a { text-decoration: none; }
