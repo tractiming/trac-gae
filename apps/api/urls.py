@@ -45,7 +45,8 @@ urlpatterns = [
         url(r'^reset_password/$', views.reset_password),
         url(r'^change_password/$', views.change_password),
         url(r'^send_email/$', views.send_email),
-        #url(r'^IndividualTimes/$', views.IndividualTimes.as_view()),
+        url(r'^tutorial_limiter/$',views.tutorial_limiter),
+
 
         # Endpoint for readers.
         url(r'^updates/$', views.post_splits, name='updates'),

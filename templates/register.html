@@ -10,6 +10,13 @@
 {% block js_scripts %}
   <script src="{% static "js/trac-ajax.js" %}" type="text/javascript"></script>
   <script src="{% static "js/new/register.js" %}" type="text/javascript"></script>
+  <style>
+.modal-body {
+    max-height: calc(100vh - 210px);
+    overflow-y: auto;
+}
+
+  </style>
 {% endblock %}
 
 <!-- Body -->
@@ -22,7 +29,44 @@
 
 
 {% block content %}
+  <div class="modal fade" id="terms-modal" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Terms & Conditions</h4>
+        </div>
+        <div class="modal-body">
+          <div class="center">
+            <p><b>In purchasing any TRAC product or creating a user account on the website you are deemed to have read and agreed to the following terms and conditions:</b></p>
+                <p>The following terminology applies to these Terms and Conditions, Privacy Statement and Disclaimer Notice and any or all Agreements: “Client”, “Buyer”, “You” and “Your” refers to you, the person utilizing the Company’s goods and services and accepting the terms and conditions. “The Company”, “Seller”, “Ourselves”, “We” and “Us” refers to TRAC. “Party”, “Parties”, or “Us”, refers to both the Client and ourselves, or either the Client or ourselves. All terms refer to the offer, acceptance and consideration of payment necessary to undertake the process of our assistance to the Client in the most appropriate manner, whether by formal meetings of a fixed duration, or any other means, for the express purpose of meeting the Client’s needs in respect of provision of the Company’s stated services/products, in accordance with and subject to, prevailing United States Law. Any use of the above terminology or other word in the singular, plural, capitalization and/or he/she or they, are taken as interchangeable and therefore as referring to same.</p>
+                <p><b>Privacy Statement:</b></p>
+                <p>We are committed to protecting your privacy. Authorized employees within the company on a need to know basis only use any information collected from individual customers. We constantly review our systems and data to ensure the best possible service to our customers. Unauthorized actions against computer systems and data will be investigated with a view to prosecuting and/or taking civil proceedings to recover damages against those responsible.</p>
+                <p><b>Confidentiality:</b></p>
+                <p>Client records are regarded as confidential and therefore will not be divulged to any third party without expressed consent from the Client or if legally required to do so to the appropriate authorities. Clients have the right to request sight of, and copies of any and all Client Records we keep, on the proviso that we are given reasonable notice of such a request. Clients are requested to retain copies of any literature issued in relation to the provision of our services. Where appropriate, we shall issue Client’s with appropriate written information, handouts or copies of records as part of an agreed contract, for the benefit of both parties.</p>
+                <p>We will not sell, share or rent your personal information to any third party or use your email address for unsolicited mail. Any emails sent by this Company will only be in connection with the provision of agreed services and products.</p>
+                <p><b>Disclaimer, Exclusions and Limitations</b></p>
+                <p>The information on this website is provided on an “as is” basis. To the fullest extent permitted by law, this Company:</p>
+                <p>Excludes all representations and warranties relating to this website and its contents or which is or may be provided by any affiliates or any third party, including in relation to any inaccuracies or omissions in this website and/or the Company’s literature; and excludes all liability for damages arising out of or in connection with your use of this website. This includes, without limitation, direct loss, loss of business or profits (whether or not the loss of such profits was foreseeable, arose in the normal course of things or you have advised this Company of the possibility of such potential loss), damage caused to your computer, computer software, systems and programs and the data thereon or any other direct or indirect, consequential and incidental damages. This Company does not however exclude liability for death or personal injury caused by its negligence. The above exclusions and limitations apply only to the extent permitted by law. None of your statutory rights as a consumer are affected.</p>
+                <p><b>Hardware Product Liability:</b></p>
+                <p>TRAC is not liable for any injury and damages caused after opening the reader. Breaking the seal on the box voids any obligations to compensate the Client for injury. This action voids any warranty and obligation by TRAC to repair the system or refund the Client. Opening the reader is a violation of our contract. Having a third party repair or alter the product in any way results in a violation of contract. TRAC is not liable if any interior components of the system are tampered with.</p>
 
+          </div>
+        </div>
+        <div class="modal-footer">
+          <form id="modal-form" name="modal-form" data-parsley-validate>
+                <div class="checkbox">
+                   <label>
+                        <input type="checkbox" name="checkbox" required data-parsley-group="block2"> I have read and agreed to the terms and conditions above. 
+                  </label>
+                </div>
+                <button type="button" class="btn btn-default" data-dismiss="modal" id="close-terms">Close</button>
+                <button type="submit" class="btn btn-primary" id="confirm-terms">Continue</button>
+            </form>
+          </div>
+      </div>
+    </div>
+  </div>
   <div id="content" class="container-fluid" style="background: url(&quot;{% static 'img/startup.jpg' %}&quot;) no-repeat fixed center; background-size: cover;">
     <div class="container">
       <div class="row">
