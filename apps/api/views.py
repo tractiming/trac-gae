@@ -986,17 +986,19 @@ def tutorial_limiter(request):
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))
 def analyze(request):
-    idx = request.GET.get('id')
+    idx = request.POST.get('id')
     ts = TimingSession.objects.get(id = idx)
-    run = ts.get_results.get('runners')
+    run = ts.get_results().get('runners')
     dataList = []
     for r in run:
         times = [item for sublist in r['interval'] for item in sublist]
-        for item in times:
-            float(item)
+        for index, item in enumerate(times):
+            times[index] = float(item)
         name = r['id']
         dataList.append({'Name': name, 'Times': times})
-    return stats.investigate(dataList)
+
+    print dataList
+    return Response(stats.investigate(dataList), status.HTTP_200_OK)
 
 ######################### Do we need these? ###########################
 #@api_view(['GET'])

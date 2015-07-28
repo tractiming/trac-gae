@@ -49,7 +49,7 @@ google.setOnLoadCallback(function(){
 		spinner = new Spinner(opts);
 
 		//==================================== switchery configuration ====================================
-		var elem = document.querySelector('.switchery');
+		var elem = document.querySelector('.switchery-checkbox');
 		var switchery = new Switchery(elem, { size: 'small' });
 
 		//====================================== page initialization ======================================
@@ -145,13 +145,22 @@ google.setOnLoadCallback(function(){
 						// show options
 						$('#correction-options').show();
 						$('#enable-corrections').prop('checked', false);
+						//switchery = new Switchery(elem, { size: 'small' });
 						$('#enable-corrections-status').css('color', '#d9534f');
 						$('#enable-corrections-status').html(' Auto-correction currently disabled.');
 
 						// register handler for correction enabling
 						$('body').off('change', '#enable-corrections');
 						$('body').on('change', '#enable-corrections', function() {
-							addCorrections($('#enable-corrections').prop('checked'));
+							var status = $('#enable-corrections-status');
+							if ($(this).prop('checked')) {
+								status.css('color', '#468847');
+								status.html(' Auto-correction currently enabled.');
+								addCorrections();
+							} else {
+								status.css('color', '#d9534f');
+								status.html(' Auto-correction currently disabled.');
+							}
 						});
 						
 					}
@@ -329,17 +338,21 @@ google.setOnLoadCallback(function(){
 			//*/
 		}
 
-		function addCorrections(enabled) {
-			var status = $('#enable-corrections-status');
-			if (enabled) {
-				status.css('color', '#468847');
-				status.html(' Auto-correction currently enabled.');
-			} else {
-				status.css('color', '#d9534f');
-				status.html(' Auto-correction currently disabled.');
-			}
+		function addCorrections() {
 
 			// make ajax call for corrections
+			$.ajax({
+				method: 'POST', 
+				url: '/api/analyze/',
+				headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+				dataType: 'json',
+				data: {
+					id: currentID,
+				},
+				success: function(data) {
+					console.log(data);
+				}
+			});
 		}
 
 		// register handler for edit total time
