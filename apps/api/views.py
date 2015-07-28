@@ -41,6 +41,8 @@ import uuid
 import hashlib
 import base64
 import datetime
+import math
+import stats
 
 class verifyLogin(views.APIView):
 	permission_classes = ()
@@ -963,7 +965,7 @@ def send_email(request):
             'uid': uidb64,
             'user': u,
             'token': str(token),
-            'protocol': 'https',
+            'protocol': 'https://',
         }
         url = c['domain'] + '/UserSettings/' + c['uid'] + '/' + c['token'] + '/'
         email_body = loader.render_to_string('../templates/email_template.html', c)
@@ -971,7 +973,6 @@ def send_email(request):
         return HttpResponse(status.HTTP_200_OK)
     else:
         return HttpResponse(status.HTTP_403_FORBIDDEN)
-
 
 @api_view(['GET'])
 @permission_classes((permissions.IsAuthenticated,))
@@ -982,6 +983,21 @@ def tutorial_limiter(request):
     else:
         return HttpResponse(status.HTTP_403_FORBIDDEN)
     
+@api_view(['POST'])
+@permission_classes((permissions.AllowAny,))
+def analyze(request):
+    idx = request.GET.get('id')
+    ts = TimingSession.objects.get(id = idx)
+    run = ts.get_results.get('runners')
+    dataList = []
+    for r in run:
+        times = [item for sublist in r['interval'] for item in sublist]
+        for item in times:
+            float(item)
+        name = r['id']
+        dataList.append({'Name': name, 'Times': times})
+    return stats.investigate(dataList)
+
 ######################### Do we need these? ###########################
 #@api_view(['GET'])
 #@permission_classes((permissions.AllowAny,))
