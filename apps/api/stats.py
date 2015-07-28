@@ -7,11 +7,9 @@ import itertools
 def calculate_distance(data_dict):
     list_of_times = {}
     rests, data, unused = investigate(data_dict)
-    print rests
     for runner in data:
         if len(rests) <= 2 and rests[0] == 0 and rests[1] == (len(runner['Times']) - 1):
             temp_sum = sum(runner['Times'])
-            print temp_sum
             if (rests[1]+1) in list_of_times.keys():
                 list_of_times[rests[1]+1].append(temp_sum)
             else:
