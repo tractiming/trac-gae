@@ -48,6 +48,10 @@ google.setOnLoadCallback(function(){
 		target = document.getElementById('spinner');
 		spinner = new Spinner(opts);
 
+		//==================================== switchery configuration ====================================
+		var elem = document.querySelector('.switchery');
+		var switchery = new Switchery(elem, { size: 'small' });
+
 		//====================================== page initialization ======================================
 		// default view to table
 		currentView = TABLE_VIEW;
@@ -128,6 +132,29 @@ google.setOnLoadCallback(function(){
 
 					// add heat name
 					$('#results-title').html('Live Results: ' + json.name);
+
+					// update status
+					if (new Date() < new Date(jsonData.stop_time)) {
+						// session still active
+						$('#results-status>span').css('color', '#5cb85c');
+					} else {
+						// session is closed
+						$('#results-status>span').css('color', '#d9534f');
+						stopUpdates();
+						
+						// show options
+						$('#correction-options').show();
+						$('#enable-corrections').prop('checked', false);
+						$('#enable-corrections-status').css('color', '#d9534f');
+						$('#enable-corrections-status').html(' Auto-correction currently disabled.');
+
+						// register handler for correction enabling
+						$('body').off('change', '#enable-corrections');
+						$('body').on('change', '#enable-corrections', function() {
+							addCorrections($('#enable-corrections').prop('checked'));
+						});
+						
+					}
 
 					// if empty, hide spinner and show notification
 					if (results.runners.length === 0) {
@@ -282,7 +309,7 @@ google.setOnLoadCallback(function(){
 						'<td class="split-number">' + (j+1) + '</td>' + 
 						'<td class="split-time">' + split + '</td>' + 
 						'<td class="split-edit-options hidden-xs">' +
-							'<div class="modify-splits modify-splits-'+id+' center" style="display:none;">' +
+							'<div class="modify-splits modify-splits-'+id+' pull-right" style="display:none;">' +
 								'<div class="insert-split"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></div>' +
 								'<div class="insert-split"><span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span></div>' +
 								'<div class="edit-split"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
@@ -300,6 +327,19 @@ google.setOnLoadCallback(function(){
 			total = formatTime(total);
 			$('#table-canvas>tbody #results-'+id+'>td#total-time-'+id).html(total);
 			//*/
+		}
+
+		function addCorrections(enabled) {
+			var status = $('#enable-corrections-status');
+			if (enabled) {
+				status.css('color', '#468847');
+				status.html(' Auto-correction currently enabled.');
+			} else {
+				status.css('color', '#d9534f');
+				status.html(' Auto-correction currently disabled.');
+			}
+
+			// make ajax call for corrections
 		}
 
 		// register handler for edit total time
@@ -343,7 +383,7 @@ google.setOnLoadCallback(function(){
 					return;
 				}
 
-				console.log(hrs+':'+mins+':'+secs+'.'+ms);
+				//console.log(hrs+':'+mins+':'+secs+'.'+ms);
 
 				$.ajax({
 					method: 'POST',
@@ -492,7 +532,7 @@ google.setOnLoadCallback(function(){
 							'<div class="edit-split"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
 							'<div class="delete-split"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></div>' +
 						'</div>' +
-						'<div class="confirm-insert" style="display: table; margin: 0 auto;">' +
+						'<div class="confirm-insert pull-right">' +
 							'<button value="insert" class="confirm-insert-split btn btn-sm btn-primary" style="margin-right:10px;">Save</button>' +
 							'<button value="cancel" class="cancel-insert-split btn btn-sm btn-danger">Cancel</button>' +
 						'</div>' +
@@ -605,7 +645,7 @@ google.setOnLoadCallback(function(){
 			target.parent().hide();
 			$('body').off('mouseover', 'tr.splits table tbody tr');
 			splitRow.find('td.split-edit-options').append(
-				'<div class="confirm-edit" style="display: table; margin: 0 auto;">' +
+				'<div class="confirm-edit pull-right">' +
 					'<button value="update" class="confirm-edit-split btn btn-sm btn-primary" style="margin-right:10px;">Update</button>' +
 					'<button value="cancel" class="cancel-edit-split btn btn-sm btn-danger">Cancel</button>' +
 				'</div>'
@@ -691,7 +731,7 @@ google.setOnLoadCallback(function(){
 			target.parent().hide();
 			$('body').off('mouseover', 'tr.splits table tbody tr');
 			splitRow.find('td.split-edit-options').append(
-				'<div class="confirm-delete" style="display: table; margin: 0 auto;">' +
+				'<div class="confirm-delete pull-right">' +
 					'<button value="delete" class="confirm-delete-split btn btn-sm btn-danger" style="margin-right:10px;">Delete</button>' +
 					'<button value="cancel" class="cancel-delete-split btn btn-sm btn-default">Cancel</button>' +
 				'</div>'
@@ -1248,9 +1288,11 @@ google.setOnLoadCallback(function(){
 				// update view
 				lastSelected();
 
-				// restart updates
-				stopUpdates();
-				startUpdates();
+				if (new Date() < new Date(jsonData.stop_time)) {
+					// restart updates
+					stopUpdates();
+					startUpdates();
+				}
 
 			} else {
 				// stop updates

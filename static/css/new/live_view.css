@@ -60,6 +60,10 @@ ul.menulist {
 				color: white;
 }
 
+#results-status {
+	margin-bottom: 20px;
+}
+
 #table-canvas>tbody .modify-total-time span.glyphicon { margin-right: 10px; }
 #table-canvas>tbody .modify-total-time div.edit-total span.glyphicon:hover { color: #f0b922; }
 #table-canvas>tbody .modify-total-time div.delete-total span.glyphicon:hover { color: #d9534f; }
@@ -79,7 +83,7 @@ tr.splits {
 					width: 90px;
 					margin: 0 auto; }
 			tr.splits table td.split-edit-options {
-				width: 200px; }
+				width: 160px; }
 				tr.splits table td.split-edit-options .modify-splits {}
 					tr.splits table td.split-edit-options .modify-splits>div {
 						float: left; }
@@ -98,6 +102,10 @@ tr.splits {
 	float: left;
 	margin-top: 7px;
 	color: #777;
+}
+
+#enable-corrections-container {
+	margin-top: 10px;
 }
 
 
