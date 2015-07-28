@@ -21,10 +21,28 @@ else{
 }
 
     $(document).ready(function() {
-$("li a.logout").click(function(){
-    sessionStorage.clear();
-    location.href="/login";
-});
+      $("li a.logout").click(function(){
+          sessionStorage.clear();
+          location.href="/login";
+      });
+       $.ajax({
+          url: "api/tutorial_limiter/",
+          headers: {Authorization: "Bearer " + sessionStorage.access_token},
+          dataType: 'text',
+          success: function(data){
+            if (data == 200){
+              $('div#tutorial').show();
+            }
+
+          },
+          error: function(xhr, errmsg, err) {
+            $('div#tutorial').show();
+          }
+
+        });
+
+
+
     });
 
 </script>
@@ -412,7 +430,7 @@ $("body").on('click', 'button#cl', function(e){
         <div class="container-fluid content">
           <div id="container" class="container">
             <div class="row">
-              <div id="tutorial" class="panel panel-default hidden-sm hidden-xs" style="margin: 2%;">
+              <div id="tutorial" class="panel panel-default hidden-sm hidden-xs" style="margin: 2%; display:none">
                 <div class="panel-heading clearfix">
                     <h1 class="panel-title pull-left">TRAC Tutorial</h1>
                     <button id="cl" class="close"><span class="glyphicon glyphicon-remove"></span></button>

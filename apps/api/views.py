@@ -40,6 +40,7 @@ import dateutil.parser
 import uuid
 import hashlib
 import base64
+import datetime
 
 class verifyLogin(views.APIView):
 	permission_classes = ()
@@ -970,6 +971,17 @@ def send_email(request):
         return HttpResponse(status.HTTP_200_OK)
     else:
         return HttpResponse(status.HTTP_403_FORBIDDEN)
+
+
+@api_view(['GET'])
+@permission_classes((permissions.IsAuthenticated,))
+def tutorial_limiter(request):
+    user = request.user
+    if timezone.now()- user.date_joined < datetime.timedelta(60):
+        return HttpResponse(status.HTTP_200_OK)
+    else:
+        return HttpResponse(status.HTTP_403_FORBIDDEN)
+    
 ######################### Do we need these? ###########################
 #@api_view(['GET'])
 #@permission_classes((permissions.AllowAny,))
