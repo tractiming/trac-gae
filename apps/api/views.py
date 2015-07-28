@@ -879,7 +879,7 @@ def analyze(request):
             float(item)
         name = r['id']
         dataList.append({'Name': name, 'Times': times})
-    return stats.investigate(dataList)
+    return stats.investigate(dataList)[2]
 ######################### Do we need these? ###########################
 #@api_view(['GET'])
 #@permission_classes((permissions.AllowAny,))
