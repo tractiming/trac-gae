@@ -8,33 +8,40 @@ def calculate_distance(data_dict):
     list_of_times = {}
     rests, data, unused = investigate(data_dict)
     for runner in data:
-        if runner['Indices'][0] in rests:
-            temp = runner['Times'][0:runner['Indices'][0]]
-            temp_sum = sum(temp)
-            list_of_times[runner['Indices'][0]] = [temp_sum]
-        for index in range(0, len(rests)):
-            idx = rests[index]
-            try:
-                idy = rests[index+1]
-            except:
-                idy = rests[index]
-            if idx in runner['Indices']:
-                i = runner['Indices'].index(idx)
+        if len(rests) <= 2 and rests[0] == 0 and rests[1] == (len(runner['Times']) - 1):
+            temp_sum = sum(runner['Times'])
+            if (rests[1]+1) in list_of_times.keys():
+                list_of_times[rests[1]+1].append(temp_sum)
+            else:
+                list_of_times[rests[1]+1] = [temp_sum]
+        else: 
+            if runner['Indices'][0] in rests:
+                temp = runner['Times'][0:runner['Indices'][0]]
+                temp_sum = sum(temp)
+                list_of_times[runner['Indices'][0]].append(temp_sum)
+            for index in range(0, len(rests)):
+                idx = rests[index]
                 try:
-                    if runner['Indices'][i+1] == idy:
-                        temp = runner['Times'][idx+1:idy]
-                        temp_sum = sum(temp)
-                        if (idy-idx) in list_of_times.keys():
-                            list_of_times[idy-idx].append(temp_sum)
-                        else:
-                            list_of_times[idy-idx] = [temp_sum]
-                    else:
-                        continue
+                    idy = rests[index+1]
                 except:
-                    continue
+                    idy = rests[index]
+                if idx in runner['Indices']:
+                    i = runner['Indices'].index(idx)
+                    try:
+                        if runner['Indices'][i+1] == idy:
+                            temp = runner['Times'][idx+1:idy]
+                            temp_sum = sum(temp)
+                            if (idy-idx) in list_of_times.keys():
+                                list_of_times[idy-idx].append(temp_sum)
+                            else:
+                                list_of_times[idy-idx] = [temp_sum]
+                        else:
+                            continue
+                    except:
+                        continue
     for key in list_of_times.keys():
-        average = sum(list_of_times[key])
-        average = average / len(list_of_times[key])
+        average = min(list_of_times[key])
+        #average = average / len(list_of_times[key])
         list_of_times[key] = average
     return list_of_times
 
@@ -159,7 +166,7 @@ def investigate(data_dict):
                 rest_indices = create_list_of_lists(data_dict)
             except:
                 continue
-    return return_dictionary
+    return rest_indices, data_dict, return_dictionary
 
 def cross_check_runners(data):
     frequencies = {}
