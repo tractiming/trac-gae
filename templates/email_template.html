@@ -5,7 +5,7 @@
 {% endblocktrans %}
 
 {% trans "Please go to the following page and choose a new password:" %}
-{% block reset_password %}{{ domain }}/UserSettings/{{ uid }}/{{ token }}
+{% block reset_password %}{{protocol}}{{ domain }}/UserSettings/{{ uid }}/{{ token }}
 
 {% trans "Thanks for using our site!" %}
 
