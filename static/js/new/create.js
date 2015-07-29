@@ -419,7 +419,13 @@ $(function() {
 				function stepFn(results, parser) {
 					//console.log('Row data:', results.data);
 					//console.log('Row errors:', results.errors);
-					data.push(results.data[0]);
+					var row = results.data[0];
+					for (var i=0; i<row.length; i++) {
+						if (row[i] != '') {
+							data.push(row);
+							break;
+						}
+					}
 				}
 
 				function completeFn(results, file) {
@@ -456,7 +462,9 @@ $(function() {
 								var remainder = Number(s[0])%60;
 								var secs = remainder < 10 ? '0'+remainder.toString() : remainder.toString();
 
-								temp.splits[j] = (Math.floor(Number(s[0])/60)).toString() +':'+ secs +'.'+ s[1];
+								temp.splits[j] = (Math.floor(Number(s[0])/60)).toString() +':'+ secs +'.'+ (s[1] ? s[1] : '000');
+							} else if (split.indexOf('.') === -1) {
+								temp.splits[j] = split + '.000';
 							}
 						}
 
