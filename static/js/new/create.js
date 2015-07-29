@@ -456,7 +456,7 @@ $(function() {
 								var remainder = Number(s[0])%60;
 								var secs = remainder < 10 ? '0'+remainder.toString() : remainder.toString();
 
-								temp.splits[j] = (Math.floor(Number(s[0])/60)).toString() +':'+ secs +'.'+ s[1];
+								temp.splits[j] = (Math.floor(Number(s[0])/60)).toString() +':'+ secs +'.'+ (s[1] ? s[1]: '000');
 							}
 						}
 
