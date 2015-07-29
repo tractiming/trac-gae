@@ -1012,7 +1012,7 @@ google.setOnLoadCallback(function(){
 				'<tr class="modifying inserting">' +
 					'<td class="split-number"></td>' +
 					'<td class="split-time">' +
-						'<input type="text" id="insert-'+runnerID+'-'+indx+'" class="form-control numeric-input" placeholder="Split value" style="color:#f90;">' + 
+						'<input type="text" id="insert-'+runnerID+'-'+(indx+1)+'" class="form-control numeric-input" placeholder="Split value" style="color:#f90;">' + 
 					'</td>' +
 					'<td class="split-edit-options hidden-xs">' +
 						'<div class="modify-splits modify-splits-'+runnerID+'" style="display:none;">' +
@@ -1045,6 +1045,10 @@ google.setOnLoadCallback(function(){
 			var button = newSplitRow.find('button');
 			newSplitRow.find('.confirm-split').on('click', button, function(e) {
 				e.preventDefault();
+
+				// recalculate index 
+				indx = $('#splits-'+runnerID+' tbody tr:not(.inserting)').index(splitRow);
+
 				if ($(e.target).attr('value') === 'split') {
 					var splitTime = splitTimeCell.find('input').val();
 					splitTime = $.isNumeric(splitTime) ? String(Number(splitTime).toFixed(3)) : '0.000';
@@ -1053,7 +1057,7 @@ google.setOnLoadCallback(function(){
 					newSplitTime = $.isNumeric(newSplitTime) ? String(Number(newSplitTime).toFixed(3)) : '0.000';
 					
 					console.log('Split split value from ('+prevSplitTime+') into ('+splitTime+' and '+newSplitTime+') at index ('+indx+') for runnerID ('+runnerID+') on workoutID ('+currentID+')');
-					/*// split in backend
+					//*// split in backend
 					$.ajax({
 						method: 'POST',
 						url: 'api/edit_split/',
@@ -1065,50 +1069,49 @@ google.setOnLoadCallback(function(){
 										val: splitTime },
 						success: function() {
 							// now add second split
-							$,ajax({
+							$.ajax({
 								method: 'POST',
 								url: 'api/edit_split/',
 								headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 								data: { id: currentID,
 												user_id: runnerID,
 												action: 'insert',
-												indx: indx,
-												val: splitTime },
+												indx: indx+1,
+												val: newSplitTime },
 								success: function() {
+									// remove markers
+									splitRow.removeClass('modifying');
+									newSplitRow.removeClass('modifying inserting');
 
+									// remove confirmation buttons
+									newSplitRow.find('.confirm-split').remove();
+
+									// re-register handler if nothing else is being modified
+									if ($('tr.modifying').length === 0) {
+										$('body').on('mouseover', 'tr.splits table tbody tr', function() {
+											$(this).find('.modify-splits').show();
+										});
+									}
+
+									// restore split row
+									splitRow.css('background-color', '').css('color', '');
+									newSplitRow.css('background-color', '').css('color', '');
+
+									// update on frontend
+									splitTimeCell.html(splitTime);
+									newSplitTimeCell.html(newSplitTime);
+
+									newSplitRow.find('.split-number').html(indx+2);
+									var splitRowsAfter = newSplitRow.nextAll(':not(.inserting)');
+									for (var i=0; i<splitRowsAfter.length; i++) {
+										$(splitRowsAfter[i]).find('.split-number').html(indx+3+i);
+									}
+
+									if (newSplitRow.index() === $('table#splits-'+runnerID+' tbody tr').length-1) {
+										$('tr#results-'+runnerID+'>td#latest-split-'+runnerID).html(newSplitTime);
+									}
 								}
 							});
-
-							// remove marker
-							splitRow.removeClass('modifying');
-
-							// remove confirmation buttons
-							splitRow.find('.confirm-edit').remove();
-
-							// re-register handler if nothing else is being modified
-							if ($('tr.modifying').length === 0) {
-								$('body').on('mouseover', 'tr.splits table tbody tr', function() {
-									$(this).find('.modify-splits').show();
-								});
-							}
-
-							// restore split row
-							splitRow.css('background-color', '').css('color', '');
-
-							// update on frontend
-							splitTimeCell.html(splitTime);
-
-							var totalTimeCell = $('tr#results-'+runnerID+'>td#total-time-'+runnerID),
-									prevTotalTime = convertToSeconds(totalTimeCell.html()),
-									timeDifference = Number(splitTime) - Number(prevSplitTime);
-							totalTimeCell.html(formatTime(prevTotalTime+timeDifference));
-
-							if (splitRow.index() === $('table#splits-'+runnerID+' tbody tr').length-1) {
-								$('tr#results-'+runnerID+'>td#latest-split-'+runnerID).html(splitTime);
-							}
-
-							// restart updates
-							startUpdates();
 						}
 					}); //*/
 				} else {		// clicked cancel
