@@ -395,6 +395,7 @@ class TimingSession(models.Model):
         Insert a new split into the array before the given index.
         """
         assert self.filter_choice is False, "Filter must be off to insert."
+
         tt = TagTime.objects.filter(timingsession=self, tag__id=tag_id).order_by('time')
         sec, ms = get_sec_ms(val)
         split_dt = timezone.timedelta(seconds=sec, milliseconds=ms)
@@ -418,11 +419,12 @@ class TimingSession(models.Model):
                 milliseconds=t_curr.microsecond/1000, reader=r)
 
         # Edit the rest of the tagtimes to maintain the other splits.
-        for i in range(indx, len(tt)):
-            new = tt[i].full_time+split_dt
-            tt[i].time = new
-            tt[i].milliseconds = new.microsecond/1000
-            tt[i].save()
+        for i in list(reversed(range(indx, len(tt)))):
+            cur_tt = tt[i]
+            new = cur_tt.full_time+split_dt
+            cur_tt.time = new
+            cur_tt.milliseconds = new.microsecond/1000
+            cur_tt.save()
 
         # Add the new tagtime after the rest of the splits have already been
         # adjusted.

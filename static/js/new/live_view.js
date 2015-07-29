@@ -436,9 +436,7 @@ google.setOnLoadCallback(function(){
 				status.html(' Auto-correction currently enabled.');
 
 				// cancel all modifications
-				$('tr.modifying').find('.confirm-edit .cancel-edit-split').click();
-				$('tr.modifying').find('.confirm-insert .cancel-insert-split').click();
-				$('tr.modifying').find('.confirm-delete .cancel-delete-split').click();
+				$('tr.modifying').find('.confirm-split .cancel-split-split').click();
 
 				// 
 				for (var i=0; i<correctionData.length; i++) {
@@ -468,8 +466,13 @@ google.setOnLoadCallback(function(){
 				status.html(' Auto-correction currently disabled.');
 
 				// cancel all modifications
-				$('tr.modifying').find('.confirm-edit .cancel-edit-split').click();
-				$('tr.modifying').find('.confirm-insert .cancel-insert-split').click();
+				$('tr.modifying').find('.confirm-split .cancel-split-split').click();
+
+				// re-register hover handler
+				$('body').off('mouseover', 'tr.splits table tbody tr');
+				$('body').on('mouseover', 'tr.splits table tbody tr', function() {
+					$(this).find('.modify-splits').show();
+				});
 			}
 		}
 
@@ -1057,7 +1060,53 @@ google.setOnLoadCallback(function(){
 					newSplitTime = $.isNumeric(newSplitTime) ? String(Number(newSplitTime).toFixed(3)) : '0.000';
 					
 					console.log('Split split value from ('+prevSplitTime+') into ('+splitTime+' and '+newSplitTime+') at index ('+indx+') for runnerID ('+runnerID+') on workoutID ('+currentID+')');
-					//*// split in backend
+					$.ajax({
+						method: 'POST',
+						url: 'api/edit_split/',
+						headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+						data: { id: currentID,
+										user_id: runnerID,
+										action: 'split',
+										indx: indx,
+										split_1: splitTime, 
+										split_2: newSplitTime },
+						success: function() {
+							// remove markers
+							splitRow.removeClass('modifying');
+							newSplitRow.removeClass('modifying inserting');
+
+							// remove confirmation buttons
+							newSplitRow.find('.confirm-split').remove();
+
+							// re-register handler if nothing else is being modified
+							if ($('tr.modifying').length === 0) {
+								$('body').on('mouseover', 'tr.splits table tbody tr', function() {
+									$(this).find('.modify-splits').show();
+								});
+							}
+
+							// restore split row
+							splitRow.css('background-color', '').css('color', '');
+							newSplitRow.css('background-color', '').css('color', '');
+
+							// update on frontend
+							splitTimeCell.html(splitTime);
+							newSplitTimeCell.html(newSplitTime);
+
+							splitRow.find('.previous-split').remove();
+
+							newSplitRow.find('.split-number').html(indx+2);
+							var splitRowsAfter = newSplitRow.nextAll(':not(.inserting)');
+							for (var i=0; i<splitRowsAfter.length; i++) {
+								$(splitRowsAfter[i]).find('.split-number').html(indx+3+i);
+							}
+
+							if (newSplitRow.index() === $('table#splits-'+runnerID+' tbody tr').length-1) {
+								$('tr#results-'+runnerID+'>td#latest-split-'+runnerID).html(newSplitTime);
+							}
+						}
+					});
+					/*// split in backend
 					$.ajax({
 						method: 'POST',
 						url: 'api/edit_split/',
