@@ -432,7 +432,7 @@ $(function() {
 					// executed after each file is complete
 					console.log('Finished parsing '+file.name, file);
 					
-					var title = data[0][1],
+					var title = data[0][1].trim(),
 							date = data[1][1],
 							time = data[2][1],
 							trackSize = Number(data[3][1]),
@@ -449,13 +449,17 @@ $(function() {
 						
 						// set corresponding fields in dictionary
 						temp = {};
-						temp.username = runner[0];
-						temp.last_name = runner[1];
-						temp.first_name = runner[2];
+						temp.username = runner[0].trim();
+						temp.last_name = runner[1].trim();
+						temp.first_name = runner[2].trim();
 						temp.splits = runner.slice(3);
 
 						for(var j=0; j<temp.splits.length; j++) {
 							var split = temp.splits[j];
+
+							if (split == '')
+								break;
+
 							if (split.indexOf(':') === -1) {
 								var s = split.split('.');
 
