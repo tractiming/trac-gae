@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User, Group
 from django.utils import timezone
 from django.core.cache import cache
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
 from filters import filter_splits, get_sec_ms
 from operator import itemgetter
 
@@ -470,6 +472,13 @@ class TimingSession(models.Model):
                 milliseconds=new_ms)
         self.tagtimes.add(tt.pk)
         self.save()
+
+@receiver(pre_delete, sender=TimingSession, dispatch_uid="timingsession_pre_delete")
+def delete_tag_times(sender, instance, using, **kwargs):
+    """
+    Delete all TagTime objects associated with this TimingSession prior to deletion.
+    """
+    instance.tagtimes.all().delete()
 
 class AthleteProfile(models.Model):
     """
