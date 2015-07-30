@@ -83,9 +83,9 @@ def investigate(data_dict):
                 prev_rest = find_lt(runner['index'], element)
                 next_rest = find_ne(runner['index'], element)
                 if element - prev_rest == next_rest - element:
-                    likelihood = 1
+                    likelihood = 1      # was previously used with random
                 else:
-                    likelihood = .7
+                    likelihood = .7     # was previously used with random
                 if useUniversalRestAvg and runner['times'][element] in incorrect_rests:
                     if abs((runner['times'][element]/2) - runner['average']) < 5:
                         runner['times'][element] = runner['times'][element]/2
@@ -109,8 +109,7 @@ def investigate(data_dict):
                         continue
                 elif element in rest_indices:
                     if (element + 1) in rest_indices:
-                        random_number = random.randint(1, 100) * likelihood
-                        if random_number <= 95 and (runner['times'][element] - runner['average']) >= 30:
+                        if runner['times'][element] - runner['average'] >= 30:
                             runner['times'][element] = runner['times'][element] - runner['average']
                             runner['times'].insert(element, runner['average'])
                             for entry in return_dictionary:
@@ -120,8 +119,7 @@ def investigate(data_dict):
                                 if runner['index'][jj] > element:
                                     runner['index'][jj] += 1
                 elif (element + 1) in rest_indices:
-                    random_number = random.randint(1, 100) * likelihood
-                    if random_number <= 95 and (runner['times'][element] - runner['average'])>=30:
+                    if runner['times'][element] - runner['average'] >= 30:
                         runner['times'][element] = runner['times'][element] - runner['average']
                         runner['times'].insert(element, runner['average'])
                         for entry in return_dictionary:
@@ -131,8 +129,7 @@ def investigate(data_dict):
                             if runner['index'][jj] > element:
                                 runner['index'][jj] += 1
                 else:
-                    random_number = random.randint(1, 100)
-                    if abs((runner['times'][element]/2) - runner['average']) < 5 and random_number <= 95:
+                    if abs((runner['times'][element]/2) - runner['average']) < 5:
                         runner['times'][element] = runner['times'][element]/2
                         runner['times'].insert(element, runner['times'][element])
                         for entry in return_dictionary:
@@ -141,15 +138,7 @@ def investigate(data_dict):
                         for jj in range(0, len(runner['index'])):
                             if runner['index'][jj] > element:
                                 runner['index'][jj] += 1
-                    elif random_number > 95:
-                        runner['times'][element] = runner['times'][element]/2
-                        runner['times'].insert(element, runner['times'][element])
-                        for entry in return_dictionary:
-                            if entry['id'] == runner['name']:
-                                entry['results'].append({'index':element, 'times':[runner['times'][element], runner['times'][element+1]]})
-                        for jj in range(0, len(runner['index'])):
-                            if runner['index'][jj] > element:
-                                runner['index'][jj] += 1
+                    
                 rest_indices = create_list_of_lists(data_dict)
             except:
                 continue

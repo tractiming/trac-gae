@@ -457,8 +457,10 @@ $(function() {
 						for(var j=0; j<temp.splits.length; j++) {
 							var split = temp.splits[j];
 
-							if (split == '')
+							if (split == '') {
+								temp.splits.splice(j);
 								break;
+							}
 
 							if (split.indexOf(':') === -1) {
 								var s = split.split('.');

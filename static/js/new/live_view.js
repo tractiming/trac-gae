@@ -16,7 +16,7 @@ google.setOnLoadCallback(function(){
 				currentID, currentView,												// used to identify current session and view
 				updateHandler, idleHandler,										// interval handlers
 				ajaxRequest, sessionData,											// used to keep track of current ajax request
-				correctionData,																// auto correction data
+				correctionData,	numCorrections,								// auto correction data
 				spinner, opts, target, teamSpinners = {},			// spinner variables
 				currentTeamID, currentTeam,										// used in team results tab
 				calendarEvents,																// holds list of sessions formatted for fullcalendar
@@ -155,7 +155,7 @@ google.setOnLoadCallback(function(){
 
 						//switchery = new Switchery(elem, { size: 'small' });
 						$('#enable-corrections-status').css('color', '#d9534f');
-						$('#enable-corrections-status').html(' Auto-correction currently disabled.');
+						$('#enable-corrections-status').html(' Auto-correction disabled.');
 
 						// make ajax call for corrections
 						$.ajax({
@@ -354,8 +354,6 @@ google.setOnLoadCallback(function(){
 		}
 
 		function toggleCorrections(enabled) {
-			console.log(correctionData);
-
 			/*
 			correctionData = [
 				{
@@ -433,17 +431,16 @@ google.setOnLoadCallback(function(){
 			if (enabled) {
 				// show status
 				status.css('color', '#468847');
-				status.html(' Auto-correction currently enabled.');
+				status.html(' Auto-correction enabled.');
 
 				// cancel all modifications
 				$('tr.modifying').find('.confirm-split .cancel-split-split').click();
 
-				var numCorrections = 0;
+				numCorrections = 0;
 
 				// display auto-correction
 				for (var i=0; i<correctionData.length; i++) {
 					var runner = correctionData[i];
-					//var splits = $('#splits-'+runner.id+' tbody tr');
 					var corrections = runner.results;
 
 					for (var j=corrections.length-1; j>=0; j--) {
@@ -451,16 +448,17 @@ google.setOnLoadCallback(function(){
 
 						splitSplit(runner.id, correction.index, correction.times);
 						
+						console.log(correction);
 						numCorrections++;
 					}
 				}
 
 				// add total number of corrections
-				status.append(' Currently showing '+numCorrections+' suggestions.');
+				status.append(' Currently showing <span id="num-corrections">'+numCorrections+'</span> suggestions.');
 
 			} else {
 				status.css('color', '#d9534f');
-				status.html(' Auto-correction currently disabled.');
+				status.html(' Auto-correction disabled.');
 
 				// cancel all modifications
 				$('tr.modifying').find('.confirm-split .cancel-split-split').click();
@@ -1083,6 +1081,20 @@ google.setOnLoadCallback(function(){
 								});
 							}
 
+							// remove correction from pool
+							for (var i=0; i<correctionData.length; i++) {
+								var runner = correctionData[i];
+
+								if (runner.id == runnerID) {
+									var corrections = runner.results;
+									for (var j=0; j<corrections.length; j++) {
+
+										if (corrections[j].index == indx)
+											corrections.splice(j,1);
+									}
+								}
+							}
+
 							// restore split row
 							splitRow.css('background-color', '').css('color', '');
 							newSplitRow.css('background-color', '').css('color', '');
@@ -1102,6 +1114,10 @@ google.setOnLoadCallback(function(){
 							if (newSplitRow.index() === $('table#splits-'+runnerID+' tbody tr').length-1) {
 								$('tr#results-'+runnerID+'>td#latest-split-'+runnerID).html(newSplitTime);
 							}
+
+							// update auto-correction status
+							numCorrections--;
+							$('#num-corrections').html(numCorrections);
 						}
 					});
 				} else {		// clicked cancel
@@ -1124,6 +1140,10 @@ google.setOnLoadCallback(function(){
 					// restore split row
 					splitRow.css('background-color', '').css('color', '');
 					newSplitRow.remove();
+
+					// update auto-correction status
+					numCorrections--;
+					$('#num-corrections').html(numCorrections);
 				}
 			});
 		}
