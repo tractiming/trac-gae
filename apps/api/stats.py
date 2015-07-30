@@ -8,20 +8,20 @@ def calculate_distance(data_dict):
     list_of_times = {}
     rests, data, unused = investigate(data_dict)
     for runner in data:
-        if runner['indices'][0] in rests:
-            temp = runner['times'][0:runner['indices'][0]]
+        if runner['index'][0] in rests:
+            temp = runner['times'][0:runner['index'][0]]
             temp_sum = sum(temp)
-            list_of_times[runner['indices'][0]] = [temp_sum]
+            list_of_times[runner['index'][0]] = [temp_sum]
         for index in range(0, len(rests)):
             idx = rests[index]
             try:
                 idy = rests[index+1]
             except:
                 idy = rests[index]
-            if idx in runner['indices']:
-                i = runner['indices'].index(idx)
+            if idx in runner['index']:
+                i = runner['index'].index(idx)
                 try:
-                    if runner['indices'][i+1] == idy:
+                    if runner['index'][i+1] == idy:
                         temp = runner['times'][idx+1:idy]
                         temp_sum = sum(temp)
                         if (idy-idx) in list_of_times.keys():
@@ -53,11 +53,11 @@ def investigate(data_dict):
     result_avg = []
     tot_result_avg = []
     for runner in data_dict:
-        runner['indices'] = []
+        runner['index'] = []
         list_of_lists.append(runner['times'])
         result_temp, runner['average'], temp = calc_rest_interval(runner['times'])
         for element in temp:
-            runner['indices'].append(runner['times'].index(element))
+            runner['index'].append(runner['times'].index(element))
             rest_avg.append(element)
         for element in result_temp:
             result_avg.append(element)
@@ -69,7 +69,7 @@ def investigate(data_dict):
         result_avg = []
     rest_indices = cross_check_runners(list_of_lists)
     correct_rests, incorrect_rests = median_deviation(rest_avg)
-    if (.5 * len(correct_rests)) > len(incorrect_rests):
+    if (.3 * len(correct_rests)) > len(incorrect_rests):
         useUniversalRestAvg = True
     for runner in data_dict:
         if abs(runner['average'] - median(rest_avg)) < abs(runner['average'] - median(tot_result_avg)):
@@ -77,11 +77,11 @@ def investigate(data_dict):
     for idx in range(0, count):
         for runner in data_dict:
             if idx == 0:
-                return_dictionary.append({'id': runner['name'], 'results':{'times': [], 'indices':[]}})
+                return_dictionary.append({'id': runner['name'], 'results':[]})
             try:
-                element = runner['indices'][runner['indices'].index(idx)]
-                prev_rest = find_lt(runner['indices'], element)
-                next_rest = find_ne(runner['indices'], element)
+                element = runner['index'][runner['index'].index(idx)]
+                prev_rest = find_lt(runner['index'], element)
+                next_rest = find_ne(runner['index'], element)
                 if element - prev_rest == next_rest - element:
                     likelihood = 1
                 else:
@@ -92,21 +92,19 @@ def investigate(data_dict):
                         runner['times'].insert(element, runner['times'][element])
                         for entry in return_dictionary:
                             if entry['id'] == runner['name']:
-                                entry['results']['times'].extend([runner['times'][element], runner['times'][element+1]])
-                                entry['results']['indices'].append(element)
-                        for jj in range(0, len(runner['indices'])):
-                            if runner['indices'][jj] > element:
-                                runner['indices'][jj] += 1
+                                entry['results'].append({'index':element, 'times':[runner['times'][element], runner['times'][element+1]]})
+                        for jj in range(0, len(runner['index'])):
+                            if runner['index'][jj] > element:
+                                runner['index'][jj] += 1
                     elif runner['times'][element] - runner['average'] >= 30:
                         runner['times'][element] = runner['times'][element] - runner['average']
                         runner['times'].insert(element + 1, runner['average'])
                         for entry in return_dictionary:
                             if entry['id'] == runner['name']:
-                                entry['results']['times'].extend([runner['times'][element], runner['times'][element+1]])
-                                entry['results']['indices'].append(element)
-                        for jj in range(0, len(runner['indices'])):
-                                if runner['indices'][jj] > element:
-                                    runner['indices'][jj] += 1
+                                entry['results'].append({'index':element, 'times':[runner['times'][element], runner['times'][element+1]]})
+                        for jj in range(0, len(runner['index'])):
+                                if runner['index'][jj] > element:
+                                    runner['index'][jj] += 1
                     else:
                         continue
                 elif element in rest_indices:
@@ -117,11 +115,10 @@ def investigate(data_dict):
                             runner['times'].insert(element, runner['average'])
                             for entry in return_dictionary:
                                 if entry['id'] == runner['name']:
-                                    entry['results']['times'].extend([runner['times'][element], runner['times'][element+1]])
-                                    entry['results']['indices'].append(element)
-                            for jj in range(0, len(runner['indices'])):
-                                if runner['indices'][jj] > element:
-                                    runner['indices'][jj] += 1
+                                    entry['results'].append({'index':element, 'times':[runner['times'][element], runner['times'][element+1]]})
+                            for jj in range(0, len(runner['index'])):
+                                if runner['index'][jj] > element:
+                                    runner['index'][jj] += 1
                 elif (element + 1) in rest_indices:
                     random_number = random.randint(1, 100) * likelihood
                     if random_number <= 95 and (runner['times'][element] - runner['average'])>=30:
@@ -129,11 +126,10 @@ def investigate(data_dict):
                         runner['times'].insert(element, runner['average'])
                         for entry in return_dictionary:
                             if entry['id'] == runner['name']:
-                                entry['results']['times'].extend([runner['times'][element], runner['times'][element+1]])
-                                entry['results']['indices'].append(element)
-                        for jj in range(0, len(runner['indices'])):
-                            if runner['indices'][jj] > element:
-                                runner['indices'][jj] += 1
+                                entry['results'].append({'index':element, 'times':[runner['times'][element], runner['times'][element+1]]})
+                        for jj in range(0, len(runner['index'])):
+                            if runner['index'][jj] > element:
+                                runner['index'][jj] += 1
                 else:
                     random_number = random.randint(1, 100)
                     if abs((runner['times'][element]/2) - runner['average']) < 5 and random_number <= 95:
@@ -141,21 +137,19 @@ def investigate(data_dict):
                         runner['times'].insert(element, runner['times'][element])
                         for entry in return_dictionary:
                             if entry['id'] == runner['name']:
-                                entry['results']['times'].extend([runner['times'][element], runner['times'][element+1]])
-                                entry['results']['indices'].append(element)
-                        for jj in range(0, len(runner['indices'])):
-                            if runner['indices'][jj] > element:
-                                runner['indices'][jj] += 1
+                                entry['results'].append({'index':element, 'times':[runner['times'][element], runner['times'][element+1]]})
+                        for jj in range(0, len(runner['index'])):
+                            if runner['index'][jj] > element:
+                                runner['index'][jj] += 1
                     elif random_number > 95:
                         runner['times'][element] = runner['times'][element]/2
                         runner['times'].insert(element, runner['times'][element])
                         for entry in return_dictionary:
                             if entry['id'] == runner['name']:
-                                entry['results']['times'].extend([runner['times'][element], runner['times'][element+1]])
-                                entry['results']['indices'].append(element)
-                        for jj in range(0, len(runner['indices'])):
-                            if runner['indices'][jj] > element:
-                                runner['indices'][jj] += 1
+                                entry['results'].append({'index':element, 'times':[runner['times'][element], runner['times'][element+1]]})
+                        for jj in range(0, len(runner['index'])):
+                            if runner['index'][jj] > element:
+                                runner['index'][jj] += 1
                 rest_indices = create_list_of_lists(data_dict)
             except:
                 continue
