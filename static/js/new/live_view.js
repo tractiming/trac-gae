@@ -322,7 +322,6 @@ google.setOnLoadCallback(function(){
 				'</tr>'
 			);
 
-			//*
 			var total = 0;
 			for (var j=0; j < interval.length; j++) {
 				var split = Number(interval[j][0]).toFixed(3);
@@ -350,11 +349,9 @@ google.setOnLoadCallback(function(){
 			// display total time
 			total = formatTime(total);
 			$('#table-canvas>tbody #results-'+id+'>td#total-time-'+id).html(total);
-			//*/
 		}
 
 		function toggleCorrections(enabled) {
-			console.log(correctionData);
 
 			var status = $('#enable-corrections-status');
 			if (enabled) {
@@ -377,7 +374,7 @@ google.setOnLoadCallback(function(){
 
 						splitSplit(runner.id, correction.index, correction.times);
 						
-						console.log(correction);
+						//console.log(correction);
 						numCorrections++;
 					}
 				}
@@ -392,7 +389,11 @@ google.setOnLoadCallback(function(){
 				// cancel all modifications
 				$('tr.modifying').find('.confirm-split .cancel-split-split').click();
 
-				// re-register hover handler
+				// re-register hover handlers
+				$('body').off('mouseover', '#table-canvas>tbody>tr');
+				$('body').on('mouseover', '#table-canvas>tbody>tr', function() {
+					$(this).find('.modify-total-time').show();
+				});
 				$('body').off('mouseover', 'tr.splits table tbody tr');
 				$('body').on('mouseover', 'tr.splits table tbody tr', function() {
 					$(this).find('.modify-splits').show();
@@ -422,9 +423,7 @@ google.setOnLoadCallback(function(){
 			var runnerID = $(this).closest('td').attr('id').split('-')[3];
 
 			// force numbers on input field
-			$('input.numeric-input').keypress(function(e) {
-				return /\d/.test(String.fromCharCode(e.keyCode));
-			});
+			forceNumeric($('input.numeric-input'));
 
 			// register handlers for button clicks
 			$('body').off('click', '#modify-total-time-confirm');
@@ -574,7 +573,6 @@ google.setOnLoadCallback(function(){
 			target.parent().hide();
 			$('body').off('mouseover', 'tr.splits table tbody tr');
 
-			//*
 			// html for new row
 			var newSplitRow = {};
 			var newSplitRowHTML = '' +
@@ -619,9 +617,11 @@ google.setOnLoadCallback(function(){
 				$(splitRowsAfter[i]).find('.split-number').html( indx+2 + i );
 			}
 
+			// force numeric input
+			forceNumeric(newSplitRow.find('input'));
+
 			// autofocus to new row input field
 			newSplitRow.find('input').focus();
-			//*/
 
 			// highlight split row
 			newSplitRow.css('background-color', '#dff0d8').css('color', '#3c763d');
@@ -635,7 +635,7 @@ google.setOnLoadCallback(function(){
 					splitTime = $.isNumeric(splitTime) ? Number(splitTime).toFixed(3) : '0.000';
 					
 					console.log('Add split value ('+splitTime+') at index ('+indx+') for runnerID ('+runnerID+') on workoutID ('+currentID+')');
-					//*
+
 					// insert in backend
 					$.ajax({
 						method: 'POST',
@@ -678,7 +678,6 @@ google.setOnLoadCallback(function(){
 							startUpdates();
 						}
 					});
-					//*/
 				} else {		// clicked cancel
 					// remove marker
 					newSplitRow.removeClass('modifying');
@@ -718,6 +717,9 @@ google.setOnLoadCallback(function(){
 			// replace split with textbox
 			splitTimeCell.html('<input type="text" id="edit-'+runnerID+'-'+indx+'" class="form-control numeric-input" placeholder="Split value" style="color:#f90;" autofocus>');
 			
+			// force numeric input
+			forceNumeric(splitTimeCell.find('input'));
+
 			// populate textbox
 			if (value === undefined)
 				splitTimeCell.find('input').val(prevSplitTime).focus();
@@ -841,7 +843,7 @@ google.setOnLoadCallback(function(){
 			splitRow.find('.confirm-delete').on('click', button, function(e) {
 				e.preventDefault();
 				if ($(e.target).attr('value') === 'delete') {
-					//*
+
 					console.log('Delete split value ('+splitTime+') at index ('+indx+') for runnerID ('+runnerID+') on workoutID ('+currentID+')');
 					// delete in backend
 					$.ajax({
@@ -889,7 +891,6 @@ google.setOnLoadCallback(function(){
 							startUpdates();
 						}
 					});
-					//*/
 				} else {		// clicked cancel
 					// remove marker
 					splitRow.removeClass('modifying');
@@ -925,9 +926,12 @@ google.setOnLoadCallback(function(){
 			var prevSplitTime = splitTimeCell.html();
 			splitTimeCell.html('<input type="text" id="split-'+runnerID+'-'+indx+'" class="form-control numeric-input" placeholder="Split value" style="color:#f90;">');
 
+			// hide normal edit functionality
+			$('body').off('mouseover', '#table-canvas>tbody>tr');
+			$('body').off('mouseover', 'tr.splits table tbody tr');
+
 			// hide edit buttons and add save/cancel button
 			splitRow.find('.modify-splits').hide();
-			$('body').off('mouseover', 'tr.splits table tbody tr');
 			splitRow.find('td.split-edit-options').append(
 				'<div class="previous-split pull-right">' +
 					'was ' + prevSplitTime +
@@ -973,9 +977,8 @@ google.setOnLoadCallback(function(){
 			newSplitTimeInput.val(values[1]);
 
 			// force numbers on input fields
-			splitTimeInput.keypress(function(e) {
-				return /\d|\./.test(String.fromCharCode(e.keyCode));
-			});
+			forceNumeric(splitTimeInput);
+			forceNumeric(newSplitTimeInput);
 
 			// restrict inputs to add up to previous split value
 			splitTimeInput.on('input', function() {
@@ -1022,8 +1025,11 @@ google.setOnLoadCallback(function(){
 								// remove confirmation buttons
 								newSplitRow.find('.confirm-split').remove();
 
-								// re-register handler if nothing else is being modified
+								// re-register handlers if nothing else is being modified
 								if ($('tr.modifying').length === 0) {
+									$('body').on('mouseover', '#table-canvas>tbody>tr', function() {
+										$(this).find('.modify-total-time').show();
+									});
 									$('body').on('mouseover', 'tr.splits table tbody tr', function() {
 										$(this).find('.modify-splits').show();
 									});
@@ -1079,8 +1085,11 @@ google.setOnLoadCallback(function(){
 					// remove confirmation buttons
 					splitRow.find('.previous-split').remove();
 
-					// re-register handler if nothing else is being modified
+					// re-register handlers if nothing else is being modified
 					if ($('tr.modifying').length === 0) {
+						$('body').on('mouseover', '#table-canvas>tbody>tr', function() {
+							$(this).find('.modify-total-time').show();
+						});
 						$('body').on('mouseover', 'tr.splits table tbody tr', function() {
 							$(this).find('.modify-splits').show();
 						});
