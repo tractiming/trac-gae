@@ -481,9 +481,11 @@ def edit_split(request):
     if data['action'] == 'edit':
         ts._edit_split(tag[0].id, int(data['indx']), float(data['val']))
     elif data['action'] == 'insert':
-        ts._insert_split(tag[0].id, int(data['indx']), float(data['val']))
+        ts._insert_split(tag[0].id, int(data['indx']), float(data['val']), True)
     elif data['action'] == 'delete':
         ts._delete_split(tag[0].id, int(data['indx']))
+    elif data['action'] == 'split':
+        ts._insert_split(tag[0].id, int(data['indx']), float(data['split_1']), False)
     elif data['action'] == 'total_time':
         ts._overwrite_final_time(tag[0].id, int(data['hour']), int(data['min']), int(data['sec']), int(data['mil']))
     else:
@@ -854,6 +856,11 @@ def upload_workouts(request):
 
     results = data['results']
     if results:
+        
+        reader, created = Reader.objects.get_or_create(id_str='ArchivedReader', 
+                defaults={ 'name': 'Archived Reader', 'owner': coach })
+        ts.readers.add(reader.pk)
+
         for runner in results:
             new_user, created = User.objects.get_or_create(username=runner['username'], 
                     defaults={ 'first_name': runner['first_name'], 'last_name': runner['last_name'], 'email': coach.email, 'password': 'password' })
@@ -880,9 +887,6 @@ def upload_workouts(request):
                 tag = tags[0]
             else:
                 tag = Tag.objects.create(id_str=runner['username'], user=new_user)
-
-            reader, created = Reader.objects.get_or_create(id_str='ArchivedReader', 
-                    defaults={ 'name': 'Archived Reader', 'owner': coach })
 
             # create reference tagtime
             s_tt = TagTime(time=ts.start_button_time, milliseconds=0)
@@ -995,9 +999,11 @@ def analyze(request):
         for index, item in enumerate(times):
             times[index] = float(item)
         name = r['id']
-        dataList.append({'Name': name, 'Times': times})
 
-    return stats.investigate(dataList)[2]
+        dataList.append({'name': name, 'times': times})
+
+    return Response(stats.investigate(dataList), status.HTTP_200_OK)
+
 ######################### Do we need these? ###########################
 #@api_view(['GET'])
 #@permission_classes((permissions.AllowAny,))

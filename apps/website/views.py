@@ -10,7 +10,7 @@ def login(request):
     return render(request, 'login.html', {})
 
 def live_view(request):
-    return render(request, 'live-view.html', {})
+    return render(request, 'live_view.html', {})
 
 def register(request):
     return render(request, 'register.html', {})
