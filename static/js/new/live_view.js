@@ -15,7 +15,8 @@ google.setOnLoadCallback(function(){
 		var idArray = [],
 				currentID, currentView,												// used to identify current session and view
 				updateHandler, idleHandler,										// interval handlers
-				ajaxRequest, sessionData,											// used to keep track of current ajax request
+				ajaxRequest, correctionAjaxRequest,						// used to keep track of ajax requests
+				sessionData,																	// current session data
 				correctionData,	numCorrections,								// auto correction data
 				spinner, opts, target, teamSpinners = {},			// spinner variables
 				currentTeamID, currentTeam,										// used in team results tab
@@ -135,6 +136,9 @@ google.setOnLoadCallback(function(){
 					// add heat name
 					$('#results-title').html('Live Results: ' + json.name);
 
+					// hide correction options
+					$('#correction-options').hide();
+
 					// update status
 					if (new Date() < new Date(sessionData.stop_time)) {
 						// session still active
@@ -158,7 +162,8 @@ google.setOnLoadCallback(function(){
 						$('#enable-corrections-status').html(' Auto-correction disabled.');
 
 						// make ajax call for corrections
-						$.ajax({
+						correctionAjaxRequest.abort();
+						correctionAjaxRequest = $.ajax({
 							method: 'POST', 
 							url: '/api/analyze/',
 							headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
@@ -1586,11 +1591,9 @@ google.setOnLoadCallback(function(){
 				// update view
 				lastSelected();
 
-				//if (new Date() < new Date(sessionData.stop_time)) {
 				// restart updates
 				stopUpdates();
 				startUpdates();
-				//}
 
 			} else {
 				// stop updates
