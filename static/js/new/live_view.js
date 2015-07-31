@@ -354,6 +354,7 @@ google.setOnLoadCallback(function(){
 		}
 
 		function toggleCorrections(enabled) {
+			console.log(correctionData);
 			/*
 			correctionData = [
 				{
@@ -1035,9 +1036,26 @@ google.setOnLoadCallback(function(){
 			splitRow.css('background-color', '#fcf8e3').css('color', '#c60');
 			newSplitRow.css('background-color', '#fcf8e3').css('color', '#c60');
 
+			// get the input fields
+			var splitTimeInput = splitTimeCell.find('input');
+			var newSplitTimeInput = newSplitTimeCell.find('input');
+			
 			// populate inputs with split value
-			splitTimeCell.find('input').val(values[0]);
-			newSplitTimeCell.find('input').val(values[1]);
+			splitTimeInput.val(values[0]);
+			newSplitTimeInput.val(values[1]);
+
+			// force numbers on input fields
+			splitTimeInput.keypress(function(e) {
+				return /\d|\./.test(String.fromCharCode(e.keyCode));
+			});
+
+			// restrict inputs to add up to previous split value
+			splitTimeInput.on('input', function() {
+				newSplitTimeInput.val((Number(prevSplitTime) - Number($(this).val())).toFixed(3))
+			});
+			newSplitTimeInput.on('input', function() {
+				splitTimeInput.val((Number(prevSplitTime) - Number($(this).val())).toFixed(3))
+			});
 
 			// bind click handler
 			var button = newSplitRow.find('button');
@@ -1053,73 +1071,76 @@ google.setOnLoadCallback(function(){
 
 					var newSplitTime = newSplitTimeCell.find('input').val();
 					newSplitTime = $.isNumeric(newSplitTime) ? String(Number(newSplitTime).toFixed(3)) : '0.000';
-					
-					console.log('Split split value from ('+prevSplitTime+') into ('+splitTime+' and '+newSplitTime+') at index ('+indx+') for runnerID ('+runnerID+') on workoutID ('+currentID+')');
-					
-					$.ajax({
-						method: 'POST',
-						url: 'api/edit_split/',
-						headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-						data: { id: currentID,
-										user_id: runnerID,
-										action: 'split',
-										indx: indx,
-										split_1: splitTime, 
-										split_2: newSplitTime },
-						success: function() {
-							// remove markers
-							splitRow.removeClass('modifying');
-							newSplitRow.removeClass('modifying inserting');
 
-							// remove confirmation buttons
-							newSplitRow.find('.confirm-split').remove();
+					// make sure the splits add up to previous total
+					if (splitTime + newSplitTime == Number(prevSplitTime)) {
+						console.log('Split split value from ('+prevSplitTime+') into ('+splitTime+' and '+newSplitTime+') at index ('+indx+') for runnerID ('+runnerID+') on workoutID ('+currentID+')');
+						
+						$.ajax({
+							method: 'POST',
+							url: 'api/edit_split/',
+							headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+							data: { id: currentID,
+											user_id: runnerID,
+											action: 'split',
+											indx: indx,
+											split_1: splitTime,
+											split_2: newSplitTime },
+							success: function() {
+								// remove markers
+								splitRow.removeClass('modifying');
+								newSplitRow.removeClass('modifying inserting');
 
-							// re-register handler if nothing else is being modified
-							if ($('tr.modifying').length === 0) {
-								$('body').on('mouseover', 'tr.splits table tbody tr', function() {
-									$(this).find('.modify-splits').show();
-								});
-							}
+								// remove confirmation buttons
+								newSplitRow.find('.confirm-split').remove();
 
-							// remove correction from pool
-							for (var i=0; i<correctionData.length; i++) {
-								var runner = correctionData[i];
+								// re-register handler if nothing else is being modified
+								if ($('tr.modifying').length === 0) {
+									$('body').on('mouseover', 'tr.splits table tbody tr', function() {
+										$(this).find('.modify-splits').show();
+									});
+								}
 
-								if (runner.id == runnerID) {
-									var corrections = runner.results;
-									for (var j=0; j<corrections.length; j++) {
+								// remove correction from pool
+								for (var i=0; i<correctionData.length; i++) {
+									var runner = correctionData[i];
 
-										if (corrections[j].index == indx)
-											corrections.splice(j,1);
+									if (runner.id == runnerID) {
+										var corrections = runner.results;
+										for (var j=0; j<corrections.length; j++) {
+
+											if (corrections[j].index == indx)
+												corrections.splice(j,1);
+										}
 									}
 								}
+
+								// restore split row
+								splitRow.css('background-color', '').css('color', '');
+								newSplitRow.css('background-color', '').css('color', '');
+
+								// update on frontend
+								splitTimeCell.html(splitTime);
+								newSplitTimeCell.html(newSplitTime);
+
+								splitRow.find('.previous-split').remove();
+
+								newSplitRow.find('.split-number').html(indx+2);
+								var splitRowsAfter = newSplitRow.nextAll(':not(.inserting)');
+								for (var i=0; i<splitRowsAfter.length; i++) {
+									$(splitRowsAfter[i]).find('.split-number').html(indx+3+i);
+								}
+
+								if (newSplitRow.index() === $('table#splits-'+runnerID+' tbody tr').length-1) {
+									$('tr#results-'+runnerID+'>td#latest-split-'+runnerID).html(newSplitTime);
+								}
+
+								// update auto-correction status
+								numCorrections--;
+								$('#num-corrections').html(numCorrections);
 							}
-
-							// restore split row
-							splitRow.css('background-color', '').css('color', '');
-							newSplitRow.css('background-color', '').css('color', '');
-
-							// update on frontend
-							splitTimeCell.html(splitTime);
-							newSplitTimeCell.html(newSplitTime);
-
-							splitRow.find('.previous-split').remove();
-
-							newSplitRow.find('.split-number').html(indx+2);
-							var splitRowsAfter = newSplitRow.nextAll(':not(.inserting)');
-							for (var i=0; i<splitRowsAfter.length; i++) {
-								$(splitRowsAfter[i]).find('.split-number').html(indx+3+i);
-							}
-
-							if (newSplitRow.index() === $('table#splits-'+runnerID+' tbody tr').length-1) {
-								$('tr#results-'+runnerID+'>td#latest-split-'+runnerID).html(newSplitTime);
-							}
-
-							// update auto-correction status
-							numCorrections--;
-							$('#num-corrections').html(numCorrections);
-						}
-					});
+						});
+					}
 				} else {		// clicked cancel
 					// remove marker
 					splitRow.removeClass('modifying');
