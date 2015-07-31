@@ -831,8 +831,8 @@ def upload_workouts(request):
         - interval_distance: distance for each split
         - results: list of dictionary of workout results as follows
             - username: athlete username
-            - first_name:
-            - last_name
+            - first_name: athlete first name (used to create new athlete if doesn't exist)
+            - last_name: athlete last name (used to create new athlete if doesn't exist)
             - splits: list of split times
     Note: The created workout will be automatically set to filter splits and private.
     """
