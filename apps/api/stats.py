@@ -26,7 +26,6 @@ def calculate_distance(data_dict):
 
     rests = cross_check_runners(list_of_lists)
     data = data_dict
-    print rests
 
     #for each runner, if there are <= 2 universal rest points, it is continuous, else it is interval.
     for runner in data:
@@ -82,7 +81,7 @@ def calculate_distance(data_dict):
         average = min(i for i in list_of_times[key] if i>0)
         #average = average / len(list_of_times[key])
         list_of_times[key] = average
-    print list_of_times
+
     return list_of_times, runner_specific_times
 
 def create_list_of_lists(data_dict):
@@ -241,7 +240,7 @@ def investigate(data_dict):
                         count = len(lists)
             except:
                 continue
-    returnCSV(data_dict)
+    #returnCSV(data_dict)
     for runners in data_dict:
         for rests in rest_indices:
             if rests not in runners['indices']:
@@ -375,7 +374,9 @@ def entropy(data):
     return entropy
 
 def find_ne(a, x):
-    'Find leftmost value greater than x'
+    """
+    Find leftmost value greater than x
+    """
     i = bisect.bisect_left(a, x)
     if i != len(a):
         return a[i]
@@ -383,21 +384,23 @@ def find_ne(a, x):
         return a[len(a) -1]
 
 def find_lt(a, x):
-    'Find rightmost value less than x'
+    """
+    Find rightmost value less than x
+    """
     i = bisect.bisect_left(a, x)
     if i:
         return a[i-1]
     return 0
 
-def returnCSV(data):
-    """
-    unused. For when I was testing the algorithm.
-    """
-    with open ('runners.csv', 'w') as fp:
-        writer = csv.writer(fp, delimiter = ',', quotechar = '|', quoting = csv.QUOTE_MINIMAL)
-        writer.writerow([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28])
-        for row in data:
-            name = row['name']
-            lst = row['times']
-            writer.writerow(lst)
-        return 'finished'
+#def returnCSV(data):
+#    """
+#    unused. For when I was testing the algorithm.
+#    """
+#    with open ('runners.csv', 'w') as fp:
+#        writer = csv.writer(fp, delimiter = ',', quotechar = '|', quoting = csv.QUOTE_MINIMAL)
+#        writer.writerow([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28])
+#        for row in data:
+#            name = row['name']
+#            lst = row['times']
+#            writer.writerow(lst)
+#        return 'finished'

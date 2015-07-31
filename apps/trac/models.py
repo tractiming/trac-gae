@@ -390,9 +390,10 @@ class TimingSession(models.Model):
             tt[i].milliseconds = new.microsecond/1000
             tt[i].save()
 
-    def _insert_split(self, tag_id, split_indx, val):
+    def _insert_split(self, tag_id, split_indx, val, shift):
         """
         Insert a new split into the array before the given index.
+        Can specify whether to shift following splits.
         """
         assert self.filter_choice is False, "Filter must be off to insert."
 
@@ -401,7 +402,7 @@ class TimingSession(models.Model):
         split_dt = timezone.timedelta(seconds=sec, milliseconds=ms)
 
         # Find the index of the first tag time we need to change as well as the
-        # previous (absoulte) time.
+        # previous (absolute) time.
         if self.start_button_active():
             indx = split_indx
             if indx == 0:
@@ -418,13 +419,14 @@ class TimingSession(models.Model):
         nt = TagTime.objects.create(tag_id=tag_id, time=t_curr,
                 milliseconds=t_curr.microsecond/1000, reader=r)
 
-        # Edit the rest of the tagtimes to maintain the other splits.
-        for i in list(reversed(range(indx, len(tt)))):
-            cur_tt = tt[i]
-            new = cur_tt.full_time+split_dt
-            cur_tt.time = new
-            cur_tt.milliseconds = new.microsecond/1000
-            cur_tt.save()
+        if shift:
+            # Edit the rest of the tagtimes to maintain the other splits.
+            for i in list(reversed(range(indx, len(tt)))):
+                cur_tt = tt[i]
+                new = cur_tt.full_time+split_dt
+                cur_tt.time = new
+                cur_tt.milliseconds = new.microsecond/1000
+                cur_tt.save()
 
         # Add the new tagtime after the rest of the splits have already been
         # adjusted.
@@ -441,7 +443,7 @@ class TimingSession(models.Model):
         # The split is edited by deleting the current time and inserting a new
         # split in its place.
         self._delete_split(tag_id, split_indx)
-        self._insert_split(tag_id, split_indx, val)
+        self._insert_split(tag_id, split_indx, val, True)
 
     def _overwrite_final_time(self, tag_id, hr, mn, sc, ms):
         """

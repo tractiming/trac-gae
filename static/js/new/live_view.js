@@ -259,7 +259,7 @@ google.setOnLoadCallback(function(){
 						
 						// add the new splits if not already displayed
 						for (var j=numDisplayedSplits; j < interval.length; j++) {
-							var split = String(Number(interval[j][0]).toFixed(3));
+							var split = Number(interval[j][0]).toFixed(3);
 							$('table#splits-'+id+'>tbody').append(
 								'<tr>' + 
 									'<td class="split-number">' + (j+1) + '</td>' + 
@@ -278,7 +278,7 @@ google.setOnLoadCallback(function(){
 						}
 
 						// then update latest split and recalculate total
-						$('#latest-split-'+id).html(String(Number(interval[interval.length-1][0]).toFixed(3)));
+						$('#latest-split-'+id).html(Number(interval[interval.length-1][0]).toFixed(3));
 						$('#total-time-'+id).html(formatTime(total));
 					}
 				} else {
@@ -294,7 +294,7 @@ google.setOnLoadCallback(function(){
 		function addNewRow(id, name, interval){
 			var split = 0;
 			if (interval.length > 0)
-				split = String(Number(interval[interval.length-1][0]).toFixed(3));
+				split = Number(interval[interval.length-1][0]).toFixed(3);
 			else
 				split = 'NT';
 
@@ -325,7 +325,7 @@ google.setOnLoadCallback(function(){
 			//*
 			var total = 0;
 			for (var j=0; j < interval.length; j++) {
-				var split = String(Number(interval[j][0]).toFixed(3));
+				var split = Number(interval[j][0]).toFixed(3);
 
 				// add splits to subtable
 				$('table#splits-'+id+'>tbody').append(
@@ -355,78 +355,6 @@ google.setOnLoadCallback(function(){
 
 		function toggleCorrections(enabled) {
 			console.log(correctionData);
-			/*
-			correctionData = [
-				{
-					"id":1541,
-					"results":[]
-				},
-				{
-					"id":1547,
-					"results":[
-						{"index":5,"times":[90.1025,90.1025]}, 
-						{"index":8,"times":[226.77400000000003,86.999]}
-					]
-				},
-				{
-					"id":1552,
-					"results":[
-						{"index":9,"times":[213.526,90.444]}
-					]
-				},
-				{
-					"id":1551,
-					"results":[
-						{"index":9,"times":[219.8555,90.3875]},
-						{"index":12,"times":[119.4215,90.3875]}
-					]
-				},
-				{
-					"id":1550,
-					"results":[
-						{"index":9,"times":[194.339,84.327]}
-					]
-				},
-				{
-					"id":169,
-					"results":[
-						{"index":17,"times":[79.223,82.188]}
-					]
-				},
-				{
-					"id":1543,
-					"results":[
-						{"index":14,"times":[130.649,84.353]},
-						{"index":16,"times":[180.93200000000002,84.353]}
-					]
-				},
-				{
-					"id":1542,
-					"results":[
-						{"index":14,"times":[149.101,83.417]}
-					]
-				},
-				{
-					"id":1544,
-					"results":[
-						{"index":14,"times":[142.543,83.497]}
-					]
-				},
-				{
-					"id":1545,
-					"results":[
-						{"index":11,"times":[44.639,44.639]},
-						{"index":14,"times":[150.487,82.376]}
-					]
-				},
-				{
-					"id":1546,
-					"results":[
-						{"index":14,"times":[136.71699999999998,84.293]}
-					]
-				}
-			];
-			//*/
 
 			var status = $('#enable-corrections-status');
 			if (enabled) {
@@ -704,7 +632,7 @@ google.setOnLoadCallback(function(){
 				e.preventDefault();
 				if ($(e.target).attr('value') === 'insert') {
 					var splitTime = newSplitRow.find('td.split-time input').val();
-					splitTime = $.isNumeric(splitTime) ? String(Number(splitTime).toFixed(3)) : '0.000';
+					splitTime = $.isNumeric(splitTime) ? Number(splitTime).toFixed(3) : '0.000';
 					
 					console.log('Add split value ('+splitTime+') at index ('+indx+') for runnerID ('+runnerID+') on workoutID ('+currentID+')');
 					//*
@@ -815,7 +743,7 @@ google.setOnLoadCallback(function(){
 				e.preventDefault();
 				if ($(e.target).attr('value') === 'update') {
 					var splitTime = splitTimeCell.find('input').val();
-					splitTime = $.isNumeric(splitTime) ? String(Number(splitTime).toFixed(3)) : '0.000';
+					splitTime = $.isNumeric(splitTime) ? Number(splitTime).toFixed(3) : '0.000';
 					
 					console.log('Edit split value from ('+prevSplitTime+') to ('+splitTime+') at index ('+indx+') for runnerID ('+runnerID+') on workoutID ('+currentID+')');
 					// edit in backend
@@ -1067,13 +995,13 @@ google.setOnLoadCallback(function(){
 
 				if ($(e.target).attr('value') === 'split') {
 					var splitTime = splitTimeCell.find('input').val();
-					splitTime = $.isNumeric(splitTime) ? String(Number(splitTime).toFixed(3)) : '0.000';
+					splitTime = $.isNumeric(splitTime) ? Number(splitTime).toFixed(3) : '0.000';
 
 					var newSplitTime = newSplitTimeCell.find('input').val();
-					newSplitTime = $.isNumeric(newSplitTime) ? String(Number(newSplitTime).toFixed(3)) : '0.000';
+					newSplitTime = $.isNumeric(newSplitTime) ? Number(newSplitTime).toFixed(3) : '0.000';
 
 					// make sure the splits add up to previous total
-					if (splitTime + newSplitTime == Number(prevSplitTime)) {
+					if ((Number(splitTime) + Number(newSplitTime)).toFixed(3) == Number(prevSplitTime)) {
 						console.log('Split split value from ('+prevSplitTime+') into ('+splitTime+' and '+newSplitTime+') at index ('+indx+') for runnerID ('+runnerID+') on workoutID ('+currentID+')');
 						
 						$.ajax({
@@ -1140,7 +1068,7 @@ google.setOnLoadCallback(function(){
 								$('#num-corrections').html(numCorrections);
 							}
 						});
-					}
+					} else { console.log(Number(splitTime) + Number(newSplitTime) + ' != ' + Number(prevSplitTime)); }
 				} else {		// clicked cancel
 					// remove marker
 					splitRow.removeClass('modifying');

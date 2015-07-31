@@ -481,12 +481,11 @@ def edit_split(request):
     if data['action'] == 'edit':
         ts._edit_split(tag[0].id, int(data['indx']), float(data['val']))
     elif data['action'] == 'insert':
-        ts._insert_split(tag[0].id, int(data['indx']), float(data['val']))
+        ts._insert_split(tag[0].id, int(data['indx']), float(data['val']), True)
     elif data['action'] == 'delete':
         ts._delete_split(tag[0].id, int(data['indx']))
     elif data['action'] == 'split':
-        ts._edit_split(tag[0].id, int(data['indx']), float(data['split_1']))
-        ts._insert_split(tag[0].id, int(data['indx'])+1, float(data['split_2']))
+        ts._insert_split(tag[0].id, int(data['indx']), float(data['split_1']), False)
     elif data['action'] == 'total_time':
         ts._overwrite_final_time(tag[0].id, int(data['hour']), int(data['min']), int(data['sec']), int(data['mil']))
     else:
