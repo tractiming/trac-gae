@@ -1015,8 +1015,7 @@ google.setOnLoadCallback(function(){
 											user_id: runnerID,
 											action: 'split',
 											indx: indx,
-											split_1: splitTime,
-											split_2: newSplitTime },
+											val: splitTime },
 							success: function() {
 								// remove markers
 								splitRow.removeClass('modifying');
