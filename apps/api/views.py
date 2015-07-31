@@ -29,7 +29,7 @@ from serializers import (UserSerializer, RegistrationSerializer, TagSerializer,
                          CSVSerializer, ScoringSerializer)
 
 from trac.models import (TimingSession, AthleteProfile, CoachProfile, 
-                         Tag, Reader, TagTime)
+                         Tag, Reader, TagTime, RefTables)
 from trac.util import is_athlete, is_coach
 from util import create_split
 
@@ -43,6 +43,9 @@ import base64
 import datetime
 import math
 import stats
+
+default_distances=[100, 200, 400, 800, 1000, 1500, 1609, 2000, 3000, 5000, 10000]
+default_times=[14.3, 27.4, 61.7, 144.2, 165, 257.5, 278.7, 356.3, 550.8, 946.7, 1971.9, ]
 
 class verifyLogin(views.APIView):
 	permission_classes = ()
@@ -111,6 +114,11 @@ class RegistrationView(views.APIView):
             coach.organization = data['organization']
             coach.save()
 
+            #Creates the Default table for coaches when they register.
+            cp = CoachProfile.objects.get(user= user)
+            for i in range(0, len(default_distances)):
+                r = RefTables.objects.create(distance=default_distances[i], time=default_times[i])
+                cp.reftables_set.add(r)
         # Add user to group
         group, created = Group.objects.get_or_create(name=data['organization'])
         user.groups.add(group.pk)
@@ -982,10 +990,39 @@ def tutorial_limiter(request):
         return HttpResponse(status.HTTP_200_OK)
     else:
         return HttpResponse(status.HTTP_403_FORBIDDEN)
-    
+
+"""
+@api_view(['GET']):
+@permission_classes((permissions.AllowAny,))
+def VO2Max(request):
+    user = request.user
+    if is_coach(user):
+        result = []
+        cp = CoachProfile.objects.get(user = user)
+        for athlete in cp.athletes.all():
+            velocity = 0
+            count = 0
+            for entry in athlete.reftables_set.all():
+                temp = entry.distance / entry.time
+                velocity += temp
+                count += 1
+            velocity = velocity / count
+
+
+    elif is_athlete(user):
+        ap = AthleteProfile.objects.get(user = user)
+
+"""
+
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))
 def analyze(request):
+    """
+    Returns auto_edit splits.
+    """
+
+    #SETUP and parse dataList
+    user = request.user
     idx = request.POST.get('id')
     ts = TimingSession.objects.get(id = idx)
     run = ts.get_results().get('runners')
@@ -995,9 +1032,84 @@ def analyze(request):
         for index, item in enumerate(times):
             times[index] = float(item)
         name = r['id']
-        dataList.append({'Name': name, 'Times': times})
+        dataList.append({'name': name, 'times': times})
 
-    return stats.investigate(dataList)[2]
+    r_dict = stats.investigate(dataList)
+
+    return Response (r_dict, status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes((permissions.AllowAny,))
+def est_distance(request):
+    """
+    Updates user individual time tables using distance prediction.
+    """
+
+    #SETUP and parse dataList
+    user = request.user
+    idx = request.POST.get('id')
+    ts = TimingSession.objects.get(id = idx)
+    run = ts.get_results().get('runners')
+    dataList = []
+    for r in run:
+        times = [item for sublist in r['interval'] for item in sublist]
+        for index, item in enumerate(times):
+            times[index] = float(item)
+        name = r['id']
+        dataList.append({'name': name, 'times': times})
+
+    #Analysis split_times is distance prediction, r_times is individual runner times, and r_dicts is auto_edit dictionary
+    split_times, r_times = stats.calculate_distance(dataList)
+
+    #Interpolate split_times to data in coach's table.
+    #Predict the distance run.
+    cp = CoachProfile.objects.get(user=user)
+    r = cp.reftables_set.all()
+    distanceList = []
+    for interval in split_times.keys():
+        int_time = split_times[interval]
+        time_delta = 1000000
+        for row in r:
+            if abs(int_time-row.time) < time_delta:
+                time_delta = abs(int_time-row.time)
+                selected = row.distance
+
+        #validate distance predictions with coach and update coach table as necessary.
+        var = raw_input("Did you run a "+str(selected)+" in "+str(interval-1)+" splits?")
+        if var == 'no':
+            var2 = raw_input("What was the distance? ")
+            length = int(var2)
+            s = cp.reftables_set.get(distance = length)
+            s.time = (s.time + int_time)/2
+            s.save()
+            distanceList.append({'Splits': interval-1, 'Distance': length})
+        else:
+            distanceList.append({'Splits': interval-1, 'Distance': selected})
+
+    #update each individual runner tables with their own data for distances predicted above.
+    for runner in r_times:
+        username = runner['Name']
+        a_user = User.objects.get(id = username)
+        ap = AthleteProfile.objects.get(user = a_user)
+        cp.athletes.add(ap)
+        for results in runner['Results']:
+            splits = results['Splits']
+            times = results['Times']
+            for distance in distanceList:
+                if splits == distance['Splits'] and times != 0:
+                    try:
+                        r= ap.reftables_set.get(distance= distance['Distance'], interval= results['Interval'])
+                        r.time = (r.time + times)/2
+                        r.save()
+                    except:
+                        r = RefTables.objects.create(distance=distance['Distance'], time=times, interval= results['Interval'])
+                    ap.reftables_set.add(r)
+        print runner['Name']
+        print ap.reftables_set.all().values()
+
+    #return auto_edits 
+    return HttpResponse(status.HTTP_200_OK)
+
 ######################### Do we need these? ###########################
 #@api_view(['GET'])
 #@permission_classes((permissions.AllowAny,))

@@ -530,3 +530,13 @@ class ArchivedTag(models.Model):
 
     def __unicode__(self):
         return "id=%s, user=%s" %(self.id_str, self.username)
+
+class RefTables(models.Model):
+    distance = models.IntegerField()
+    time = models.FloatField()
+    interval = models.CharField(max_length= 1)
+    Athlete = models.ManyToManyField(AthleteProfile)
+    Coach = models.ManyToManyField(CoachProfile)
+
+    def __unicode__(self):
+        return "coach=%s" %(self.Coach)
