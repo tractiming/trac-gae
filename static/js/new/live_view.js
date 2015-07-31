@@ -15,12 +15,14 @@ google.setOnLoadCallback(function(){
 		var idArray = [],
 				currentID, currentView,												// used to identify current session and view
 				updateHandler, idleHandler,										// interval handlers
-				ajaxRequest, jsonData,												// used to keep track of current ajax request
+				ajaxRequest, sessionData,											// used to keep track of current ajax request
+				correctionData,	numCorrections,								// auto correction data
 				spinner, opts, target, teamSpinners = {},			// spinner variables
 				currentTeamID, currentTeam,										// used in team results tab
 				calendarEvents,																// holds list of sessions formatted for fullcalendar
 				sessionFirst = 1, sessionLast = 15,						// used for sessions pagination
-				cStart, cStop;																// used for date-based sessions query
+				cStart, cStop,																// used for date-based sessions query
+				switchery, switcheryTarget;										// used for switchery iOS 7 style checkbox slider
 
 		//===================================== spinner configuration =====================================
 		opts = {
@@ -68,6 +70,10 @@ google.setOnLoadCallback(function(){
 
 		//====================================== live_view functions ======================================
 		function startUpdates() {
+			// stop execution if session is over
+			if (sessionData && (new Date() > new Date(sessionData.stop_time)))
+				return;
+
 			// refresh the view every 5 seconds to update
 			updateHandler = setInterval(lastSelected, UPDATE_INTERVAL);
 
@@ -122,12 +128,57 @@ google.setOnLoadCallback(function(){
 					//*/
 					//var results = $.parseJSON(json.results);
 
-					jsonData = data;
+					sessionData = data;
 					var json = data;
 					var results = $.parseJSON(data.results);
 
 					// add heat name
 					$('#results-title').html('Live Results: ' + json.name);
+
+					// update status
+					if (new Date() < new Date(sessionData.stop_time)) {
+						// session still active
+						$('#results-status>span').css('color', '#5cb85c');
+					} else {
+						// session is closed
+						$('#results-status>span').css('color', '#d9534f');
+						stopUpdates();
+
+						// show options
+						$('#correction-options').show();
+						$('#enable-corrections').prop('checked', false);
+
+						// create switchery checkbox
+						$('#enable-corrections').next('.switchery').remove();
+						switcheryTarget = $('#enable-corrections')[0];
+						switchery = new Switchery(switcheryTarget, { size: 'small', disabled: true });
+
+						//switchery = new Switchery(elem, { size: 'small' });
+						$('#enable-corrections-status').css('color', '#d9534f');
+						$('#enable-corrections-status').html(' Auto-correction disabled.');
+
+						// make ajax call for corrections
+						$.ajax({
+							method: 'POST', 
+							url: '/api/analyze/',
+							headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+							dataType: 'json',
+							data: {
+								id: currentID,
+							},
+							success: function(data) {
+								// save data and enable toggle switch
+								correctionData = data;
+								switchery.enable();
+
+								// register handler for correction enabling
+								$('body').off('change', '#enable-corrections');
+								$('body').on('change', '#enable-corrections', function() {
+									toggleCorrections($(this).prop('checked'));
+								});
+							}
+						});
+					}
 
 					// if empty, hide spinner and show notification
 					if (results.runners.length === 0) {
@@ -208,7 +259,7 @@ google.setOnLoadCallback(function(){
 						
 						// add the new splits if not already displayed
 						for (var j=numDisplayedSplits; j < interval.length; j++) {
-							var split = String(Number(interval[j][0]).toFixed(3));
+							var split = Number(interval[j][0]).toFixed(3);
 							$('table#splits-'+id+'>tbody').append(
 								'<tr>' + 
 									'<td class="split-number">' + (j+1) + '</td>' + 
@@ -227,7 +278,7 @@ google.setOnLoadCallback(function(){
 						}
 
 						// then update latest split and recalculate total
-						$('#latest-split-'+id).html(String(Number(interval[interval.length-1][0]).toFixed(3)));
+						$('#latest-split-'+id).html(Number(interval[interval.length-1][0]).toFixed(3));
 						$('#total-time-'+id).html(formatTime(total));
 					}
 				} else {
@@ -243,7 +294,7 @@ google.setOnLoadCallback(function(){
 		function addNewRow(id, name, interval){
 			var split = 0;
 			if (interval.length > 0)
-				split = String(Number(interval[interval.length-1][0]).toFixed(3));
+				split = Number(interval[interval.length-1][0]).toFixed(3);
 			else
 				split = 'NT';
 
@@ -271,10 +322,9 @@ google.setOnLoadCallback(function(){
 				'</tr>'
 			);
 
-			//*
 			var total = 0;
 			for (var j=0; j < interval.length; j++) {
-				var split = String(Number(interval[j][0]).toFixed(3));
+				var split = Number(interval[j][0]).toFixed(3);
 
 				// add splits to subtable
 				$('table#splits-'+id+'>tbody').append(
@@ -282,7 +332,7 @@ google.setOnLoadCallback(function(){
 						'<td class="split-number">' + (j+1) + '</td>' + 
 						'<td class="split-time">' + split + '</td>' + 
 						'<td class="split-edit-options hidden-xs">' +
-							'<div class="modify-splits modify-splits-'+id+' center" style="display:none;">' +
+							'<div class="modify-splits modify-splits-'+id+' pull-right" style="display:none;">' +
 								'<div class="insert-split"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></div>' +
 								'<div class="insert-split"><span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span></div>' +
 								'<div class="edit-split"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
@@ -299,7 +349,56 @@ google.setOnLoadCallback(function(){
 			// display total time
 			total = formatTime(total);
 			$('#table-canvas>tbody #results-'+id+'>td#total-time-'+id).html(total);
-			//*/
+		}
+
+		function toggleCorrections(enabled) {
+
+			var status = $('#enable-corrections-status');
+			if (enabled) {
+				// show status
+				status.css('color', '#468847');
+				status.html(' Auto-correction enabled.');
+
+				// cancel all modifications
+				$('tr.modifying').find('.confirm-split .cancel-split-split').click();
+
+				numCorrections = 0;
+
+				// display auto-correction
+				for (var i=0; i<correctionData.length; i++) {
+					var runner = correctionData[i];
+					var corrections = runner.results;
+
+					for (var j=corrections.length-1; j>=0; j--) {
+						var correction = corrections[j];
+
+						splitSplit(runner.id, correction.index, correction.times);
+						
+						//console.log(correction);
+						numCorrections++;
+					}
+				}
+
+				// add total number of corrections
+				status.append(' Currently showing <span id="num-corrections">'+numCorrections+'</span> suggestions.');
+
+			} else {
+				status.css('color', '#d9534f');
+				status.html(' Auto-correction disabled.');
+
+				// cancel all modifications
+				$('tr.modifying').find('.confirm-split .cancel-split-split').click();
+
+				// re-register hover handlers
+				$('body').off('mouseover', '#table-canvas>tbody>tr');
+				$('body').on('mouseover', '#table-canvas>tbody>tr', function() {
+					$(this).find('.modify-total-time').show();
+				});
+				$('body').off('mouseover', 'tr.splits table tbody tr');
+				$('body').on('mouseover', 'tr.splits table tbody tr', function() {
+					$(this).find('.modify-splits').show();
+				});
+			}
 		}
 
 		// register handler for edit total time
@@ -324,9 +423,7 @@ google.setOnLoadCallback(function(){
 			var runnerID = $(this).closest('td').attr('id').split('-')[3];
 
 			// force numbers on input field
-			$('#modify-total-time-modal input').keypress(function(e) {
-				return /\d/.test(String.fromCharCode(e.keyCode));
-			});
+			forceNumeric($('input.numeric-input'));
 
 			// register handlers for button clicks
 			$('body').off('click', '#modify-total-time-confirm');
@@ -343,7 +440,7 @@ google.setOnLoadCallback(function(){
 					return;
 				}
 
-				console.log(hrs+':'+mins+':'+secs+'.'+ms);
+				//console.log(hrs+':'+mins+':'+secs+'.'+ms);
 
 				$.ajax({
 					method: 'POST',
@@ -394,7 +491,7 @@ google.setOnLoadCallback(function(){
 			e.preventDefault();
 			
 			// prompt to disable filter choice if on
-			if (jsonData.filter_choice) {
+			if (sessionData.filter_choice) {
 				$('#filter-disable-modal').modal('show');
 
 				$('body').off('click', '#filter-disable-modal #filter-disable-confirm');
@@ -402,15 +499,15 @@ google.setOnLoadCallback(function(){
 					e.preventDefault();
 
 					// make ajax call to turn off filter
-					var id = jsonData.id,
-							name = jsonData.name,
-							start = jsonData.start_time,
-							stop = jsonData.stop_time,
-							restTime = jsonData.rest_time,
-							distance = jsonData.interval_distance,
-							size = jsonData.track_size,
-							intervalNumber = jsonData.interval_number,
-							privateSelect = jsonData.private,
+					var id = sessionData.id,
+							name = sessionData.name,
+							start = sessionData.start_time,
+							stop = sessionData.stop_time,
+							restTime = sessionData.rest_time,
+							distance = sessionData.interval_distance,
+							size = sessionData.track_size,
+							intervalNumber = sessionData.interval_number,
+							privateSelect = sessionData.private,
 							filter = false;
 
 					$.ajax({
@@ -432,7 +529,7 @@ google.setOnLoadCallback(function(){
 						},
 						success: function(data) {
 							// update front end data
-							jsonData.filter_choice = false;
+							sessionData.filter_choice = false;
 
 							// then hide confirmation modal
 							$('#filter-disable-modal').modal('hide');
@@ -469,21 +566,20 @@ google.setOnLoadCallback(function(){
 			}
 		});
 
-		function addSplit(target, runnerID, indx, after) {
+		function addSplit(target, runnerID, indx, after, value) {
 			var splitRow = target.closest('tr');
 
 			// hide edit buttons
 			target.parent().hide();
 			$('body').off('mouseover', 'tr.splits table tbody tr');
 
-			//*
 			// html for new row
 			var newSplitRow = {};
 			var newSplitRowHTML = '' +
 				'<tr>' + 
 					'<td class="split-number">' + (indx+1) + '</td>' + 
 					'<td class="split-time">' + 
-						'<input type="text" id="insert-'+runnerID+'-'+indx+'" class="form-control" placeholder="Split value" style="color:#3c763d;" autofocus>' + 
+						'<input type="text" id="insert-'+runnerID+'-'+indx+'" class="form-control numeric-input" placeholder="Split value" style="color:#3c763d;" autofocus>' + 
 					'</td>' + 
 					'<td class="split-edit-options hidden-xs">' +
 						'<div class="modify-splits modify-splits-'+runnerID+'" style="display:none;">' +
@@ -492,7 +588,7 @@ google.setOnLoadCallback(function(){
 							'<div class="edit-split"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
 							'<div class="delete-split"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></div>' +
 						'</div>' +
-						'<div class="confirm-insert" style="display: table; margin: 0 auto;">' +
+						'<div class="confirm-insert pull-right">' +
 							'<button value="insert" class="confirm-insert-split btn btn-sm btn-primary" style="margin-right:10px;">Save</button>' +
 							'<button value="cancel" class="cancel-insert-split btn btn-sm btn-danger">Cancel</button>' +
 						'</div>' +
@@ -509,15 +605,23 @@ google.setOnLoadCallback(function(){
 				newSplitRow = splitRow.prev();
 			}
 
+			// mark as being modified
+			newSplitRow.addClass('modifying');
+
+			// add value if supplied
+			newSplitRow.find('input#insert-'+runnerID+'-'+indx).val(value);
+
 			// update the split numbers
 			var splitRowsAfter = newSplitRow.nextAll();
 			for (var i=0; i<splitRowsAfter.length; i++) {
 				$(splitRowsAfter[i]).find('.split-number').html( indx+2 + i );
 			}
 
+			// force numeric input
+			forceNumeric(newSplitRow.find('input'));
+
 			// autofocus to new row input field
 			newSplitRow.find('input').focus();
-			//*/
 
 			// highlight split row
 			newSplitRow.css('background-color', '#dff0d8').css('color', '#3c763d');
@@ -528,10 +632,10 @@ google.setOnLoadCallback(function(){
 				e.preventDefault();
 				if ($(e.target).attr('value') === 'insert') {
 					var splitTime = newSplitRow.find('td.split-time input').val();
-					splitTime = $.isNumeric(splitTime) ? String(Number(splitTime).toFixed(3)) : '0.000';
+					splitTime = $.isNumeric(splitTime) ? Number(splitTime).toFixed(3) : '0.000';
 					
 					console.log('Add split value ('+splitTime+') at index ('+indx+') for runnerID ('+runnerID+') on workoutID ('+currentID+')');
-					//*
+
 					// insert in backend
 					$.ajax({
 						method: 'POST',
@@ -543,13 +647,18 @@ google.setOnLoadCallback(function(){
 										indx: indx,
 										val: splitTime },
 						success: function() {
+							// remove marker
+							newSplitRow.removeClass('modifying');
+
 							// remove confirmation buttons
 							newSplitRow.find('td.split-edit-options .confirm-insert').remove();
 
-							// re-register handler
-							$('body').on('mouseover', 'tr.splits table tbody tr', function() {
-								$(this).find('.modify-splits').show();
-							});
+							// re-register handler if nothing else is being modified
+							if ($('tr.modifying').length === 0) {
+								$('body').on('mouseover', 'tr.splits table tbody tr', function() {
+									$(this).find('.modify-splits').show();
+								});
+							}
 
 							// restore new split row colors
 							newSplitRow.css('background-color', '').css('color', '');
@@ -569,9 +678,12 @@ google.setOnLoadCallback(function(){
 							startUpdates();
 						}
 					});
-					//*/
 				} else {		// clicked cancel
+					// remove marker
+					newSplitRow.removeClass('modifying');
+
 					// reset the split numbers
+					splitRowsAfter = newSplitRow.nextAll();
 					for (var i=0; i<splitRowsAfter.length; i++) {
 						$(splitRowsAfter[i]).find('.split-number').html( indx+1 + i );
 					}
@@ -579,10 +691,12 @@ google.setOnLoadCallback(function(){
 					// remove added row
 					newSplitRow.remove();
 
-					// re-register handler
-					$('body').on('mouseover', 'tr.splits table tbody tr', function() {
-						$(this).find('.modify-splits').show();
-					});
+					// re-register handler if nothing else is being modified
+					if ($('tr.modifying').length === 0) {
+						$('body').on('mouseover', 'tr.splits table tbody tr', function() {
+							$(this).find('.modify-splits').show();
+						});
+					}
 
 					// restart updates
 					startUpdates();
@@ -590,22 +704,33 @@ google.setOnLoadCallback(function(){
 			});
 		}
 
-		function editSplit(target, runnerID, indx) {
+		function editSplit(target, runnerID, indx, value) {
 			var splitRow = target.closest('tr');
+
+			// mark as being modified
+			splitRow.addClass('modifying');
 
 			// get split value
 			var splitTimeCell = splitRow.find('td.split-time');
 			var prevSplitTime = splitTimeCell.html();
 
 			// replace split with textbox
-			splitTimeCell.html('<input type="text" id="edit-'+runnerID+'-'+indx+'" class="form-control" placeholder="Split value" style="color:#f90;" autofocus>');
-			splitTimeCell.find('input').val(prevSplitTime).focus();
+			splitTimeCell.html('<input type="text" id="edit-'+runnerID+'-'+indx+'" class="form-control numeric-input" placeholder="Split value" style="color:#f90;" autofocus>');
+			
+			// force numeric input
+			forceNumeric(splitTimeCell.find('input'));
+
+			// populate textbox
+			if (value === undefined)
+				splitTimeCell.find('input').val(prevSplitTime).focus();
+			else
+				splitTimeCell.find('input').val(value).focus();
 
 			// hide edit buttons and add save/cancel button
 			target.parent().hide();
 			$('body').off('mouseover', 'tr.splits table tbody tr');
 			splitRow.find('td.split-edit-options').append(
-				'<div class="confirm-edit" style="display: table; margin: 0 auto;">' +
+				'<div class="confirm-edit pull-right">' +
 					'<button value="update" class="confirm-edit-split btn btn-sm btn-primary" style="margin-right:10px;">Update</button>' +
 					'<button value="cancel" class="cancel-edit-split btn btn-sm btn-danger">Cancel</button>' +
 				'</div>'
@@ -620,7 +745,7 @@ google.setOnLoadCallback(function(){
 				e.preventDefault();
 				if ($(e.target).attr('value') === 'update') {
 					var splitTime = splitTimeCell.find('input').val();
-					splitTime = $.isNumeric(splitTime) ? String(Number(splitTime).toFixed(3)) : '0.000';
+					splitTime = $.isNumeric(splitTime) ? Number(splitTime).toFixed(3) : '0.000';
 					
 					console.log('Edit split value from ('+prevSplitTime+') to ('+splitTime+') at index ('+indx+') for runnerID ('+runnerID+') on workoutID ('+currentID+')');
 					// edit in backend
@@ -634,13 +759,18 @@ google.setOnLoadCallback(function(){
 										indx: indx,
 										val: splitTime },
 						success: function() {
+							// remove marker
+							splitRow.removeClass('modifying');
+
 							// remove confirmation buttons
 							splitRow.find('.confirm-edit').remove();
 
-							// re-register handler
-							$('body').on('mouseover', 'tr.splits table tbody tr', function() {
-								$(this).find('.modify-splits').show();
-							});
+							// re-register handler if nothing else is being modified
+							if ($('tr.modifying').length === 0) {
+								$('body').on('mouseover', 'tr.splits table tbody tr', function() {
+									$(this).find('.modify-splits').show();
+								});
+							}
 
 							// restore split row
 							splitRow.css('background-color', '').css('color', '');
@@ -662,16 +792,21 @@ google.setOnLoadCallback(function(){
 						}
 					});
 				} else {		// clicked cancel
+					// remove marker
+					splitRow.removeClass('modifying');
+
 					// replace input textbox with split value
 					splitTimeCell.html(prevSplitTime);
 
 					// remove confirmation buttons
 					splitRow.find('.confirm-edit').remove();
 
-					// re-register handler
-					$('body').on('mouseover', 'tr.splits table tbody tr', function() {
-						$(this).find('.modify-splits').show();
-					});
+					// re-register handler if nothing else is being modified
+					if ($('tr.modifying').length === 0) {
+						$('body').on('mouseover', 'tr.splits table tbody tr', function() {
+							$(this).find('.modify-splits').show();
+						});
+					}
 
 					// restore split row
 					splitRow.css('background-color', '').css('color', '');
@@ -687,11 +822,14 @@ google.setOnLoadCallback(function(){
 			var splitTimeCell = splitRow.find('td.split-time');
 			var splitTime = Number(splitTimeCell.html());
 
+			// mark as being modified
+			splitRow.addClass('modifying');
+
 			// hide edit buttons and add save/cancel button
 			target.parent().hide();
 			$('body').off('mouseover', 'tr.splits table tbody tr');
 			splitRow.find('td.split-edit-options').append(
-				'<div class="confirm-delete" style="display: table; margin: 0 auto;">' +
+				'<div class="confirm-delete pull-right">' +
 					'<button value="delete" class="confirm-delete-split btn btn-sm btn-danger" style="margin-right:10px;">Delete</button>' +
 					'<button value="cancel" class="cancel-delete-split btn btn-sm btn-default">Cancel</button>' +
 				'</div>'
@@ -705,7 +843,7 @@ google.setOnLoadCallback(function(){
 			splitRow.find('.confirm-delete').on('click', button, function(e) {
 				e.preventDefault();
 				if ($(e.target).attr('value') === 'delete') {
-					//*
+
 					console.log('Delete split value ('+splitTime+') at index ('+indx+') for runnerID ('+runnerID+') on workoutID ('+currentID+')');
 					// delete in backend
 					$.ajax({
@@ -717,13 +855,18 @@ google.setOnLoadCallback(function(){
 										action: 'delete',
 										indx: indx },
 						success: function() {
+							// remove marker
+							splitRow.removeClass('modifying');
+
 							// remove confirmation buttons
 							splitRow.find('.confirm-delete').remove();
 
-							// re-register handler
-							$('body').on('mouseover', 'tr.splits table tbody tr', function() {
-								$(this).find('.modify-splits').show();
-							});
+							// re-register handler if nothing else is being modified
+							if ($('tr.modifying').length === 0) {
+								$('body').on('mouseover', 'tr.splits table tbody tr', function() {
+									$(this).find('.modify-splits').show();
+								});
+							}
 
 							// delete on frontend
 							var splitRowsAfter = splitRow.nextAll();
@@ -748,21 +891,217 @@ google.setOnLoadCallback(function(){
 							startUpdates();
 						}
 					});
-					//*/
 				} else {		// clicked cancel
+					// remove marker
+					splitRow.removeClass('modifying');
+
 					// remove confirmation buttons
 					splitRow.find('.confirm-delete').remove();
 
-					// re-register handler
-					$('body').on('mouseover', 'tr.splits table tbody tr', function() {
-						$(this).find('.modify-splits').show();
-					});
+					// re-register handler if nothing else is being modified
+					if ($('tr.modifying').length === 0) {
+						$('body').on('mouseover', 'tr.splits table tbody tr', function() {
+							$(this).find('.modify-splits').show();
+						});
+					}
 
 					// restore split row
 					splitRow.css('background-color', '').css('color', '');
 
 					// restart updates
 					startUpdates();
+				}
+			});
+		}
+
+		function splitSplit(runnerID, indx, values) {
+			var splits = $('#splits-'+runnerID+' tbody tr:not(.inserting)');
+			var splitRow = $(splits[indx]);
+
+			// mark as being modified
+			splitRow.addClass('modifying');
+
+			// replace split with textbox
+			var splitTimeCell = splitRow.find('td.split-time');
+			var prevSplitTime = splitTimeCell.html();
+			splitTimeCell.html('<input type="text" id="split-'+runnerID+'-'+indx+'" class="form-control numeric-input" placeholder="Split value" style="color:#f90;">');
+
+			// hide normal edit functionality
+			$('body').off('mouseover', '#table-canvas>tbody>tr');
+			$('body').off('mouseover', 'tr.splits table tbody tr');
+
+			// hide edit buttons and add save/cancel button
+			splitRow.find('.modify-splits').hide();
+			splitRow.find('td.split-edit-options').append(
+				'<div class="previous-split pull-right">' +
+					'was ' + prevSplitTime +
+				'</div>'
+			);
+
+			// html for new row
+			var newSplitRowHTML = '' +
+				'<tr class="modifying inserting">' +
+					'<td class="split-number"></td>' +
+					'<td class="split-time">' +
+						'<input type="text" id="insert-'+runnerID+'-'+(indx+1)+'" class="form-control numeric-input" placeholder="Split value" style="color:#f90;">' + 
+					'</td>' +
+					'<td class="split-edit-options hidden-xs">' +
+						'<div class="modify-splits modify-splits-'+runnerID+'" style="display:none;">' +
+							'<div class="insert-split"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></div>' +
+							'<div class="insert-split"><span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span></div>' +
+							'<div class="edit-split"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
+							'<div class="delete-split"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></div>' +
+						'</div>' +
+						'<div class="confirm-split pull-right">' +
+							'<button value="split" class="confirm-split-split btn btn-sm btn-primary" style="margin-right:10px;">Save</button>' +
+							'<button value="cancel" class="cancel-split-split btn btn-sm btn-danger">Cancel</button>' +
+						'</div>' +
+					'</td>' +
+				'</tr>';
+
+			// add the row
+			splitRow.after(newSplitRowHTML);
+			var newSplitRow = splitRow.next();
+			var newSplitTimeCell = newSplitRow.find('td.split-time');
+
+			// highlight split rows
+			splitRow.css('background-color', '#fcf8e3').css('color', '#c60');
+			newSplitRow.css('background-color', '#fcf8e3').css('color', '#c60');
+
+			// get the input fields
+			var splitTimeInput = splitTimeCell.find('input');
+			var newSplitTimeInput = newSplitTimeCell.find('input');
+			
+			// populate inputs with split value
+			splitTimeInput.val(values[0]);
+			newSplitTimeInput.val(values[1]);
+
+			// force numbers on input fields
+			forceNumeric(splitTimeInput);
+			forceNumeric(newSplitTimeInput);
+
+			// restrict inputs to add up to previous split value
+			splitTimeInput.on('input', function() {
+				newSplitTimeInput.val((Number(prevSplitTime) - Number($(this).val())).toFixed(3))
+			});
+			newSplitTimeInput.on('input', function() {
+				splitTimeInput.val((Number(prevSplitTime) - Number($(this).val())).toFixed(3))
+			});
+
+			// bind click handler
+			var button = newSplitRow.find('button');
+			newSplitRow.find('.confirm-split').on('click', button, function(e) {
+				e.preventDefault();
+
+				// recalculate index 
+				indx = $('#splits-'+runnerID+' tbody tr:not(.inserting)').index(splitRow);
+
+				if ($(e.target).attr('value') === 'split') {
+					var splitTime = splitTimeCell.find('input').val();
+					splitTime = $.isNumeric(splitTime) ? Number(splitTime).toFixed(3) : '0.000';
+
+					var newSplitTime = newSplitTimeCell.find('input').val();
+					newSplitTime = $.isNumeric(newSplitTime) ? Number(newSplitTime).toFixed(3) : '0.000';
+
+					// make sure the splits add up to previous total
+					if ((Number(splitTime) + Number(newSplitTime)).toFixed(3) == Number(prevSplitTime)) {
+						console.log('Split split value from ('+prevSplitTime+') into ('+splitTime+' and '+newSplitTime+') at index ('+indx+') for runnerID ('+runnerID+') on workoutID ('+currentID+')');
+						
+						$.ajax({
+							method: 'POST',
+							url: 'api/edit_split/',
+							headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+							data: { id: currentID,
+											user_id: runnerID,
+											action: 'split',
+											indx: indx,
+											split_1: splitTime,
+											split_2: newSplitTime },
+							success: function() {
+								// remove markers
+								splitRow.removeClass('modifying');
+								newSplitRow.removeClass('modifying inserting');
+
+								// remove confirmation buttons
+								newSplitRow.find('.confirm-split').remove();
+
+								// re-register handlers if nothing else is being modified
+								if ($('tr.modifying').length === 0) {
+									$('body').on('mouseover', '#table-canvas>tbody>tr', function() {
+										$(this).find('.modify-total-time').show();
+									});
+									$('body').on('mouseover', 'tr.splits table tbody tr', function() {
+										$(this).find('.modify-splits').show();
+									});
+								}
+
+								// remove correction from pool
+								for (var i=0; i<correctionData.length; i++) {
+									var runner = correctionData[i];
+
+									if (runner.id == runnerID) {
+										var corrections = runner.results;
+										for (var j=0; j<corrections.length; j++) {
+
+											if (corrections[j].index == indx)
+												corrections.splice(j,1);
+										}
+									}
+								}
+
+								// restore split row
+								splitRow.css('background-color', '').css('color', '');
+								newSplitRow.css('background-color', '').css('color', '');
+
+								// update on frontend
+								splitTimeCell.html(splitTime);
+								newSplitTimeCell.html(newSplitTime);
+
+								splitRow.find('.previous-split').remove();
+
+								newSplitRow.find('.split-number').html(indx+2);
+								var splitRowsAfter = newSplitRow.nextAll(':not(.inserting)');
+								for (var i=0; i<splitRowsAfter.length; i++) {
+									$(splitRowsAfter[i]).find('.split-number').html(indx+3+i);
+								}
+
+								if (newSplitRow.index() === $('table#splits-'+runnerID+' tbody tr').length-1) {
+									$('tr#results-'+runnerID+'>td#latest-split-'+runnerID).html(newSplitTime);
+								}
+
+								// update auto-correction status
+								numCorrections--;
+								$('#num-corrections').html(numCorrections);
+							}
+						});
+					} else { console.log(Number(splitTime) + Number(newSplitTime) + ' != ' + Number(prevSplitTime)); }
+				} else {		// clicked cancel
+					// remove marker
+					splitRow.removeClass('modifying');
+
+					// replace input textbox with split value
+					splitTimeCell.html(prevSplitTime);
+
+					// remove confirmation buttons
+					splitRow.find('.previous-split').remove();
+
+					// re-register handlers if nothing else is being modified
+					if ($('tr.modifying').length === 0) {
+						$('body').on('mouseover', '#table-canvas>tbody>tr', function() {
+							$(this).find('.modify-total-time').show();
+						});
+						$('body').on('mouseover', 'tr.splits table tbody tr', function() {
+							$(this).find('.modify-splits').show();
+						});
+					}
+
+					// restore split row
+					splitRow.css('background-color', '').css('color', '');
+					newSplitRow.remove();
+
+					// update auto-correction status
+					numCorrections--;
+					$('#num-corrections').html(numCorrections);
 				}
 			});
 		}
@@ -1248,9 +1587,11 @@ google.setOnLoadCallback(function(){
 				// update view
 				lastSelected();
 
+				//if (new Date() < new Date(sessionData.stop_time)) {
 				// restart updates
 				stopUpdates();
 				startUpdates();
+				//}
 
 			} else {
 				// stop updates
@@ -1295,7 +1636,7 @@ function createFullCSV(idjson){
 			CSV += 'Date,'+ d.toDateString() +'\r\n';
 			CSV += 'Time,'+ d.toLocaleTimeString() +'\r\n\r\n';
 
-			CSV += 'Track size,'+ json.track_size +'\r\n';
+			CSV += 'Track Size,'+ json.track_size +'\r\n';
 			CSV += 'Interval Distance,'+ json.interval_distance +'\r\n\r\n';
 
 			CSV += 'Name\r\n';

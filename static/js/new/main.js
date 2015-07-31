@@ -53,3 +53,11 @@ function escapeString(string){
 	
 	return string;
 }
+
+// force numbers on keypress; input is a jQuery object(s)
+// use this function only when DOM is fully loaded
+function forceNumeric(input) {
+	input.keypress(function(e) {
+		return /\d|\./.test(String.fromCharCode(e.keyCode));
+	});
+}

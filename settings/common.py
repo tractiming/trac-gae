@@ -151,6 +151,7 @@ else:
                     'HOST': host,
                     'NAME': dbn,
                     'USER': user,
+                    'ATOMIC_REQUESTS': True,
                 }
         }
 
