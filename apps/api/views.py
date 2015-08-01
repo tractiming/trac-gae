@@ -250,7 +250,6 @@ class ScoringViewSet(viewsets.ModelViewSet):
         return sessions  
         
 class TimingSessionViewSet(viewsets.ModelViewSet):
-
     """
     Returns a list of all sessions associated with the user.
     """
@@ -288,6 +287,51 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         r=Reader.objects.filter(owner=user)
         t.readers.add(*r)
         t.save()
+    
+    @detail_route(methods=['get'])
+    def individual_results(self, request, pk=None):
+        limit = int(request.GET.get('limit', 50))
+        offset = int(request.GET.get('offset', 0))
+
+        session = TimingSession.objects.get(pk=pk)
+        raw_results = session.individual_results(limit, offset)
+
+        results = {'num_results': session.num_tags, 
+                   'num_returned': len(raw_results),
+                   'results': [{'name': r.name,
+                                'splits': [[str(s) for s in r.splits]],
+                                'total': str(r.total)
+                               } for r in raw_results]
+                   }
+    
+        return Response(results)
+
+    @detail_route(methods=['get'])
+    def team_results(self, request, pk=None):
+        session = TimingSession.objects.get(pk=pk)
+        raw_results = session.team_results()
+
+        results = []
+        for place, result in enumerate(raw_results):
+            team_result = result
+            team_result['place'] = place+1
+            results.append(team_result)
+
+        return Response(results)
+
+    @detail_route(methods=['get'])
+    def filtered_results(self, request, pk=None):
+        gender = request.GET.get('gender', '')
+        age_lte = int(request.GET.get('age_lte', 100))
+        age_gte = int(request.GET.get('age_gte', 0))
+        teams = request.GET.get('team', [])
+    
+        session = TimingSession.objects.get(pk=pk)
+        raw_results = session.filtered_results(gender=gender,
+                age_range=[age_gte, age_lte], teams=teams)
+
+        return Response(raw_results)
+
 
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))

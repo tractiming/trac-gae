@@ -77,17 +77,18 @@ class ReaderSerializer(serializers.ModelSerializer):
 
 class TimingSessionSerializer(serializers.ModelSerializer):
     manager = serializers.Field(source='manager.username')
-    results = JSONReadOnlyField(source='get_results')
-    athletes = JSONReadOnlyField(source='get_athlete_names')
+    #results = JSONReadOnlyField(source='get_results')
+    #athletes = JSONReadOnlyField(source='get_athlete_names')
     #start_time = serializers.DateTimeField(allow_blank=True, required=False)
 
     class Meta:
         model = TimingSession
         lookup_field = 'session'
-        fields = ('id', 'name', 'start_time', 'stop_time',
-                  'comment', 'rest_time', 'track_size', 'interval_distance', 
-                  'interval_number', 'filter_choice', 'manager',
-                  'results', 'athletes', 'start_button_time', 'private')
+        fields = ('id', 'name', 'start_time', 'stop_time')
+        #fields = ('id', 'name', 'start_time', 'stop_time',
+        #          'comment', 'rest_time', 'track_size', 'interval_distance', 
+        #          'interval_number', 'filter_choice', 'manager',
+        #          'results', 'athletes', 'start_button_time', 'private')
     
     #def get_validation_exclusions(self, instance=None):    
     #    exclusions = super(TimingSessionSerializer,
