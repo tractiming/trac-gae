@@ -1,0 +1,10 @@
+/* All CSS rules for individual page */
+
+.results-tab-content { margin-bottom: 20px; }
+
+.compare-select { padding-top: 15px; }
+
+@media screen and (min-width: 992px) {
+	.athlete-select-container { padding-right: 5px; }
+	.workout-select-container { padding-left: 5px; }
+}

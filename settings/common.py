@@ -28,11 +28,11 @@ path.insert(0, join(DJANGO_ROOT, 'apps'))
 ########## SECRET CONFIGURATION ##########
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'gi8u=tes8q2*@@1lkfu69j^1&syc+p)l0%i0ut4$a3@5c&9b4z'
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'trac-us.appspot.com']
 ##########################################
 
 ########## DEBUG CONFIGURATION ##########
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 #########################################
 
@@ -151,6 +151,7 @@ else:
                     'HOST': host,
                     'NAME': dbn,
                     'USER': user,
+                    'ATOMIC_REQUESTS': True,
                 }
         }
 
@@ -219,7 +220,9 @@ WSGI_APPLICATION = 'main.application'
 ########### EMAIL CONFIG ###################
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'tracchicago@gmail.com'
-EMAIL_HOST_PASSWORD = 'trac2015'
+EMAIL_HOST_PASSWORD = 'bwemkibrtyxrksed'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 ############################################
+

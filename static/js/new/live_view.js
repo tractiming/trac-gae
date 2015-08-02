@@ -2,6 +2,8 @@
 google.load('visualization', '1', {packages:['corechart']});
 google.setOnLoadCallback(function(){
 	$(function() {
+
+		//===================================== CONSTANTS & variables =====================================
 		var TABLE_VIEW = 0,
 				GRAPH_VIEW = 1,
 				IND_FINAL_VIEW = 2,
@@ -13,60 +15,66 @@ google.setOnLoadCallback(function(){
 		var idArray = [],
 				currentID, currentView,												// used to identify current session and view
 				updateHandler, idleHandler,										// interval handlers
-				ajaxRequest,																	// used to keep track of current ajax request
+				ajaxRequest, correctionAjaxRequest,						// used to keep track of ajax requests
+				sessionData,																	// current session data
+				correctionData,	numCorrections,								// auto correction data
 				spinner, opts, target, teamSpinners = {},			// spinner variables
 				currentTeamID, currentTeam,										// used in team results tab
 				calendarEvents,																// holds list of sessions formatted for fullcalendar
 				sessionFirst = 1, sessionLast = 15,						// used for sessions pagination
-				cStart, cStop;																// used for date-based sessions query
+				cStart, cStop,																// used for date-based sessions query
+				switchery, switcheryTarget;										// used for switchery iOS 7 style checkbox slider
 
-		(function init(){
+		//===================================== spinner configuration =====================================
+		opts = {
+			lines: 13, 							// The number of lines to draw
+		  length: 28, 						// The length of each line
+			width: 14, 							// The line thickness
+			radius: 42, 						// The radius of the inner circle
+			scale: 0.5, 						// Scales overall size of the Spinner
+			corners: 1, 						// Corner roundness (0..1)
+			color: '#3577a8', 			// #rgb or #rrggbb or array of colors
+			opacity: 0.25, 					// Opacity of the lines
+			rotate: 0, 							// The rotation offset
+			direction: 1, 					// 1: clockwise, -1: counterclockwise
+			speed: 1, 							// Rounds per second
+			trail: 60, 							// Afterglow percentage
+			fps: 20, 								// Frames per second when using setTimeout() as a fallback for CSS
+			zIndex: 1,	 						// The z-index (defaults to 2000000000)
+			className: 'spinner', 	// The CSS class to assign to the spinner
+			top: '50%', 						// Top position relative to parent
+			left: '50%', 						// Left position relative to parent
+			shadow: false, 					// Whether to render a shadow
+			hwaccel: false, 				// Whether to use hardware acceleration
+			position: 'absolute'	 	// Element positioning
+		}
+		target = document.getElementById('spinner');
+		spinner = new Spinner(opts);
 
-			// initialize spinner
-			opts = {
-				lines: 13, 							// The number of lines to draw
-			  length: 28, 						// The length of each line
-				width: 14, 							// The line thickness
-				radius: 42, 						// The radius of the inner circle
-				scale: 0.5, 						// Scales overall size of the Spinner
-				corners: 1, 						// Corner roundness (0..1)
-				color: '#3577a8', 			// #rgb or #rrggbb or array of colors
-				opacity: 0.25, 					// Opacity of the lines
-				rotate: 0, 							// The rotation offset
-				direction: 1, 					// 1: clockwise, -1: counterclockwise
-				speed: 1, 							// Rounds per second
-				trail: 60, 							// Afterglow percentage
-				fps: 20, 								// Frames per second when using setTimeout() as a fallback for CSS
-				zIndex: 1,	 						// The z-index (defaults to 2000000000)
-				className: 'spinner', 	// The CSS class to assign to the spinner
-				top: '50%', 						// Top position relative to parent
-				left: '50%', 						// Left position relative to parent
-				shadow: false, 					// Whether to render a shadow
-				hwaccel: false, 				// Whether to use hardware acceleration
-				position: 'absolute'	 	// Element positioning
-			}
-			target = document.getElementById('spinner');
-			spinner = new Spinner(opts);
+		//====================================== page initialization ======================================
+		// default view to table
+		currentView = TABLE_VIEW;
 
-			// default view to table
-			currentView = TABLE_VIEW;
+		// hide notifications and results
+		$('.notification').hide();
+		$('#results-nav').hide();
+		$('.results-tab-content').hide();
+		$('#download-container').hide();
 
-			// hide notifications and results
-			$('.notification').hide();
-			$('#results-nav').hide();
-			$('.results-tab-content').hide();
-			$('#download-container').hide();
+		// query for all workout sessions
+		spinner.spin(target);
+		findScores();
+		loadCalendar();
 
-			// query for all workout sessions
-			spinner.spin(target);
-			findScores();
-			loadCalendar();
+		// start updates
+		startUpdates();
 
-			// start updates
-			startUpdates();
-		})();
-
+		//====================================== live_view functions ======================================
 		function startUpdates() {
+			// stop execution if session is over
+			if (sessionData && (new Date() > new Date(sessionData.stop_time)))
+				return;
+
 			// refresh the view every 5 seconds to update
 			updateHandler = setInterval(lastSelected, UPDATE_INTERVAL);
 
@@ -75,6 +83,9 @@ google.setOnLoadCallback(function(){
 		}
 
 		function stopUpdates() {
+			if (ajaxRequest)
+				ajaxRequest.abort();
+
 			clearInterval(updateHandler);
 			clearTimeout(idleHandler);
 		}
@@ -93,10 +104,10 @@ google.setOnLoadCallback(function(){
 			ajaxRequest = $.ajax({
 				url: last_url,
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-				dataType: 'text',			//force to handle it as text
+				dataType: 'json',
 				success: function(data) {
-					var json = $.parseJSON(data);
-
+					//var json = $.parseJSON(data);
+					
 					/*
 	      	json = {
 						"id": 24, 
@@ -116,13 +127,66 @@ google.setOnLoadCallback(function(){
 						"private": true
 					};
 					//*/
-					var results = $.parseJSON(json.results);
+					//var results = $.parseJSON(json.results);
+
+					sessionData = data;
+					var json = data;
+					var results = $.parseJSON(data.results);
 
 					// add heat name
 					$('#results-title').html('Live Results: ' + json.name);
 
+					// hide correction options
+					$('#correction-options').hide();
+
+					// update status
+					if (new Date() < new Date(sessionData.stop_time)) {
+						// session still active
+						$('#results-status>span').css('color', '#5cb85c');
+					} else {
+						// session is closed
+						$('#results-status>span').css('color', '#d9534f');
+						stopUpdates();
+
+						// show options
+						$('#correction-options').show();
+						$('#enable-corrections').prop('checked', false);
+
+						// create switchery checkbox
+						$('#enable-corrections').next('.switchery').remove();
+						switcheryTarget = $('#enable-corrections')[0];
+						switchery = new Switchery(switcheryTarget, { size: 'small', disabled: true });
+
+						//switchery = new Switchery(elem, { size: 'small' });
+						$('#enable-corrections-status').css('color', '#d9534f');
+						$('#enable-corrections-status').html(' Auto-correction disabled.');
+
+						// make ajax call for corrections
+						correctionAjaxRequest.abort();
+						correctionAjaxRequest = $.ajax({
+							method: 'POST', 
+							url: '/api/analyze/',
+							headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+							dataType: 'json',
+							data: {
+								id: currentID,
+							},
+							success: function(data) {
+								// save data and enable toggle switch
+								correctionData = data;
+								switchery.enable();
+
+								// register handler for correction enabling
+								$('body').off('change', '#enable-corrections');
+								$('body').on('change', '#enable-corrections', function() {
+									toggleCorrections($(this).prop('checked'));
+								});
+							}
+						});
+					}
+
 					// if empty, hide spinner and show notification
-					if (results.runners == '') {
+					if (results.runners.length === 0) {
 						spinner.stop();
 						$('.notification.no-data').show();
 						$('#download-container').hide();
@@ -176,6 +240,7 @@ google.setOnLoadCallback(function(){
 							'<th>Name</th>' +
 							'<th>Latest Split</th>' +
 							'<th>Total Time</th>' +
+							'<th class="hidden-xs" style="width:50px;"></th>' +
 						'</tr>' +
 					'</thead>' +
 					'<tbody id="">' +
@@ -199,12 +264,12 @@ google.setOnLoadCallback(function(){
 						
 						// add the new splits if not already displayed
 						for (var j=numDisplayedSplits; j < interval.length; j++) {
-							var split = String(Number(interval[j][0]).toFixed(3));
+							var split = Number(interval[j][0]).toFixed(3);
 							$('table#splits-'+id+'>tbody').append(
 								'<tr>' + 
-									'<td class="split-number col-md-2 col-sm-2">' + (j+1) + '</td>' + 
-									'<td class="split-time col-md-7 col-sm-7">' + split + '</td>' + 
-									'<td class="split-edit-options col-md-3 col-sm-3 hidden-xs">' +
+									'<td class="split-number">' + (j+1) + '</td>' + 
+									'<td class="split-time">' + split + '</td>' + 
+									'<td class="split-edit-options hidden-xs">' +
 										'<div class="modify-splits modify-splits-'+id+'" style="display:none;">' +
 											'<div class="insert-split"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></div>' +
 											'<div class="insert-split"><span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span></div>' +
@@ -218,7 +283,7 @@ google.setOnLoadCallback(function(){
 						}
 
 						// then update latest split and recalculate total
-						$('#latest-split-'+id).html(String(Number(interval[interval.length-1][0]).toFixed(3)));
+						$('#latest-split-'+id).html(Number(interval[interval.length-1][0]).toFixed(3));
 						$('#total-time-'+id).html(formatTime(total));
 					}
 				} else {
@@ -234,7 +299,7 @@ google.setOnLoadCallback(function(){
 		function addNewRow(id, name, interval){
 			var split = 0;
 			if (interval.length > 0)
-				split = String(Number(interval[interval.length-1][0]).toFixed(3));
+				split = Number(interval[interval.length-1][0]).toFixed(3);
 			else
 				split = 'NT';
 
@@ -243,10 +308,15 @@ google.setOnLoadCallback(function(){
 					'<td>' + name + '</td>' + 
 					'<td id="latest-split-'+id+'">' + split + '</td>' + 
 					'<td id="total-time-'+id+'"></td>' + 
+					'<td id="modify-total-time-'+id+'" class="hidden-xs" style="width:50px;">' +
+						'<div class="modify-total-time pull-right" style="display:none;">' +
+							'<div class="edit-total"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
+						'</div>' +
+					'</td>' +
 				'</tr>' + 
 				'<tr></tr>'	+		// for correct stripes 
 				'<tr class="splits">' +
-					'<td colspan="3">' +
+					'<td colspan="4">' +
 						'<div id="collapse-'+id+'" class="accordion-body collapse" aria-labelledby="results-'+id+'">' + 
 							'<table id="splits-'+id+'" class="table" style="text-align:center; background-color:transparent">' +
 								'<tbody>' +
@@ -257,18 +327,17 @@ google.setOnLoadCallback(function(){
 				'</tr>'
 			);
 
-			//*
 			var total = 0;
 			for (var j=0; j < interval.length; j++) {
-				var split = String(Number(interval[j][0]).toFixed(3));
+				var split = Number(interval[j][0]).toFixed(3);
 
 				// add splits to subtable
 				$('table#splits-'+id+'>tbody').append(
 					'<tr>' + 
-						'<td class="split-number col-md-2 col-sm-2">' + (j+1) + '</td>' + 
-						'<td class="split-time col-md-7 col-sm-7">' + split + '</td>' + 
-						'<td class="split-edit-options col-md-3 col-sm-3 hidden-xs">' +
-							'<div class="modify-splits modify-splits-'+id+'" style="display:none;">' +
+						'<td class="split-number">' + (j+1) + '</td>' + 
+						'<td class="split-time">' + split + '</td>' + 
+						'<td class="split-edit-options hidden-xs">' +
+							'<div class="modify-splits modify-splits-'+id+' pull-right" style="display:none;">' +
 								'<div class="insert-split"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></div>' +
 								'<div class="insert-split"><span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span></div>' +
 								'<div class="edit-split"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
@@ -285,8 +354,136 @@ google.setOnLoadCallback(function(){
 			// display total time
 			total = formatTime(total);
 			$('#table-canvas>tbody #results-'+id+'>td#total-time-'+id).html(total);
-			//*/
 		}
+
+		function toggleCorrections(enabled) {
+
+			var status = $('#enable-corrections-status');
+			if (enabled) {
+				// show status
+				status.css('color', '#468847');
+				status.html(' Auto-correction enabled.');
+
+				// cancel all modifications
+				$('tr.modifying').find('.confirm-split .cancel-split-split').click();
+
+				numCorrections = 0;
+
+				// display auto-correction
+				for (var i=0; i<correctionData.length; i++) {
+					var runner = correctionData[i];
+					var corrections = runner.results;
+
+					for (var j=corrections.length-1; j>=0; j--) {
+						var correction = corrections[j];
+
+						splitSplit(runner.id, correction.index, correction.times);
+						
+						//console.log(correction);
+						numCorrections++;
+					}
+				}
+
+				// add total number of corrections
+				status.append(' Currently showing <span id="num-corrections">'+numCorrections+'</span> suggestions.');
+
+			} else {
+				status.css('color', '#d9534f');
+				status.html(' Auto-correction disabled.');
+
+				// cancel all modifications
+				$('tr.modifying').find('.confirm-split .cancel-split-split').click();
+
+				// re-register hover handlers
+				$('body').off('mouseover', '#table-canvas>tbody>tr');
+				$('body').on('mouseover', '#table-canvas>tbody>tr', function() {
+					$(this).find('.modify-total-time').show();
+				});
+				$('body').off('mouseover', 'tr.splits table tbody tr');
+				$('body').on('mouseover', 'tr.splits table tbody tr', function() {
+					$(this).find('.modify-splits').show();
+				});
+			}
+		}
+
+		// register handler for edit total time
+		$('body').on('mouseover', '#table-canvas>tbody>tr', function() {
+			$(this).find('.modify-total-time').show();
+		});
+		$('body').on('mouseleave', '#table-canvas>tbody>tr', function() {
+			$(this).find('.modify-total-time').hide();
+		});
+		$('body').on('click', '.modify-total-time>div', function(e) {
+			e.stopPropagation();
+
+			// stop updates
+			stopUpdates();
+
+			// show warning modal
+			$('.notification').hide();
+			$('.notification.edit-total').show();
+			$('#modify-total-time-modal input').val('');
+			$('#modify-total-time-modal').modal('show');
+
+			var runnerID = $(this).closest('td').attr('id').split('-')[3];
+
+			// force numbers on input field
+			forceNumeric($('input.numeric-input'));
+
+			// register handlers for button clicks
+			$('body').off('click', '#modify-total-time-confirm');
+			$('body').on('click', '#modify-total-time-confirm', function(e) {
+				e.preventDefault();
+
+				var hrs = Number($('#total-hrs').val()),
+						mins = Number($('#total-mins').val()),
+						secs = Number($('#total-secs').val()),
+						ms = Number($('#total-ms').val());
+
+				if ((mins > 59) || (secs > 59) || (ms > 999)) {
+					$('.notification.total-time-error').show();
+					return;
+				}
+
+				//console.log(hrs+':'+mins+':'+secs+'.'+ms);
+
+				$.ajax({
+					method: 'POST',
+					url: 'api/edit_split/',
+					headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+					data: { id: currentID,
+									user_id: runnerID,
+									action: 'total_time',
+									hour: hrs,
+									min: mins,
+									sec: secs,
+									mil: ms },
+					success: function(data) {
+						$('#table-canvas').empty();
+						spinner.spin(target);
+						update(currentID, currentView);
+					},
+					error: function(jqXHR, exception) {
+						$('.notification.server-error').show();
+					}
+				});
+
+				// hide modal
+				$('#modify-total-time-modal').modal('hide');
+			});
+
+			$('body').off('click', '#modify-total-time-cancel');
+			$('body').on('click', '#modify-total-time-cancel', function(e) {
+				e.preventDefault();
+				$('#modify-total-time-modal').modal('hide');
+			});
+
+			// start updates after modal is hidden
+			$('#modify-total-time-modal').off('hidden.bs.modal');
+			$('#modify-total-time-modal').on('hidden.bs.modal', function(e) {
+				startUpdates();
+			});
+		})
 
 		// register handler for editing splits
 		$('body').on('mouseover', 'tr.splits table tbody tr', function() {
@@ -298,7 +495,62 @@ google.setOnLoadCallback(function(){
 		$('body').on('click', '.modify-splits>div', function(e) {
 			e.preventDefault();
 			
-			// pause updates 
+			// prompt to disable filter choice if on
+			if (sessionData.filter_choice) {
+				$('#filter-disable-modal').modal('show');
+
+				$('body').off('click', '#filter-disable-modal #filter-disable-confirm');
+				$('body').on('click', '#filter-disable-modal #filter-disable-confirm', function(e) {
+					e.preventDefault();
+
+					// make ajax call to turn off filter
+					var id = sessionData.id,
+							name = sessionData.name,
+							start = sessionData.start_time,
+							stop = sessionData.stop_time,
+							restTime = sessionData.rest_time,
+							distance = sessionData.interval_distance,
+							size = sessionData.track_size,
+							intervalNumber = sessionData.interval_number,
+							privateSelect = sessionData.private,
+							filter = false;
+
+					$.ajax({
+						type: 'POST',
+						dataType:'json',
+						url: '/api/time_create/',
+						headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+						data: {
+							id: id,
+							name: name,
+							start_time: start,
+							stop_time: stop,
+							rest_time: restTime,
+							track_size: size,
+							interval_distance: distance,
+							interval_number: intervalNumber,
+							filter_choice: filter,
+							private: privateSelect
+						},
+						success: function(data) {
+							// update front end data
+							sessionData.filter_choice = false;
+
+							// then hide confirmation modal
+							$('#filter-disable-modal').modal('hide');
+						}
+					});
+				});
+
+				$('body').off('click', '#filter-disable-modal #filter-disable-cancel');
+				$('body').on('click', '#filter-disable-modal #filter-disable-cancel', function(e) {
+					e.preventDefault();
+					$('#filter-disable-modal').modal('hide');
+				});
+				return;
+			}
+
+			// pause updates
 			stopUpdates();
 
 			var runnerID = $(this).parent().attr('class').toString().split(' ')[1].split('-')[2].trim();
@@ -319,30 +571,29 @@ google.setOnLoadCallback(function(){
 			}
 		});
 
-		function addSplit(target, runnerID, indx, after) {
+		function addSplit(target, runnerID, indx, after, value) {
 			var splitRow = target.closest('tr');
 
 			// hide edit buttons
 			target.parent().hide();
 			$('body').off('mouseover', 'tr.splits table tbody tr');
 
-			//*
 			// html for new row
 			var newSplitRow = {};
 			var newSplitRowHTML = '' +
 				'<tr>' + 
-					'<td class="split-number col-md-2 col-sm-2">' + (indx+1) + '</td>' + 
-					'<td class="split-time col-md-7 col-sm-7">' + 
-						'<input type="text" id="insert-'+runnerID+'-'+indx+'" class="form-control" placeholder="Split value" style="color:#3c763d;" autofocus>' + 
+					'<td class="split-number">' + (indx+1) + '</td>' + 
+					'<td class="split-time">' + 
+						'<input type="text" id="insert-'+runnerID+'-'+indx+'" class="form-control numeric-input" placeholder="Split value" style="color:#3c763d;" autofocus>' + 
 					'</td>' + 
-					'<td class="split-edit-options col-md-3 col-sm-3 hidden-xs">' +
+					'<td class="split-edit-options hidden-xs">' +
 						'<div class="modify-splits modify-splits-'+runnerID+'" style="display:none;">' +
 							'<div class="insert-split"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></div>' +
 							'<div class="insert-split"><span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span></div>' +
 							'<div class="edit-split"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
 							'<div class="delete-split"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></div>' +
 						'</div>' +
-						'<div class="confirm-insert" style="display: table; margin: 0 auto;">' +
+						'<div class="confirm-insert pull-right">' +
 							'<button value="insert" class="confirm-insert-split btn btn-sm btn-primary" style="margin-right:10px;">Save</button>' +
 							'<button value="cancel" class="cancel-insert-split btn btn-sm btn-danger">Cancel</button>' +
 						'</div>' +
@@ -359,15 +610,23 @@ google.setOnLoadCallback(function(){
 				newSplitRow = splitRow.prev();
 			}
 
+			// mark as being modified
+			newSplitRow.addClass('modifying');
+
+			// add value if supplied
+			newSplitRow.find('input#insert-'+runnerID+'-'+indx).val(value);
+
 			// update the split numbers
 			var splitRowsAfter = newSplitRow.nextAll();
 			for (var i=0; i<splitRowsAfter.length; i++) {
 				$(splitRowsAfter[i]).find('.split-number').html( indx+2 + i );
 			}
 
+			// force numeric input
+			forceNumeric(newSplitRow.find('input'));
+
 			// autofocus to new row input field
 			newSplitRow.find('input').focus();
-			//*/
 
 			// highlight split row
 			newSplitRow.css('background-color', '#dff0d8').css('color', '#3c763d');
@@ -378,10 +637,10 @@ google.setOnLoadCallback(function(){
 				e.preventDefault();
 				if ($(e.target).attr('value') === 'insert') {
 					var splitTime = newSplitRow.find('td.split-time input').val();
-					splitTime = $.isNumeric(splitTime) ? String(Number(splitTime).toFixed(3)) : '0.000';
+					splitTime = $.isNumeric(splitTime) ? Number(splitTime).toFixed(3) : '0.000';
 					
 					console.log('Add split value ('+splitTime+') at index ('+indx+') for runnerID ('+runnerID+') on workoutID ('+currentID+')');
-					//*
+
 					// insert in backend
 					$.ajax({
 						method: 'POST',
@@ -393,13 +652,18 @@ google.setOnLoadCallback(function(){
 										indx: indx,
 										val: splitTime },
 						success: function() {
+							// remove marker
+							newSplitRow.removeClass('modifying');
+
 							// remove confirmation buttons
 							newSplitRow.find('td.split-edit-options .confirm-insert').remove();
 
-							// re-register handler
-							$('body').on('mouseover', 'tr.splits table tbody tr', function() {
-								$(this).find('.modify-splits').show();
-							});
+							// re-register handler if nothing else is being modified
+							if ($('tr.modifying').length === 0) {
+								$('body').on('mouseover', 'tr.splits table tbody tr', function() {
+									$(this).find('.modify-splits').show();
+								});
+							}
 
 							// restore new split row colors
 							newSplitRow.css('background-color', '').css('color', '');
@@ -419,9 +683,12 @@ google.setOnLoadCallback(function(){
 							startUpdates();
 						}
 					});
-					//*/
 				} else {		// clicked cancel
+					// remove marker
+					newSplitRow.removeClass('modifying');
+
 					// reset the split numbers
+					splitRowsAfter = newSplitRow.nextAll();
 					for (var i=0; i<splitRowsAfter.length; i++) {
 						$(splitRowsAfter[i]).find('.split-number').html( indx+1 + i );
 					}
@@ -429,10 +696,12 @@ google.setOnLoadCallback(function(){
 					// remove added row
 					newSplitRow.remove();
 
-					// re-register handler
-					$('body').on('mouseover', 'tr.splits table tbody tr', function() {
-						$(this).find('.modify-splits').show();
-					});
+					// re-register handler if nothing else is being modified
+					if ($('tr.modifying').length === 0) {
+						$('body').on('mouseover', 'tr.splits table tbody tr', function() {
+							$(this).find('.modify-splits').show();
+						});
+					}
 
 					// restart updates
 					startUpdates();
@@ -440,22 +709,33 @@ google.setOnLoadCallback(function(){
 			});
 		}
 
-		function editSplit(target, runnerID, indx) {
+		function editSplit(target, runnerID, indx, value) {
 			var splitRow = target.closest('tr');
+
+			// mark as being modified
+			splitRow.addClass('modifying');
 
 			// get split value
 			var splitTimeCell = splitRow.find('td.split-time');
 			var prevSplitTime = splitTimeCell.html();
 
 			// replace split with textbox
-			splitTimeCell.html('<input type="text" id="edit-'+runnerID+'-'+indx+'" class="form-control" placeholder="Split value" style="color:#f90;" autofocus>');
-			splitTimeCell.find('input').val(prevSplitTime).focus();
+			splitTimeCell.html('<input type="text" id="edit-'+runnerID+'-'+indx+'" class="form-control numeric-input" placeholder="Split value" style="color:#f90;" autofocus>');
+			
+			// force numeric input
+			forceNumeric(splitTimeCell.find('input'));
+
+			// populate textbox
+			if (value === undefined)
+				splitTimeCell.find('input').val(prevSplitTime).focus();
+			else
+				splitTimeCell.find('input').val(value).focus();
 
 			// hide edit buttons and add save/cancel button
 			target.parent().hide();
 			$('body').off('mouseover', 'tr.splits table tbody tr');
 			splitRow.find('td.split-edit-options').append(
-				'<div class="confirm-edit" style="display: table; margin: 0 auto;">' +
+				'<div class="confirm-edit pull-right">' +
 					'<button value="update" class="confirm-edit-split btn btn-sm btn-primary" style="margin-right:10px;">Update</button>' +
 					'<button value="cancel" class="cancel-edit-split btn btn-sm btn-danger">Cancel</button>' +
 				'</div>'
@@ -470,7 +750,7 @@ google.setOnLoadCallback(function(){
 				e.preventDefault();
 				if ($(e.target).attr('value') === 'update') {
 					var splitTime = splitTimeCell.find('input').val();
-					splitTime = $.isNumeric(splitTime) ? String(Number(splitTime).toFixed(3)) : '0.000';
+					splitTime = $.isNumeric(splitTime) ? Number(splitTime).toFixed(3) : '0.000';
 					
 					console.log('Edit split value from ('+prevSplitTime+') to ('+splitTime+') at index ('+indx+') for runnerID ('+runnerID+') on workoutID ('+currentID+')');
 					// edit in backend
@@ -484,13 +764,18 @@ google.setOnLoadCallback(function(){
 										indx: indx,
 										val: splitTime },
 						success: function() {
+							// remove marker
+							splitRow.removeClass('modifying');
+
 							// remove confirmation buttons
 							splitRow.find('.confirm-edit').remove();
 
-							// re-register handler
-							$('body').on('mouseover', 'tr.splits table tbody tr', function() {
-								$(this).find('.modify-splits').show();
-							});
+							// re-register handler if nothing else is being modified
+							if ($('tr.modifying').length === 0) {
+								$('body').on('mouseover', 'tr.splits table tbody tr', function() {
+									$(this).find('.modify-splits').show();
+								});
+							}
 
 							// restore split row
 							splitRow.css('background-color', '').css('color', '');
@@ -512,16 +797,21 @@ google.setOnLoadCallback(function(){
 						}
 					});
 				} else {		// clicked cancel
+					// remove marker
+					splitRow.removeClass('modifying');
+
 					// replace input textbox with split value
 					splitTimeCell.html(prevSplitTime);
 
 					// remove confirmation buttons
 					splitRow.find('.confirm-edit').remove();
 
-					// re-register handler
-					$('body').on('mouseover', 'tr.splits table tbody tr', function() {
-						$(this).find('.modify-splits').show();
-					});
+					// re-register handler if nothing else is being modified
+					if ($('tr.modifying').length === 0) {
+						$('body').on('mouseover', 'tr.splits table tbody tr', function() {
+							$(this).find('.modify-splits').show();
+						});
+					}
 
 					// restore split row
 					splitRow.css('background-color', '').css('color', '');
@@ -537,11 +827,14 @@ google.setOnLoadCallback(function(){
 			var splitTimeCell = splitRow.find('td.split-time');
 			var splitTime = Number(splitTimeCell.html());
 
+			// mark as being modified
+			splitRow.addClass('modifying');
+
 			// hide edit buttons and add save/cancel button
 			target.parent().hide();
 			$('body').off('mouseover', 'tr.splits table tbody tr');
 			splitRow.find('td.split-edit-options').append(
-				'<div class="confirm-delete" style="display: table; margin: 0 auto;">' +
+				'<div class="confirm-delete pull-right">' +
 					'<button value="delete" class="confirm-delete-split btn btn-sm btn-danger" style="margin-right:10px;">Delete</button>' +
 					'<button value="cancel" class="cancel-delete-split btn btn-sm btn-default">Cancel</button>' +
 				'</div>'
@@ -555,7 +848,7 @@ google.setOnLoadCallback(function(){
 			splitRow.find('.confirm-delete').on('click', button, function(e) {
 				e.preventDefault();
 				if ($(e.target).attr('value') === 'delete') {
-					//*
+
 					console.log('Delete split value ('+splitTime+') at index ('+indx+') for runnerID ('+runnerID+') on workoutID ('+currentID+')');
 					// delete in backend
 					$.ajax({
@@ -567,13 +860,18 @@ google.setOnLoadCallback(function(){
 										action: 'delete',
 										indx: indx },
 						success: function() {
+							// remove marker
+							splitRow.removeClass('modifying');
+
 							// remove confirmation buttons
 							splitRow.find('.confirm-delete').remove();
 
-							// re-register handler
-							$('body').on('mouseover', 'tr.splits table tbody tr', function() {
-								$(this).find('.modify-splits').show();
-							});
+							// re-register handler if nothing else is being modified
+							if ($('tr.modifying').length === 0) {
+								$('body').on('mouseover', 'tr.splits table tbody tr', function() {
+									$(this).find('.modify-splits').show();
+								});
+							}
 
 							// delete on frontend
 							var splitRowsAfter = splitRow.nextAll();
@@ -598,21 +896,216 @@ google.setOnLoadCallback(function(){
 							startUpdates();
 						}
 					});
-					//*/
 				} else {		// clicked cancel
+					// remove marker
+					splitRow.removeClass('modifying');
+
 					// remove confirmation buttons
 					splitRow.find('.confirm-delete').remove();
 
-					// re-register handler
-					$('body').on('mouseover', 'tr.splits table tbody tr', function() {
-						$(this).find('.modify-splits').show();
-					});
+					// re-register handler if nothing else is being modified
+					if ($('tr.modifying').length === 0) {
+						$('body').on('mouseover', 'tr.splits table tbody tr', function() {
+							$(this).find('.modify-splits').show();
+						});
+					}
 
 					// restore split row
 					splitRow.css('background-color', '').css('color', '');
 
 					// restart updates
 					startUpdates();
+				}
+			});
+		}
+
+		function splitSplit(runnerID, indx, values) {
+			var splits = $('#splits-'+runnerID+' tbody tr:not(.inserting)');
+			var splitRow = $(splits[indx]);
+
+			// mark as being modified
+			splitRow.addClass('modifying');
+
+			// replace split with textbox
+			var splitTimeCell = splitRow.find('td.split-time');
+			var prevSplitTime = splitTimeCell.html();
+			splitTimeCell.html('<input type="text" id="split-'+runnerID+'-'+indx+'" class="form-control numeric-input" placeholder="Split value" style="color:#f90;">');
+
+			// hide normal edit functionality
+			$('body').off('mouseover', '#table-canvas>tbody>tr');
+			$('body').off('mouseover', 'tr.splits table tbody tr');
+
+			// hide edit buttons and add save/cancel button
+			splitRow.find('.modify-splits').hide();
+			splitRow.find('td.split-edit-options').append(
+				'<div class="previous-split pull-right">' +
+					'was ' + prevSplitTime +
+				'</div>'
+			);
+
+			// html for new row
+			var newSplitRowHTML = '' +
+				'<tr class="modifying inserting">' +
+					'<td class="split-number"></td>' +
+					'<td class="split-time">' +
+						'<input type="text" id="insert-'+runnerID+'-'+(indx+1)+'" class="form-control numeric-input" placeholder="Split value" style="color:#f90;">' + 
+					'</td>' +
+					'<td class="split-edit-options hidden-xs">' +
+						'<div class="modify-splits modify-splits-'+runnerID+'" style="display:none;">' +
+							'<div class="insert-split"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></div>' +
+							'<div class="insert-split"><span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span></div>' +
+							'<div class="edit-split"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
+							'<div class="delete-split"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></div>' +
+						'</div>' +
+						'<div class="confirm-split pull-right">' +
+							'<button value="split" class="confirm-split-split btn btn-sm btn-primary" style="margin-right:10px;">Save</button>' +
+							'<button value="cancel" class="cancel-split-split btn btn-sm btn-danger">Cancel</button>' +
+						'</div>' +
+					'</td>' +
+				'</tr>';
+
+			// add the row
+			splitRow.after(newSplitRowHTML);
+			var newSplitRow = splitRow.next();
+			var newSplitTimeCell = newSplitRow.find('td.split-time');
+
+			// highlight split rows
+			splitRow.css('background-color', '#fcf8e3').css('color', '#c60');
+			newSplitRow.css('background-color', '#fcf8e3').css('color', '#c60');
+
+			// get the input fields
+			var splitTimeInput = splitTimeCell.find('input');
+			var newSplitTimeInput = newSplitTimeCell.find('input');
+			
+			// populate inputs with split value
+			splitTimeInput.val(values[0]);
+			newSplitTimeInput.val(values[1]);
+
+			// force numbers on input fields
+			forceNumeric(splitTimeInput);
+			forceNumeric(newSplitTimeInput);
+
+			// restrict inputs to add up to previous split value
+			splitTimeInput.on('input', function() {
+				newSplitTimeInput.val((Number(prevSplitTime) - Number($(this).val())).toFixed(3))
+			});
+			newSplitTimeInput.on('input', function() {
+				splitTimeInput.val((Number(prevSplitTime) - Number($(this).val())).toFixed(3))
+			});
+
+			// bind click handler
+			var button = newSplitRow.find('button');
+			newSplitRow.find('.confirm-split').on('click', button, function(e) {
+				e.preventDefault();
+
+				// recalculate index 
+				indx = $('#splits-'+runnerID+' tbody tr:not(.inserting)').index(splitRow);
+
+				if ($(e.target).attr('value') === 'split') {
+					var splitTime = splitTimeCell.find('input').val();
+					splitTime = $.isNumeric(splitTime) ? Number(splitTime).toFixed(3) : '0.000';
+
+					var newSplitTime = newSplitTimeCell.find('input').val();
+					newSplitTime = $.isNumeric(newSplitTime) ? Number(newSplitTime).toFixed(3) : '0.000';
+
+					// make sure the splits add up to previous total
+					if ((Number(splitTime) + Number(newSplitTime)).toFixed(3) == Number(prevSplitTime)) {
+						console.log('Split split value from ('+prevSplitTime+') into ('+splitTime+' and '+newSplitTime+') at index ('+indx+') for runnerID ('+runnerID+') on workoutID ('+currentID+')');
+						
+						$.ajax({
+							method: 'POST',
+							url: 'api/edit_split/',
+							headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+							data: { id: currentID,
+											user_id: runnerID,
+											action: 'split',
+											indx: indx,
+											val: splitTime },
+							success: function() {
+								// remove markers
+								splitRow.removeClass('modifying');
+								newSplitRow.removeClass('modifying inserting');
+
+								// remove confirmation buttons
+								newSplitRow.find('.confirm-split').remove();
+
+								// re-register handlers if nothing else is being modified
+								if ($('tr.modifying').length === 0) {
+									$('body').on('mouseover', '#table-canvas>tbody>tr', function() {
+										$(this).find('.modify-total-time').show();
+									});
+									$('body').on('mouseover', 'tr.splits table tbody tr', function() {
+										$(this).find('.modify-splits').show();
+									});
+								}
+
+								// remove correction from pool
+								for (var i=0; i<correctionData.length; i++) {
+									var runner = correctionData[i];
+
+									if (runner.id == runnerID) {
+										var corrections = runner.results;
+										for (var j=0; j<corrections.length; j++) {
+
+											if (corrections[j].index == indx)
+												corrections.splice(j,1);
+										}
+									}
+								}
+
+								// restore split row
+								splitRow.css('background-color', '').css('color', '');
+								newSplitRow.css('background-color', '').css('color', '');
+
+								// update on frontend
+								splitTimeCell.html(splitTime);
+								newSplitTimeCell.html(newSplitTime);
+
+								splitRow.find('.previous-split').remove();
+
+								newSplitRow.find('.split-number').html(indx+2);
+								var splitRowsAfter = newSplitRow.nextAll(':not(.inserting)');
+								for (var i=0; i<splitRowsAfter.length; i++) {
+									$(splitRowsAfter[i]).find('.split-number').html(indx+3+i);
+								}
+
+								if (newSplitRow.index() === $('table#splits-'+runnerID+' tbody tr').length-1) {
+									$('tr#results-'+runnerID+'>td#latest-split-'+runnerID).html(newSplitTime);
+								}
+
+								// update auto-correction status
+								numCorrections--;
+								$('#num-corrections').html(numCorrections);
+							}
+						});
+					} else { console.log(Number(splitTime) + Number(newSplitTime) + ' != ' + Number(prevSplitTime)); }
+				} else {		// clicked cancel
+					// remove marker
+					splitRow.removeClass('modifying');
+
+					// replace input textbox with split value
+					splitTimeCell.html(prevSplitTime);
+
+					// remove confirmation buttons
+					splitRow.find('.previous-split').remove();
+
+					// re-register handlers if nothing else is being modified
+					if ($('tr.modifying').length === 0) {
+						$('body').on('mouseover', '#table-canvas>tbody>tr', function() {
+							$(this).find('.modify-total-time').show();
+						});
+						$('body').on('mouseover', 'tr.splits table tbody tr', function() {
+							$(this).find('.modify-splits').show();
+						});
+					}
+
+					// restore split row
+					splitRow.css('background-color', '').css('color', '');
+					newSplitRow.remove();
+
+					// update auto-correction status
+					numCorrections--;
+					$('#num-corrections').html(numCorrections);
 				}
 			});
 		}
@@ -705,14 +1198,21 @@ google.setOnLoadCallback(function(){
 				height = 500;
 
 			var options = {
-			  title: json.name,
-			  height: height,
-			  hAxis: { title: 'Split #', minValue: 1, viewWindow: { min: 1 } },
-			  vAxis: { title: 'Time'},
-			  //hAxis: {title: 'Split', minValue: 0, maxValue: 10},
-			  //vAxis: {title: 'Time', minValue: 50, maxValue: 100},
-			  series: series,
-			  legend: { position: 'right' }
+				title: json.name,
+				height: height,
+				hAxis: { title: 'Split #', minValue: 1, viewWindow: { min: 1 } },
+				vAxis: { title: 'Time'},
+				axes: {
+					y: {
+						all: {
+							format: {
+								pattern: 'decimal'
+							}
+						}
+					}
+				},
+				series: series,
+				legend: { position: 'right' }
 			};
 
 			var chart = new google.visualization.ScatterChart(document.getElementById('graph-canvas'));
@@ -841,7 +1341,7 @@ google.setOnLoadCallback(function(){
 							'</tr>' +
 							'<tr></tr>'	+
 							'<tr class="team-runners">' +
-								'<td colspan="3">' +
+								'<td colspan="4">' +
 									'<div id="collapse-team'+id+'" class="accordion-body collapse" aria-labelledby="team'+id+'">' +
 										'<table id="runners-team'+id+'" class="table" style="text-align:center; background-color:transparent">' +
 											'<thead>' +
@@ -928,16 +1428,14 @@ google.setOnLoadCallback(function(){
 			$.ajax({
 				url: '/api/session_Pag/',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-				dataType: 'text',			//force to handle it as text
+				dataType: 'json',
 				data: {
 					i1: sessionFirst,
 					i2: sessionLast,
 				},
 				success: function(data){
-					var json = $.parseJSON(data);
-
-					var results = json.results,
-							numSessions = json.numSessions;
+					var results = data.results,
+							numSessions = data.numSessions;
 					
 					if ((results.length == 0) && (!$.trim($('ul.menulist').html()))) {
 						$('.notification.no-sessions').show();
@@ -979,18 +1477,16 @@ google.setOnLoadCallback(function(){
 			$.ajax({
 				url:'/api/session_Pag/',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-				dataType: 'text',
+				dataType: 'json',
 				data: {
 					i1: 0, i2: 0, start_date: cStart, stop_date: cStop,
 				},
 				success: function(data){
-					var json = $.parseJSON(data);
-
-					var results = json.results,
-							numSessions = json.numSessions;
+					var results = data.results,
+							numSessions = data.numSessions;
 
 					calendarEvents = [];
-					for (var i=0; i < results.length; i++){
+					for (var i=0; i<results.length; i++){
 						// add events to calendar event list
 						var url = results[i].id;
 						var str = results[i].start_time;
@@ -1134,13 +1630,16 @@ function createFullCSV(idjson){
 			var CSV = '';
 
 			// set report title in first row or line
-			CSV += reportTitle + '\r\n\n';
+			CSV += reportTitle + '\r\n\r\n';
 
 			// format date and time
 			var d = new Date(UTC2local(json.start_time));
 
 			CSV += 'Date,'+ d.toDateString() +'\r\n';
-			CSV += 'Time,'+ d.toLocaleTimeString() +'\r\n\n';
+			CSV += 'Time,'+ d.toLocaleTimeString() +'\r\n\r\n';
+
+			CSV += 'Track Size,'+ json.track_size +'\r\n';
+			CSV += 'Interval Distance,'+ json.interval_distance +'\r\n\r\n';
 
 			CSV += 'Name\r\n';
 
@@ -1158,11 +1657,14 @@ function createFullCSV(idjson){
 					//iterate over interval to get to nested time arrays
 					var interval = runner.interval[j];
 
-					for (var k=0; k < results.runners[i].interval[j].length; k++) {
+					for (var k=0; k < runner.interval[j].length; k++) {
 						//interate over subarrays and pull out each individually and print
 						//do a little math to move from seconds to minutes and seconds
-						var subinterval = results.runners[i].interval[j][k];
-						CSV += subinterval+',';
+						var subinterval = runner.interval[j][k];
+						CSV += subinterval;
+
+						if (j != runner.interval.length-1)
+							CSV += ',';
 					}
 				}
 

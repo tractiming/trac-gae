@@ -99,6 +99,30 @@ a {
 			border: 2px solid #e7e7e7;
 }
 
+/* Forms */
+.btn-file {
+  position: relative;
+  overflow: hidden;
+}
+.btn-file input[type=file] {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 100%;
+  min-height: 100%;
+  font-size: 100px;
+  text-align: right;
+  filter: alpha(opacity=0);
+  opacity: 0;
+  background: red;
+  cursor: inherit;
+  display: block;
+}
+input[readonly] {
+  background-color: white !important;
+  cursor: text !important;
+}
+
 /* Notifications */
 #notifications { text-align: center; }
 .notification-success { color: #468847; }

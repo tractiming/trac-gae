@@ -10,7 +10,7 @@ def login(request):
     return render(request, 'login.html', {})
 
 def live_view(request):
-    return render(request, 'live-view.html', {})
+    return render(request, 'live_view.html', {})
 
 def register(request):
     return render(request, 'register.html', {})
@@ -42,8 +42,8 @@ def score(request, org = None):
     else:
         return render(request, 'score.html', {'org': org})
 
-def individual(request, id1 = 0):
-    return render(request, 'individual.html', {'id1': id1})
+def individual(request, id = 0):
+    return render(request, 'individual.html', {'id': id})
 
 def tutorial(request, page = 1):
     return render(request, 'tutorial.html', {'page': page})

@@ -2,16 +2,15 @@
 {% load static %}
 
 {% block stylesheets %}
-<link rel="stylesheet" href="{% static "css/new/main.css" %}" />
-<link rel="stylesheet" href="{% static "css/new/score.css" %}" />
-<link rel="stylesheet" href="{% static "css/new/create.css" %}" />
-<link rel="stylesheet" href="{% static "css/new/home.css" %}" />
+<link rel="stylesheet" href="{% static "css/new/settings.css" %}">
 {% endblock %}
 
 {% block js_scripts %}
 <script>
-var instance_first = 1;
-var instance_last = 5;
+var sessionFirst = 1;
+var sessionLast = 15,
+currentID,currentView;
+var idArray = []
 var numitems = 0;
 var gl_helper;
 var id_helper = 0;
@@ -58,6 +57,18 @@ $("li a.logout").click(function(){
 {% endblock %}
 
 {% block content %}
+<style>
+    #coachform{
+      width:300px;
+      margin: 0 auto;
+    }
+    label{
+      display:block;
+    }
+    input,textarea{
+      width:75%;
+    }
+  </style>
 <script>
 	$(document).ready(function(){
     // initialize spinner
@@ -84,12 +95,14 @@ $("li a.logout").click(function(){
         position: 'relative'    // Element positioning
       }
       var target = document.getElementById('spinner');
+      var modal_target = document.getElementById('spinner_modal');
       var spinner = new Spinner(opts);
 	if (sessionStorage.usertype == 'athlete'){
 		$("div.right").hide();
 		 $('div.pictures').css('padding-left','200px');
 		 $('div.text').css('padding-left','200px');
 		}
+    
     loadAthletes();
     var pushyheight = $('.pushy').height();
     var itemheight = 56;
@@ -98,7 +111,30 @@ $("li a.logout").click(function(){
     instance_last = numitems;
     findScores();
     loadRoster();
-	});
+
+  // add feedback on file selection
+  $('.btn-file :file').off('fileselect');
+  $('.btn-file :file').on('fileselect', function(e, numFiles, label) {
+    var input = $(this).parents('.input-group').find(':text'),
+        log = numFiles > 1 ? numFiles + ' files selected' : label;
+
+    if( input.length ) {
+      input.val(log);
+    } else {
+      if( log ) alert(log);
+    }
+  });
+
+  // trigger event on file selection
+  $('body').off('change', '.btn-file :file');
+  $('body').on('change', '.btn-file :file', function() {
+    var input = $(this),
+        numFiles = input.get(0).files ? input.get(0).files.length : 1,
+        label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+
+    input.trigger('fileselect', [numFiles, label]);
+  });
+
  function loadRoster(){
     $('#roster').empty();
         $.ajax({
@@ -108,6 +144,7 @@ $("li a.logout").click(function(){
                     success: function(data){
                           var json = $.parseJSON(data);
                           json = json.reverse();
+
                           $('#roster').append(
                                   '<table id="workouts-table" class="table table-striped table-hover">' +
                                         '<thead>' +
@@ -123,8 +160,11 @@ $("li a.logout").click(function(){
                                         '</tbody>' +
                                   '</table>');
                           $('#roster').addClass('col-md-6 col-md-offset-0 colr-sm-8 col-sm-offset-0');
+                          
+
                           for (var ii=0;ii < json.length;ii++){
-               //alert(ii);
+               //alert(ii);  
+                         
                                 id = json[ii].id;
                                 fname = json[ii].first_name;
                                 lname = json[ii].last_name;
@@ -132,8 +172,6 @@ $("li a.logout").click(function(){
                                 tag_nest = json[ii].tags;
                                 var unnested_tags = $.parseJSON(tag_nest);
                                 user_tag = unnested_tags.ids[0];
-
-
 
                                 $('#roster tbody').append(
                                       '<tr class="ath">'+
@@ -150,6 +188,7 @@ $("li a.logout").click(function(){
               });
   }
   function loadAthletes(){
+    spinner.spin(target);
    $('#athletes').empty();
    if (id_helper!=0){
    $.ajax({
@@ -160,6 +199,14 @@ $("li a.logout").click(function(){
     success: function(data){
       var json = $.parseJSON(data);
       json = json.reverse();
+      spinner.stop();
+      $('p#inputnoneheader').hide();
+      $('p#inputheader').hide();
+      if(json.length==0){
+           $('p#inputnoneheader').show();
+            return
+       }
+                          
         $('#athletes').append(
           '<table id="results-table" class="table table-striped table-hover">' +
               '<thead>' +
@@ -196,57 +243,76 @@ $("li a.logout").click(function(){
    });
     }
     else{
+      spinner.stop();
       $('#inputheader').show();
     }
 }
 
-function findScores(){
-    $.ajax({
-      url: '/api/session_Pag/',
-      headers: {Authorization: "Bearer " + sessionStorage.access_token},
-      dataType: 'text',
-      data: {i1: instance_first,
-             i2: instance_last,},
-      success: function(data){
-        var json = $.parseJSON(data);
-        
-        var results = json.results;
+    function findScores(){
+      //spinner.spin(target);
 
-          var arr = [];
-          for (var i=0; i < results.length; i++){
-            $('#linkedlist').append('<tr><td>'+results[i].name+'</td></tr>');
-            $('ul.menulist').append('<li><a href="#">'+results[i].name+'</a></li>');
-            arr.push(results[i].id);
+      $.ajax({
+        url: '/api/session_Pag/',
+        headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+        dataType: 'text',     //force to handle it as text
+        data: {
+          i1: sessionFirst,
+          i2: sessionLast,
+        },
+        success: function(data){
+          var json = $.parseJSON(data);
+
+          var results = json.results,
+              numSessions = json.numSessions;
+          
+          if ((results.length == 0) && (!$.trim($('ul.menulist').html()))) {
+            
+            spinner.stop();
+          } else {
+            
+            for (var i=0; i<results.length; i++){
+              // add events to event menu
+              $('ul.menulist').append('<li><a href="#">'+results[i].name+'</a></li>');
+              idArray.push(results[i].id);
+            }
+            if (results.length == 15){
+              $('ul.menulist').append('<li id="see-more"><a href="#">See More</a></li>');
+            }
           }
-          if (results.length == 5){
-          $('#linkedlist').append('<tr id="sM"><td>SeeMore</td></tr>');
-          $('ul.menulist').append('<li id="sM"><a href="#SeeMore">See More</a></li>');
+          // show most recent workout, edit: do not show more recent workout
+          currentID = currentID || idArray[0];
+          //update(currentID, currentView);
         }
-          idArray = arr;
-        }
-    });
-  }
-    
+      });
+    }
 function resetScores(){
     $('#linkedlist tr#sM').remove();
     $('ul.menulist li#sM').remove();
   }
   // attach handler for heat menu item click
-</script>
 
-<script>
     var stepped = 0, rowCount = 0, errorCount = 0, firstError;
     var inputType = "string";
-    $(document).ready(function(){
+
       
       $("#csvform").on('submit', function(e){
       e.preventDefault();
+
+      $("#csvform").parsley().validate();
+      if (!$("#csvform").parsley().isValid()){
+        return;
+      }
       var config = buildConfig();
       
 $('#file').parse({
       config:config,
       before: function(file, inputElem)
         {
+          $(modal_target).css("height",100);
+          spinner.spin(modal_target);
+          $("#csv_buttons").hide();
+
+
           start = now();
           console.log("Parsing file...", file);
         },
@@ -266,7 +332,7 @@ $('#file').parse({
       }
     });
   });
-});
+
   function now()
 {
   return typeof window.performance !== 'undefined'
@@ -347,8 +413,8 @@ function completeFn(results)
      headers: {Authorization: "Bearer " + sessionStorage.access_token},
            data:json,
            // Login was successful.
-           success: function(data) {alert('yes'); resetScores(); findScores();},
-           error: function(xhr, errmsg, err) {alert('error')}
+           success: function(data) {alert('Successful Submission'); resetScores(); $('ul.menulist').empty(); findScores(); $(modal_target).css("height",""); spinner.stop(); $("#csv_buttons").show(); $('#csvModal').modal('hide');},
+           error: function(xhr, errmsg, err) {alert('Upload Error'); $(modal_target).css("height",""); spinner.stop(); $("#csv_buttons").show();}
      });
       
       $('#file').val('');
@@ -373,54 +439,7 @@ function printStats(msg)
   if (errorCount)
     console.log("First error:", firstError);
 }
-</script>
-<style>
-    #coachform{
-      width:300px;
-      margin: 0 auto;
-    }
-    label{
-      display:block;
-    }
-    input,textarea{
-      width:75%;
-    }
-  </style>
-<script>
-/*$(document).ready(function() {
-    $("#coachform").on('submit', function(e){
-         e.preventDefault();
-         var form = $(this);  
-         form.parsley().validate();
-         if (form.parsley().isValid()){
-         	var it=$('input[id=idnumber]').val();   
-            var fname=$('input[id=username]').val();
-            var ti=$('input[id=tag]').val();
-        $.ajax({
-           type: "POST",
-           dataType:'json',
-           url: "/api/reg_tag/",
-           headers: {Authorization: "Bearer " + sessionStorage.access_token},
-           data: {
-           	   id: id_helper,
-           	   id2: it,
-               username: fname,
-               id_str: ti,
-               submethod: 'Update'
-           }, 
-                      success: function(data) {
-                      console.log(fname);
-                      $("#coachform")[0].reset();
-                      loadAthletes();
-                    }
-                });
-           }
-           
-      });
-});*/
-</script>
-<script>
-    
+
 $("body").on('click', '#athletes tr' ,function(){
   $('#myModal').modal('toggle');
   var value = $(this).html();
@@ -478,13 +497,11 @@ $("button#delete2").off('click');
   $("body").on('click', 'button#delete2', function(f){
   //alert($(this).html());
     f.preventDefault();
-    $("div.notification.notification-warning").show();
+    $(".notification").hide();
+    $(".notification.notification-warning").show();
     $("button#warning-yes").hide();
     $("button#warning-yes2").show();
-    $("div.notification.notification-critical").hide();
-    $("div.notification.notification-critical").hide();
-    $("div.notification.notification-success").hide();
-    $("div.notification.update-success").hide();
+
   });
 
 
@@ -520,36 +537,46 @@ $('body').on('click', '#register', function(e){
     headers: {Authorization: "Bearer " + sessionStorage.access_token},
     success: function(data){
       resetScores();
+      $('ul.menulist').empty();
       findScores();
       loadAthletes();
     },
     error: function(xhr, errmsg, err){
-      alert ("No athletes selected");
+      //alert ("No athletes selected");
     }
   });
 });
 $("body").on('click', '#open', function(e){
-  //console.log('pressing Open');
+  if(id_helper == 0){
+    $('.notification').hide();
+     $('.notification-critical').show();
+   return
+  }
           $.ajax({
+
               type: 'POST',
               dataType: 'json',
               url: '/api/open_session/',
               data: {id: id_helper},
               headers: {Authorization: "Bearer " + sessionStorage.access_token},
               success: function(data){
-                  alert ('session open');
-                  isOpen = true;
+
+                 $('.notification').hide();
+                     $('div.notification.open-success').show();
+                 // isOpen = true;
               },
               error: function(xhr, errmsg, err){
-                  alert ("session couldn't open");
+                 // alert ("session couldn't open");
+                 $('.notification-critical').show();
               }
           });
 });
 
 $("body").on('click', 'button#stop', function(e){
-            var id = id_helper;
-            if (isOpen == false){
-              alert('Session is not open');
+            if(id_helper == 0){
+              $('.notification').hide();
+               $('.notification-critical').show();
+                return
             }
             else{
             $.ajax({
@@ -559,21 +586,25 @@ $("body").on('click', 'button#stop', function(e){
                     data: {id: id},
                     headers: {Authorization: "Bearer " + sessionStorage.access_token},
                     success: function(data){
-                      alert ('session closed');
-                      isOpen=false;
+                     // alert ('session closed');
+                      $('.notification').hide();
+                     $('div.notification.close-success').show();
+                     // isOpen=false;
                     },
                     error: function(xhr, errmsg, err){
-                      alert ("couldn't close session");
+                     // alert ("couldn't close session");
+                     $('.notification-critical').show();
                     }
             });
           }
 });
 
 $("body").on('click', 'button#start', function(e){
-            var id = id_helper;
-            if (isOpen == false){
-              alert('Session not open');
-            }
+            if(id_helper == 0){
+              $('.notification').hide();
+                $('.notification-critical').show();
+               return
+              }
             else{
             $.ajax({
                     type: 'POST',
@@ -582,55 +613,49 @@ $("body").on('click', 'button#start', function(e){
                     data: {id: id},
                     headers:{Authorization: "Bearer " + sessionStorage.access_token},
                     success: function(data){
-                      alert ('session started');
+                     // alert ('session started');
+                     $('.notification').hide();
+                     $('div.notification.start-success').show();
+
                     },
                     error: function(xhr, errmsg, err){
-                      alert ("couldn't start session");
+                    //  alert ("couldn't start session");
+                    $('.notification-critical').show();
                     }
             });
           }
 });
-$('ul.menulist li a').off('click');
-  $('body').on('click', 'ul.menulist li a', function(){
-      var name = ($(this).html() );
-      var id;
-      //console.log(name);
-  if (name == 'See More'){
-      instance_first += numitems;
-      instance_last += numitems;
-      resetScores();
-      findScores();
-  }
-  else {
-      $.ajax({
-      type: 'GET',
-      url: '/api/sessions/',
-      headers: {Authorization: "Bearer " + sessionStorage.access_token},
-      success: function(data){
-          var json = data;
-          json = json.reverse();
-          for (var ii=0; ii < json.length; ii++)
-          {
-              if(json[ii].name == name){
-                  id = json[ii].id;
-                  id_helper = id;
-              }
-          }
-          loadAthletes();
-      },
-      error: function(xhr, errmsg, err){
-        alert ("couldn't find workout");
+
+
+    // attach handler for heat menu item click
+    $('body').on('click', 'ul.menulist li a', function(){
+      var value = $(this).html();
+      if (value == 'See More'){
+        sessionFirst += 15;
+        sessionLast += 15;
+        $('ul.menulist li#see-more').remove();
+        findScores();
+      } else {
+        var indexClicked = $( 'ul.menulist li a' ).index( $(this) );
+        
+        // reset canvases and set new session id
+        $('.notification').hide();
+
+        currentID = idArray[indexClicked];
+        id_helper = currentID;
+        loadAthletes();
+        //spinner.spin(target);
+        //update(currentID, currentView);
       }
-  });
-    }
-  });
+    });
+
 
    $("body").on('click','button#update2', function(e){
          e.preventDefault();
          	var it=$('input[id=idnumber]').val();   
             var uname=$('input[id=uname]').val();
             var fname=$('input[id=fname]').val();
-            var lname=$('input[id=uname]').val();
+            var lname=$('input[id=lname]').val();
             var ti=$('input[id=tag]').val();
             console.log(fname);
         $.ajax({
@@ -651,8 +676,14 @@ $('ul.menulist li a').off('click');
                       //console.log(fname);
                       $("#coachform")[0].reset();
                       loadAthletes();
-                      $("div.notification.update-success").show();
-                    }
+                      loadRoster();
+                      $(".notification").hide();
+                      $(".notification.update-success").show();
+                    
+                    },
+                     error: function(xhr, errmsg, err){
+        alert ("couldn't find workout");
+      }
                 });
            
       });
@@ -719,13 +750,12 @@ $("button#delete").off('click');
   $("body").on('click', 'button#delete', function(f){
   //alert($(this).html());
     f.preventDefault();
+    $(".notification").hide();
     $("div.notification.notification-warning").show();
     $("button#warning-yes").show();
     $("button#warning-yes2").hide();
-    $("div.notification.notification-critical").hide();
-    $("div.notification.notification-critical").hide();
-    $("div.notification.notification-success").hide();
-    $("div.notification.update-success").hide();
+    
+    
   });
 
 //Roster Delete Warning Button 
@@ -751,11 +781,9 @@ $("button#delete").off('click');
            // Login was successful.
            success: function(data) {
                   $(".modal-animate").hide();
-                   $("div.notification.notification-critical").hide();
-                    $("div.notification.notification-success").hide();
-                   $("div.notification.update-success").hide();
-                  $("div.notification.delete-success").show();
-                 $("div.notification.notification-warning").hide();
+                  $(".notification").hide();
+                  $(".notification.delete-success").show();
+                 
                 $("#coachform")[0].reset();
                $("button#delete").hide();
                $("input#update").hide();
@@ -769,11 +797,8 @@ $("button#delete").off('click');
            error: function(xhr, errmsg, err) {
       //hide spinner, show error modal
       $(".modal-animate").hide();
-      $("div.notification.notification-success").hide();
-       $("div.notification.notification-warning").hide();
-        $("div.notification.update-success").hide();
-        $("div.notification.delete-success").hide();
-        $("div.notification.notification-critical").show();
+     $(".notification").hide();
+        $(".notification.notification-critical").show();
            }
             });  
 });
@@ -800,12 +825,10 @@ $("body").on('click', 'button#warning-yes2', function(event){
          
            // Login was successful.
            success: function(data) {
-                  $(".modal-animate").hide();
-                   $("div.notification.notification-critical").hide();
-                    $("div.notification.notification-success").hide();
-                   $("div.notification.update-success").hide();
-                  $("div.notification.delete-success").show();
-                 $("div.notification.notification-warning").hide();
+                  $(".modal-animate").hide(); 
+                  $(".notification").hide();
+                  $(".notification.delete-success").show();
+                 
                 $("#coachform")[0].reset();
                $("button#delete").hide();
                $("input#update").hide();
@@ -819,11 +842,8 @@ $("body").on('click', 'button#warning-yes2', function(event){
            error: function(xhr, errmsg, err) {
       //hide spinner, show error modal
       $(".modal-animate").hide();
-      $("div.notification.notification-success").hide();
-       $("div.notification.notification-warning").hide();
-        $("div.notification.update-success").hide();
-        $("div.notification.delete-success").hide();
-        $("div.notification.notification-critical").show();
+      $(".notification").hide();
+        $("notification.notification-critical").show();
            }
             });  
 });
@@ -867,7 +887,8 @@ $("body").on('click', 'button#cl', function(e){
                       success: function(data) {
                       $("#coachform")[0].reset();
                       loadRoster();
-                      $("div.notification.update-success").show();
+                      $(".notification").hide();
+                      $(".notification.update-success").show();
                     }
                 });
            
@@ -896,13 +917,14 @@ $("body").on('click', 'button#cl', function(e){
                submethod: 'Create',
            }, 
                       success: function(data) {
-                      $("#coachform")[0].reset();
+                      $("#rosterform")[0].reset();
                       loadRoster();
+                      $('#athleteModal').modal('hide');
                     }
                 });
            }
       });
-
+});
 
 </script>
 <nav class="pushy pushy-left">
@@ -916,11 +938,12 @@ $("body").on('click', 'button#cl', function(e){
             <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
             <div class="row">
         <div class="col-md-3 col-sm-4 col-xs-6" style="margin: 2%">
-          <div class="menu-btn" style="display: inline-block;">
+          <div id="menu-btn" class="menu-btn" style="display: inline-block;">
             <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span> Heat Menu
           </div>
         </div>
       </div>
+
             <div class="row">
               <div class="col-lg-offset-10 col-md-offset-10 col-sm-offset-10 col-xs-offset-10">
               <button type="button" class="btn btn-default" id="plus" data-toggle="modal" data-target="#csvModal">
@@ -929,21 +952,27 @@ $("body").on('click', 'button#cl', function(e){
             </div>
             <h1 id="score-title">Registration</h1>
             </div>
+            <div class="spinner-container" style="position:relative; top:100px;">
+                <div id="spinner"></div>
+            </div>
             <div class="row">
               <div id="athletes" class="table">
               </div>
               <div style="text-align: center;">
-              <p id="inputheader" class="notification notification-error notification-default" role="alert">
+              <p id="inputheader" class="notification-error notification-default" role="alert">
               <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Please Select Workout to Manage from Heat Menu.
+              </p>
+              <p id="inputnoneheader" class="notification-error notification-none" role="alert" style="display:none">
+              <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Add Athletes from Roster to Workout.
               </p>
             </div>
             </div>
           </div>
           <div  class=" col-lg-5 col-md-5 col-sm-5 col-xs-5" align="center">
             <div class="row">
-              <button type="button" class="btn btn-primary" id="open" style="margin: 2%;">Open</button>
-              <button type="button" class="btn btn-success" id="start" style="margin: 2%;">Start</button>
-              <button type="button" class="btn btn-warning" id="stop" style="margin: 2%;">Stop</button>
+              <button type="button" class="btn btn-primary" id="open" style="margin: 2%;" data-target="#notificationModal" data-dismiss="modal" data-toggle="modal">Open</button>
+              <button type="button" class="btn btn-success" id="start" style="margin: 2%;" data-target="#notificationModal" data-dismiss="modal" data-toggle="modal">Start</button>
+              <button type="button" class="btn btn-warning" id="stop" style="margin: 2%;" data-target="#notificationModal" data-dismiss="modal" data-toggle="modal">Stop</button>
             </div>
             <button type="button" class="btn btn-default pull-right" id="plus2" data-toggle="modal" data-target="#athleteModal" style="margin-bottom:2%">
                   <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Roster
@@ -958,16 +987,20 @@ $("body").on('click', 'button#cl', function(e){
         </div>
       </div>
       <div id="create" class="container">
+
   <div class="modal fade" id="notificationModal" role="dialog">
     <div class="modal-dialog">
       <div class ="modal-content">
         <div class="modal-body">
           <div id="notifications">
               <div class="notification notification-critical" role="alert">Some information you entered isn't right.</div>
+              <div class="notification start-success" role="alert">You have started a workout!</div>
+              <div class="notification open-success" role="alert">You have opened a workout!</div>
+               <div class="notification close-success" role="alert">You have closed a workout!</div>
             <div class="notification notification-success" role="alert">You have successfully added tag(s) to a workout!</div>
-            <div class="notification update-success" role="alert">You have successfully updated a tag!</div>
             <div class="notification delete-success" role="alert">You have successfully delinked a tag from the workout!</div>
-            <div class="notification notification-warning" role="alert">Are you sure? <div id="screen-selector"><button href="#" type="button" id="warning-yes" class="btn btn-danger" >Yes</button><button href="#" type="button" id="warning-yes2" class="btn btn-danger" >Yes</button><button id="warning-no" href="#" type="button" style="float:right" data-dismiss="modal" data-toggle="modal" data-target="#myModal" class="btn btn-primary">Cancel</button></div></div>
+            <div class="notification update-success" role="alert">You have successfully updated a tag!</div>
+            <div class="notification notification-warning" role="alert" style="display:table; margin:0 auto;">Are you sure? <div id="screen-selector"><button href="#" type="button" id="warning-yes" class="btn btn-danger" >Yes</button><button href="#" type="button" id="warning-yes2" class="btn btn-danger" >Yes</button><button id="warning-no" href="#" type="button" style="margin-left:2px;" data-dismiss="modal" data-toggle="modal" data-target="#myModal" class="btn btn-primary">Cancel</button></div></div>
           </div>
         </div>
       </div>
@@ -982,27 +1015,44 @@ $("body").on('click', 'button#cl', function(e){
           CSV Upload <button id="cl" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button>
         </div>
         <div class="modal-body">
-          <form name="csvform" id="csvform"  data-parsley-validate>
+          <form name="csvform" id="csvform" data-parsley-validate>
           <div class="form-group">
             <label for="">Workout Name:</label> 
-            <input data-progression="" type="text" data-helper="" id="name" value="" placeholder="" class="form-control"/>
+            <input data-progression="" type="text" data-helper="" id="name" value="" placeholder="" class="form-control" required/>
           </div>
           <div class="form-group">
             <label for="">Workout Date:</label> 
-            <input data-progression="" type="text" data-helper="" id="date" value="" placeholder="" class="form-control"/>
+            <input data-progression="" type="text" data-helper="" id="date" value="" placeholder="" class="form-control" required/>
           </div>
           <div class="form-group">
             <label for="">Confirm Username:</label> 
-            <input data-progression="" type="text" data-helper="" id="coach_username" value="" placeholder="" class="form-control" />
+            <input data-progression="" type="text" data-helper="" id="coach_username" value="" placeholder="" class="form-control" required/>
           </div>
-          <div>
+          <div class="form-group">
             <label for="">Readers:</label> 
-            <input data-progression="" type="text" data-helper="" id="readers" value="" placeholder="" class="form-control"/>
+            <input data-progression="" type="text" data-helper="" id="readers" value="" placeholder="" class="form-control" required/>
           </div>
-       <div class="button-container">
-        <input type="file" id="file" name="myfile" class="btn btn-warning" value="Choose File">
-        <input type="submit" class="gen_btn btn btn-primary" id="upload" name ="upload" value="Upload">
-                           </div>
+          <div class="spinner-container">
+                <div id="spinner_modal"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="file">Select file:</label>
+              <div class="input-group">
+                <span class="input-group-btn">
+                  <span class="btn btn-warning btn-file">
+                    Browse&hellip; <input type="file" id="file" name="myfile" data-parsley-errors-container="#csv-parsley-errors">
+                  </span>
+                </span>
+                <input type="text" class="form-control" readonly required data-parsley-errors-container="#csv-parsley-errors">
+              </div>
+              <div id="csv-parsley-errors"></div>
+            </div>
+
+             <div class="button-container" id="csv_buttons"style="display:table;margin:0 auto;">
+                <!--<input type="file" id="file" name="myfile" class="btn btn-warning form-control" required>-->
+                <input type="submit" class="gen_btn btn btn-primary form-control" id="upload" name ="upload" value="Upload">
+            </div>
           </form>
         </div>
       </div>

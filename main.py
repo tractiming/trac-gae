@@ -9,5 +9,10 @@ https://docs.djangoproject.com/en/1.6/howto/deployment/wsgi/
 import os
 import django.core.handlers.wsgi
 
-os.environ["DJANGO_SETTINGS_MODULE"] = "settings.dev"
+if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine'):
+    settings = "settings.common"
+else:
+    settings = "settings.dev"
+
+os.environ["DJANGO_SETTINGS_MODULE"] = settings
 application = django.core.handlers.wsgi.WSGIHandler()

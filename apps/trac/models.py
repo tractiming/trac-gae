@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User, Group
 from django.utils import timezone
 from django.core.cache import cache
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
 from filters import filter_splits, get_sec_ms
 from operator import itemgetter
 from collections import namedtuple
@@ -420,17 +422,19 @@ class TimingSession(models.Model):
             tt[i].milliseconds = new.microsecond/1000
             tt[i].save()
 
-    def _insert_split(self, tag_id, split_indx, val):
+    def _insert_split(self, tag_id, split_indx, val, shift):
         """
         Insert a new split into the array before the given index.
+        Can specify whether to shift following splits.
         """
         assert self.filter_choice is False, "Filter must be off to insert."
+
         tt = TagTime.objects.filter(timingsession=self, tag__id=tag_id).order_by('time')
         sec, ms = get_sec_ms(val)
         split_dt = timezone.timedelta(seconds=sec, milliseconds=ms)
 
         # Find the index of the first tag time we need to change as well as the
-        # previous (absoulte) time.
+        # previous (absolute) time.
         if self.start_button_active():
             indx = split_indx
             if indx == 0:
@@ -447,12 +451,14 @@ class TimingSession(models.Model):
         nt = TagTime.objects.create(tag_id=tag_id, time=t_curr,
                 milliseconds=t_curr.microsecond/1000, reader=r)
 
-        # Edit the rest of the tagtimes to maintain the other splits.
-        for i in range(indx, len(tt)):
-            new = tt[i].full_time+split_dt
-            tt[i].time = new
-            tt[i].milliseconds = new.microsecond/1000
-            tt[i].save()
+        if shift:
+            # Edit the rest of the tagtimes to maintain the other splits.
+            for i in list(reversed(range(indx, len(tt)))):
+                cur_tt = tt[i]
+                new = cur_tt.full_time+split_dt
+                cur_tt.time = new
+                cur_tt.milliseconds = new.microsecond/1000
+                cur_tt.save()
 
         # Add the new tagtime after the rest of the splits have already been
         # adjusted.
@@ -469,7 +475,7 @@ class TimingSession(models.Model):
         # The split is edited by deleting the current time and inserting a new
         # split in its place.
         self._delete_split(tag_id, split_indx)
-        self._insert_split(tag_id, split_indx, val)
+        self._insert_split(tag_id, split_indx, val, True)
 
     def _overwrite_final_time(self, tag_id, hr, mn, sc, ms):
         """
@@ -478,19 +484,35 @@ class TimingSession(models.Model):
         """
         # Delete all existing times for this tag.
         times = TagTime.objects.filter(timingsession=self, tag__id=tag_id)
-        times.delete()
+
+        first_tt = times[0]
+
+        times.exclude(pk=times[0].pk).delete()
 
         # If the start button has not been set, we need to set it.
-        if not self.start_button_active():
-            self.start_button_time = timezone.now()
+        #if not self.start_button_active():
+        #    self.start_button_time = timezone.now()
 
         r = self.readers.all()[0]
-        final_time = self.start_button_time+timezone.timedelta(hours=hr, 
-                                                    minutes=mn, seconds=sc) 
+        final_time = first_tt.full_time+timezone.timedelta(hours=hr, 
+                                                   minutes=mn, seconds=sc)
+
+        new_ms = first_tt.milliseconds + ms
+        if new_ms > 999:
+            final_time += timezone.timedelta(hours=0, minutes=0, seconds=1)
+            new_ms = new_ms % 1000
+
         tt = TagTime.objects.create(tag_id=tag_id, reader=r, time=final_time,
-                milliseconds=ms)
+                milliseconds=new_ms)
         self.tagtimes.add(tt.pk)
         self.save()
+
+@receiver(pre_delete, sender=TimingSession, dispatch_uid="timingsession_pre_delete")
+def delete_tag_times(sender, instance, using, **kwargs):
+    """
+    Delete all TagTime objects associated with this TimingSession prior to deletion.
+    """
+    instance.tagtimes.all().delete()
 
 class AthleteProfile(models.Model):
     """

@@ -25,6 +25,7 @@ $(function() {
   }
   var target = document.getElementById('spinner');
   var spinner = new Spinner(opts);
+  var username, organization, password, password_verify,user_type, email;
 
   // hide stuff
   $('.spinner-container').hide();
@@ -32,6 +33,7 @@ $(function() {
 
   $('#register-form').on('submit', function(e){
     e.preventDefault();
+
     
     // hide button and show spinner
     $('#submit').hide();
@@ -44,46 +46,17 @@ $(function() {
     
     if (form.parsley().isValid()){
       // Get the username and password from registration form.
-      var username = $('input#username').val();
-      var organization = $('input#organization').val();
-      var password = $('input#password').val();
-      var password_verify = $('input#password1').val();
-      var user_type = $('input[name=utype]:checked').val();
-      var email = $('input#email').val();
+      username = $('input#username').val();
+      organization = $('input#organization').val();
+      password = $('input#password').val();
+      password_verify = $('input#password1').val();
+      user_type = $('input[name=utype]:checked').val();
+      email = $('input#email').val();
 
       if (password === password_verify) {
-        $.ajax({
-          type: 'POST',
-          url: '/api/register/',
-          data: {
-            username: username,
-            password: password,
-            organization: organization,
-            user_type: user_type,
-            email: email,
-          },
-          // Registration was successful.
-          success: function(data) {
-            $('p.notification.notification-critical').hide();
-            $('p.notification.notification-critical2').hide();
-            $('p.notification.notification-success').show();
-            $('#register-form')[0].reset();
-            window.location.href = '/home';
-          },
-          // Registration failed.
-          error: function(xhr, errmsg, err) {
-            // hide spinner, show error
-            $('.spinner-container').hide();
-            spinner.stop();
-            $('#submit').show();
+        $('#terms-modal').modal('show');
 
-            $('#register-form input').removeClass('parsley-success');
-            $('#register-form #username').addClass('parsley-error');
-            $('p.notification.notification-success').hide();
-            $('p.notification.notification-critical').show();
-            $('p.notification.notification-critical2').hide();
-          }
-        });
+      
       } else {
         // hide spinner and show errors
         $('.spinner-container').hide();
@@ -101,4 +74,55 @@ $(function() {
       return false;
     }
   });
+
+  $('#modal-form').on('submit', function(e){
+     e.preventDefault();
+
+    // validate form with parsley
+    var form = $(this);
+    form.parsley().validate();
+    if (form.parsley().isValid()){
+      $('#terms-modal').modal('hide');
+      $.ajax({
+              type: 'POST',
+              url: '/api/register/',
+              data: {
+                username: username,
+                password: password,
+                organization: organization,
+                user_type: user_type,
+                email: email,
+              },
+              // Registration was successful.
+              success: function(data) {
+                $('p.notification.notification-critical').hide();
+                $('p.notification.notification-critical2').hide();
+                $('p.notification.notification-success').show();
+                $('#register-form')[0].reset();
+                window.location.href = '/home';
+              },
+              // Registration failed.
+              error: function(xhr, errmsg, err) {
+                // hide spinner, show error
+                $('.spinner-container').hide();
+                spinner.stop();
+                $('#submit').show();
+
+                $('#register-form input').removeClass('parsley-success');
+                $('#register-form #username').addClass('parsley-error');
+                $('p.notification.notification-success').hide();
+                $('p.notification.notification-critical').show();
+                $('p.notification.notification-critical2').hide();
+              }
+            });
+        }
+    });
+
+  $("body").on('click', '#close-terms' ,function(){
+      $('.spinner-container').hide();
+      spinner.stop();
+      $('#submit').show();
+    });
+
+
 });

@@ -13,6 +13,9 @@ libraries:
 - name: MySQLdb
   version: "latest"
 
+- name: ssl
+  version: "latest"
+
 builtins:
 - remote_api: on
 

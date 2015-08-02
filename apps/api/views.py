@@ -39,6 +39,9 @@ import dateutil.parser
 import uuid
 import hashlib
 import base64
+import datetime
+import math
+import stats
 
 class verifyLogin(views.APIView):
 	permission_classes = ()
@@ -533,11 +536,15 @@ def edit_split(request):
     if data['action'] == 'edit':
         ts._edit_split(tag[0].id, int(data['indx']), float(data['val']))
     elif data['action'] == 'insert':
-        ts._insert_split(tag[0].id, int(data['indx']), float(data['val']))
+        ts._insert_split(tag[0].id, int(data['indx']), float(data['val']), True)
     elif data['action'] == 'delete':
         ts._delete_split(tag[0].id, int(data['indx']))
+    elif data['action'] == 'split':
+        ts._insert_split(tag[0].id, int(data['indx']), float(data['val']), False)
+    elif data['action'] == 'total_time':
+        ts._overwrite_final_time(tag[0].id, int(data['hour']), int(data['min']), int(data['sec']), int(data['mil']))
     else:
-		return HttpResponse(status.HTTP_404_NOT_FOUND)
+        return HttpResponse(status.HTTP_404_NOT_FOUND)
 
     return HttpResponse(status.HTTP_202_ACCEPTED)
     
@@ -565,7 +572,7 @@ def sessions_paginate(request):
             table = TimingSession.objects.filter(Q(private='false') & Q(start_time__range=(start_date, stop_date))).values()
         #reset indices for pagination without changing id
     if begin == 0 and stop == 0:
-        return Response(table, status.HTTP_200_OK)
+        return Response({'results': table, 'numSessions': len(table)}, status.HTTP_200_OK)
     else:
         i = 1
         result = []
@@ -847,7 +854,8 @@ def IndividualTimes(request):
     # If not a user or coach, no results can be found.
     else:
         return HttpResponse(status.HTTP_404_NOT_FOUND)
-    final_array = [{'Name':ap.username}]
+
+    temp_array = []
     sessions = ap.athlete.get_completed_sessions()
     #Iterate through each session to get all of a single users workouts
     for s in sessions:
@@ -864,10 +872,95 @@ def IndividualTimes(request):
         for r in run:
             if r['name'] == username:
                 temp = r
-        temp_array = [{'Name': t.name, 'Date': t.start_time, 'id': t.id, 'Runner': temp}]
-        final_array += temp_array
-    final_array = final_array[::-1]
-    return Response(final_array)
+        temp_array += [{'id': t.id, 'name': t.name, 'date': t.start_time, 'runner': temp}]
+
+    result = {'name': ap.username, 'sessions': temp_array}
+
+    return Response(result)
+
+@api_view(['POST'])
+@permission_classes((permissions.IsAuthenticated,))
+def upload_workouts(request):
+    """ 
+    Create a complete workout through CSV file upload.
+    Parameters:
+        - title: workout title
+        - start_time: start date of workout in ISO string format
+        - track_size: size of track
+        - interval_distance: distance for each split
+        - results: list of dictionary of workout results as follows
+            - username: athlete username
+            - first_name: athlete first name (used to create new athlete if doesn't exist)
+            - last_name: athlete last name (used to create new athlete if doesn't exist)
+            - splits: list of split times
+    Note: The created workout will be automatically set to filter splits and private.
+    """
+    data = json.loads(request.body)
+    user = request.user
+
+    if not is_coach(user):
+        return HttpResponse(status.HTTP_403_FORBIDDEN)
+
+    coach = user
+    start_time = dateutil.parser.parse(data['start_time'])
+    #stop_time = dateutil.parser.parse(data['start_time'])
+
+    ts = TimingSession(name=data['title'], manager=coach, start_time=start_time, stop_time=start_time, track_size=data['track_size'], interval_distance=data['interval_distance'], filter_choice=False, private=True)
+
+    # set start button time to start time
+    ts.start_button_time = start_time
+    ts.save()
+
+    results = data['results']
+    if results:
+        
+        reader, created = Reader.objects.get_or_create(id_str='ArchivedReader', 
+                defaults={ 'name': 'Archived Reader', 'owner': coach })
+        ts.readers.add(reader.pk)
+
+        for runner in results:
+            new_user, created = User.objects.get_or_create(username=runner['username'], 
+                    defaults={ 'first_name': runner['first_name'], 'last_name': runner['last_name'], 'email': coach.email, 'password': 'password' })
+            if created:
+                # Register new athlete.
+                athlete = AthleteProfile()
+                athlete.user = new_user
+                athlete.save()
+
+                # add coach's org to new athlete's org
+                if coach.groups.all():
+                    group = coach.groups.all()[0]
+                    new_user.groups.add(group.pk)
+                    new_user.save()
+
+                # Create the OAuth2 client.
+                #name = user.username
+                #client = Client(user=user, name=name, url=''+name,
+                #        client_id=name, client_secret='', client_type=1)
+                #client.save()
+            
+            tags = Tag.objects.filter(user=new_user)
+            if tags:
+                tag = tags[0]
+            else:
+                tag = Tag.objects.create(id_str=runner['username'], user=new_user)
+
+            # create reference tagtime
+            s_tt = TagTime(time=ts.start_button_time, milliseconds=0)
+            time = s_tt.full_time
+
+            for split in runner['splits']:
+                try:
+                    x = timezone.datetime.strptime(split, "%M:%S.%f")
+                except:
+                    x = timezone.datetime.strptime(split, "%S.%f")
+
+                time += timezone.timedelta(minutes=x.minute,seconds=x.second,microseconds=x.microsecond)
+
+                tt = TagTime.objects.create(tag_id=tag.id, time=time, reader_id=reader.id, milliseconds=time.microsecond/1000)
+                ts.tagtimes.add(tt.pk)
+
+    return HttpResponse(status.HTTP_201_CREATED)
 
 @api_view(['POST'])
 @login_required()
@@ -933,7 +1026,7 @@ def send_email(request):
             'uid': uidb64,
             'user': u,
             'token': str(token),
-            'protocol': 'https',
+            'protocol': 'https://',
         }
         url = c['domain'] + '/UserSettings/' + c['uid'] + '/' + c['token'] + '/'
         email_body = loader.render_to_string('../templates/email_template.html', c)
@@ -941,3 +1034,30 @@ def send_email(request):
         return HttpResponse(status.HTTP_200_OK)
     else:
         return HttpResponse(status.HTTP_403_FORBIDDEN)
+
+@api_view(['GET'])
+@permission_classes((permissions.IsAuthenticated,))
+def tutorial_limiter(request):
+    user = request.user
+    if timezone.now()- user.date_joined < datetime.timedelta(60):
+        return HttpResponse(status.HTTP_200_OK)
+    else:
+        return HttpResponse(status.HTTP_403_FORBIDDEN)
+    
+@api_view(['POST'])
+@permission_classes((permissions.AllowAny,))
+def analyze(request):
+    idx = request.POST.get('id')
+    ts = TimingSession.objects.get(id = idx)
+    run = ts.get_results().get('runners')
+    dataList = []
+    for r in run:
+        times = [item for sublist in r['interval'] for item in sublist]
+        for index, item in enumerate(times):
+            times[index] = float(item)
+        name = r['id']
+
+        dataList.append({'name': name, 'times': times})
+
+    return Response(stats.investigate(dataList), status.HTTP_200_OK)
+
