@@ -656,9 +656,9 @@ def create_race(request):
     ts.save()    
 
     # Get a list of all the teams in the race and register each one.
-    teams = set([a['team'] for a in data['athletes'] if (a['team'] is not None)])
-    for team in teams:
-        Group.objects.get_or_create(name='%s-%s' %(data['race_name'], team))
+    #teams = set([a['team'] for a in data['athletes'] if (a['team'] is not None)])
+    #for team in teams:
+    
 
     # Add each athlete to the race.
     for athlete in data['athletes']:
@@ -671,6 +671,8 @@ def create_race(request):
                                                    last_name=last_name,
                                                    username=username)
         a, created = AthleteProfile.objects.get_or_create(user=user)
+        g, created = Group.objects.get_or_create(name='%s-%s' %(data['race_name'], athlete['team']))
+        a.user.groups.add(g.pk)
         a.age = int(athlete['age'])
         a.gender = athlete['gender']
         a.save()
