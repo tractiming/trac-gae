@@ -301,7 +301,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         results = {'num_results': session.num_tags, 
                    'num_returned': len(raw_results),
                    'results': [{'name': r.name,
-                                'splits': [[str(s) for s in r.splits]],
+                                'id': r.user_id,
+                                'splits': [[str(s)] for s in r.splits],
                                 'total': str(r.total)
                                } for r in raw_results]
                    }
@@ -327,6 +328,9 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         age_lte = int(request.GET.get('age_lte', 100))
         age_gte = int(request.GET.get('age_gte', 0))
         teams = request.GET.get('team', [])
+        
+        if teams and not isinstance(teams, list):
+            teams = [teams]
     
         session = TimingSession.objects.get(pk=pk)
         raw_results = session.filtered_results(gender=gender,
