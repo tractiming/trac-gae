@@ -778,48 +778,54 @@ def get_info(request):
     result = {'org': user.groups.get(id=1).name, 'name': user.username, 'email': user.email}
     return Response(result, status.HTTP_200_OK)
 
+# TODO: Move to athletes endpoint.
 @api_view(['GET'])
 @permission_classes((permissions.AllowAny,))
 def IndividualTimes(request):
 
     data = int(request.GET.get('id'))
     user = request.user
-    # print for permissions
     
     # If the user is an athlete, list all the workouts he has run. If coach, the user he wants.
     # Uses the User.id, alternatively could use athelte.id
     if is_coach(user):
         ap = User.objects.get(id=data)
-        print ap
     elif is_athlete(user):
         ap = user
-        
     # If not a user or coach, no results can be found.
     else:
         return HttpResponse(status.HTTP_404_NOT_FOUND)
+    
+    # Get the user's name.
+    name = ap.user.get_full_name()
+    if not name:
+        name = ap.user.username
 
-    temp_array = []
     sessions = ap.athlete.get_completed_sessions()
+    results = {'name': name, 'sessions': []} 
+
+    # Get the user's tag.
+    user_tags = ap.tag_set.all()
+    if not user_tags:
+        return Response(results)
+    else:
+        tag_id = user_tags[0].id
+
     #Iterate through each session to get all of a single users workouts
-    for s in sessions:
-        t = TimingSession.objects.get(id=s.pk)
-        if ap.first_name != '' and ap.last_name != '':
-            string1 = ap.first_name
-            string2 = ap.last_name
-            username = string1 +' '+string2
-            num = t.get_athlete_names().index(username)
-        else:
-            username = ap.username
-            num = t.get_athlete_names().index(ap.username)
-        run = t.get_results().get('runners')
-        for r in run:
-            if r['name'] == username:
-                temp = r
-        temp_array += [{'id': t.id, 'name': t.name, 'date': t.start_time, 'runner': temp}]
+    for session in sessions:
 
-    result = {'name': ap.username, 'sessions': temp_array}
+        unique_tag_ids = session.tagtimes.values_list('tag_id', flat=True).distinct()
+        
+        if tag_id in unique_tag_ids:
+            session_results = session._calc_splits_by_tag(tag_id)
+            session_info = {'id': session.id,
+                            'name': session.name,
+                            'date': session.start_time,
+                            'runner': session_results
+                            }
+            results['sessions'].append(session_info)
 
-    return Response(result)
+    return Response(results)
 
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))
