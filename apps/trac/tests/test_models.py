@@ -196,7 +196,7 @@ class TimingSessionTest(TestCase):
         self.ts._overwrite_final_time(ta5.id, 0, 15, 23, 0)
 
         # Calculate the final score and check the accuracy.
-        res = self.ts.get_team_results(num_scorers=5)
+        res = self.ts.team_results(num_scorers=5)
         res_a = [a for a in res if a['name']=='Team A'][0]
         res_b = [a for a in res if a['name']=='Team B'][0]
         self.assertEqual(res_a['place'], 1)
