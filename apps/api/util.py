@@ -31,16 +31,15 @@ def create_split(reader_id, tag_id, time):
         return -1
 
     # Add the TagTime to all sessions active and having a related reader.
-    for s in reader.active_sessions:
+    for session in reader.active_sessions:
         # If the session has a set of registered tags, and the current tag is
         # not in that set, ignore the split.
-        reg_tags = s.registered_tags.all()
+        reg_tags = session.registered_tags.all()
         if (not reg_tags) or (tt.tag in reg_tags):
-            s.tagtimes.add(tt.pk)
+            session.tagtimes.add(tt.pk)
 
         # Destroying the cache for this session will force the results to be
         # recalculated.
-        cache.delete(('ts_%i_results' %s.id))
-        cache.delete(('ts_%i_athlete_names' %s.id))
+        session.clear_cache(tag_id)
     
     return 0

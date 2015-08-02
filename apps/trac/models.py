@@ -6,6 +6,7 @@ from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from filters import filter_splits, get_sec_ms
 from operator import itemgetter
+from collections import namedtuple
 
 class Tag(models.Model):
     """
@@ -101,6 +102,39 @@ class TimingSession(models.Model):
     def __unicode__(self):
         return "num=%i, name=%s, start=%s" %(self.id, self.name, self.start_time)
 
+    @property
+    def num_tags(self):
+        """Number of unique tags seen in this workout."""
+        return self.tagtimes.values('tag_id').distinct().count()
+
+    def sorted_tag_list(self, limit=None, offset=None):
+        """Return IDs of all distinct tags seen in this workout.
+
+        The tag IDs are ordered according to cumulative time (not factoring in
+        milliseconds). Therefore, results calculated by iterating over the list
+        of returned IDs will already be in order.
+
+        """
+        # The upper time bound is the most recent time seen.
+        max_times = (self.tagtimes.values('tag_id').distinct()
+                .annotate(time=models.Max('time'))[offset:limit])
+
+        # The lower time bound is either the start button time or the oldest
+        # time seen.
+        if self.start_button_active():
+            min_times = [{'time': self.start_button_time, 'tag_id': tid}
+                         for tid in self.tagtimes.values_list('tag_id',
+                             flat=True).distinct()[offset:limit]]
+        else:
+            min_times = (self.tagtimes.values('tag_id').distinct()
+                .annotate(time=models.Min('time')))[offset:limit]
+
+        diff = [(max_time['tag_id'], max_time['time']-min_time['time']) for
+                max_time, min_time in zip(max_times, min_times)]
+        sorted_times = sorted(diff, key=lambda x: x[1])
+
+        return [t[0] for t in sorted_times]
+
     def is_active(self, time=None):
         """
         Returns True if the current time is between the start and stop times.
@@ -127,32 +161,75 @@ class TimingSession(models.Model):
         self.start_button_time = timezone.datetime(1,1,1,1,1,1)
         self.save()
 
-    def calc_splits_by_tag(self, tag_id, filter_s=None):
-        """
-        Calculates the splits for a given tag in the current session.
-        """
-        # Filter times by tag id.
-        tag = Tag.objects.get(id=tag_id)
-        times = TagTime.objects.filter(timingsession=self, tag=tag).order_by('time')
+    def _calc_splits_by_tag(self, tag_id, filter_s=None, use_cache=True):
+        """Calculate splits for a single tag.
 
-        # Offset for start time if needed.
-        if self.start_button_time.year > 1:
-            s_tt = TagTime(time=self.start_button_time, milliseconds=0)
-            times = [s_tt]+list(times)
-        
-        # Calculate splits.
-        interval = []
-        for i in range(len(times)-1):
-            dt = times[i+1].full_time-times[i].full_time
-            interval.append(round(dt.total_seconds(), 3))
+        First try to read results from the cache. If results are not found, get
+        the tag and all its times. Iterate through times to calculate splits.
+        Save new (raw) results to cache. Apply filter at end. Note that
+        filtered results are not actually cached.
+
+        Args:
+            tag_id (int): Unique tag ID.
+            
+        Kwargs:
+            filter_s (bool|True): Whether or not to filter splits.
+            use_cache (bool|True): If True, will read/write results to/from
+                cache.
+
+        Returns:
+            Namedtuple of (user id, name, team, splits, total_time)
+
+        """
+        # Try to read from the cache. Note that results are cached on a per tag
+        # basis.
+        if use_cache:
+            results = cache.get(('ts_%i_tag_%i_results' %(self.id, tag_id)))
+        else:
+            results = None
+
+        if not results:    
+            Results = namedtuple('Results', 'user_id name team splits total')
+            
+            tag = Tag.objects.get(id=tag_id)
+            
+            # Get the name of the tag's owner and their team.
+            name = tag.user.username
+            #name = self.get_tag_name(tag_id)
+            try:
+                team = tag.user.groups.values_list('name', flat=True)[0]
+            except:
+                team = None
+
+            # Filter times by tag id.
+            times = self.tagtimes.filter(tag=tag).order_by('time')
+
+            # Offset for start time if needed.
+            if self.start_button_active():
+                s_tt = TagTime(time=self.start_button_time, milliseconds=0)
+                times = [s_tt]+list(times)
+            
+            # Calculate splits.
+            interval = []
+            for i in range(len(times)-1):
+                dt = times[i+1].full_time-times[i].full_time
+                interval.append(round(dt.total_seconds(), 3))
+
+            results = (tag.user.id, name, team, interval)    
+            
+            # Save to the cache. Store the unfiltered results so that if the
+            # filter choice is changed, we don't need to recalculate.
+            if use_cache:
+                cache.set(('ts_%i_tag_%i_results' %(self.id, tag_id)), results)   
         
         # Filtering algorithm.
         if filter_s is None:
             filter_s = self.filter_choice
         if filter_s:
-            interval = filter_splits(interval, self.interval_distance, self.track_size)
+            interval = filter_splits(results[-1], self.interval_distance, 
+                                     self.track_size)
 
-        return interval
+        return Results(results[0], results[1], results[2], interval, sum(interval))
 
     def _build_tag_archive(self):
         """
@@ -179,9 +256,12 @@ class TimingSession(models.Model):
         self.save()
 
     def get_tag_name(self, tag_id):
-        """
-        Returns the name of the person associated with the tag id. Will take
-        into account archiving.
+        """Get name of the person associated with a tag.
+
+        Take into account archiving. Determine if an archive exists or should
+        be built based on open/closed status of the workout and read from
+        archive if one exists.
+
         """
         # If the workout is not active and archived, read from the saved names.
         if self.archived and (not self.is_active()):
@@ -213,78 +293,76 @@ class TimingSession(models.Model):
         else:
             return tag.uname
                 
-    def calc_results(self, tag_ids=None, read_cache=False, save_cache=False):
+    def individual_results(self, limit=None, offset=None):
+        """Calculate individual results for a session.
+
+        First call `sorted_tag_list` for a list of tag IDs that are presorted
+        by total time. Splice based on limit/offset and calc results one ID at
+        a time.
+
+        Args:
+            limit (int|None): Max number of tags to return results for.
+            offset (int|None): Offset when getting a subset of results.
+
+        Returns:
+            List of namedtuples of results.
+
         """
-        Calculates the raw results (user_id, user_name, team_name, splits,
-        cumul_time). Can optionally filter by passing a list of tag ids to use.
-        """
-        # By default, use all tags in the workout.
-        if tag_ids is None:
-            tag_ids = self.tagtimes.values_list('tag_id',flat=True).distinct()
-
-        # Try to read from the cache. Be careful using this. Reading from the
-        # cache does not ensure the specified list of tag ids is being used.
-        if read_cache:
-            results = cache.get(('ts_%i_results' %self.id))
-        else:
-            results = None
-
-        # Calculate the results.
-        if not results:
-
-            results = []
-            for tag_id in tag_ids:
-
-                # Get the name of the tag's owner.
-                name = self.get_tag_name(tag_id)
-                user = Tag.objects.get(id=tag_id).user
-
-                # Get the name of the user's team.
-                try:
-                    team = user.groups.values_list('name',flat=True)[0]
-                except:
-                    team = None
-
-                # Get the splits and cumulative time.
-                splits = self.calc_splits_by_tag(tag_id)
-                cumul_time = sum(splits)
-
-                # Compile the data.
-                results.append((user.id, name, team, splits, cumul_time))
-
-            # Sort by cumulative time.
-            results.sort(key=itemgetter(4))
-
-            # Save to the cache.
-            if save_cache:
-                cache.set(('ts_%i_results' %self.id), results)   
+        all_tags = self.sorted_tag_list(limit, offset)
+        results = [self._calc_splits_by_tag(tag_id) for tag_id in all_tags]
         return results
 
-    def get_team_results(self, num_scorers=5):
-        """Score team results. - basic implementation."""
-        # Get all of the team names.
-        results = self.calc_results(read_cache=True, save_cache=True)
-        teams = set([r[2] for r in results if (r[2] is not None)])
-        scores = dict(zip(teams, [[0,0] for i in range(len(teams))]))
+    def team_results(self, num_scorers=5):
+        """Calculate team scores.
+        
+        Compute the individual scores and compile a list of team names.
+        Iterate through the runners and add their place to each team's score.
+
+        """
+        individual_results = self.individual_results()
+        team_names = set([runner.team for runner in individual_results
+                          if runner.team is not None])
+        
+        scores = {}
+        for team in team_names:
+            scores[team] = {'athletes': [],
+                            'score': 0,
+                            'id': Group.objects.get(name=team).id,
+                            'name': team
+                            }
 
         place = 1
-        for athlete in results:
-            if athlete[2] in teams:
-                if scores[athlete[2]][0] < num_scorers:
-                    scores[athlete[2]][0] += 1
-                    scores[athlete[2]][1] += place
+        for athlete in individual_results:
+            
+            # Runners not on a team do not score or affect other scores.
+            if athlete.team in scores:
+
+                if len(scores[athlete.team]['athletes']) < num_scorers:
+                    scores[athlete.team]['athletes'].append(athlete.name)
+                    scores[athlete.team]['score'] += place
+
                 place += 1
 
-        sorted_scores = sorted([(t, scores[t][1]) for t in scores if 
-                         (scores[t][0]==num_scorers)], key=itemgetter(1))
+        teams_with_enough_runners = [scores[team] for team in scores if
+                                     len(scores[team]['athletes']) == num_scorers]
 
-        return {'results': [{'place': i+1, 
-                             'name': sorted_scores[i][0],
-                             'id': Group.objects.get(name=sorted_scores[i][0]).id,
-                             'score': sorted_scores[i][1]} for i in range(len(sorted_scores))] }
+        return  sorted(teams_with_enough_runners, key=lambda x: x['score'])
 
-    def get_filtered_results(self, gender='', age_range=[], teams=[]):
-        """Gets a filtered list of tag ids."""
+
+    def filtered_results(self, gender='', age_range=[], teams=[]):
+        """Filter results by gender, age, or team.
+
+        Note: this method does not support pagination.
+
+        Kwargs:
+            gender (str): Gender to filter by. (Should be 'M' or 'F'.)
+            age_range (list): Upper and lower age bounds.
+            teams (list): List of teams to give results for.
+
+        Returns:
+            List of namedtuples of results sorted by total time.
+        
+        """
         tt = self.tagtimes.all()
 
         # Filter by gender.
@@ -302,66 +380,18 @@ class TimingSession(models.Model):
         if teams:
             tt = tt.filter(tag__user__groups__name__in=teams)
 
-        tags = tt.values_list('tag_id',flat=True).distinct()
-        res = self.calc_results(tag_ids=tags)
-        
-        res_dict = {'results': [{'name': res[i][1], 'place': i+1,
-                                 'time': res[i][4] } for i in range(len(res))]}
-        return res_dict
-
-    def get_results(self, force_update=False, sort=False):
-        """Get full results, formatted for mobile."""
-        results = self.calc_results(read_cache=(not force_update), save_cache=True)
-        if sort:
-            results = sorted(sorted(results, key=lambda x: x[4]), reverse=True,
-                    key=lambda x: len(x[3]))
-
-        wdata = {}
-        wdata['date'] = self.start_time.strftime('%m.%d.%Y')
-        wdata['workoutID'] = self.id
-        wdata['runners'] = [{'id': r[0],
-                            'name': r[1], 
-                            'counter': range(1,len(r[3])+1),
-                            'interval': [[str(s)] for s in r[3]]} for r in results]
-
-        return wdata
-
-    def get_ordered_results(self, force_update=False):
-        """Get the full results, ordered by cumulative time."""
-        res =  self.get_results(force_update=force_update, sort=True)
-        for r in res['runners']:
-            r['interval'] = str(sum([float(t[0]) for t in r['interval']]))
-        return res    
-
-    def get_athlete_names(self):
-        """
-        Returns a list of all users that are registered in the session.
-        """
-        names = cache.get(('ts_%i_athlete_names' %self.id))
-
-        if not names:
-            names = []
-            tag_ids = self.tagtimes.values_list('tag', flat=True).distinct()
-            
-            for tag_id in tag_ids:
-                name = self.get_tag_name(tag_id)
-    
-                if name not in names:
-                    names.append(name)
-            
-            cache.set(('ts_%i_athlete_names' %self.id), names)
-        
-        return names
+        all_tags = tt.values_list('tag_id', flat=True).distinct()
+        results = [self._calc_splits_by_tag(tag_id) for tag_id in all_tags]
+        return sorted(results, key=lambda x: x.total)
 
     def clear_results(self):
-        """Removes all the tagtimes that currently exist in the session."""
+        """Remove all the tagtimes that currently exist in the session."""
         self.tagtimes.clear()
         self.clear_cache()
 
-    def clear_cache(self):
-        """Clear the session's cached results."""
-        cache.delete(('ts_%i_results' %self.id))
-        cache.delete(('ts_%i_athlete_names' %self.id))
+    def clear_cache(self, tag_id):
+        """Clear the session's cached results for a single tag."""
+        cache.delete(('ts_%i_tag_%i_results' %(self.id, tag_id)))   
 
     def _delete_split(self, tag_id, split_indx):
         """
