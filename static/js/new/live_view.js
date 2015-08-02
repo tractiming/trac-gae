@@ -374,7 +374,7 @@ google.setOnLoadCallback(function(){
 
 						splitSplit(runner.id, correction.index, correction.times);
 						
-						//console.log(correction);
+						console.log(correctionData);
 						numCorrections++;
 					}
 				}
@@ -1015,8 +1015,7 @@ google.setOnLoadCallback(function(){
 											user_id: runnerID,
 											action: 'split',
 											indx: indx,
-											split_1: splitTime,
-											split_2: newSplitTime },
+											val: splitTime },
 							success: function() {
 								// remove markers
 								splitRow.removeClass('modifying');

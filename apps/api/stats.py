@@ -25,6 +25,7 @@ def calculate_distance(data_dict):
             runner['indices'].append(runner['times'].index(element))
 
     rests = cross_check_runners(list_of_lists)
+    print rests
     data = data_dict
 
     #for each runner, if there are <= 2 universal rest points, it is continuous, else it is interval.
@@ -81,7 +82,7 @@ def calculate_distance(data_dict):
         average = min(i for i in list_of_times[key] if i>0)
         #average = average / len(list_of_times[key])
         list_of_times[key] = average
-
+    print list_of_times
     return list_of_times, runner_specific_times
 
 def create_list_of_lists(data_dict):

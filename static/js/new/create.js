@@ -469,11 +469,9 @@ $(function() {
 								var secs = remainder < 10 ? '0'+remainder.toString() : remainder.toString();
 
 								temp.splits[j] = (Math.floor(Number(s[0])/60)).toString() +':'+ secs +'.'+ (s[1] ? s[1] : '000');
-<<<<<<< HEAD
-=======
+
 							} else if (split.indexOf('.') === -1) {
 								temp.splits[j] = split + '.000';
->>>>>>> master
 							}
 						}
 

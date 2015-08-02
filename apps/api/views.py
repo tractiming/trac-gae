@@ -493,7 +493,7 @@ def edit_split(request):
     elif data['action'] == 'delete':
         ts._delete_split(tag[0].id, int(data['indx']))
     elif data['action'] == 'split':
-        ts._insert_split(tag[0].id, int(data['indx']), float(data['split_1']), False)
+        ts._insert_split(tag[0].id, int(data['indx']), float(data['val']), False)
     elif data['action'] == 'total_time':
         ts._overwrite_final_time(tag[0].id, int(data['hour']), int(data['min']), int(data['sec']), int(data['mil']))
     else:
@@ -1092,23 +1092,23 @@ def est_distance(request):
 
     #update each individual runner tables with their own data for distances predicted above.
     for runner in r_times:
-        username = runner['Name']
+        username = runner['name']
         a_user = User.objects.get(id = username)
         ap = AthleteProfile.objects.get(user = a_user)
         cp.athletes.add(ap)
-        for results in runner['Results']:
-            splits = results['Splits']
-            times = results['Times']
+        for results in runner['results']:
+            splits = results['splits']
+            times = results['times']
             for distance in distanceList:
                 if splits == distance['Splits'] and times != 0:
                     try:
-                        r= ap.reftables_set.get(distance= distance['Distance'], interval= results['Interval'])
+                        r= ap.reftables_set.get(distance= distance['Distance'], interval= results['interval'])
                         r.time = (r.time + times)/2
                         r.save()
                     except:
-                        r = RefTables.objects.create(distance=distance['Distance'], time=times, interval= results['Interval'])
+                        r = RefTables.objects.create(distance=distance['Distance'], time=times, interval= results['interval'])
                     ap.reftables_set.add(r)
-        print runner['Name']
+        print runner['name']
         print ap.reftables_set.all().values()
 
     #return auto_edits 
