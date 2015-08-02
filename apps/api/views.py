@@ -1,4 +1,3 @@
-#sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from django.http import HttpResponse, Http404
@@ -329,10 +328,17 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         session = TimingSession.objects.get(pk=pk)
         raw_results = session.filtered_results(gender=gender,
                 age_range=[age_gte, age_lte], teams=teams)
+        
+        results = {'num_returned': len(raw_results),
+                   'results': [{'name': r.name,
+                                'splits': [[str(s) for s in r.splits]],
+                                'total': str(r.total)
+                               } for r in raw_results]
+                   }
 
-        return Response(raw_results)
+        return Response(results)
 
-
+# TODO: Move to TimingSessionViewSet
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))
 def open_session(request):
@@ -351,6 +357,7 @@ def open_session(request):
     except ObjectDoesNotExist:
 		return HttpResponse(status.HTTP_404_NOT_FOUND)
             
+# TODO: Move to TimingSessionViewSet
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))
 def close_session(request):
@@ -368,6 +375,7 @@ def close_session(request):
     except ObjectDoesNotExist:
 		return HttpResponse(status.HTTP_404_NOT_FOUND)
 
+# TODO: Move to TimingSessionViewSet
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))
 def start_session(request):
@@ -390,6 +398,7 @@ def start_session(request):
     except ObjectDoesNotExist:
 		return HttpResponse(status.HTTP_404_NOT_FOUND)
     
+# TODO: Move to TimingSessionViewSet
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))
 def reset_session(request):
@@ -416,6 +425,7 @@ def reset_session(request):
         except:
             return HttpResponse(status.HTTP_404_NOT_FOUND)
 
+# TODO: DEPRECATED
 @api_view(['GET'])
 @permission_classes((permissions.IsAuthenticated,))
 def filtered_results(request):
@@ -455,6 +465,7 @@ def filtered_results(request):
     results = session.get_filtered_results(gender=g, age_range=age_range, teams=t)
     return Response(results, status.HTTP_200_OK)
 
+#TODO: DEPRECATED
 @api_view(['GET'])
 @permission_classes((permissions.IsAuthenticated,))
 def team_results(request):
@@ -596,6 +607,7 @@ def time_create(request):
     ts.readers.add(*r)
     ts.save()
     return HttpResponse(status.HTTP_201_CREATED)
+
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))
 def create_race(request):
@@ -661,9 +673,9 @@ def create_race(request):
             tag.save()
         except ObjectDoesNotExist:
             tag = Tag.objects.create(id_str=tag_id, user=user)
+        # FIXME: What does this do?
         except MultipleObjectsReturned:
             tag = Tag.objects.create(id_str= 'colliding tag', user=user)
-
 
         ts.registered_tags.add(tag.pk)
     return HttpResponse(status.HTTP_201_CREATED)
@@ -748,6 +760,7 @@ def ManyDefaultTags(request):
         ts.save()
         return HttpResponse(status.HTTP_200_OK)
 
+# TODO: Move to AthleteViewSet
 #update and remove athlete profiles from coach.athletes.all() but keeps the athlete's user account.
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))
@@ -795,6 +808,7 @@ def edit_athletes(request):
             user.save()
         return HttpResponse(status.HTTP_200_OK)
 
+# TODO: Move to UserViewSet
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))
 def edit_info(request):
@@ -927,104 +941,3 @@ def send_email(request):
         return HttpResponse(status.HTTP_200_OK)
     else:
         return HttpResponse(status.HTTP_403_FORBIDDEN)
-######################### Do we need these? ###########################
-#@api_view(['GET'])
-#@permission_classes((permissions.AllowAny,))
-#def verify_login(request):
-#    """
-#    Checks if the user is logged in. Returns a JSON response.
-#    """
-#    print request.user
-#    return HttpResponse()
-#
-#@csrf_exempt
-#@api_view(['GET'])
-#@permission_classes((permissions.AllowAny,))
-#def current_time(request):
-#    return Response({str(timezone.now())}, status.HTTP_200_OK)
-#
-#class JSONResponse(HttpResponse):
-#    """
-#    Renders contents to JSON.
-#    """
-#    def __init__(self, data, **kwargs):
-#        content = renderers.JSONRenderer().render(data)
-#        kwargs['content_type'] = 'application/json'
-#        super(JSONResponse, self).__init__(content, **kwargs)
-#class TimingSessionStartButton(views.APIView):
-#    serializer_class = TimingSessionSerializer
-#    permission_classes = (permissions.AllowAny,)#permissions.IsAuthenticated,)
-#
-#    def post(self, request):
-#        """Sets the start button time to now."""
-#        current_time = timezone.now()-timezone.timedelta(seconds=8)
-#        data = request.POST
-#        print data
-#
-#        try:
-#            #sessions = TimingSession.objects.filter(manager=self.request.user)
-#            #ts = sessions.get(id=data['id'])
-#            ts = TimingSession.objects.get(id=data['id'])
-#            #print ts
-#            ts.start_button_time = current_time
-#            ts.save()
-#            return HttpResponse(status.HTTP_202_ACCEPTED)
-#
-#        except:
-#			return HttpResponse(status.HTTP_404_NOT_FOUND)
-#class TimingSessionReset(views.APIView):
-#    #serializer_class = TimingSessionSerializer
-#    permission_classes = (permissions.IsAuthenticated,)
-#    def post(self,request):
-#        data = request.POST 
-#        user = self.request.user
-#        
-#        # If the user is an athlete do not allow them to edit.
-#        if is_athlete(user):
-#            return HttpResponse(status.HTTP_403_FORBIDDEN)
-#        
-#        elif is_coach(user):
-#            try:
-#                sessions = TimingSession.objects.filter(manager=user)
-#                t = sessions.get(id=data['id'])
-#                t.tagtimes.clear()
-#
-#                # Clear the cache for the session.
-#                cache.delete(('ts_%i_results' %t.id))
-#                cache.delete(('ts_%i_athlete_names' %t.id))
-#                return HttpResponse(status.HTTP_202_ACCEPTED)
-#            
-#            except:
-#				return HttpResponse(status.HTTP_404_NOT_FOUND)
-#class IndividualTimes(views.APIView):
-#    serializer_class = TimingSessionSerializer
-#    permission_classes = (permissions.IsAuthenticated,)
-#    def get(self, request, format=None):
-#        
-#        user = self.request.user
-#        # print user
-#        final_array = []
-#        # If the user is an athlete, list all the workouts he has run.
-#        if is_athlete(user):
-#            ap = AthleteProfile.objects.get(user=user)
-#            sessions = ap.get_completed_sessions()
-#		#Iterate through each session
-#            for s in sessions:
-#			    primary_key = s.pk
-#			    t = TimingSession.objects.get(id=primary_key)
-#			    num = t.get_athlete_names().index('%s' %(user))
-#			    temp_name = t.name
-#			    temp_time = t.start_time
-#			    temp_results = t.get_results().get('runners')[num]
-#			    temp_array = [{'Name': temp_name, 'Date': temp_time, 'Runner': temp_results}]
-#			    final_array = final_array + temp_array
-#			    final_array = final_array[::-1]
-#            return Response(final_array)
-#            sessions = final_array
-#            return Response(sessions)
-#        elif is_coach(user):
-#            return HttpResponse(status.HTTP_404_NOT_FOUND)
-#
-#        # If not a user or coach, no results can be found.
-#        else:
-#            return HttpResponse(status.HTTP_404_NOT_FOUND)
