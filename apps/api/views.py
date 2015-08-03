@@ -476,7 +476,7 @@ def filtered_results(request):
     else:
         t = []
 
-    results = session.get_filtered_results(gender=g, age_range=age_range, teams=t)
+    results = session.filtered_results(gender=g, age_range=age_range, teams=t)
     return Response(results, status.HTTP_200_OK)
 
 #TODO: DEPRECATED
