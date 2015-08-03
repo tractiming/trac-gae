@@ -223,8 +223,6 @@ class TimingSession(models.Model):
             if use_cache:
                 cache.set(('ts_%i_tag_%i_results' %(self.id, tag_id)), results)   
 
-        else:
-            interval = results[-2]
         
         # Filtering algorithm.
         if filter_s is None:
@@ -232,6 +230,8 @@ class TimingSession(models.Model):
         if filter_s:
             interval = filter_splits(results[-1], self.interval_distance, 
                                      self.track_size)
+        else:
+            interval = results[-1]
 
         return Results(results[0], results[1], results[2], interval, sum(interval))
 
