@@ -4,12 +4,15 @@ $(function() {
 	//===================================== CONSTANTS & variables =====================================
 
 	var UPDATE_INTERVAL = 5000,				// update live results every 5 secs
-			IDLE_TIMEOUT = 1200000;				// idle check after 20 minutes
+			IDLE_TIMEOUT = 1200000,				// idle check after 20 minutes
+			RESULTS_PER_PAGE = 25;				// results pagination
+
 
 	var idArray = [],
 			currentID,
 			updateHandler, idleHandler, 
 			sessionData, ajaxRequest,
+			resultOffset = 0, currentPage = 1,
 			spinner, target;
 
 	(function init(){
@@ -119,6 +122,10 @@ $(function() {
 
 		ajaxRequest = $.ajax({
 			url: '/api/sessions/'+ idjson +'/individual_results',
+			data: {
+				'offset': resultOffset,
+				'limit': resultOffset + RESULTS_PER_PAGE
+			},
 			dataType: 'text',		//force to handle it as text
 			success: function(data) {
 				data = $.parseJSON(data);
@@ -147,9 +154,6 @@ $(function() {
 					//$('.button-container').show();
 					$('#results-table').empty().show();
 
-					// style it with some bootstrap
-					$('#results').addClass('col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2');
-
 					$('#results-table').append(
 						'<thead>' + 
 							'<tr>' +
@@ -173,12 +177,60 @@ $(function() {
 							'</tr>'
 						);
 					}
+
+					var numResults = data.num_results;
+					var numReturned = data.num_returned;
+
+					if (numResults < RESULTS_PER_PAGE) {
+						$('button.prev').attr('disabled', true);
+						$('button.next').attr('disabled', true);
+					} else {
+						if ((numReturned < RESULTS_PER_PAGE) || (numReturned * currentPage == numResults))
+							$('button.next').attr('disabled', true);
+						else
+							$('button.next').attr('disabled', false);
+
+						if (currentPage == 1)
+							$('button.prev').attr('disabled', true);
+						else
+							$('button.prev').attr('disabled', false);
+					}
+
+					// add page number and status
+					$('.results-page-number').html(currentPage);
+					$('.results-show-status').html(
+						'Showing '+
+							(resultOffset+1) +' - '+ 
+							(resultOffset+numReturned) +' of '+
+							numResults+' results'
+					);
 				}
 			}
 		});
 	}
+
+	// register handlers for paginating
+	$('body').on('click', 'button.prev', function(e){
+		e.preventDefault();
+
+		if (currentPage != 1) {
+			resultOffset -= RESULTS_PER_PAGE;
+			currentPage--;
+		}
+
+		update(currentID);
+	});
+
+	$('body').on('click', 'button.next', function(e){
+		e.preventDefault();
+
+		resultOffset += RESULTS_PER_PAGE;
+		currentPage++;
+
+		update(currentID);
+	});
 		
-	// attach handler for heat menu item click
+	// register handler for heat menu item click
 	$('body').on('click', 'ul.menulist li a', function(){
 		var value = $(this).html();
 		console.log( 'Index: ' + $( 'ul.menulist li a' ).index( $(this) ) );
