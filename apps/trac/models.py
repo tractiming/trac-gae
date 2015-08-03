@@ -188,13 +188,14 @@ class TimingSession(models.Model):
         else:
             results = None
 
+        Results = namedtuple('Results', 'user_id name team splits total')
         if not results:    
-            Results = namedtuple('Results', 'user_id name team splits total')
-            
             tag = Tag.objects.get(id=tag_id)
             
             # Get the name of the tag's owner and their team.
-            name = tag.user.username
+            name = tag.user.get_full_name()
+            if not name:
+                name = tag.user.username
             #name = self.get_tag_name(tag_id)
             try:
                 team = tag.user.groups.values_list('name', flat=True)[0]
@@ -221,6 +222,7 @@ class TimingSession(models.Model):
             # filter choice is changed, we don't need to recalculate.
             if use_cache:
                 cache.set(('ts_%i_tag_%i_results' %(self.id, tag_id)), results)   
+
         
         # Filtering algorithm.
         if filter_s is None:
@@ -228,6 +230,8 @@ class TimingSession(models.Model):
         if filter_s:
             interval = filter_splits(results[-1], self.interval_distance, 
                                      self.track_size)
+        else:
+            interval = results[-1]
 
         return Results(results[0], results[1], results[2], interval, sum(interval))
 
@@ -386,8 +390,10 @@ class TimingSession(models.Model):
 
     def clear_results(self):
         """Remove all the tagtimes that currently exist in the session."""
+        tag_ids = self.tagtimes.values_list('tag_id', flat=True).distinct()
+        for tag_id in tag_ids:
+            self.clear_cache(tag_id)
         self.tagtimes.clear()
-        self.clear_cache()
 
     def clear_cache(self, tag_id):
         """Clear the session's cached results for a single tag."""
