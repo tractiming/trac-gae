@@ -185,7 +185,6 @@ class TimingSession(models.Model):
         # basis.
         if use_cache:
             results = cache.get(('ts_%i_tag_%i_results' %(self.id, tag_id)))
-            interval = results[-2]
         else:
             results = None
 
@@ -223,6 +222,9 @@ class TimingSession(models.Model):
             # filter choice is changed, we don't need to recalculate.
             if use_cache:
                 cache.set(('ts_%i_tag_%i_results' %(self.id, tag_id)), results)   
+
+        else:
+            interval = results[-2]
         
         # Filtering algorithm.
         if filter_s is None:
