@@ -188,9 +188,8 @@ class TimingSession(models.Model):
         else:
             results = None
 
+        Results = namedtuple('Results', 'user_id name team splits total')
         if not results:    
-            Results = namedtuple('Results', 'user_id name team splits total')
-            
             tag = Tag.objects.get(id=tag_id)
             
             # Get the name of the tag's owner and their team.
