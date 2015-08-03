@@ -185,6 +185,7 @@ class TimingSession(models.Model):
         # basis.
         if use_cache:
             results = cache.get(('ts_%i_tag_%i_results' %(self.id, tag_id)))
+            interval = results[-2]
         else:
             results = None
 
