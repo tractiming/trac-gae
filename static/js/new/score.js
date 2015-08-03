@@ -85,13 +85,15 @@ $(function() {
 			dataType: 'text',
 			success: function(data){
 				var json = $.parseJSON(data);
-				if (json.length == 0) {
+				if (json.length === 0) {
 					spinner.stop();
 					$('#results-table').hide();
 					$('#score-title').html('Live Results');
+					$('#results-status').hide();
 					$('p.notification.notification-default2').show();
 				} else {
 					$('#results-table').show();
+					$('#results-status').show();
 					$('p.notification.notification-default2').hide();
 					var arr = [];
 					for (var i=0; i < json.length; i++){

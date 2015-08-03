@@ -1367,9 +1367,11 @@ google.setOnLoadCallback(function(){
 					
 					if ((results.length == 0) && (!$.trim($('ul.menulist').html()))) {
 						$('.notification.no-sessions').show();
+						$('#results-status').hide();
 						spinner.stop();
 					} else {
 						$('.notification').hide();
+						$('#results-status').show();
 						for (var i=0; i<results.length; i++){
 							// add events to event menu
 							$('ul.menulist').append('<li><a id="session-'+results[i].id+'" href="#">'+results[i].name+'</a></li>');
