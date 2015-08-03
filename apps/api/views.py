@@ -345,6 +345,16 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
         return Response(results)
 
+    @detail_route(methods=['post'], permission_classes=[])
+    def reset(self, request, pk=None):
+        """
+        Reset a timing session by clearing all of its tagtimes.
+        """
+        session = TimingSession.objects.get(pk=pk)
+        session.clear_results()
+        return HttpResponse(status.HTTP_202_ACCEPTED)
+            
+
 # TODO: Move to TimingSessionViewSet
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))
@@ -422,11 +432,8 @@ def reset_session(request):
         
     else:
         try:
-            sessions = TimingSession.objects.filter(manager=user)
-            t = sessions.get(id=data['id'])
-            t.tagtimes.clear()
-            cache.delete(('ts_%i_results' %t.id))
-            cache.delete(('ts_%i_athlete_names' %t.id))
+            session = TimingSession.objects.get(id=data['id'])
+            session.clear_results()
             return HttpResponse(status.HTTP_202_ACCEPTED)
         
         except:

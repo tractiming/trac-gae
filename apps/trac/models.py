@@ -386,8 +386,10 @@ class TimingSession(models.Model):
 
     def clear_results(self):
         """Remove all the tagtimes that currently exist in the session."""
+        tag_ids = self.tagtimes.values_list('tag_id', flat=True).distinct()
+        for tag_id in tag_ids:
+            self.clear_cache(tag_id)
         self.tagtimes.clear()
-        self.clear_cache()
 
     def clear_cache(self, tag_id):
         """Clear the session's cached results for a single tag."""
