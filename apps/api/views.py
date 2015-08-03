@@ -1069,13 +1069,13 @@ def tutorial_limiter(request):
 def analyze(request):
     idx = request.POST.get('id')
     ts = TimingSession.objects.get(id = idx)
-    run = ts.get_results().get('runners')
+    run = ts.individual_results()
     dataList = []
     for r in run:
-        times = [item for sublist in r['interval'] for item in sublist]
+        times = r[3]
         for index, item in enumerate(times):
             times[index] = float(item)
-        name = r['id']
+        name = r[0]
 
         dataList.append({'name': name, 'times': times})
 
