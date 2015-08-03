@@ -1176,13 +1176,13 @@ google.setOnLoadCallback(function(){
 			var gender = (g.trim() === 'Male') ? 'M' : 'F';
 
 			$.ajax({
-				url: '/api/filtered_results/?id='+currentID+'&gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
+				url: '/api/sessions/'+currentID+'/filtered_results/?gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
 					var results = $.parseJSON(data).results;
-
-					if (results == '') {
+					
+					if (results.length === 0) {
 						spinner.stop();
 						$('#individual-table-canvas').empty();
 						$('.notification.no-individual-data').show();
@@ -1207,9 +1207,9 @@ google.setOnLoadCallback(function(){
 							runner = results[i];
 							$('#individual-table-canvas tbody').append(
 								'<tr>' +
-									'<td>'+ runner.place +'</td>' +
+									'<td>'+ (i+1) +'</td>' +
 									'<td>'+ runner.name +'</td>' +
-									'<td>'+ formatTime(Number(runner.time)) +'</td>' +
+									'<td>'+ formatTime(Number(runner.total)) +'</td>' +
 								'</tr>'
 							);
 						}
@@ -1230,13 +1230,13 @@ google.setOnLoadCallback(function(){
 			$('#team-table-canvas').empty();
 			spinner.spin(target);
 			$.ajax({
-				url: 'api/team_results/?id='+currentID,
+				url: 'api/sessions/'+currentID+'/team_results',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
-					var results = $.parseJSON(data).results;
+					var results = $.parseJSON(data);
 
-					if (results == '') {
+					if (results.length === 0) {
 						spinner.stop();
 						$('.notification.no-team-data').show();
 						$('#results-team').show();
