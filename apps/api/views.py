@@ -995,8 +995,8 @@ def tutorial_limiter(request):
     else:
         return HttpResponse(status.HTTP_403_FORBIDDEN)
 
-"""
-@api_view(['GET']):
+
+@api_view(['GET'])
 @permission_classes((permissions.AllowAny,))
 def VO2Max(request):
     user = request.user
@@ -1004,19 +1004,43 @@ def VO2Max(request):
         result = []
         cp = CoachProfile.objects.get(user = user)
         for athlete in cp.athletes.all():
-            velocity = 0
+            sum_VO2 = 0
             count = 0
             for entry in athlete.reftables_set.all():
-                temp = entry.distance / entry.time
-                velocity += temp
+                sum_VO2 += entry.VO2
                 count += 1
-            velocity = velocity / count
-
-
+            try:
+                avg_VO2 = sum_VO2 / count
+                if entry.interval == 'i':
+                    avg_VO2 = avg_VO2 / .9
+                else:
+                    avg_VO2 = avg_VO2 / .8
+                avg_VO2 = int(avg_VO2)
+                vVO2 = 2.8859 + .0686 * (avg_VO2 - 29)
+                vVO2 = vVO2 / .9
+            except:
+                avg_VO2 = 'None'
+                vVO2 = 1
+            print athlete
+            print 'VO2: ' + str(avg_VO2)
+            print 'vVO2: ' + str(vVO2)
+            print '100m: ' + str(100/vVO2)
+            print '200m: ' + str(200/vVO2)
+            print '400m: ' + str(400/vVO2)
+            print '800m: ' + str(800/vVO2)
+            print '1000m: ' + str(1000/vVO2)
+            print '1500m: ' + str(1500/vVO2)
+            print '1609m: ' + str(1609/vVO2)
+            print '3000m: ' + str(3000/vVO2)
+            print '5000m: ' + str(5000/vVO2)
+            print '10000m: ' + str(10000/vVO2)
     elif is_athlete(user):
         ap = AthleteProfile.objects.get(user = user)
 
-"""
+    return HttpResponse(status.HTTP_200_OK)
+
+
+
 
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))
@@ -1082,11 +1106,14 @@ def est_distance(request):
         var = raw_input("Did you run a "+str(selected)+" in "+str(interval-1)+" splits?")
         if var == 'no':
             var2 = raw_input("What was the distance? ")
-            length = int(var2)
-            s = cp.reftables_set.get(distance = length)
-            s.time = (s.time + int_time)/2
-            s.save()
-            distanceList.append({'Splits': interval-1, 'Distance': length})
+            if var2 == 'none':
+                continue
+            else:
+                length = int(var2)
+                s = cp.reftables_set.get(distance = length)
+                s.time = (s.time + int_time)/2
+                s.save()
+                distanceList.append({'Splits': interval-1, 'Distance': length})
         else:
             distanceList.append({'Splits': interval-1, 'Distance': selected})
 
@@ -1104,12 +1131,17 @@ def est_distance(request):
                     try:
                         r= ap.reftables_set.get(distance= distance['Distance'], interval= results['interval'])
                         r.time = (r.time + times)/2
+                        velocity = r.distance / (r.time/60)
+                        VO2 = (-4.60 + .182258 * velocity + 0.000104 * pow(velocity, 2)) / (.8 + .1894393 * pow(2.78, (-.012778 * r.time/60)) + .2989558 * pow(2.78, (-.1932605 * r.time/60)))
+                        VO2 = int(VO2)
+                        r.VO2 = VO2
                         r.save()
                     except:
-                        r = RefTables.objects.create(distance=distance['Distance'], time=times, interval= results['interval'])
+                        velocity = distance['Distance']/ (times/60)
+                        VO2 = (-4.60 + .182258 * velocity + 0.000104 * pow(velocity, 2)) / (.8 + .1894393 * pow(2.78, (-.012778 * times/60)) + .2989558 * pow(2.78, (-.1932605 * times/60)))
+                        VO2 = int(VO2)
+                        r = RefTables.objects.create(distance=distance['Distance'], time=times, interval= results['interval'], VO2= VO2)
                     ap.reftables_set.add(r)
-        print runner['name']
-        print ap.reftables_set.all().values()
 
     #return auto_edits 
     return HttpResponse(status.HTTP_200_OK)

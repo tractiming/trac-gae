@@ -548,6 +548,7 @@ class RefTables(models.Model):
     distance = models.IntegerField()
     time = models.FloatField()
     interval = models.CharField(max_length= 1)
+    VO2 = models.IntegerField(null = True, blank = True)
     Athlete = models.ManyToManyField(AthleteProfile)
     Coach = models.ManyToManyField(CoachProfile)
 
