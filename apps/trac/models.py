@@ -194,7 +194,9 @@ class TimingSession(models.Model):
             tag = Tag.objects.get(id=tag_id)
             
             # Get the name of the tag's owner and their team.
-            name = tag.user.username
+            name = tag.user.get_full_name()
+            if not name:
+                name = tag.user.username
             #name = self.get_tag_name(tag_id)
             try:
                 team = tag.user.groups.values_list('name', flat=True)[0]
