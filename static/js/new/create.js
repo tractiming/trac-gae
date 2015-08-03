@@ -164,7 +164,8 @@ $(function() {
 						'Showing '+
 							sessionFirst+' - '+ 
 							(sessionLast > numSessions ? numSessions : sessionLast) +' of '+
-							numSessions+' results');
+							numSessions+' results'
+					);
 				}
 				spinner.stop();
 			}

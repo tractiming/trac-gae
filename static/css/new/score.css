@@ -31,3 +31,7 @@ ul.menulist {
 #results-status {
 	margin-bottom: 20px;
 }
+
+.results-page-number, .results-show-status {
+	padding: 0 10px;
+}
