@@ -189,13 +189,12 @@ $(function() {
 		// request for new session data
 		$.ajax({
 			url: '/api/sessions/'+ currentID,
-			headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 			dataType: 'text',
 			success: function(data) {
 				var json = $.parseJSON(data);
 
 				// add heat name
-				$('#results-title').html('Live Results: ' + json.name);
+				$('#score-title').html('Live Results: ' + json.name);
 
 				spinner.spin(target);
 				update(currentID);
