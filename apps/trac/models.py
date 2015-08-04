@@ -51,28 +51,15 @@ class TagTime(models.Model):
     A single split time from one tag.
     """
     tag = models.ForeignKey(Tag)
-    time = models.DateTimeField()
-    milliseconds = models.IntegerField()
+    athlete = models.ForeignKey(AthleteProfile)
     reader = models.ForeignKey(Reader)
+    time = models.BigIntegerField()
 
     class Meta:
         unique_together = ("tag", "time",)
 
     def __unicode__(self):
         return "time=%s, tag=%s" %(self.time, self.tag.id_str)
-
-    @property
-    def owner_name(self):
-        name = self.tag.user.get_full_name()
-        if not name:
-            return ""
-        return name
-
-    @property
-    def full_time(self):
-        """Full time with milliseconds."""
-        return (self.time.replace(microsecond=0)+
-                timezone.timedelta(milliseconds=self.milliseconds))
 
 class TimingSession(models.Model):
     """
