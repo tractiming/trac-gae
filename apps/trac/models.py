@@ -132,6 +132,8 @@ class TimingSession(models.Model):
         diff = [(max_time['tag_id'], max_time['time']-min_time['time']) for
                 max_time, min_time in zip(max_times, min_times)]
         sorted_times = sorted(diff, key=lambda x: x[1])
+        if limit is not None and offset is not None:
+            sorted_times = sorted_times[offset:limit]
 
         return [t[0] for t in sorted_times]
 
