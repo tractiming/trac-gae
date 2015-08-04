@@ -40,6 +40,6 @@ def create_split(reader_id, tag_id, time):
 
         # Destroying the cache for this session will force the results to be
         # recalculated.
-        session.clear_cache(tag_id)
+        session.clear_cache(tag.id)
     
     return 0
