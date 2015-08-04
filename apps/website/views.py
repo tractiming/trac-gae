@@ -27,6 +27,9 @@ def calendar(request):
 def settings(request):
     return render(request, 'settings.html', {})
 
+def analyze(request):
+    return render(request, 'analyze.html', {})
+
 def readers(request):
     return render(request, 'readers.html', {})
     

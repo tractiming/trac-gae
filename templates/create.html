@@ -1,7 +1,6 @@
 {% extends "base_new.html" %}
 {% load static %}
 
-
 {% block stylesheets %}
 	<link href="{% static "css/bootstrap-datepicker3.min.css" %}" rel="stylesheet" type="text/css">
 	<link rel="stylesheet" href="{% static "css/new/create.css" %}" />
@@ -14,28 +13,7 @@
 	<script type="text/javascript" src="{% static "js/new/create.js" %}"></script>
 {% endblock %}
 
-{% block nav-items %}
-  <li><a href="/home">Home</a></li>
-  <li><a href="/liveview">Live View</a></li>
-  <li><a href="/create">Create</a></li>
-  <li><a href="/settings">Race Management</a></li>
-  <li><a class="hidden-sm hidden-md hidden-lg" href="/readers">Readers</a></li>
-  <li><a class="hidden-sm hidden-md hidden-lg" href="/account_settings">Settings</a></li>
-  <li><a class="logout hidden-sm hidden-md hidden-lg" href="">Logout</a></li>
-	<!-- Single button -->
-  <li id="dropdown-button" class="btn-group hidden-xs">
-    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-      <span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>
-    </button>
-    <ul class="dropdown-menu" >
-      <li><a href="/readers">Readers</a></li>
-      <li><a href="/account_settings">Settings</a></li>
-      <li role="separator" class="divider"></li>
-      <li><a class="logout" href="">Logout</a></li>
-    </ul>
-  </li>
-{% endblock %}
-
+<!-- Body -->
 {% block content %}
 	<div class="modal fade" id="notifications-modal" role="dialog">
 		<div class="modal-dialog">

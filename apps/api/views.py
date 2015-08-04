@@ -422,7 +422,7 @@ def reset_session(request):
     """
     Reset a timing session by clearing all of its tagtimes.
     """
-    data = request.POST 
+    data = request.POST
     user = request.user
         
     # If the user is an athlete do not allow them to edit.
