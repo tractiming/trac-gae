@@ -476,7 +476,7 @@ def filtered_results(request):
     else:
         t = []
 
-    results = session.get_filtered_results(gender=g, age_range=age_range, teams=t)
+    results = session.filtered_results(gender=g, age_range=age_range, teams=t)
     return Response(results, status.HTTP_200_OK)
 
 #TODO: DEPRECATED
@@ -583,7 +583,7 @@ def sessions_paginate(request):
             table = TimingSession.objects.filter(Q(private='false') & Q(start_time__range=(start_date, stop_date))).values()
         #reset indices for pagination without changing id
     if begin == 0 and stop == 0:
-        return Response({'results': table, 'numSessions': len(table)}, status.HTTP_200_OK)
+        return Response({'results': table, 'num_sessions': len(table)}, status.HTTP_200_OK)
     else:
         i = 1
         result = []
@@ -593,7 +593,7 @@ def sessions_paginate(request):
                 result.append(instance)
             i += 1
         #result = list(reversed(result))
-        return Response({'results': result, 'numSessions': len(table)}, status.HTTP_200_OK)
+        return Response({'results': result, 'num_sessions': len(table)}, status.HTTP_200_OK)
 
 def string2bool(string):
     if string == 'true':
@@ -1069,13 +1069,13 @@ def tutorial_limiter(request):
 def analyze(request):
     idx = request.POST.get('id')
     ts = TimingSession.objects.get(id = idx)
-    run = ts.get_results().get('runners')
+    run = ts.individual_results()
     dataList = []
     for r in run:
-        times = [item for sublist in r['interval'] for item in sublist]
+        times = r[3]
         for index, item in enumerate(times):
             times[index] = float(item)
-        name = r['id']
+        name = r[0]
 
         dataList.append({'name': name, 'times': times})
 

@@ -27,3 +27,11 @@ ul.menulist {
 			text-decoration: none;
 			color: #b3b3b1;
 }
+
+#results-status {
+	margin-bottom: 20px;
+}
+
+.results-page-number, .results-show-status {
+	padding: 0 10px;
+}

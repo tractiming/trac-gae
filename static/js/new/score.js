@@ -1,9 +1,18 @@
 //When DOM loaded we attach click event to button
 
 $(function() {
+	//===================================== CONSTANTS & variables =====================================
+
+	var UPDATE_INTERVAL = 5000,				// update live results every 5 secs
+			IDLE_TIMEOUT = 1200000,				// idle check after 20 minutes
+			RESULTS_PER_PAGE = 25;				// results pagination
+
+
 	var idArray = [],
 			currentID,
 			updateHandler, idleHandler, 
+			sessionData, ajaxRequest,
+			resultOffset = 0, currentPage = 1,
 			spinner, target;
 
 	(function init(){
@@ -41,39 +50,85 @@ $(function() {
 		getScores(team)
 	})();
 
+	//======================================== score functions ========================================
+	function startUpdates() {
+		// stop execution if session is over
+		if (sessionData && (new Date() > new Date(sessionData.stop_time)))
+			return;
+
+		// refresh the view every 5 seconds to update
+		updateHandler = setInterval(lastSelected, UPDATE_INTERVAL);
+
+		// idle check after 20 minutes
+		idleHandler = setTimeout(function(){ idleCheck(updateHandler, lastSelected, UPDATE_INTERVAL, IDLE_TIMEOUT, 'http://www.trac-us.com'); }, IDLE_TIMEOUT);
+	}
+
+	function stopUpdates() {
+		clearInterval(updateHandler);
+		clearTimeout(idleHandler);
+	}
+
+	// update wrapper function
+	function lastSelected() {
+		update(currentID);
+	}
+
 	function getScores(team){
 		getSessions(team);
 
-		// display most recent table
-		lastWorkout(team);
+		stopUpdates();
+		startUpdates();
+	}
 
-		// refresh the view every 5 seconds to update
-		clearInterval(updateHandler);
-		updateHandler = setInterval(function(){lastSelected(team);}, 5000);
+	// find all heats and add to heat menu and idArray
+	function getSessions(team){
+		$('ul.menulist').empty();
+		$.ajax({
+			url: '/api/score/?org='+team,
+			dataType: 'text',
+			success: function(data){
+				var json = $.parseJSON(data);
+				if (json.length === 0) {
+					spinner.stop();
+					$('#results-table').hide();
+					$('#score-title').html('Live Results');
+					$('#results-status').hide();
+					$('p.notification.notification-default2').show();
+				} else {
+					$('#results-table').show();
+					$('#results-status').show();
+					$('p.notification.notification-default2').hide();
+					var arr = [];
+					for (var i=0; i < json.length; i++){
+						$('ul.menulist').append('<li><a id="session-'+json[i].id+'" href="#">'+json[i].name+'</a></li>');
+						arr.push(json[i].id);
+					}
+					idArray = arr;
+				}
 
-		// idle check after 20 minutes
-		clearTimeout(idleHandler);
-		idleHandler = setTimeout(
-			function(){ 
-				idleCheck(
-					updateHandler, 
-					function(){lastSelected(team);}, 
-					5000, 
-					1200000, 
-					'http://www.trac-us.com'
-				); 
-			}, 1200000);
+				// show most recent workout
+				if (!currentID)
+					currentID = idArray[0];
+
+				$('a#session-'+currentID).click();
+			}
+		});
 	}
 
 	function update(idjson){
-		var last_url = '/api/score/'+ idjson;
-
 		//start ajax request
-		$.ajax({
-			url: last_url,
+		if (ajaxRequest)
+			ajaxRequest.abort();
+
+		ajaxRequest = $.ajax({
+			url: '/api/sessions/'+ idjson +'/individual_results',
+			data: {
+				'offset': resultOffset,
+				'limit': resultOffset + RESULTS_PER_PAGE
+			},
 			dataType: 'text',		//force to handle it as text
 			success: function(data) {
-				var json = $.parseJSON(data);
+				data = $.parseJSON(data);
 
 				/*
 				// hardcoded for testing
@@ -84,14 +139,10 @@ $(function() {
 				}
 				//*/
 
-				var score = $.parseJSON(json.final_score);
-
-				// add heat name
-				$('#score-title').empty();
-				$('#score-title').append('Live Results: ' + json.name);
+				var results = data.results;
 
 				// if empty, hide spinner and show notification
-				if (score.runners == '') {
+				if (results.length === 0) {
 					spinner.stop();
 					$('#notifications .notification-default').show();
 					//$('.button-container').hide();
@@ -102,9 +153,6 @@ $(function() {
 					$('#notifications .notification-default').hide();
 					//$('.button-container').show();
 					$('#results-table').empty().show();
-
-					// style it with some bootstrap
-					$('#results').addClass('col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2');
 
 					$('#results-table').append(
 						'<thead>' + 
@@ -117,98 +165,105 @@ $(function() {
 						'</tbody>'
 					);
 
-					for (var i=0; i < score.runners.length; i++) {
-						var time = formatTime(Number(score.runners[i].interval));
+					for (var i=0; i<results.length; i++) {
+						var runner = results[i];
+
+						var time = formatTime(Number(runner.total));
 
 						$('#results-table tbody').append(
 							'<tr>' + 
-								'<td>' + score.runners[i].name + '</td>' + 
+								'<td>' + runner.name + '</td>' + 
 								'<td>' + time + '</td>' + 
 							'</tr>'
 						);
 					}
-				}
-			}
-		});
-	}
-	
-	function lastWorkout(team){
-		$.ajax({
-			url: '/api/score/?org='+team,
-			dataType: 'text',
-			success: function(data){
-				var json = $.parseJSON(data);
-				if (json.length == 0){
-					spinner.stop();
-					$('#results-table').hide();
-					$('p.notification.notification-default2').show();
-				} else {
-					$('#results-table').show();
-					$('p.notification.notification-default2').hide();
-					var idjson = json[json.length - 1].id;
-				
-					update(idjson);
-					currentID = idjson;
-				}
-			}
-		});
-	}
-		
-	function lastSelected(team){
-		$.ajax({
-			url: '/api/score/?org='+team,
-			dataType: 'text',			//force to handle it as text
-			success: function(data) {
-				var json = $.parseJSON(data);
-				if (json.length == 0) {
-					spinner.stop();
-					$('#results-table').hide();
-					$('p.notification.notification-default2').show();
-				} else {
-					$('p.notification.notification-default2').hide();
-					update(currentID);
-				}
-			}
-		});
-	}
-	
-	// find all heats and add to heat menu and idArray
-	function getSessions(team){
-		$('ul.menulist').empty();
-		$.ajax({
-			url: '/api/score/?org='+team,
-			dataType: 'text',
-			success: function(data){
-				var json = $.parseJSON(data);
-				if (json.length == 0) {
-					spinner.stop();
-					$('#results-table').hide();
-					$('#score-title').html('Live Results');
-					$('p.notification.notification-default2').show();
-				} else {
-					$('#results-table').show();
-					$('p.notification.notification-default2').hide();
-					var arr = [];
-					for (var i=0; i < json.length; i++){
-						$('ul.menulist').append('<li><a href="#">'+json[i].name+'</a></li>');
-						arr.push(json[i].id);
+
+					var numResults = data.num_results;
+					var numReturned = data.num_returned;
+
+					if (numResults < RESULTS_PER_PAGE) {
+						$('button.prev').attr('disabled', true);
+						$('button.next').attr('disabled', true);
+					} else {
+						if ((numReturned < RESULTS_PER_PAGE) || (numReturned * currentPage == numResults))
+							$('button.next').attr('disabled', true);
+						else
+							$('button.next').attr('disabled', false);
+
+						if (currentPage == 1)
+							$('button.prev').attr('disabled', true);
+						else
+							$('button.prev').attr('disabled', false);
 					}
-					idArray = arr;
+
+					// add page number and status
+					$('.results-page-number').html(currentPage);
+					$('.results-show-status').html(
+						'Showing '+
+							(resultOffset+1) +' - '+ 
+							(resultOffset+numReturned) +' of '+
+							numResults+' results'
+					);
 				}
 			}
 		});
 	}
+
+	// register handlers for paginating
+	$('body').on('click', 'button.prev', function(e){
+		e.preventDefault();
+
+		if (currentPage != 1) {
+			resultOffset -= RESULTS_PER_PAGE;
+			currentPage--;
+		}
+
+		update(currentID);
+	});
+
+	$('body').on('click', 'button.next', function(e){
+		e.preventDefault();
+
+		resultOffset += RESULTS_PER_PAGE;
+		currentPage++;
+
+		update(currentID);
+	});
 		
-	// attach handler for heat menu item click
+	// register handler for heat menu item click
 	$('body').on('click', 'ul.menulist li a', function(){
 		var value = $(this).html();
 		console.log( 'Index: ' + $( 'ul.menulist li a' ).index( $(this) ) );
 		var indexClicked = $( 'ul.menulist li a' ).index( $(this) );
 
-		// set new heat id and update table contents
-		spinner.spin(target);
 		currentID = idArray[indexClicked];
-		update(currentID);
+
+		// request for new session data
+		$.ajax({
+			url: '/api/sessions/'+ currentID,
+			dataType: 'text',
+			success: function(data) {
+				var json = $.parseJSON(data);
+
+				// add heat name
+				$('#score-title').html('Live Results: ' + json.name);
+
+				spinner.spin(target);
+				update(currentID);
+
+				// update status
+				if (new Date() > new Date(json.stop_time)) {
+					// session is closed
+					$('#results-status>span').css('color', '#d9534f');
+					stopUpdates();
+				} else {
+					// session still active
+					$('#results-status>span').css('color', '#5cb85c');
+				}
+
+				sessionData = json;
+			}
+		});
 	});
 
 	// Download to Excel Script

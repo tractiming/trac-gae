@@ -84,7 +84,7 @@ $(function() {
 				var json = $.parseJSON(data);
 
 				var results = json.results
-				numSessions = json.numSessions;
+				numSessions = json.num_sessions;
 
 				if (numSessions == 0) {
 					$('#results').empty();
@@ -164,7 +164,8 @@ $(function() {
 						'Showing '+
 							sessionFirst+' - '+ 
 							(sessionLast > numSessions ? numSessions : sessionLast) +' of '+
-							numSessions+' results');
+							numSessions+' results'
+					);
 				}
 				spinner.stop();
 			}

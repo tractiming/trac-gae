@@ -16,7 +16,7 @@ google.setOnLoadCallback(function(){
 				currentID, currentView,												// used to identify current session and view
 				updateHandler, idleHandler,										// interval handlers
 				ajaxRequest, correctionAjaxRequest,						// used to keep track of ajax requests
-				sessionData,																	// current session data
+				sessionData, sessionResults,									// current session data
 				correctionData,	numCorrections,								// auto correction data
 				spinner, opts, target, teamSpinners = {},			// spinner variables
 				currentTeamID, currentTeam,										// used in team results tab
@@ -83,9 +83,6 @@ google.setOnLoadCallback(function(){
 		}
 
 		function stopUpdates() {
-			if (ajaxRequest)
-				ajaxRequest.abort();
-
 			clearInterval(updateHandler);
 			clearTimeout(idleHandler);
 		}
@@ -95,98 +92,23 @@ google.setOnLoadCallback(function(){
 		}
 
 		function update(idjson, view) {			
-			var last_url = '/api/sessions/'+ idjson;
 			
 			// abort current update and start new ajax request
 			if (ajaxRequest)
 				ajaxRequest.abort();
 
 			ajaxRequest = $.ajax({
-				url: last_url,
+				url: '/api/sessions/'+ idjson + '/individual_results',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-				dataType: 'json',
+				dataType: 'text',
 				success: function(data) {
-					//var json = $.parseJSON(data);
-					
-					/*
-	      	json = {
-						"id": 24, 
-						"name": "E9 - Boys Heat 2", 
-						"start_time": "2015-06-05T18:34:14Z", 
-						"stop_time": "2015-06-06T18:34:14Z", 
-						"comment": null, 
-						"rest_time": 0, 
-						"track_size": 400, 
-						"interval_distance": 200, 
-						"interval_number": 0, 
-						"filter_choice": false, 
-						"manager": "alsal", 
-						"results": "{\"date\": \"06.05.2015\", \"runners\": [{\"counter\": [1, 2, 3], \"id\": 22, \"name\": \"Max Denning\", \"interval\": [[\"64.83\"], [\"65.05\"], [\"140.015\"]]}, {\"counter\": [1, 2, 3, 4], \"id\": 18, \"name\": \"Michael Ronzone\", \"interval\": [[\"65.477\"], [\"69.653\"], [\"79.168\"], [\"79.696\"]]}], \"workoutID\": 24}", 
-						"athletes": "[\"MaxDenning\", \"MichaelRonzone\"]", 
-						"start_button_time": "2015-06-06T01:29:29Z", 
-						"private": true
-					};
-					//*/
-					//var results = $.parseJSON(json.results);
+					data = $.parseJSON(data);
 
-					sessionData = data;
-					var json = data;
-					var results = $.parseJSON(data.results);
+					var results = data.results;
 
-					// add heat name
-					$('#results-title').html('Live Results: ' + json.name);
-
-					// hide correction options
-					$('#correction-options').hide();
-
-					// update status
-					if (new Date() < new Date(sessionData.stop_time)) {
-						// session still active
-						$('#results-status>span').css('color', '#5cb85c');
-					} else {
-						// session is closed
-						$('#results-status>span').css('color', '#d9534f');
-						stopUpdates();
-
-						// show options
-						$('#correction-options').show();
-						$('#enable-corrections').prop('checked', false);
-
-						// create switchery checkbox
-						$('#enable-corrections').next('.switchery').remove();
-						switcheryTarget = $('#enable-corrections')[0];
-						switchery = new Switchery(switcheryTarget, { size: 'small', disabled: true });
-
-						//switchery = new Switchery(elem, { size: 'small' });
-						$('#enable-corrections-status').css('color', '#d9534f');
-						$('#enable-corrections-status').html(' Auto-correction disabled.');
-
-						// make ajax call for corrections
-						correctionAjaxRequest.abort();
-						correctionAjaxRequest = $.ajax({
-							method: 'POST', 
-							url: '/api/analyze/',
-							headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
-							dataType: 'json',
-							data: {
-								id: currentID,
-							},
-							success: function(data) {
-								// save data and enable toggle switch
-								correctionData = data;
-								switchery.enable();
-
-								// register handler for correction enabling
-								$('body').off('change', '#enable-corrections');
-								$('body').on('change', '#enable-corrections', function() {
-									toggleCorrections($(this).prop('checked'));
-								});
-							}
-						});
-					}
-
+					//*
 					// if empty, hide spinner and show notification
-					if (results.runners.length === 0) {
+					if (results.length === 0) {
 						spinner.stop();
 						$('.notification.no-data').show();
 						$('#download-container').hide();
@@ -206,10 +128,10 @@ google.setOnLoadCallback(function(){
 						if (view === TABLE_VIEW) {
 							$('#results-graph #graph-canvas').empty();
 							$('#results-graph #graph-toggle-options').empty();
-							drawTable(json);
+							drawTable(results);
 						} else if (view === GRAPH_VIEW) {
 							$('#results-table #table-canvas').empty();
-							drawGraph(json);
+							drawGraph(results);
 						} else if (view === IND_FINAL_VIEW) {
 							$('#results-table #table-canvas').empty();
 							$('#results-graph #graph-canvas').empty();
@@ -223,14 +145,14 @@ google.setOnLoadCallback(function(){
 							drawTeam();
 						}
 					}
+					//*/
 				}
 			});
 		}
 
 		//==================================== TABLE VIEW ====================================
 
-		function drawTable(json){
-			var results = $.parseJSON(json.results);
+		function drawTable(results){
 			//*
 			// add table skeleton if empty
 			if (!$.trim($('#table-canvas').html())) {
@@ -248,23 +170,26 @@ google.setOnLoadCallback(function(){
 				);
 			}
 
-			for (var i=0; i < results.runners.length; i++) {
-				var id = results.runners[i].id;
-				var name = results.runners[i].name;
-				var interval = results.runners[i].interval;
+			for (var i=0; i < results.length; i++) {
+				var runner = results[i];
+
+				var id = runner.id,
+						name = runner.name,
+						splits = runner.splits,
+						total = Number(runner.total);
 
 				// check if row exists
 				var row = $('#table-canvas>tbody>tr#results-'+id);
 				if (row.length === 1) {
 					var numDisplayedSplits = $('table#splits-'+id+'>tbody>tr').length;
 					// update splits table
-					if (interval.length > numDisplayedSplits) {
-						var totalTime = $('#total-time-'+id).html().split(':');
-						var total = Number(totalTime[0])*60 + Number(totalTime[1]);
+					if (splits.length > numDisplayedSplits) {
+						//var totalTime = $('#total-time-'+id).html().split(':');
+						//var total = Number(totalTime[0])*60 + Number(totalTime[1]);
 						
 						// add the new splits if not already displayed
-						for (var j=numDisplayedSplits; j < interval.length; j++) {
-							var split = Number(interval[j][0]).toFixed(3);
+						for (var j=numDisplayedSplits; j<splits.length; j++) {
+							var split = Number(splits[j][0]).toFixed(3);
 							$('table#splits-'+id+'>tbody').append(
 								'<tr>' + 
 									'<td class="split-number">' + (j+1) + '</td>' + 
@@ -279,15 +204,15 @@ google.setOnLoadCallback(function(){
 									'</td>' + 
 								'</tr>'
 							);
-							total += Number(split);
+							//total += Number(split);
 						}
 
-						// then update latest split and recalculate total
-						$('#latest-split-'+id).html(Number(interval[interval.length-1][0]).toFixed(3));
+						// then update latest split and total time
+						$('#latest-split-'+id).html(splits[splits.length-1][0]);
 						$('#total-time-'+id).html(formatTime(total));
 					}
 				} else {
-					addNewRow(id, name, interval);
+					addNewRow(id, name, splits, total);
 				}
 			}
 
@@ -296,17 +221,17 @@ google.setOnLoadCallback(function(){
 			$('#download-container').show();
 		}
 
-		function addNewRow(id, name, interval){
+		function addNewRow(id, name, splits, total){
 			var split = 0;
-			if (interval.length > 0)
-				split = Number(interval[interval.length-1][0]).toFixed(3);
+			if (splits.length > 0)
+				latestSplit = splits[splits.length-1][0];
 			else
-				split = 'NT';
+				latestSplit = 'NT';
 
 			$('#table-canvas>tbody').append(
 				'<tr id="results-'+id+'" class="accordion-toggle" data-toggle="collapse" data-parent="#table-canvas" data-target="#collapse-'+id+'" aria-expanded="false" aria-controls="collapse-'+id+'">' + 
 					'<td>' + name + '</td>' + 
-					'<td id="latest-split-'+id+'">' + split + '</td>' + 
+					'<td id="latest-split-'+id+'">' + latestSplit + '</td>' + 
 					'<td id="total-time-'+id+'"></td>' + 
 					'<td id="modify-total-time-'+id+'" class="hidden-xs" style="width:50px;">' +
 						'<div class="modify-total-time pull-right" style="display:none;">' +
@@ -327,9 +252,9 @@ google.setOnLoadCallback(function(){
 				'</tr>'
 			);
 
-			var total = 0;
-			for (var j=0; j < interval.length; j++) {
-				var split = Number(interval[j][0]).toFixed(3);
+			//var total = 0;
+			for (var j=0; j < splits.length; j++) {
+				var split = splits[j][0];
 
 				// add splits to subtable
 				$('table#splits-'+id+'>tbody').append(
@@ -348,7 +273,7 @@ google.setOnLoadCallback(function(){
 				);
 
 				// now calculate total time
-				total += Number(split);
+				//total += Number(split);
 			}
 
 			// display total time
@@ -1126,8 +1051,7 @@ google.setOnLoadCallback(function(){
 			lastSelected();
 		});
 
-		function drawGraph(json){
-			var results = $.parseJSON(json.results);
+		function drawGraph(results){
 
 			// add toggle checkboxes 
 			var toggleOptions = $('#results-graph #graph-toggle-options');
@@ -1137,15 +1061,8 @@ google.setOnLoadCallback(function(){
 					'<label class="checkbox"><input type="checkbox" id="all" value="" checked>All</label>'
 				);
 
-			for (var i=0; i<results.runners.length; i++) {
-				var id = results.runners[i].id;
-				// create new checkbox if doesn't already exist
-				if ($('#results-graph #graph-toggle-options label input#'+id).length !== 1)
-					toggleOptions.append(
-						'<label class="checkbox"><input type="checkbox" id="'+id+'" value="" checked>' +
-							results.runners[i].name +
-						'</label>'
-					);
+			for (var i=0; i<results.length; i++) {
+				
 			}
 
 			// show results
@@ -1156,13 +1073,24 @@ google.setOnLoadCallback(function(){
 			data.addColumn('number', 'Split');
 
 			var rows = []; var series = [];
-			for (var i=0; i<results.runners.length; i++) {
-				var id = results.runners[i].id;
-				var name = results.runners[i].name;
-				var interval = results.runners[i].interval;
-				var numSplits = interval.length;
-				var skip = false;
+			for (var i=0; i<results.length; i++) {
+				var runner = results[i];
 
+				var id = runner.id,
+						name = runner.name,
+						splits = runner.splits,
+						numSplits = splits.length,
+						skip = false;
+
+				// create new checkbox if doesn't already exist
+				if ($('#results-graph #graph-toggle-options label input#'+id).length !== 1)
+					toggleOptions.append(
+						'<label class="checkbox"><input type="checkbox" id="'+id+'" value="" checked>' +
+							name +
+						'</label>'
+					);
+
+				// create data table for google charts
 				data.addColumn('number', name);
 				
 				// skip current runner if not toggled
@@ -1181,7 +1109,7 @@ google.setOnLoadCallback(function(){
 					if (skip)
 						rows[j][i+1] = NaN;
 					else
-						rows[j][i+1] = Number(interval[j][0]);
+						rows[j][i+1] = Number(splits[j][0]);
 				}
 			}
 
@@ -1198,7 +1126,7 @@ google.setOnLoadCallback(function(){
 				height = 500;
 
 			var options = {
-				title: json.name,
+				title: $('#results-title').html().split(':')[1].trim(),
 				height: height,
 				hAxis: { title: 'Split #', minValue: 1, viewWindow: { min: 1 } },
 				vAxis: { title: 'Time'},
@@ -1248,13 +1176,13 @@ google.setOnLoadCallback(function(){
 			var gender = (g.trim() === 'Male') ? 'M' : 'F';
 
 			$.ajax({
-				url: '/api/filtered_results/?id='+currentID+'&gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
+				url: '/api/sessions/'+currentID+'/filtered_results/?gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
 					var results = $.parseJSON(data).results;
-
-					if (results == '') {
+					
+					if (results.length === 0) {
 						spinner.stop();
 						$('#individual-table-canvas').empty();
 						$('.notification.no-individual-data').show();
@@ -1279,9 +1207,9 @@ google.setOnLoadCallback(function(){
 							runner = results[i];
 							$('#individual-table-canvas tbody').append(
 								'<tr>' +
-									'<td>'+ runner.place +'</td>' +
+									'<td>'+ (i+1) +'</td>' +
 									'<td>'+ runner.name +'</td>' +
-									'<td>'+ formatTime(Number(runner.time)) +'</td>' +
+									'<td>'+ formatTime(Number(runner.total)) +'</td>' +
 								'</tr>'
 							);
 						}
@@ -1302,13 +1230,13 @@ google.setOnLoadCallback(function(){
 			$('#team-table-canvas').empty();
 			spinner.spin(target);
 			$.ajax({
-				url: 'api/team_results/?id='+currentID,
+				url: 'api/sessions/'+currentID+'/team_results',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
-					var results = $.parseJSON(data).results;
+					var results = $.parseJSON(data);
 
-					if (results == '') {
+					if (results.length === 0) {
 						spinner.stop();
 						$('.notification.no-team-data').show();
 						$('#results-team').show();
@@ -1439,12 +1367,14 @@ google.setOnLoadCallback(function(){
 					
 					if ((results.length == 0) && (!$.trim($('ul.menulist').html()))) {
 						$('.notification.no-sessions').show();
+						$('#results-status').hide();
 						spinner.stop();
 					} else {
 						$('.notification').hide();
+						$('#results-status').show();
 						for (var i=0; i<results.length; i++){
 							// add events to event menu
-							$('ul.menulist').append('<li><a href="#">'+results[i].name+'</a></li>');
+							$('ul.menulist').append('<li><a id="session-'+results[i].id+'" href="#">'+results[i].name+'</a></li>');
 							idArray.push(results[i].id);
 						}
 						if (results.length == 15){
@@ -1452,8 +1382,10 @@ google.setOnLoadCallback(function(){
 						}
 					}
 					// show most recent workout
-					currentID = currentID || idArray[0];
-					update(currentID, currentView);
+					if (!currentID)
+						currentID = idArray[0];
+
+					$('a#session-'+currentID).click();
 				}
 			});
 		}
@@ -1568,8 +1500,79 @@ google.setOnLoadCallback(function(){
 				$('#results-graph #graph-toggle-options').empty();
 				$('#download-container').hide();
 				currentID = idArray[indexClicked];
-				spinner.spin(target);
-				update(currentID, currentView);
+
+				// request for new session data
+				if (ajaxRequest)
+					ajaxRequest.abort();
+
+				ajaxRequest = $.ajax({
+					url: '/api/sessions/'+ currentID,
+					headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+					dataType: 'text',
+					success: function(data) {
+						var json = $.parseJSON(data);
+
+						// add heat name
+						$('#results-title').html('Live Results: ' + json.name);
+
+						// hide auto-correction options
+						$('#correction-options').hide();
+
+						spinner.spin(target);
+						update(currentID, currentView);
+
+						// update status
+						if (new Date() > new Date(json.stop_time)) {
+							// session is closed
+							$('#results-status>span').css('color', '#d9534f');
+							stopUpdates();
+
+							// show options
+							$('#correction-options').show();
+							$('#enable-corrections').prop('checked', false);
+
+							// create switchery checkbox
+							$('#enable-corrections').next('.switchery').remove();
+							switcheryTarget = $('#enable-corrections')[0];
+							switchery = new Switchery(switcheryTarget, { size: 'small', disabled: true });
+
+							//switchery = new Switchery(elem, { size: 'small' });
+							$('#enable-corrections-status').css('color', '#d9534f');
+							$('#enable-corrections-status').html(' Auto-correction disabled.');
+
+							// make ajax call for corrections
+							if (correctionAjaxRequest)
+								correctionAjaxRequest.abort();
+							
+							correctionAjaxRequest = $.ajax({
+								method: 'POST', 
+								url: '/api/analyze/',
+								headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+								dataType: 'json',
+								data: {
+									id: currentID,
+								},
+								success: function(data) {
+									// save data and enable toggle switch
+									correctionData = data;
+									switchery.enable();
+
+									// register handler for correction enabling
+									$('body').off('change', '#enable-corrections');
+									$('body').on('change', '#enable-corrections', function() {
+										toggleCorrections($(this).prop('checked'));
+									});
+								}
+							});
+						} else {
+							// session still active
+							$('#results-status>span').css('color', '#5cb85c');
+						}
+
+						// save session data
+						sessionData = json;
+					}
+				});
 			}
 		});
 
@@ -1588,11 +1591,13 @@ google.setOnLoadCallback(function(){
 
 			// views 0 and 1 = live results updated every 5 secs
 			if (currentView < 1) {
+				// stop updates
+				stopUpdates();
+
 				// update view
 				lastSelected();
 
 				// restart updates
-				stopUpdates();
 				startUpdates();
 
 			} else {

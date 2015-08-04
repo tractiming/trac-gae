@@ -352,7 +352,7 @@ class TimingSession(models.Model):
         teams_with_enough_runners = [scores[team] for team in scores if
                                      len(scores[team]['athletes']) == num_scorers]
 
-        return  sorted(teams_with_enough_runners, key=lambda x: x['score'])
+        return sorted(teams_with_enough_runners, key=lambda x: x['score'])
 
 
     def filtered_results(self, gender='', age_range=[], teams=[]):
