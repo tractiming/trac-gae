@@ -13,5 +13,23 @@
 
 <!-- Body -->
 {% block content %}
+	<div id="content" class="container-fluid">
+		<div class="container">
+			<div class="row">
+				<h1>Analysis</h1>
+			</div>
+			
+			<div class="row">
+				<div id="results" class="table"></div>
+				<div id="notifications">
+					<p class="notification notification-error no-sessions" role="alert">
+						<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> There are currently no workouts to show.
+					</p>
+				</div>
+			</div>
 
+			<div id="spinner-main"></div>
+
+		</div>
+	</div>
 {% endblock %}

@@ -867,9 +867,9 @@ def IndividualTimes(request):
         return HttpResponse(status.HTTP_404_NOT_FOUND)
     
     # Get the user's name.
-    name = ap.user.get_full_name()
+    name = ap.get_full_name()
     if not name:
-        name = ap.user.username
+        name = ap.username
 
     sessions = ap.athlete.get_completed_sessions()
     results = {'name': name, 'sessions': []} 
@@ -891,7 +891,8 @@ def IndividualTimes(request):
             session_info = {'id': session.id,
                             'name': session.name,
                             'date': session.start_time,
-                            'runner': session_results
+                            'splits': session_results[3],
+                            'total': session_results[4]
                             }
             results['sessions'].append(session_info)
 
