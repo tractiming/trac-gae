@@ -115,23 +115,17 @@ class TimingSession(models.Model):
         of returned IDs will already be in order.
 
         """
-        # The upper time bound is the most recent time seen.
-        max_times = (self.tagtimes.values('tag_id').distinct()
-                .annotate(time=models.Max('time')))
-
-        # The lower time bound is either the start button time or the oldest
-        # time seen.
-        if self.start_button_active():
-            min_times = [{'time': self.start_button_time, 'tag_id': tid}
-                         for tid in self.tagtimes.values_list('tag_id',
-                             flat=True).distinct()]
-        else:
-            min_times = (self.tagtimes.values('tag_id').distinct()
-                .annotate(time=models.Min('time')))
-
-        diff = [(max_time['tag_id'], max_time['time']-min_time['time']) for
-                max_time, min_time in zip(max_times, min_times)]
+        ids_with_times = (self.tagtimes.values('tag_id').distinct()
+                            .annotate(tmin=models.Min('time'), 
+                                      tmax=models.Max('time')))
         
+        if self.start_button_active():
+            diff = [(tag['tag_id'], tag['tmax']-self.start_button_time) for
+                    tag in ids_with_times]
+        else:
+            diff = [(tag['tag_id'], tag['tmax']-tag['tmin']) for
+                    tag in ids_with_times]
+
         sorted_times = sorted(diff, key=lambda x: x[1])
         if limit is not None and offset is not None:
             sorted_times = sorted_times[offset:limit]
