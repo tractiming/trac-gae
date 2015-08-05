@@ -36,6 +36,8 @@ google.setOnLoadCallback(function(){
 
 		loadIndividual();
 
+		//=================================== individual.js functions =====================================
+
 		function loadIndividual() {
 			// show spinner
 			$('#spinner').css('height', 150);
