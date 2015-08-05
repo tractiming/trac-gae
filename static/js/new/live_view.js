@@ -1612,24 +1612,23 @@ google.setOnLoadCallback(function(){
 		//Download to Excel Script
 		$('body').on('click', '#download', function(){
 			if ((currentView === TABLE_VIEW) || (currentView === GRAPH_VIEW))
-				createFullCSV(currentID);
+				createFullCSV(currentID, sessionData);
 			else if (currentView === IND_FINAL_VIEW)
-				createFilteredIndividualCSV(currentID);
+				createFilteredCSV(currentID, sessionData);
 			else if (currentView === TEAM_FINAL_VIEW)
-				createFilteredTeamCSV(currentID);
+				createTeamCSV(currentID, sessionData);
 		});
 	});
 });
 
-function createFullCSV(idjson){
+function createFullCSV(idjson, sessionData){
 	$.ajax({
-		url: '/api/sessions/'+idjson,
+		url: '/api/sessions/'+idjson+'/individual_results',
 		headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 		dataType: 'text',
 		success: function(data) {
-			var json = $.parseJSON(data);
 
-			var reportTitle = json.name + ' Full Results';
+			var reportTitle = sessionData.name + ' Full Results';
 			
 			// initialize file content
 			var CSV = '';
@@ -1638,37 +1637,36 @@ function createFullCSV(idjson){
 			CSV += reportTitle + '\r\n\r\n';
 
 			// format date and time
-			var d = new Date(UTC2local(json.start_time));
+			var d = new Date(UTC2local(sessionData.start_time));
 
 			CSV += 'Date,'+ d.toDateString() +'\r\n';
 			CSV += 'Time,'+ d.toLocaleTimeString() +'\r\n\r\n';
 
-			CSV += 'Track Size,'+ json.track_size +'\r\n';
-			CSV += 'Interval Distance,'+ json.interval_distance +'\r\n\r\n';
+			CSV += 'Track Size,'+ sessionData.track_size +'\r\n';
+			CSV += 'Interval Distance,'+ sessionData.interval_distance +'\r\n\r\n';
 
 			CSV += 'Name\r\n';
 
-			var results = $.parseJSON(json.results);
-			
 
-			// iterate into runner array
-			var runner = {};
-			for (var i=0; i < results.runners.length; i++) {
-				runner = results.runners[i];
+			var results = $.parseJSON(data).results;
+
+			// iterate into results array
+			for (var i=0; i < results.length; i++) {
+				var runner = results[i];
 
 				CSV += runner.name + ',';
 
-				for (var j=0; j < runner.interval.length; j++) {
+				for (var j=0; j < runner.splits.length; j++) {
 					//iterate over interval to get to nested time arrays
-					var interval = runner.interval[j];
+					var splits = runner.splits[j];
 
-					for (var k=0; k < runner.interval[j].length; k++) {
+					for (var k=0; k < runner.splits[j].length; k++) {
 						//interate over subarrays and pull out each individually and print
 						//do a little math to move from seconds to minutes and seconds
-						var subinterval = runner.interval[j][k];
+						var subinterval = runner.splits[j][k];
 						CSV += subinterval;
 
-						if (j != runner.interval.length-1)
+						if (j != runner.splits.length-1)
 							CSV += ',';
 					}
 				}
@@ -1687,111 +1685,91 @@ function createFullCSV(idjson){
 	});
 }
 
-function createFilteredIndividualCSV(idjson) {
+function createFilteredCSV(idjson, sessionData) {
+	var a = $('#age-select').val();
+	var g = $('#gender-select').val();
+
+	// gender or age wasn't selected
+	if ((a === null) || (g === null))
+		return;
+
+	ages = a.split('-');
+	var age_gte = ages[0].trim();
+	var age_lte = ages[1].trim();
+
+	var gender = (g.trim() === 'Male') ? 'M' : 'F';
+
 	$.ajax({
-		url: '/api/sessions/'+idjson,
+		url: '/api/sessions/'+idjson+'/filtered_results/?gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
 		headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 		dataType: 'text',
 		success: function(data) {
-			var json = $.parseJSON(data);
+			var results = $.parseJSON(data).results;
 
-			var a = $('#age-select').val();
-			var g = $('#gender-select').val();
+			var reportTitle = sessionData.name + ' Filtered Results';
+			
+			// initialize file content
+			var CSV = '';
 
-			// gender or age wasn't selected
-			if ((a === null) || (g === null))
-				return;
+			// set report title in first row or line
+			CSV += reportTitle + '\r\n\n';
 
-			ages = a.split('-');
-			var age_gte = ages[0].trim();
-			var age_lte = ages[1].trim();
+			// format date and time
+			var d = new Date(UTC2local(sessionData.start_time));
 
-			var gender = (g.trim() === 'Male') ? 'M' : 'F';
+			CSV += 'Date,'+ d.toDateString() +'\r\n';
+			CSV += 'Time,'+ d.toLocaleTimeString() +'\r\n\n';
 
-			$.ajax({
-				url: '/api/filtered_results/?id='+idjson+'&gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-				dataType: 'text',
-				success: function(filteredData) {
-					var filteredResults = $.parseJSON(filteredData).results;
+			// add group info
+			CSV += 'Gender,' + g + '\r\n';
+			CSV += 'Age bracket,' + a + '\r\n\n';
 
-					var reportTitle = json.name + ' Individual Results';
-					
-					// initialize file content
-					var CSV = '';
+			if (results.length != 0) {
+				CSV += 'Place,Name,Final Time\r\n';
 
-					// set report title in first row or line
-					CSV += reportTitle + '\r\n\n';
-
-					// format date and time
-					var d = new Date(UTC2local(json.start_time));
-
-					CSV += 'Date,'+ d.toDateString() +'\r\n';
-					CSV += 'Time,'+ d.toLocaleTimeString() +'\r\n\n';
-
-					// add group info
-					CSV += 'Gender,' + g + '\r\n';
-					CSV += 'Age bracket,' + a + '\r\n\n';
-
-					if (filteredResults != '') {
-						CSV += 'Place,Name,Final Time\r\n';
-
-						var runner = {};
-						for (var i=0; i < filteredResults.length; i++) {
-							runner = filteredResults[i];
-							CSV += runner.place + ',' + runner.name + ',' + formatTime(Number(runner.time)) + '\r\n';
-						}
-					}
-
-					download(CSV, reportTitle);
+				for (var i=0; i < results.length; i++) {
+					var runner = results[i];
+					CSV += (i+1) + ',' + runner.name + ',' + formatTime(Number(runner.total)) + '\r\n';
 				}
-			});
+			}
+
+			download(CSV, reportTitle);
 		}
 	});
 }
 
-function createFilteredTeamCSV(idjson) {
+function createTeamCSV(idjson, sessionData) {
 	$.ajax({
-		url: '/api/sessions/'+idjson,
+		url: 'api/sessions/'+idjson+'/team_results',
 		headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 		dataType: 'text',
 		success: function(data) {
-			var json = $.parseJSON(data);
+			var results = $.parseJSON(data);
 
-			$.ajax({
-				url: '/api/team_results/?id='+idjson,
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-				dataType: 'text',
-				success: function(teamData) {
-					var teamResults = $.parseJSON(teamData).results;
+			var reportTitle = sessionData.name + ' Team Results';
+			
+			// initialize file content
+			var CSV = '';
 
-					var reportTitle = json.name + ' Team Results';
-					
-					// initialize file content
-					var CSV = '';
+			// set report title in first row or line
+			CSV += reportTitle + '\r\n\n';
 
-					// set report title in first row or line
-					CSV += reportTitle + '\r\n\n';
+			// format date and time
+			var d = new Date(UTC2local(sessionData.start_time));
 
-					// format date and time
-					var d = new Date(UTC2local(json.start_time));
+			CSV += 'Date,'+ d.toDateString() +'\r\n';
+			CSV += 'Time,'+ d.toLocaleTimeString() +'\r\n\n';
 
-					CSV += 'Date,'+ d.toDateString() +'\r\n';
-					CSV += 'Time,'+ d.toLocaleTimeString() +'\r\n\n';
+			if (results.length != 0) {
+				CSV += 'Place,Name,Score\r\n';
 
-					if (teamResults != '') {
-						CSV += 'Place,Name,Score\r\n';
-
-						var team = {};
-						for (var i=0; i < teamResults.length; i++) {
-							team = teamResults[i];
-							CSV += team.place + ',' + team.name + ',' + team.score + '\r\n';
-						}
-					}
-
-					download(CSV, reportTitle);
+				for (var i=0; i < results.length; i++) {
+					var team = results[i];
+					CSV += team.place + ',' + team.name + ',' + team.score + '\r\n';
 				}
-			});
+			}
+
+			download(CSV, reportTitle);
 		}
 	});
 }
