@@ -133,12 +133,15 @@ google.setOnLoadCallback(function(){
 				success: function(data) {
 					data = $.parseJSON(data);
 
+					var results = data.results;
+
 					// if empty, hide spinner and show notification
 					if (results.length === 0) {
 						spinner.stop();
 						$('.notification.no-data').show();
 						$('#download-container').hide();
 						$('#results-nav').hide();
+						$('.results-navigate-container').hide();
 						$('.results-tab-content').hide();
 						$('#results-table #table-canvas').empty();
 						$('#results-graph #graph-canvas').empty();
@@ -147,6 +150,7 @@ google.setOnLoadCallback(function(){
 						spinner.stop();
 						$('.notification').hide();
 						$('#results-nav').show();
+						$('.results-navigate-container').show();
 
 						// hide all tab contents
 						$('.results-tab-content').hide();
