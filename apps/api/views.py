@@ -292,8 +292,12 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
     
     @detail_route(methods=['get'])
     def individual_results(self, request, pk=None):
-        limit = int(request.GET.get('limit', 50))
-        offset = int(request.GET.get('offset', 0))
+        limit = request.GET.get('limit', None)
+        offset = request.GET.get('offset', None)
+
+        if limit is not None and offset is not None:
+            limit = int(limit)
+            offset = int(offset)
 
         session = TimingSession.objects.get(pk=pk)
         raw_results = session.individual_results(limit, offset)

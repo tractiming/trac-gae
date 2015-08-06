@@ -261,6 +261,7 @@ def cross_check_runners(data):
     """
     frequencies = {}
     count = 0
+    indices = []
     for lst in data:
         rest = calc_rest_interval(lst)[2]
         indices = []

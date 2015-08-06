@@ -152,17 +152,42 @@
 					</ul>
 					<div id="results-table" class="results-tab-content">
 						<div id="correction-options" class="container" style="display:none;">
-							<div class="row" id="enable-corrections-container">
+							<div class="row hidden-xs" id="enable-corrections-container">
 								<div class="col-lg-12">
-									<div>
+									<div id="auto-correct">
 										<label for="enable-corrections" class="sr-only">Enable auto-correction:</label>
 										<input type="checkbox" id="enable-corrections" class="switchery-checkbox"><span id="enable-corrections-status"></span>
 									</div>
 								</div>
 							</div>
+							<div class="row results-navigate-container">
+								<div class="results-navigate col-lg-12 col-md-12 col-sm-12 col-xs-12">
+									<button type="button" class="prev btn btn-default">
+										<span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span>
+									</button>
+									<span class="results-page-number"></span>
+									<button type="button" class="next btn btn-default">
+										<span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
+									</button>
+									<span class="results-show-status"></span>
+								</div>
+							</div>
 						</div>
 						<table id="table-canvas" class="table table-striped table-hover" style="margin-top:10px;">
 						</table>
+						<div class="row results-navigate-container" style="margin-bottom:30px;">
+							<div class="center">
+								<div id="results-navigate-footer" class="results-navigate">
+									<button type="button" class="prev btn btn-default">
+										<span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span>
+									</button>
+									<span class="results-page-number"></span>
+									<button type="button" class="next btn btn-default">
+										<span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
+									</button>
+								</div>
+							</div>
+						</div>
 					</div>
 					<div id="results-graph" class="results-tab-content">
 						<div id="graph-canvas"></div>
