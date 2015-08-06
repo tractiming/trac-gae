@@ -47,6 +47,7 @@ urlpatterns = [
         url(r'^send_email/$', views.send_email),
         url(r'^tutorial_limiter/$',views.tutorial_limiter),
         url(r'^analyze/$', views.analyze),
+        url(r'^tfrrs/$', views.create_TFRRS),
         #url(r'^IndividualTimes/$', views.IndividualTimes.as_view()),
 
         # Endpoint for readers.
