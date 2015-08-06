@@ -12,11 +12,14 @@ google.setOnLoadCallback(function(){
 		var UPDATE_INTERVAL = 5000,				// update live results every 5 secs
 				IDLE_TIMEOUT = 1200000;				// idle check after 20 minutes
 
+		var RESULTS_PER_PAGE = 25;				// number of results per page
+
 		var idArray = [],
 				currentID, currentView,												// used to identify current session and view
 				updateHandler, idleHandler,										// interval handlers
 				ajaxRequest, correctionAjaxRequest,						// used to keep track of ajax requests
 				sessionData, sessionResults,									// current session data
+				resultOffset = 0, currentPage = 1,						// for results pagination
 				correctionData,	numCorrections,								// auto correction data
 				spinner, opts, target, teamSpinners = {},			// spinner variables
 				currentTeamID, currentTeam,										// used in team results tab
@@ -97,16 +100,39 @@ google.setOnLoadCallback(function(){
 			if (ajaxRequest)
 				ajaxRequest.abort();
 
+			if (view === TABLE_VIEW)
+				data = {'limit': resultOffset + RESULTS_PER_PAGE, 'offset': resultOffset};
+			else if (view === GRAPH_VIEW)
+				data = {};
+			else if (view === IND_FINAL_VIEW) {
+				$('#results-table #table-canvas').empty();
+				$('#results-graph #graph-canvas').empty();
+				$('#results-graph #graph-toggle-options').empty();
+				$('#results-individual').show();
+				spinner.stop();
+				$('.notification').hide();
+				$('#results-nav').show();
+				drawIndividual();
+				return;
+			} else if (view === TEAM_FINAL_VIEW) {
+				$('#results-table #table-canvas').empty();
+				$('#results-graph #graph-canvas').empty();
+				$('#results-graph #graph-toggle-options').empty();
+				spinner.stop();
+				$('.notification').hide();
+				$('#results-nav').show();
+				drawTeam();
+				return;
+			}
+
 			ajaxRequest = $.ajax({
 				url: '/api/sessions/'+ idjson + '/individual_results',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				data: data,
 				dataType: 'text',
 				success: function(data) {
 					data = $.parseJSON(data);
 
-					var results = data.results;
-
-					//*
 					// if empty, hide spinner and show notification
 					if (results.length === 0) {
 						spinner.stop();
@@ -128,31 +154,20 @@ google.setOnLoadCallback(function(){
 						if (view === TABLE_VIEW) {
 							$('#results-graph #graph-canvas').empty();
 							$('#results-graph #graph-toggle-options').empty();
-							drawTable(results);
+							drawTable(data);
 						} else if (view === GRAPH_VIEW) {
 							$('#results-table #table-canvas').empty();
-							drawGraph(results);
-						} else if (view === IND_FINAL_VIEW) {
-							$('#results-table #table-canvas').empty();
-							$('#results-graph #graph-canvas').empty();
-							$('#results-graph #graph-toggle-options').empty();
-							$('#results-individual').show();
-							drawIndividual();
-						} else if (view === TEAM_FINAL_VIEW) {
-							$('#results-table #table-canvas').empty();
-							$('#results-graph #graph-canvas').empty();
-							$('#results-graph #graph-toggle-options').empty();
-							drawTeam();
+							drawGraph(data);
 						}
 					}
-					//*/
 				}
 			});
 		}
 
 		//==================================== TABLE VIEW ====================================
 
-		function drawTable(results){
+		function drawTable(data){
+			var results = data.results;
 			//*
 			// add table skeleton if empty
 			if (!$.trim($('#table-canvas').html())) {
@@ -215,6 +230,33 @@ google.setOnLoadCallback(function(){
 					addNewRow(id, name, splits, total);
 				}
 			}
+
+			var numResults = data.num_results;
+			var numReturned = data.num_returned;
+
+			if (numResults < RESULTS_PER_PAGE) {
+				$('button.prev').attr('disabled', true);
+				$('button.next').attr('disabled', true);
+			} else {
+				if ((numReturned < RESULTS_PER_PAGE) || (numReturned * currentPage == numResults))
+					$('button.next').attr('disabled', true);
+				else
+					$('button.next').attr('disabled', false);
+
+				if (currentPage == 1)
+					$('button.prev').attr('disabled', true);
+				else
+					$('button.prev').attr('disabled', false);
+			}
+
+			// add page number and status
+			$('.results-page-number').html(currentPage);
+			$('.results-show-status').html(
+				'Showing '+
+					(resultOffset+1) +' - '+ 
+					(resultOffset+numReturned) +' of '+
+					numResults+' results'
+			);
 
 			// show results
 			$('#results-table').show();
@@ -1051,7 +1093,8 @@ google.setOnLoadCallback(function(){
 			lastSelected();
 		});
 
-		function drawGraph(results){
+		function drawGraph(data){
+			var results = data.results;
 
 			// add toggle checkboxes 
 			var toggleOptions = $('#results-graph #graph-toggle-options');
@@ -1576,7 +1619,7 @@ google.setOnLoadCallback(function(){
 			}
 		});
 
-		// attach handler for tab navigation
+		// register handler for tab navigation
 		$('body').on('click', '#results>ul>li', function(e){
 			e.preventDefault();
 			// update tab navbar
@@ -1607,6 +1650,31 @@ google.setOnLoadCallback(function(){
 				// update view
 				lastSelected();
 			}
+		});
+
+		// register handler for results pagination
+		$('body').on('click', 'button.prev', function(e){
+			e.preventDefault();
+
+			if (currentPage != 1) {
+				resultOffset -= RESULTS_PER_PAGE;
+				currentPage--;
+			}
+
+			// clear table and update
+			$('#table-canvas').empty();
+			update(currentID, currentView);
+		});
+
+		$('body').on('click', 'button.next', function(e){
+			e.preventDefault();
+
+			resultOffset += RESULTS_PER_PAGE;
+			currentPage++;
+
+			// clear table and update
+			$('#table-canvas').empty();
+			update(currentID, currentView);
 		});
 
 		//Download to Excel Script
