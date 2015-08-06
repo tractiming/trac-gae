@@ -1359,7 +1359,7 @@ google.setOnLoadCallback(function(){
 							$('#runners-team-'+currentTeamID+' tbody').empty();
 
 							// add a spinner
-							$('#collapse-team'+currentTeamID).append(
+							$('#collapse-team-'+currentTeamID).append(
 								'<div class="spinner-container" style="position:relative; min-height:150px;">' +
 									'<div id="spinner-team-'+currentTeamID+'"></div>' +
 								'</div>'
