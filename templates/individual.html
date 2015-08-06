@@ -14,30 +14,11 @@
 
 	<script type="text/javascript" src="{% static "js/timeConversion.js" %}" ></script>
 	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	<script type="text/javascript" src="{% static "js/access_token.js" %}"></script>
 	<script type="text/javascript" src="{% static "js/new/individual.js" %}"></script>
 {% endblock %}
 
 <!-- Body -->
-{% block nav-items %}
-	<li><a href="/home">Home</a></li>
-	<li><a href="/liveview">Live View</a></li>
-	<li><a href="/create">Create</a></li>
-	<li><a href="/settings">Race Management</a></li>
-	<li><a class="hidden-sm hidden-md hidden-lg" href="/readers">Readers</a></li>
-	<li><a class="hidden-sm hidden-md hidden-lg" href="/settings">Settings</a></li>
-	<li><a class="logout hidden-sm hidden-md hidden-lg" href="">Logout</a></li>
-	<li id="dropdown-button" class="btn-group hidden-xs">
-		<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-			<span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>
-		</button>
-		<ul class="dropdown-menu" >
-			<li><a href="/readers">Readers</a></li>
-			<li><a href="/settings">Settings</a></li>
-			<li role="separator" class="divider"></li>
-			<li><a class="logout" href="">Logout</a></li>
-		</ul>
-	</li>
-{% endblock %}
 
 {% block content %}
 	<div class="container-fluid content">
@@ -105,7 +86,7 @@
 								<div class="row">
 									<div class="athlete-select-container col-lg-6 col-md-6">
 										<div class="form-group">
-											<label for="base-athlete-select" class="sr-only">Select athlete 1:</label>
+											<label for="base-athlete-select" class="sr-only">Select athlete 2:</label>
 											<select class="athlete-select form-control" id="compare-athlete-select">
 												<option disabled selected>Select athlete</option>
 											</select>
@@ -113,7 +94,7 @@
 									</div>
 									<div class="workout-select-container col-lg-6 col-md-6">
 										<div class="form-group">
-											<label for="base-workout-select" class="sr-only">Select workout for athlete 1:</label>
+											<label for="base-workout-select" class="sr-only">Select workout for athlete 2:</label>
 											<select class="workout-select form-control" id="compare-workout-select">
 												<option disabled selected>Select workout</option>
 											</select>

@@ -33,10 +33,10 @@ google.setOnLoadCallback(function(){
 		}
 		target = document.getElementById('spinner');
 		spinner = new Spinner(opts);
-		
-
 
 		loadIndividual();
+
+		//=================================== individual.js functions =====================================
 
 		function loadIndividual() {
 			// show spinner
@@ -80,12 +80,14 @@ google.setOnLoadCallback(function(){
 					} else {
 
 						for(i=0; i<sessions.length; i++) {
-							var name = sessions[i].name,
-									date = new Date(sessions[i].date).toString().slice(0,25),
-									id = sessions[i].id,
-									interval = sessions[i].runner.interval;
+							var session = sessions[i];
+							var name = session.name,
+									date = new Date(session.date).toString().slice(0,25),
+									id = session.id,
+									splits = session.splits,
+									total = session.total;
 							
-							addNewRow(id, date, name, interval);
+							addNewRow(id, date, name, splits, total);
 						}
 
 						// hide spinner
@@ -99,24 +101,24 @@ google.setOnLoadCallback(function(){
 			});
 		}
 
-		function addNewRow(id, date, name, interval){
+		function addNewRow(id, date, name, splits, total){
 			var split = 0;
-			if (interval.length > 0)
-				split = interval[interval.length-1][0];
+			if (splits.length > 0)
+				split = splits[splits.length-1];
 			else
 				split = 'NT';
 
 			$('#workouts-table>tbody').append(
-				'<tr id="results'+id+'" class="accordion-toggle" data-toggle="collapse" data-parent="#workouts-table" data-target="#collapse'+id+'" aria-expanded="false" aria-controls="collapse'+id+'">' + 
+				'<tr id="results-'+id+'" class="accordion-toggle" data-toggle="collapse" data-parent="#workouts-table" data-target="#collapse-'+id+'" aria-expanded="false" aria-controls="collapse-'+id+'">' + 
 					'<td>' + name + '</td>' +  
 					'<td>' + date + '</td>' +
-					'<td id="total-time'+id+'"></td>' + 
+					'<td id="total-time-'+id+'"></td>' + 
 				'</tr>' + 
 				'<tr></tr>' +   // for correct stripes 
 				'<tr class="splits">' +
 					'<td colspan="3" style="padding: 0px;">' +
-						'<div id="collapse'+id+'" class="accordion-body collapse" aria-labelledby="results'+id+'">' + 
-							'<table id="splits'+id+'" class="table" style="text-align:center; background-color:transparent">' +
+						'<div id="collapse-'+id+'" class="accordion-body collapse" aria-labelledby="results-'+id+'">' + 
+							'<table id="splits-'+id+'" class="table" style="text-align:center; background-color:transparent">' +
 								'<tbody>' +
 								'</tbody>' +
 							'</table>' +
@@ -125,26 +127,22 @@ google.setOnLoadCallback(function(){
 				'</tr>'
 			);
 
-			//*
-			var total = 0;
-			for (var j=0; j<interval.length; j++) {
-				var split = String(Number(interval[j][0]).toFixed(3));
+			// display splits
+			for (var j=0; j<splits.length; j++) {
+				var split = Number(splits[j]).toFixed(3);
 
 				// add splits to subtable
-				$('table#splits'+id+'>tbody').append(
+				$('table#splits-'+id+'>tbody').append(
 					'<tr>' + 
 						'<td>' + (j+1) + '</td>' + 
 						'<td>' + split + '</td>' + 
 					'</tr>'
 				);
-
-				// now calculate total time
-				total += Number(split);
 			}
 
 			// display total time
-			total = formatTime(String(total));
-			$('#workouts-table>tbody #results'+id+'>td#total-time'+id).html(total);
+			total = formatTime(total);
+			$('#workouts-table>tbody #results-'+id+'>td#total-time-'+id).html(total);
 			//*/
 		}
 
@@ -218,8 +216,8 @@ google.setOnLoadCallback(function(){
 						for (var i=0; i<sessions.length; i++) {
 							var id = sessions[i].id;
 							var name = sessions[i].name;
-							var interval = sessions[i].runner.interval;
-							var numSplits = interval.length;
+							var splits = sessions[i].splits;
+							var numSplits = splits.length;
 							var skip = false;
 
 							graph.addColumn('number', name);
@@ -240,7 +238,7 @@ google.setOnLoadCallback(function(){
 								if (skip)
 									rows[j][i+1] = NaN;
 								else
-									rows[j][i+1] = Number(interval[j][0]);
+									rows[j][i+1] = Number(splits[j]);
 							}
 						}
 
@@ -386,11 +384,11 @@ google.setOnLoadCallback(function(){
 				var baseSession = baseData.sessions[$('#base-workout-select option:selected').index()-1],
 						compareSession = compareData.sessions[$('#compare-workout-select option:selected').index()-1];
 
-				var baseLabel = baseSession.runner.name + ' - ' + baseSession.name,
-						compareLabel = compareSession.runner.name + ' - ' + compareSession.name;
+				var baseLabel = $('#base-athlete-select option:selected').text() + ' - ' + baseSession.name,
+						compareLabel = $('#compare-athlete-select option:selected').text() + ' - ' + compareSession.name;
 
-				var baseSplits = baseSession.runner.interval,
-						compareSplits = compareSession.runner.interval;
+				var baseSplits = baseSession.splits,
+						compareSplits = compareSession.splits;
 
 				// init graph and add the columns
 				var graph = new google.visualization.DataTable();
@@ -404,12 +402,12 @@ google.setOnLoadCallback(function(){
 					var row = [i+1];
 
 					if (baseSplits[i])
-						row.push({v: Number(baseSplits[i][0]), f: baseSplits[i][0]})
+						row.push(Number(baseSplits[i]));
 					else
 						row.push(NaN);
 
 					if (compareSplits[i])
-						row.push(Number(compareSplits[i][0]))
+						row.push(Number(compareSplits[i]));
 					else
 						row.push(NaN);
 
