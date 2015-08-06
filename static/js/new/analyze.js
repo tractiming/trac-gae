@@ -8,6 +8,8 @@ google.setOnLoadCallback(function(){
 		var baseData, compareData,
 				currentView = TABLE_VIEW;
 
+		var switchery, switcheryTarget;										// used for switchery iOS 7 style checkbox slider
+
 		//===================================== spinner configuration =====================================
 		var opts = {
 			lines: 13, 							// The number of lines to draw
@@ -38,6 +40,15 @@ google.setOnLoadCallback(function(){
 		(function init() {
 			loadAthletes();
 
+			// create switchery checkbox
+			$('#enable-vo2').prop('checked', false);
+			switcheryTarget = $('#enable-vo2')[0];
+			switchery = new Switchery(switcheryTarget, { size: 'small', disabled: true });
+
+			//switchery = new Switchery(elem, { size: 'small' });
+			$('#enable-vo2-status').css('color', '#d9534f');
+			$('#enable-vo2-status').html(' VO2 disabled.');
+
 			// register handler for athlete selection
 			$('.workout-select').prop('disabled', true);
 			$('body').on('change', '.athlete-select', function() {
@@ -47,12 +58,21 @@ google.setOnLoadCallback(function(){
 				var isBase = $(this).attr('id') == 'base-athlete-select';
 				
 				loadSessions(id, target, isBase);
+
+				getVO2();
 			});
 
 			// register handler for workout selection
 			$('body').on('change', '.workout-select', function() {
-
 				update();
+			});
+
+			// register handler for vo2 toggle
+			$('body').on('change', '#enable-vo2', function (){
+				if ($(this).prop('checked'))
+					$('#vo2-collapse').collapse('show');
+				else
+					$('#vo2-collapse').collapse('hide');
 			});
 
 			// register handler for tab click
@@ -83,6 +103,7 @@ google.setOnLoadCallback(function(){
 
 			// reset content
 			$('#results').hide();
+			$('#enable-vo2-container').hide();
 
 			$.ajax({
 				type: 'GET',
@@ -115,6 +136,7 @@ google.setOnLoadCallback(function(){
 					// hide spinner and show notification
 					spinner.stop();
 					$('#spinner').css('height', '');
+					$('#results-nav').hide();
 					$('.notification.select-sessions').show();
 
 					// show options and results
@@ -165,6 +187,9 @@ google.setOnLoadCallback(function(){
 
 			// hide notifications
 			$('.notification').hide();
+
+			// show nav tabs
+			$('#results-nav').show();
 
 			// get the correct session data
 			var baseSession = baseData.sessions[$('#base-workout-select option:selected').index()-1],
@@ -294,6 +319,18 @@ google.setOnLoadCallback(function(){
 			// hide spinner
 			spinner.stop();
 			$('#spinner').css('height', '');
+		}
+
+		function getVO2() {
+			// don't do anything if user hasn't select workouts to compare
+			if (!$('#base-athlete-select').val() || !$('#compare-athlete-select').val())
+				return;
+
+			// show switch
+			$('#enable-vo2-container').show();
+
+			// ajax call to get VO2 scores
+			switchery.enable();
 		}
 	});
 });
