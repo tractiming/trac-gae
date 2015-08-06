@@ -1681,7 +1681,7 @@ google.setOnLoadCallback(function(){
 			update(currentID, currentView);
 		});
 
-		//Download to Excel Script
+		// download to CSV script
 		$('body').on('click', '#download', function(){
 			if ((currentView === TABLE_VIEW) || (currentView === GRAPH_VIEW))
 				createFullCSV(currentID, sessionData);
@@ -1689,6 +1689,23 @@ google.setOnLoadCallback(function(){
 				createFilteredCSV(currentID, sessionData);
 			else if (currentView === TEAM_FINAL_VIEW)
 				createTeamCSV(currentID, sessionData);
+		});
+		$('body').on('click', '#download-TFRRS', function(){
+			$.ajax({
+				url: '/api/tfrrs',
+				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				data: {'id': currentID},
+				dataType: 'text',
+				success: function(data) {
+					data = $.parseJSON(data);
+
+					CSV = '';
+					for (var i=0; i<data.length; i++)
+						CSV += data[i] + '\r\n';
+					
+					download(CSV, 'TFRRS');
+				}
+			});
 		});
 	});
 });

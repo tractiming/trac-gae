@@ -1097,16 +1097,16 @@ def create_TFRRS(request):
     user = request.user
 
     ts = TimingSession.objects.get(id=data['id'])
-    if not is_coach(user) or ts.manager is not user:
+    if not is_coach(user) or ts.manager != user:
         return HttpResponse(status.HTTP_403_FORBIDDEN)
 
     tag_ids = ts.tagtimes.values_list('tag_id',flat=True).distinct()
     raw_results = ts.individual_results()
 
-    results = '';
+    results = [];
 
     for i, r in enumerate(raw_results):
-        runner = User.objects.get(r.user_id)
+        runner = User.objects.get(id=r.user_id)
         groups = runner.groups.all()
 
         tag = Tag.objects.get(id__in=tag_ids, user=runner)
@@ -1137,13 +1137,13 @@ def create_TFRRS(request):
         points = ''
         wind = ''
 
-        results += bib +','+ TFFRS_ID +','+ team_name +','+ team_code +','+ 
-                    first_name +','+ last_name +','+ gender +','+ year +','+ 
-                    date_of_birth +','+ event_code +','+ event_name +','+ 
-                    event_division +','+ event_min_age +','+ event_max_age +','+ 
-                    sub_event_code +','+ mark +','+ metric +','+ fat +','+ 
-                    place +','+ score +','+ heat +','+ heat_place +','+ 
-                    rnd +','+ points +','+ wind +'\r\n'
+        results.append(bib +','+ TFFRS_ID +','+ team_name +','+ team_code +','+ \
+                    first_name +','+ last_name +','+ gender +','+ year +','+ \
+                    date_of_birth +','+ event_code +','+ event_name +','+ \
+                    event_division +','+ event_min_age +','+ event_max_age +','+ \
+                    sub_event_code +','+ mark +','+ metric +','+ fat +','+ \
+                    place +','+ score +','+ heat +','+ heat_place +','+ \
+                    rnd +','+ points +','+ wind)
 
     return Response(results, status.HTTP_200_OK)
 
