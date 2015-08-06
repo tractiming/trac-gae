@@ -10,33 +10,24 @@ from collections import namedtuple
 
 class Tag(models.Model):
     """
-    An RFID tag that is worn by an athlete.
+    An RFID tag that is worn by an athlete. Each athlete can have only one tag.
     """
     id_str = models.CharField(max_length=50)
-    user = models.ForeignKey(User)
+    athlete = models.OneToOneField(Athlete)
 
     def __unicode__(self):
-        return "id=%s, user=%s" %(self.id_str, self.user.username if self.user else "")
-
-    @property
-    def uname(self):
-        """The identifying name given to the tag's owner."""
-        name = self.user.get_full_name()
-        if name:
-            return name
-        else:
-            return self.user.username
+        return "id=%s, athlete=%s" %(self.id_str, self.athlete.user.username)
 
 class Reader(models.Model):
     """
     An RFID reader that streams splits.
     """
-    name = models.CharField(max_length=50,unique=True)
-    id_str = models.CharField(max_length=50,unique=True)
-    owner = models.ForeignKey(User)
+    name = models.CharField(max_length=50, unique=True)
+    id_str = models.CharField(max_length=50, unique=True)
+    owner = models.ForeignKey(Coach)
 
     def __unicode__(self):
-        return self.name
+        return "id=%s, name=%s" %(self.id_str, self.name)
 
     @property
     def active_sessions(self):
@@ -46,12 +37,12 @@ class Reader(models.Model):
         now = timezone.now()
         return self.timingsession_set.filter(start_time__lte=now, stop_time__gte=now)
 
-class TagTime(models.Model):
+class Split(models.Model):
     """
     A single split time from one tag.
     """
     tag = models.ForeignKey(Tag)
-    athlete = models.ForeignKey(AthleteProfile)
+    athlete = models.ForeignKey(Athlete)
     reader = models.ForeignKey(Reader)
     time = models.BigIntegerField()
 
@@ -59,22 +50,24 @@ class TagTime(models.Model):
         unique_together = ("tag", "time",)
 
     def __unicode__(self):
-        return "time=%s, tag=%s" %(self.time, self.tag.id_str)
+        return "time=%s, tag=%s, reader=%s" %(self.time, self.tag.id_str,
+                                              self.reader.id_str)
 
 class TimingSession(models.Model):
     """
     A collection of timing information, e.g. a workout or race.
     """
     name = models.CharField(max_length=50)
-    manager = models.ForeignKey(User)
+    coach = models.ForeignKey(Coach)
     readers = models.ManyToManyField(Reader)
-    tagtimes = models.ManyToManyField(TagTime)
+    splits = models.ManyToManyField(Split)
     
     start_time = models.DateTimeField(default=timezone.now, blank=True)
     stop_time = models.DateTimeField(default=timezone.now, blank=True)
-    start_button_time = models.DateTimeField(blank=True, 
-            default=timezone.datetime(1,1,1,1,1,1))
+    start_button_time = models.BigIntegerField(null=True, blank=True)
     registered_tags = models.ManyToManyField(Tag)
+    use_registered_tags_only = models.BooleanField(default=False)
+    private = models.BooleanField(default=True)
 
     comment = models.CharField(max_length=2500, null=True, blank=True)
     rest_time = models.IntegerField(default=0, blank=True)
@@ -82,12 +75,10 @@ class TimingSession(models.Model):
     interval_distance = models.IntegerField(default=200, blank=True)
     interval_number = models.IntegerField(default=0, blank=True)
     filter_choice = models.BooleanField(default=True)
-    private = models.BooleanField(default=True)
 
-    archived = models.BooleanField(default=False)
-    
     def __unicode__(self):
-        return "num=%i, name=%s, start=%s" %(self.id, self.name, self.start_time)
+        return "num=%i, name=%s, coach=%s" %(self.id, self.name,
+                                             self.coach.user.username)
 
     @property
     def num_tags(self):
@@ -130,20 +121,6 @@ class TimingSession(models.Model):
         if (current_time > self.start_time) and (current_time < self.stop_time):
             return True
         return False
-
-    def start_button_active(self):
-        """
-        Returns True if the start button has been triggered for the current
-        workout, False otherwise.
-        """
-        return (self.start_button_time.year > 1)
-
-    def start_button_reset(self):
-        """
-        Deactivate the start button by setting it to the default time.
-        """
-        self.start_button_time = timezone.datetime(1,1,1,1,1,1)
-        self.save()
 
     def _calc_splits_by_tag(self, tag_id, filter_s=None, use_cache=True):
         """Calculate splits for a single tag.
@@ -197,8 +174,8 @@ class TimingSession(models.Model):
             # Calculate splits.
             interval = []
             for i in range(len(times)-1):
-                dt = times[i+1].full_time-times[i].full_time
-                interval.append(round(dt.total_seconds(), 3))
+                dt = (times[i+1]-times[i])/1000.0
+                interval.append(round(dt, 3))
 
             results = (tag.user.id, name, team, interval)    
             
@@ -219,68 +196,6 @@ class TimingSession(models.Model):
 
         return Results(results[0], results[1], results[2], interval, sum(interval))
 
-    def _build_tag_archive(self):
-        """
-        Build the archive of tag-name relationships.
-        """
-        # If an archive already exists, delete it and create a new one.
-        self._delete_tag_archive()
-        tag_ids = self.tagtimes.values_list('tag_id',flat=True).distinct()
-        for tid in tag_ids:
-            tag = Tag.objects.get(id=tid)
-            archived_tag = ArchivedTag.objects.create(id_str=tag.id_str,
-                                                      username=tag.uname,
-                                                      session_id=self.id)
-            self.archivedtag_set.add(archived_tag)
-        self.archived = True
-        self.save()
-
-    def _delete_tag_archive(self):
-        """
-        Destroy all archived tags in this workout.
-        """
-        self.archivedtag_set.all().delete()
-        self.archived = False
-        self.save()
-
-    def get_tag_name(self, tag_id):
-        """Get name of the person associated with a tag.
-
-        Take into account archiving. Determine if an archive exists or should
-        be built based on open/closed status of the workout and read from
-        archive if one exists.
-
-        """
-        # If the workout is not active and archived, read from the saved names.
-        if self.archived and (not self.is_active()):
-            name_type = 'archived'
-
-        # If the workout is closed but not archived, build the archive and read
-        # from it.
-        elif (not self.archived) and (not self.is_active()):
-            self._build_tag_archive()
-            name_type = 'archived'
-
-        # If the workout is active and has an archive, delete the archive and
-        # update the name dynamically. (This could occur if the workout is
-        # reopened after it has already been closed.)
-        elif self.archived and self.is_active():
-            self._delete_tag_archive()
-            name_type = 'current'
-
-        # The final case is not archived and active. This case also dynamically
-        # updates the name based on the current tag assignments.
-        else:
-            name_type = 'current'
-
-        # Return either the archived or current name.
-        tag = Tag.objects.get(id=tag_id)
-        if name_type == 'archived':
-            return self.archivedtag_set.filter(id_str=tag.id_str)[0].username
-
-        else:
-            return tag.uname
-                
     def individual_results(self, limit=None, offset=None):
         """Calculate individual results for a session.
 
@@ -383,6 +298,7 @@ class TimingSession(models.Model):
         """Clear the session's cached results for a single tag."""
         cache.delete(('ts_%i_tag_%i_results' %(self.id, tag_id)))   
 
+    # FIXME
     def _delete_split(self, tag_id, split_indx):
         """
         Delete a result from the array of splits. The runner is identified by
@@ -412,6 +328,7 @@ class TimingSession(models.Model):
             tt[i].milliseconds = new.microsecond/1000
             tt[i].save()
 
+    # FIXME
     def _insert_split(self, tag_id, split_indx, val, shift):
         """
         Insert a new split into the array before the given index.
@@ -455,6 +372,7 @@ class TimingSession(models.Model):
         self.tagtimes.add(nt.pk)
         self.save()
 
+    # FIXME
     def _edit_split(self, tag_id, split_indx, val):
         """
         Change the value of a split in the list of results. The split index
@@ -467,6 +385,7 @@ class TimingSession(models.Model):
         self._delete_split(tag_id, split_indx)
         self._insert_split(tag_id, split_indx, val, True)
 
+    # FIXME
     def _overwrite_final_time(self, tag_id, hr, mn, sc, ms):
         """
         Force a final time for the given tag id. This will delete all existing
@@ -504,7 +423,7 @@ def delete_tag_times(sender, instance, using, **kwargs):
     """
     instance.tagtimes.all().delete()
 
-class AthleteProfile(models.Model):
+class Athlete(models.Model):
     """
     An athlete is a type of user that owns tags and appears in workout
     results.
@@ -517,49 +436,16 @@ class AthleteProfile(models.Model):
     def __unicode__(self):
         return "name=%s" %self.user.username
 
-    def get_completed_sessions(self):
-        """Returns a list of sessions in which this user has participated."""
-        return TimingSession.objects.filter(
-                tagtimes__tag__user=self.user).distinct()
         
-    def get_tags(self, json_data=True):
-        """Returns a list of tags registered to the athlete."""
-        tags = Tag.objects.filter(user=self.user)
-        if not json_data:
-            return tags
-        ids = []
-        for t in tags:
-            ids.append(t.id_str)
-        return {'count': len(ids), 'ids': ids}    
-
-class CoachProfile(models.Model):
+class Coach(models.Model):
     """
     A coach is a type of user who is associated with a group of athletes,
     creates workouts, and owns readers.
     """
     user = models.OneToOneField(User, related_name='coach')
     organization = models.CharField(max_length=50)
-    athletes = models.ManyToManyField(AthleteProfile)
+    athletes = models.ManyToManyField(Athlete)
 
     def __unicode__(self):
         return "name=%s" %self.user.username
 
-class RaceDirectorProfile(models.Model):
-    """
-    A race director is a type of user.
-    """
-    user = models.OneToOneField(User)
-
-class ArchivedTag(models.Model):
-    """
-    A record of a tag that saves the id and user's name. This is useful, for
-    example, if a tag is reassigned to a new user. In that case, if an archive
-    is not made, the results from previous workouts will be overwritten with
-    the new tag owner's name.
-    """
-    id_str = models.CharField(max_length=50)
-    username = models.CharField(max_length=50)
-    session = models.ForeignKey(TimingSession)
-
-    def __unicode__(self):
-        return "id=%s, user=%s" %(self.id_str, self.username)
