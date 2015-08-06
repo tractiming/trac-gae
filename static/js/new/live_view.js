@@ -1320,7 +1320,7 @@ google.setOnLoadCallback(function(){
 						team = results[i];
 						var id = team.id;
 						$('#team-table-canvas>tbody').append(
-							'<tr id="team'+id+'" class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#team-table-canvas" data-target="#collapse-team'+id+'" aria-expanded="false" aria-controls="collapse-team'+id+'">' +
+							'<tr id="team-'+id+'" class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#team-table-canvas" data-target="#collapse-team-'+id+'" aria-expanded="false" aria-controls="collapse-team-'+id+'">' +
 								'<td>' + team.place + '</td>' +
 								'<td>' + team.name + '</td>' +
 								'<td>' + team.score + '</td>' +
@@ -1328,8 +1328,8 @@ google.setOnLoadCallback(function(){
 							'<tr></tr>'	+
 							'<tr class="team-runners">' +
 								'<td colspan="4">' +
-									'<div id="collapse-team'+id+'" class="accordion-body collapse" aria-labelledby="team'+id+'">' +
-										'<table id="runners-team'+id+'" class="table" style="text-align:center; background-color:transparent">' +
+									'<div id="collapse-team-'+id+'" class="accordion-body collapse" aria-labelledby="team-'+id+'">' +
+										'<table id="runners-team-'+id+'" class="table" style="text-align:center; background-color:transparent">' +
 											'<thead>' +
 												'<tr>' +
 													'<th style="text-align:center;">Place</th>' +
@@ -1353,50 +1353,50 @@ google.setOnLoadCallback(function(){
 						if ($(this).hasClass('collapsed')) {
 
 							currentTeamID = this.id.slice(4);
-							currentTeam = $('tr#team'+currentTeamID+' td:nth-child(2)').html().trim();
+							currentTeam = $('tr#team-'+currentTeamID+' td:nth-child(2)').html().trim();
 
 							// clear table data
-							$('#runners-team'+currentTeamID+' tbody').empty();
+							$('#runners-team-'+currentTeamID+' tbody').empty();
 
 							// add a spinner
 							$('#collapse-team'+currentTeamID).append(
 								'<div class="spinner-container" style="position:relative; min-height:150px;">' +
-									'<div id="spinner-team'+currentTeamID+'"></div>' +
+									'<div id="spinner-team-'+currentTeamID+'"></div>' +
 								'</div>'
 							);
 							teamSpinners[currentTeamID] = teamSpinners[currentTeamID] || new Spinner(opts);
-							teamSpinners[currentTeamID].spin(document.getElementById('spinner-team'+currentTeamID));
+							teamSpinners[currentTeamID].spin(document.getElementById('spinner-team-'+currentTeamID));
 
 							// get team members data
 							$.ajax({
-								url: 'api/filtered_results/?id='+currentID+'&team='+currentTeam,
+								url: 'api/sessions/'+currentID+'/filtered_results',
 								headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+								data: {'team': currentTeam},
 								dataType: 'text',
 								success: function(runnerData) {
 									var runnerResults = $.parseJSON(runnerData).results;
 
 									// add team members to table
-									var runner = {};
 									for (var i=0; i < runnerResults.length; i++) {
-										runner = runnerResults[i];
-										$('#runners-team'+currentTeamID+' tbody').append(
+										var runner = runnerResults[i];
+										$('#runners-team-'+currentTeamID+' tbody').append(
 											'<tr>' +
-												'<td>' + runner.place + '</td>' +
+												'<td>' + (i+1) + '</td>' +
 												'<td>' + runner.name + '</td>' +
-												'<td>' + formatTime(Number(runner.time)) + '</td>' +
+												'<td>' + formatTime(Number(runner.total)) + '</td>' +
 											'</tr>'
 										);
 									}
 
 									// remove spinner
 									teamSpinners[currentTeamID].stop();
-									$('#collapse-team'+currentTeamID).find('div').remove();
+									$('#collapse-team-'+currentTeamID).find('div').remove();
 								}
 							});
 
 						} else {
 							teamSpinners[currentTeamID].stop();
-							$('#collapse-team'+currentTeamID).find('div').remove();
+							$('#collapse-team-'+currentTeamID).find('div').remove();
 						}
 					});
 	
@@ -1587,6 +1587,7 @@ google.setOnLoadCallback(function(){
 						// update status
 						if (new Date() > new Date(json.stop_time)) {
 							// session is closed
+							$('#results-status>span').html('&#11044;');
 							$('#results-status>span').css('color', '#d9534f');
 							stopUpdates();
 
@@ -1629,6 +1630,7 @@ google.setOnLoadCallback(function(){
 							});
 						} else {
 							// session still active
+							$('#results-status>span').html('&#11044;');
 							$('#results-status>span').css('color', '#5cb85c');
 						}
 
