@@ -1,11 +1,11 @@
 from django.core.cache import cache
 from django.utils import timezone
-from trac.models import TimingSession, TagTime, Tag, Reader
+from trac.models import TimingSession, Split, Tag, Reader
 
 def create_split(reader_str, tag_str, time):
     """
-    Create a new tagtime based on an incoming split. This is a separate
-    function since each post from a reader may contain multiple tagtimes.
+    Create a new split based on an incoming time. This is a separate
+    function since each post from a reader may contain multiple splits.
     This is not an actual endpoint.
     """
     print 'Create split debug:', reader_str, tag_str, time
@@ -30,12 +30,12 @@ def create_split(reader_str, tag_str, time):
     except:
         return -1
 
-    # Add the TagTime to all sessions active and having a related reader.
+    # Add the split to all sessions active and having a related reader.
     for session in reader.active_sessions:
         # If the session has a set of registered tags, and the current tag is
         # not in that set, ignore the split.
         if (not session.use_registered_tags_only) or (tag in session.registered_tags):
-            session.tagtimes.add(tt.pk)
+            session.splits.add(new_split.pk)
 
         # Destroying the cache for this session will force the results to be
         # recalculated.
