@@ -383,22 +383,78 @@ google.setOnLoadCallback(function(){
 
 			// show warning modal
 			$('.notification').hide();
-			$('.notification.add-tagtime').show();
-			$('#add-tagtime-modal input').val('');
 			$('#add-tagtime-modal').modal('show');
 
 			// force numbers on input field
+			$('#add-tagtime-modal input').val('');
 			forceNumeric($('input.numeric-input'));
 
-			// register handlers for button clicks
-			$('body').off('click', '#add-tagtime-confirm');
-			$('body').on('click', '#add-tagtime-confirm', function(e) {
-				e.preventDefault();
-			});
-			$('body').off('click', '#add-tagtime-cancel');
-			$('body').on('click', '#add-tagtime-cancel', function(e) {
-				e.preventDefault();
-				$('#add-tagtime-modal').modal('hide');
+			// show spinner
+			$('#spinner-add-tagtime').css('height', 150);
+			spinner.spin(document.getElementById('spinner-add-tagtime'));
+
+			// request for registered runners
+			$.ajax({
+				method: 'GET',
+				url: 'api/reg_tag',
+				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				data: {id: currentID, missed: true },
+				dataType: 'text',
+				success: function(data) {
+					data = $.parseJSON(data);
+					console.log(data);
+
+					if (data.length === 0) {
+						// disable select
+						$('#add-tagtime-select').prop('disabled', true);
+
+						// hide spinner and show notification
+						spinner.stop();
+						$('#spinner-add-tagtime').css('height', '');
+						$('.notification.no-missed-runners').show();
+					} else {
+						$('#add-tagtime-select').prop('disabled', false);
+
+						for (var i=0; i<data.length; i++) {
+							var tag = data[i];
+							$('#add-tagtime-select').append(
+								'<option value="'+tag.id+'">'+tag.first+' '+tag.last+'</option>'
+							);
+						}
+
+						// hide spinner and show input form
+						spinner.stop();
+						$('#spinner-add-tagtime').css('height', '');
+
+						$('.notification.add-tagtime').show();
+
+						// register handlers for button clicks
+						$('body').off('click', '#add-tagtime-confirm');
+						$('body').on('click', '#add-tagtime-confirm', function(e) {
+							e.preventDefault();
+
+							$.ajax({
+								method: 'POST',
+								url: 'api/sessions/'+currentID+'/add_tagtime',
+								headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+								data: {
+									id: runnerID,
+									hour: hrs,
+									min: mins,
+									sec: secs,
+									mil: ms 
+								},
+								dataType: 'text',
+								success: function(data) {}
+							});
+						});
+						$('body').off('click', '#add-tagtime-cancel');
+						$('body').on('click', '#add-tagtime-cancel', function(e) {
+							e.preventDefault();
+							$('#add-tagtime-modal').modal('hide');
+						});
+					}
+				}
 			});
 		});
 

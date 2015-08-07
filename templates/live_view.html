@@ -57,7 +57,13 @@
 					<h4 class="modal-title">Add Runner Time</h4>
 				</div>
 				<div class="modal-body">
-					<p class="notification notification-warning add-tagtime">You may only add a time for runners whose tag is registered in the current workout session but was never picked up by the reader.</p>
+					<div id="spinner-add-tagtime"></div>
+					<div class="center">
+						<p class="notification notification-warning add-tagtime">You may only add a time for runners whose tag is registered in the current workout session but was never picked up by the reader.</p>
+						<p class="notification notification-error no-missed-runners">
+							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Looks like there are no missed runners.
+						</p>
+					</div>
 					<div class="center" style="margin-bottom:15px; width:252px;">
 						<label for="add-tagtime-select" class="sr-only">Select athlete:</label>
 						<select class="form-control" id="add-tagtime-select">

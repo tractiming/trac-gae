@@ -742,14 +742,20 @@ def create_race(request):
 @permission_classes((permissions.IsAuthenticated,))
 def WorkoutTags(request):
     if request.method == 'GET': #loadAthletes
-        id_num = int(request.GET.get('id'))
+        data = request.GET
         user = request.user
+
+        id_num = int(data.get('id'))
+        missed = data.get('missed', None) == 'true'
+        
         array = []
         if not is_coach(user):
             return HttpResponse(status.HTTP_403_FORBIDDEN)
         else:
             table = TimingSession.objects.get(id=id_num)
-            result = table.registered_tags.all()        
+            result = table.registered_tags.all()
+            if missed:
+                result = result.exclude(id__in=table.tagtimes.values_list('tag', flat=True).distinct())
             for instance in result:
                 u_first = instance.user.first_name
                 u_last = instance.user.last_name
