@@ -27,8 +27,7 @@ from serializers import (UserSerializer, RegistrationSerializer, TagSerializer,
                          TimingSessionSerializer, ReaderSerializer, CoachSerializer,
                          CSVSerializer, ScoringSerializer)
 
-from trac.models import (TimingSession, AthleteProfile, CoachProfile, 
-                         Tag, Reader, TagTime)
+from trac.models import (TimingSession, Athlete, Coach, Tag, Reader, Split)
 from trac.util import is_athlete, is_coach
 from util import create_split
 
@@ -68,15 +67,16 @@ class userType(views.APIView):
 		#Is the user in the coaches table?
 		user = self.request.user
 		try:
-			cp = CoachProfile.objects.get(user=user)
+			cp = Coach.objects.get(user=user)
 		except: #NotCoach:
 			try:
-				ap = AthleteProfile.objects.get(user=user)
+				ap = Athlete.objects.get(user=user)
 			except: #NotAthlete
 				return HttpResponse(status.HTTP_404_NOT_FOUND)
 			return HttpResponse("athlete")
 		return HttpResponse("coach")
 
+# FIXME: add to timingsession serializer.
 class RegistrationView(views.APIView):
     """
     Registers a user and creates server-side client.
@@ -223,7 +223,7 @@ class ReaderViewSet(viewsets.ModelViewSet):
         """
         Assign the reader to this user.
         """
-        obj.owner = self.request.user
+        obj.coach = self.request.user.coach
 
 class ScoringViewSet(viewsets.ModelViewSet):
     """
@@ -268,7 +268,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         
         # If the user is a coach, list all sessions he manages.
         elif is_coach(user):
-            sessions = TimingSession.objects.filter(manager=user)
+            sessions = TimingSession.objects.filter(coach=user.coach)
             
         # If not a user or coach, list all public sessions.
         else:
@@ -277,7 +277,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
     def pre_save(self, obj):
         """Assigns a manager to the workout before it is saved."""
-        obj.manager = self.request.user
+        obj.coach = self.request.user.coach
 
     def post_save(self, obj, created):
         """
@@ -286,7 +286,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         """
         user = self.request.user
         t=TimingSession.objects.latest('id')
-        r=Reader.objects.filter(owner=user)
+        r=Reader.objects.filter(coach=user.coach)
         t.readers.add(*r)
         t.save()
     
@@ -406,10 +406,11 @@ def start_session(request):
     # Also note that the start time is taken to be the time the request hits
     # the server, not the time the button is pressed on the phone, etc.
     current_time = timezone.now()-timezone.timedelta(seconds=8)
-    
+    timestamp = int((current_time-timezone.datetime(1970, 1, 1)).total_seconds()*1000)
+
     try:
         ts = TimingSession.objects.get(id=data['id'])
-        ts.start_button_time = current_time
+        ts.start_button_time = timestamp
         ts.save()
         return HttpResponse(status.HTTP_202_ACCEPTED)
     except ObjectDoesNotExist:

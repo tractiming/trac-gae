@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, connection 
 from django.contrib.auth.models import User, Group
 from django.utils import timezone
 from django.core.cache import cache
@@ -7,6 +7,32 @@ from django.dispatch import receiver
 from filters import filter_splits, get_sec_ms
 from operator import itemgetter
 from collections import namedtuple
+
+class Athlete(models.Model):
+    """
+    An athlete is a type of user that owns tags and appears in workout
+    results.
+    """
+    user = models.OneToOneField(User, related_name='athlete')
+    age = models.IntegerField(null=True, blank=True)
+    gender = models.CharField(max_length=1, null=True, blank=True)
+    grade = models.IntegerField(null=True, blank=True)
+
+    def __unicode__(self):
+        return "name=%s" %self.user.username
+
+        
+class Coach(models.Model):
+    """
+    A coach is a type of user who is associated with a group of athletes,
+    creates workouts, and owns readers.
+    """
+    user = models.OneToOneField(User, related_name='coach')
+    organization = models.CharField(max_length=50)
+    athletes = models.ManyToManyField(Athlete)
+
+    def __unicode__(self):
+        return "name=%s" %self.user.username
 
 class Tag(models.Model):
     """
@@ -24,7 +50,7 @@ class Reader(models.Model):
     """
     name = models.CharField(max_length=50, unique=True)
     id_str = models.CharField(max_length=50, unique=True)
-    owner = models.ForeignKey(Coach)
+    coach = models.ForeignKey(Coach)
 
     def __unicode__(self):
         return "id=%s, name=%s" %(self.id_str, self.name)
@@ -34,8 +60,10 @@ class Reader(models.Model):
         """
         Returns a list of all active sessions the reader belongs to.
         """
-        now = timezone.now()
-        return self.timingsession_set.filter(start_time__lte=now, stop_time__gte=now)
+        return [session for session in TimingSession.objects.all() if
+                session.is_active()]
+        #now = timezone.now()
+        #return self.timingsession_set.filter(start_time__lte=now, stop_time__gte=now)
 
 class Split(models.Model):
     """
@@ -85,30 +113,37 @@ class TimingSession(models.Model):
         """Number of unique tags seen in this workout."""
         return self.tagtimes.values('tag_id').distinct().count()
 
-    def sorted_tag_list(self, limit=None, offset=None):
-        """Return IDs of all distinct tags seen in this workout.
+    def sorted_athlete_list(self, limit=10000000, offset=0):
+        """Return IDs of all distinct athletes seen in this workout.
 
         The tag IDs are ordered according to cumulative time (not factoring in
         milliseconds). Therefore, results calculated by iterating over the list
         of returned IDs will already be in order.
 
         """
-        ids_with_times = (self.tagtimes.values('tag_id').distinct()
-                            .annotate(tmin=models.Min('time'), 
-                                      tmax=models.Max('time')))
-        
-        if self.start_button_active():
-            diff = [(tag['tag_id'], tag['tmax']-self.start_button_time) for
-                    tag in ids_with_times]
+        cursor = connection.cursor()
+
+        if self.start_button_time is None:
+            cursor.execute('''SELECT trac_split.id, trac_split.athlete_id,
+                           trac_timingsession_splits.timingsession_id AS ts_id,
+                           Max(trac_split.time)-Min(trac_split.time) as diff
+                           FROM trac_split INNER JOIN trac_timingsession_splits
+                           ON trac_split.id=trac_timingsession_splits.split_id
+                           WHERE ts_id=%s GROUP BY trac_split.athlete_id
+                           ORDER BY diff LIMIT %s,%s;''',
+                           [self.id, offset, limit])
         else:
-            diff = [(tag['tag_id'], tag['tmax']-tag['tmin']) for
-                    tag in ids_with_times]
-
-        sorted_times = sorted(diff, key=lambda x: x[1])
-        if limit is not None and offset is not None:
-            sorted_times = sorted_times[offset:limit]
-
-        return [t[0] for t in sorted_times]
+            cursor.execute('''SELECT trac_split.id, trac_split.athlete_id,
+                           trac_timingsession_splits.timingsession_id AS ts_id,
+                           Max(trac_split.time)-%s as diff
+                           FROM trac_split INNER JOIN trac_timingsession_splits
+                           ON trac_split.id=trac_timingsession_splits.split_id
+                           WHERE ts_id=%s GROUP BY trac_split.athlete_id
+                           ORDER BY diff LIMIT %s,%s;''',
+                           [self.start_button_time, self.id, offset, limit])
+        athlete_ids = [result[1] for result in cursor.fetchall()]
+        cursor.close()
+        return athlete_ids
 
     def is_active(self, time=None):
         """
@@ -122,8 +157,8 @@ class TimingSession(models.Model):
             return True
         return False
 
-    def _calc_splits_by_tag(self, tag_id, filter_s=None, use_cache=True):
-        """Calculate splits for a single tag.
+    def calc_athlete_splits(self, athlete_id, filter_s=None, use_cache=True):
+        """Calculate splits for a single athlete.
 
         First try to read results from the cache. If results are not found, get
         the tag and all its times. Iterate through times to calculate splits.
@@ -131,7 +166,7 @@ class TimingSession(models.Model):
         filtered results are not actually cached.
 
         Args:
-            tag_id (int): Unique tag ID.
+            athlete_id (int): Unique athlete ID.
             
         Kwargs:
             filter_s (bool|True): Whether or not to filter splits.
@@ -145,46 +180,45 @@ class TimingSession(models.Model):
         # Try to read from the cache. Note that results are cached on a per tag
         # basis.
         if use_cache:
-            results = cache.get(('ts_%i_tag_%i_results' %(self.id, tag_id)))
+            results = cache.get(('ts_%i_athlete_%i_results' %(self.id, athlete_id)))
         else:
             results = None
 
         Results = namedtuple('Results', 'user_id name team splits total')
         if not results:    
-            tag = Tag.objects.get(id=tag_id)
+            athlete = Athlete.objects.get(id=athlete_id)
             
             # Get the name of the tag's owner and their team.
-            name = tag.user.get_full_name()
+            name = athlete.user.get_full_name()
             if not name:
-                name = tag.user.username
-            #name = self.get_tag_name(tag_id)
+                name = athlete.user.username
             try:
-                team = tag.user.groups.values_list('name', flat=True)[0]
+                team = athlete.user.groups.values_list('name', flat=True)[0]
             except:
                 team = None
 
             # Filter times by tag id.
-            times = self.tagtimes.filter(tag=tag).order_by('time')
+            times = self.splits.filter(athlete_id=athlete.id).order_by('time')
 
             # Offset for start time if needed.
-            if self.start_button_active():
-                s_tt = TagTime(time=self.start_button_time, milliseconds=0)
+            if self.start_button_time is not None:
+                s_tt = Split(time=self.start_button_time)
                 times = [s_tt]+list(times)
             
             # Calculate splits.
             interval = []
             for i in range(len(times)-1):
-                dt = (times[i+1]-times[i])/1000.0
+                dt = (times[i+1].time-times[i].time)/1000.0
                 interval.append(round(dt, 3))
 
-            results = (tag.user.id, name, team, interval)    
+            results = (athlete_id, name, team, interval)    
             
             # Save to the cache. Store the unfiltered results so that if the
             # filter choice is changed, we don't need to recalculate.
             if use_cache:
-                cache.set(('ts_%i_tag_%i_results' %(self.id, tag_id)), results)   
+                cache.set(('ts_%i_athlete_%i_results' %(self.id, athlete_id)),
+                          results)   
 
-        
         # Filtering algorithm.
         if filter_s is None:
             filter_s = self.filter_choice
@@ -196,10 +230,10 @@ class TimingSession(models.Model):
 
         return Results(results[0], results[1], results[2], interval, sum(interval))
 
-    def individual_results(self, limit=None, offset=None):
+    def individual_results(self, limit=10000000, offset=0):
         """Calculate individual results for a session.
 
-        First call `sorted_tag_list` for a list of tag IDs that are presorted
+        First call `sorted_athlete_list` for a list of tag IDs that are presorted
         by total time. Splice based on limit/offset and calc results one ID at
         a time.
 
@@ -211,8 +245,9 @@ class TimingSession(models.Model):
             List of namedtuples of results.
 
         """
-        all_tags = self.sorted_tag_list(limit, offset)
-        results = [self._calc_splits_by_tag(tag_id) for tag_id in all_tags]
+        all_athletes = self.sorted_athlete_list(limit, offset)
+        results = [self.calc_athlete_splits(athlete_id) for athlete_id
+                   in all_athletes]
         return results
 
     def team_results(self, num_scorers=5):
@@ -294,9 +329,9 @@ class TimingSession(models.Model):
             self.clear_cache(tag_id)
         self.tagtimes.clear()
 
-    def clear_cache(self, tag_id):
+    def clear_cache(self, athlete_id):
         """Clear the session's cached results for a single tag."""
-        cache.delete(('ts_%i_tag_%i_results' %(self.id, tag_id)))   
+        cache.delete(('ts_%i_athlete_%i_results' %(self.id, athlete_id)))   
 
     # FIXME
     def _delete_split(self, tag_id, split_indx):
@@ -423,29 +458,4 @@ def delete_tag_times(sender, instance, using, **kwargs):
     """
     instance.tagtimes.all().delete()
 
-class Athlete(models.Model):
-    """
-    An athlete is a type of user that owns tags and appears in workout
-    results.
-    """
-    user = models.OneToOneField(User, related_name='athlete')
-    age = models.IntegerField(null=True, blank=True)
-    gender = models.CharField(max_length=1, null=True, blank=True)
-    grade = models.IntegerField(null=True, blank=True)
-
-    def __unicode__(self):
-        return "name=%s" %self.user.username
-
-        
-class Coach(models.Model):
-    """
-    A coach is a type of user who is associated with a group of athletes,
-    creates workouts, and owns readers.
-    """
-    user = models.OneToOneField(User, related_name='coach')
-    organization = models.CharField(max_length=50)
-    athletes = models.ManyToManyField(Athlete)
-
-    def __unicode__(self):
-        return "name=%s" %self.user.username
 

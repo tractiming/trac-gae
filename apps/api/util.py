@@ -15,7 +15,7 @@ def create_split(reader_str, tag_str, time):
     # ignored here.
     try:
         reader = Reader.objects.get(id_str=reader_str)
-        tag = Tag.objects.values('id').get(id_str=tag_str)
+        tag = Tag.objects.get(id_str=tag_str)
     except:
         return -1
    
@@ -26,7 +26,7 @@ def create_split(reader_str, tag_str, time):
                       time=timestamp) 
     
     try:
-        tt.save()
+        new_split.save()
     except:
         return -1
 
