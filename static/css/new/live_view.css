@@ -100,12 +100,12 @@ tr.splits {
 					tr.splits table td.split-edit-options .modify-splits div.edit-split span.glyphicon:hover { color: #f0b922; }
 					tr.splits table td.split-edit-options .modify-splits div.delete-split span.glyphicon:hover { color: #d9534f; }
 
-#modify-total-time-modal .modify-total-time-input {
+.modify-total-time-input, .add-tagtime-input {
 	float: left;
 	margin: 0 5px;
 	width: 50px; }
-	#modify-total-time-modal .modify-total-time-input input { text-align: center; }
-#modify-total-time-modal .modify-total-time-separator {
+	.modify-total-time-input input, .add-tagtime-input input { text-align: center; }
+.modify-total-time-separator, .add-tagtime-separator {
 	float: left;
 	margin-top: 7px;
 	color: #777;

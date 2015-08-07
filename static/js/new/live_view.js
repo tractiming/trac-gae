@@ -377,6 +377,31 @@ google.setOnLoadCallback(function(){
 			}
 		}
 
+		// register handler for adding runner
+		$('body').on('click', 'button#add-tagtime', function(e) {
+			e.stopPropagation();
+
+			// show warning modal
+			$('.notification').hide();
+			$('.notification.add-tagtime').show();
+			$('#add-tagtime-modal input').val('');
+			$('#add-tagtime-modal').modal('show');
+
+			// force numbers on input field
+			forceNumeric($('input.numeric-input'));
+
+			// register handlers for button clicks
+			$('body').off('click', '#add-tagtime-confirm');
+			$('body').on('click', '#add-tagtime-confirm', function(e) {
+				e.preventDefault();
+			});
+			$('body').off('click', '#add-tagtime-cancel');
+			$('body').on('click', '#add-tagtime-cancel', function(e) {
+				e.preventDefault();
+				$('#add-tagtime-modal').modal('hide');
+			});
+		});
+
 		// register handler for edit total time
 		$('body').on('mouseover', '#table-canvas>tbody>tr', function() {
 			$(this).find('.modify-total-time').show();

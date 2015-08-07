@@ -50,6 +50,50 @@
 		</div>
 	</div>
 
+	<div class="modal fade" id="add-tagtime-modal" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Add Runner Time</h4>
+				</div>
+				<div class="modal-body">
+					<p class="notification notification-warning add-tagtime">You may only add a time for runners whose tag is registered in the current workout session but was never picked up by the reader.</p>
+					<div class="center" style="margin-bottom:15px; width:252px;">
+						<label for="add-tagtime-select" class="sr-only">Select athlete:</label>
+						<select class="form-control" id="add-tagtime-select">
+							<option disabled selected>Select athlete...</option>
+						</select>
+					</div>
+					<div class="center" style="margin-bottom:15px;">
+						<div class="add-tagtime-input">
+							<label for="add-tagtime-hrs" class="sr-only">Hours</label>
+							<input type="text" id="add-tagtime-hrs" name="add-tagtime-hrs" class="form-control numeric-input" placeholder="hh" autofocus>
+						</div>
+						<span class="add-tagtime-separator">:</span>
+						<div class="add-tagtime-input">
+							<label for="add-tagtime-mins" class="sr-only">Minutes</label>
+							<input type="text" id="add-tagtime-mins" name="add-tagtime-mins" class="form-control numeric-input" placeholder="mm">
+						</div>
+						<span class="add-tagtime-separator">:</span>
+						<div class="add-tagtime-input">
+							<label for="add-tagtime-secs" class="sr-only">Seconds</label>
+							<input type="text" id="add-tagtime-secs" name="add-tagtime-secs" class="form-control numeric-input" placeholder="ss">
+						</div>
+						<span class="add-tagtime-separator">.</span>
+						<div class="add-tagtime-input" style="width:60px;">
+							<label for="add-tagtime-ms" class="sr-only">Milliseconds</label>
+							<input type="text" id="add-tagtime-ms" name="add-tagtime-ms" class="form-control numeric-input" placeholder="ms">
+						</div>
+					</div>
+					<div class="center">
+						<button id="add-tagtime-confirm" class="btn btn-primary btn-md" style="margin-right: 10px;">Yes</button>
+						<button id="add-tagtime-cancel" class="btn btn-danger btn-md">No</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<div class="modal fade" id="filter-disable-modal" role="dialog">
 		<div class="modal-dialog">
 			<div class="modal-content">
@@ -132,7 +176,7 @@
 					<div id="results-table" class="results-tab-content">
 						<div id="correction-options" class="container" style="display:none;">
 							<div class="row hidden-xs" id="enable-corrections-container">
-								<div class="col-lg-12">
+								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 									<div id="auto-correct">
 										<label for="enable-corrections" class="sr-only">Enable auto-correction:</label>
 										<input type="checkbox" id="enable-corrections" class="switchery-checkbox"><span id="enable-corrections-status"></span>
@@ -140,7 +184,7 @@
 								</div>
 							</div>
 							<div class="row results-navigate-container">
-								<div class="results-navigate col-lg-12 col-md-12 col-sm-12 col-xs-12">
+								<div class="results-navigate col-lg-6 col-md-6 col-sm-6 col-xs-6">
 									<button type="button" class="prev btn btn-default">
 										<span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span>
 									</button>
@@ -149,6 +193,13 @@
 										<span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
 									</button>
 									<span class="results-show-status"></span>
+								</div>
+								<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+									<div id="add-tagtime-container" class="pull-right">
+										<button type="button" class="btn btn-default" id="add-tagtime">
+											<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Runner
+										</button>
+									</div>
 								</div>
 							</div>
 						</div>

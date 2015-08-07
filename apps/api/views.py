@@ -350,6 +350,39 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         return Response(results)
 
     @detail_route(methods=['post'], permission_classes=[])
+    def add_tagtime(self, request, pk=None):
+        """
+        Add a tagtime for a registered tag never picked up by the reader.
+        """
+        data = request.POST
+
+        ts = TimingSession.objects.get(pk=pk)
+        reg_tags = ts.registered_tags.all()
+
+        tag = Tag.objects.get(user_id=data['id'], id__in=reg_tags)[0]
+
+        # get reader
+        reader = ts.reader_set.all()[0]
+
+        # create reference tagtime
+        time = ts.start_button_time
+        tt_0 = TagTime.objects.create(tag_id=tag.id, time=time, reader_id=reader.id, milliseconds=time.microsecond/1000)
+        ts.tagtimes.add(tt_0.pk)
+        
+        # create final tagtime
+        try:
+            x = timezone.datetime.strptime(data['time'], "%M:%S.%f")
+        except:
+            x = timezone.datetime.strptime(data['time'], "%S.%f")
+
+        time += timezone.timedelta(minutes=x.minute,seconds=x.second,microseconds=x.microsecond)
+
+        tt_1 = TagTime.objects.create(tag_id=tag.id, time=time, reader_id=reader.id, milliseconds=time.microsecond/1000)
+        ts.tagtimes.add(tt_1.pk)
+
+        return HttpResponse(status.HTTP_202_ACCEPTED)
+
+    @detail_route(methods=['post'], permission_classes=[])
     def reset(self, request, pk=None):
         """
         Reset a timing session by clearing all of its tagtimes.
