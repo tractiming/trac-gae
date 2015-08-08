@@ -8,12 +8,37 @@ from filters import filter_splits, get_sec_ms
 from operator import itemgetter
 from collections import namedtuple
 
+
+
+class Coach(models.Model):
+    """
+    A coach is a type of user who is associated with a group of athletes,
+    creates workouts, and owns readers.
+    """
+    user = models.OneToOneField(User)
+
+    def __unicode__(self):
+        return "name=%s" %self.user.username
+
+
+class Team(models.Model):
+    """
+    A team has one coach and many athletes.
+    """
+    name = models.CharField(max_length=50, unique=True)
+    coach = models.ForeignKey(Coach)
+
+    def __unicode__(self):
+        return "team_name=%s" %self.name
+
+
 class Athlete(models.Model):
     """
     An athlete is a type of user that owns tags and appears in workout
     results.
     """
-    user = models.OneToOneField(User, related_name='athlete')
+    user = models.OneToOneField(User)
+    team = models.ForeignKey(Team, null=True, blank=True)
     age = models.IntegerField(null=True, blank=True)
     gender = models.CharField(max_length=1, null=True, blank=True)
     grade = models.IntegerField(null=True, blank=True)
@@ -21,28 +46,17 @@ class Athlete(models.Model):
     def __unicode__(self):
         return "name=%s" %self.user.username
 
-        
-class Coach(models.Model):
-    """
-    A coach is a type of user who is associated with a group of athletes,
-    creates workouts, and owns readers.
-    """
-    user = models.OneToOneField(User, related_name='coach')
-    organization = models.CharField(max_length=50)
-    athletes = models.ManyToManyField(Athlete)
-
-    def __unicode__(self):
-        return "name=%s" %self.user.username
 
 class Tag(models.Model):
     """
     An RFID tag that is worn by an athlete. Each athlete can have only one tag.
     """
-    id_str = models.CharField(max_length=50)
+    id_str = models.CharField(max_length=50, unique=True)
     athlete = models.OneToOneField(Athlete)
 
     def __unicode__(self):
         return "id=%s, athlete=%s" %(self.id_str, self.athlete.user.username)
+
 
 class Reader(models.Model):
     """
@@ -62,8 +76,7 @@ class Reader(models.Model):
         """
         return [session for session in TimingSession.objects.all() if
                 session.is_active()]
-        #now = timezone.now()
-        #return self.timingsession_set.filter(start_time__lte=now, stop_time__gte=now)
+
 
 class Split(models.Model):
     """
@@ -81,6 +94,7 @@ class Split(models.Model):
         return "time=%s, tag=%s, reader=%s" %(self.time, self.tag.id_str,
                                               self.reader.id_str)
 
+
 class TimingSession(models.Model):
     """
     A collection of timing information, e.g. a workout or race.
@@ -97,7 +111,7 @@ class TimingSession(models.Model):
     use_registered_tags_only = models.BooleanField(default=False)
     private = models.BooleanField(default=True)
 
-    comment = models.CharField(max_length=2500, null=True, blank=True)
+    comment = models.CharField(max_length=2500, blank=True)
     rest_time = models.IntegerField(default=0, blank=True)
     track_size = models.IntegerField(default=400, blank=True)
     interval_distance = models.IntegerField(default=200, blank=True)
@@ -111,7 +125,7 @@ class TimingSession(models.Model):
     @property
     def num_tags(self):
         """Number of unique tags seen in this workout."""
-        return self.tagtimes.values('tag_id').distinct().count()
+        return self.splits.values('tag_id').distinct().count()
 
     def sorted_athlete_list(self, limit=10000000, offset=0):
         """Return IDs of all distinct athletes seen in this workout.
@@ -192,11 +206,7 @@ class TimingSession(models.Model):
             name = athlete.user.get_full_name()
             if not name:
                 name = athlete.user.username
-            try:
-                team = athlete.user.groups.values_list('name', flat=True)[0]
-            except:
-                team = None
-
+            
             # Filter times by tag id.
             times = self.splits.filter(athlete_id=athlete.id).order_by('time')
 
@@ -211,7 +221,7 @@ class TimingSession(models.Model):
                 dt = (times[i+1].time-times[i].time)/1000.0
                 interval.append(round(dt, 3))
 
-            results = (athlete_id, name, team, interval)    
+            results = (athlete_id, name, athlete.team, interval)    
             
             # Save to the cache. Store the unfiltered results so that if the
             # filter choice is changed, we don't need to recalculate.
@@ -265,7 +275,7 @@ class TimingSession(models.Model):
         for team in team_names:
             scores[team] = {'athletes': [],
                             'score': 0,
-                            'id': Group.objects.get(name=team).id,
+                            'id': Team.objects.get(name=team).id,
                             'name': team
                             }
 
@@ -301,33 +311,34 @@ class TimingSession(models.Model):
             List of namedtuples of results sorted by total time.
         
         """
-        tt = self.tagtimes.all()
+        tt = self.splits.all()
 
         # Filter by gender.
         if gender:
             assert gender in ['M', 'F'], "Invalid gender."
-            tt = tt.filter(tag__user__athlete__gender=gender)
+            tt = tt.filter(athlete__gender=gender)
 
         # Filter by age.
         if age_range:
             assert (age_range[0]<age_range[1])&(age_range[0]>=0), "Invalid age range"
-            tt = tt.filter(tag__user__athlete__age__lte=age_range[1],
-                           tag__user__athlete__age__gte=age_range[0])
+            tt = tt.filter(athlete__age__lte=age_range[1],
+                           athlete__age__gte=age_range[0])
 
         # Filter by team.
         if teams:
-            tt = tt.filter(tag__user__groups__name__in=teams)
+            tt = tt.filter(athlete__team__name__in=teams)
 
-        all_tags = tt.values_list('tag_id', flat=True).distinct()
-        results = [self._calc_splits_by_tag(tag_id) for tag_id in all_tags]
+        all_athletes = tt.values_list('athlete_id', flat=True).distinct()
+        results = [self.calc_athlete_splits(athlete_id) for athlete_id in
+                   all_athletes]
         return sorted(results, key=lambda x: x.total)
 
     def clear_results(self):
         """Remove all the tagtimes that currently exist in the session."""
-        tag_ids = self.tagtimes.values_list('tag_id', flat=True).distinct()
-        for tag_id in tag_ids:
-            self.clear_cache(tag_id)
-        self.tagtimes.clear()
+        athlete_ids = self.splits.values_list('athlete_id', flat=True).distinct()
+        for athlete_id in athlete_ids:
+            self.clear_cache(athlete_id)
+        self.splits.all().delete.()
 
     def clear_cache(self, athlete_id):
         """Clear the session's cached results for a single tag."""
@@ -456,6 +467,6 @@ def delete_tag_times(sender, instance, using, **kwargs):
     """
     Delete all TagTime objects associated with this TimingSession prior to deletion.
     """
-    instance.tagtimes.all().delete()
+    instance.splits.all().delete()
 
 
