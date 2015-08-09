@@ -350,7 +350,7 @@ google.setOnLoadCallback(function(){
 
 						splitSplit(runner.id, correction.index, correction.times);
 						
-						//console.log(correction);
+						console.log(correctionData);
 						numCorrections++;
 					}
 				}

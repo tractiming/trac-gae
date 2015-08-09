@@ -15,6 +15,7 @@ class Coach(models.Model):
     and owns readers.
     """
     user = models.OneToOneField(User)
+    payment = models.CharField(max_length=25, null=True, blank=True)
 
     def __unicode__(self):
         return "name=%s" %self.user.username
@@ -41,7 +42,9 @@ class Athlete(models.Model):
     team = models.ForeignKey(Team, null=True, blank=True)
     birth_date = models.DateField(null=True, blank=True)
     gender = models.CharField(max_length=1, null=True, blank=True)
-
+    tfrrs_id = models.CharField(max_length=20, null=True, blank=True)
+    year = models.CharField(max_length=10, null=True, blank=True)
+    
     def __unicode__(self):
         return "name=%s" %self.user.username
 
@@ -457,3 +460,19 @@ def delete_tag_times(sender, instance, using, **kwargs):
     instance.splits.all().delete()
 
 
+class PerformanceRecord(models.Model):
+    distance = models.IntegerField()
+    time = models.FloatField()
+    interval = models.CharField(max_length=1)
+    VO2 = models.IntegerField(null=True, blank=True)
+    athlete = models.ForeignKey(Athlete, null=True)
+    coach = models.ForeignKey(Coach, null=True)
+
+    def __unicode__(self):
+        if self.athlete:
+            name = self.athlete.user.username
+        elif self.coach:
+            name = self.coach.user.username
+        else:
+            name = ''
+        return "user=%s" %(name)

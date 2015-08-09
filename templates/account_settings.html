@@ -36,6 +36,7 @@ $(document).ready(function(){
       $('body').on('click', 'a#e_profile', function(e){
           e.preventDefault();
           $('#edit-password').hide();
+          $('#payment').hide()
           $('#edit-information').fadeIn(500);
           $.ajax({
                   type: "GET",
@@ -52,8 +53,23 @@ $(document).ready(function(){
       });
       $('body').on('click', 'a#e_password', function(e){
           e.preventDefault();
-          $('#edit-information').hide();          
+          $('#edit-information').hide();   
+          $('#payment').hide();       
           $('#edit-password').fadeIn(500);
+      });
+      $('body').on('click', 'a#e_payment', function(e){
+          e.preventDefault();
+          $('#edit-information').hide();   
+          $('#payment').fadeIn(500);       
+          $('#edit-password').hide();
+          $.ajax({
+              type:'GET',
+              url: '/api/e_payment/',
+              headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+              success: function(data){
+                $('#payment').html(data)
+              }
+          });
       });
       $('#edit-information').on('submit', function(e){
           e.preventDefault();
@@ -119,7 +135,7 @@ $(document).ready(function(){
     <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5 pull-left">
       <a href="somewhere" id="e_profile">Edit Profile Information</a><br>
       <a href="somewhere" id="e_password">Change Your Password</a><br>
-      <a href="somewhere">Set up and Edit Paypal Information</a>
+      <a href="somewhere" id="e_payment">Set up and Edit Paypal Information</a>
     </div>
     <div class = "col-lg-7 col-md-7 col-sm-7 col-xs-7">
       <form id="edit-information" name="edit-information" style="display: none;" data-parsley-validate>
@@ -144,6 +160,7 @@ $(document).ready(function(){
           <button type="submit" id="submit" class="btn btn-primary">Change Password</button>
         </div>
       </form>
+      <div id='payment' style='display: none;'></div> 
     </div>
   </div>
 </div>

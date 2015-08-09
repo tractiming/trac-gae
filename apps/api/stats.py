@@ -25,6 +25,9 @@ def calculate_distance(data_dict):
             runner['indices'].append(runner['times'].index(element))
 
     rests = cross_check_runners(list_of_lists)
+    if rests[0] == 0:
+        rests.pop(0)
+    print rests
     data = data_dict
 
     #for each runner, if there are <= 2 universal rest points, it is continuous, else it is interval.
@@ -49,6 +52,7 @@ def calculate_distance(data_dict):
 
             #filter through each interval between rest points. If athlete personal rest intervals line up, sum up the times in
             #between rest points. Take the minimum for distance prediction and all individual times are added to their own tables.
+            runner['indices'] = sorted(runner['indices'])
             for index in range(0, len(rests)):
                 idx = rests[index]
                 try:
@@ -78,10 +82,13 @@ def calculate_distance(data_dict):
 
     #distance prediction
     for key in list_of_times.keys():
-        average = min(i for i in list_of_times[key] if i>0)
+        try:
+            average = min(i for i in list_of_times[key] if i>0)
+        except:
+            average = 0
         #average = average / len(list_of_times[key])
         list_of_times[key] = average
-
+    print list_of_times
     return list_of_times, runner_specific_times
 
 def create_list_of_lists(data_dict):
@@ -261,7 +268,6 @@ def cross_check_runners(data):
     """
     frequencies = {}
     count = 0
-    indices = []
     for lst in data:
         rest = calc_rest_interval(lst)[2]
         indices = []
@@ -405,3 +411,4 @@ def find_lt(a, x):
 #            lst = row['times']
 #            writer.writerow(lst)
 #        return 'finished'
+>>>>>>> VO2
