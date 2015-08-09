@@ -26,6 +26,7 @@ class Team(models.Model):
     """
     name = models.CharField(max_length=50, unique=True)
     coach = models.ForeignKey(Coach)
+    tfrrs_code = models.CharField(max_length=20, unique=True)
 
     def __unicode__(self):
         return "team_name=%s" %self.name
@@ -38,9 +39,8 @@ class Athlete(models.Model):
     """
     user = models.OneToOneField(User)
     team = models.ForeignKey(Team, null=True, blank=True)
-    age = models.IntegerField(null=True, blank=True)
+    birth_date = models.DateField(null=True, blank=True)
     gender = models.CharField(max_length=1, null=True, blank=True)
-    grade = models.IntegerField(null=True, blank=True)
 
     def __unicode__(self):
         return "name=%s" %self.user.username
