@@ -551,8 +551,8 @@ class PerformanceRecord(models.Model):
     time = models.FloatField()
     interval = models.CharField(max_length= 1)
     VO2 = models.IntegerField(null = True, blank = True)
-    Athlete = models.ForeignKey(AthleteProfile)
-    Coach = models.ForeignKey(CoachProfile)
+    Athlete = models.ForeignKey(AthleteProfile, null= True)
+    Coach = models.ForeignKey(CoachProfile, null = True)
 
     def __unicode__(self):
         return "coach=%s" %(self.Coach)
