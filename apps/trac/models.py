@@ -9,11 +9,10 @@ from operator import itemgetter
 from collections import namedtuple
 
 
-
 class Coach(models.Model):
     """
-    A coach is a type of user who is associated with a group of athletes,
-    creates workouts, and owns readers.
+    A coach is a type of user who has a team of athletes, creates workouts,
+    and owns readers.
     """
     user = models.OneToOneField(User)
 
@@ -123,16 +122,16 @@ class TimingSession(models.Model):
                                              self.coach.user.username)
 
     @property
-    def num_tags(self):
-        """Number of unique tags seen in this workout."""
-        return self.splits.values('tag_id').distinct().count()
+    def num_athletes(self):
+        """Number of unique athletes seen in this workout."""
+        return self.splits.values('athlete_id').distinct().count()
 
-    def sorted_athlete_list(self, limit=10000000, offset=0):
+    def sorted_athlete_list(self, limit, offset):
         """Return IDs of all distinct athletes seen in this workout.
 
-        The tag IDs are ordered according to cumulative time (not factoring in
-        milliseconds). Therefore, results calculated by iterating over the list
-        of returned IDs will already be in order.
+        The athlete IDs are ordered according to cumulative time. Therefore,
+        results calculated by iterating over the list of returned IDs will
+        already be in order.
 
         """
         cursor = connection.cursor()
@@ -159,17 +158,13 @@ class TimingSession(models.Model):
         cursor.close()
         return athlete_ids
 
-    def is_active(self, time=None):
+    @property
+    def active(self):
         """
         Returns True if the current time is between the start and stop times.
         """
-        if time is None:
-            current_time = timezone.now()
-        else:
-            current_time = time
-        if (current_time > self.start_time) and (current_time < self.stop_time):
-            return True
-        return False
+        now = timezone.now()
+        return ((now > self.start_time) and (now < self.stop_time))
 
     def calc_athlete_splits(self, athlete_id, filter_s=None, use_cache=True):
         """Calculate splits for a single athlete.
@@ -296,7 +291,6 @@ class TimingSession(models.Model):
 
         return sorted(teams_with_enough_runners, key=lambda x: x['score'])
 
-
     def filtered_results(self, gender='', age_range=[], teams=[]):
         """Filter results by gender, age, or team.
 
@@ -334,11 +328,11 @@ class TimingSession(models.Model):
         return sorted(results, key=lambda x: x.total)
 
     def clear_results(self):
-        """Remove all the tagtimes that currently exist in the session."""
+        """Remove all the splits that currently exist in the session."""
         athlete_ids = self.splits.values_list('athlete_id', flat=True).distinct()
         for athlete_id in athlete_ids:
             self.clear_cache(athlete_id)
-        self.splits.all().delete.()
+        self.splits.all().delete()
 
     def clear_cache(self, athlete_id):
         """Clear the session's cached results for a single tag."""
@@ -353,25 +347,23 @@ class TimingSession(models.Model):
         results.
         """
         assert self.filter_choice is False, "Filter must be off to delete."
-        tt = TagTime.objects.filter(timingsession=self, tag__id=tag_id).order_by('time')
+        tt = self.splits.filter(tag__id=tag_id).order_by('time')
+        athlete = Athlete.objects.get(tag__id=tag_id)
 
         # Find the index of the first tag time we need to change.
-        if self.start_button_active():
+        if self.start_button_time is not None:
             indx = split_indx
         else:
             indx = split_indx+1
 
         # Get the offset and delete the time.
-        splits = self.calc_splits_by_tag(tag_id)
-        off_sec, off_ms = get_sec_ms(splits[split_indx])
-        offset = timezone.timedelta(seconds=off_sec, milliseconds=off_ms)
+        splits = self.calc_athlete_splits(athlete.id)
+        offset_ms = splits[split_indx]
         tt[indx].delete()
 
-        # Edit adjust the rest of the tagtimes to maintain the other splits.
+        # Edit the rest of the splits to maintain the other splits.
         for i in range(indx, len(tt)):
-            new = tt[i].full_time-offset
-            tt[i].time = new
-            tt[i].milliseconds = new.microsecond/1000
+            tt[i].time = tt[i].time-offset_ms
             tt[i].save()
 
     # FIXME
@@ -382,40 +374,37 @@ class TimingSession(models.Model):
         """
         assert self.filter_choice is False, "Filter must be off to insert."
 
-        tt = TagTime.objects.filter(timingsession=self, tag__id=tag_id).order_by('time')
-        sec, ms = get_sec_ms(val)
-        split_dt = timezone.timedelta(seconds=sec, milliseconds=ms)
+        tt = self.splits.filter(tag__id=tag_id).order_by('time')
+        split_dt = val
 
         # Find the index of the first tag time we need to change as well as the
         # previous (absolute) time.
-        if self.start_button_active():
+        if self.start_button_time is not None:
             indx = split_indx
             if indx == 0:
                 t_prev = self.start_button_time
             else:
-                t_prev = tt[indx-1].full_time
+                t_prev = tt[indx-1].time
         else:
             indx = split_indx+1
-            t_prev = tt[indx-1].full_time
+            t_prev = tt[indx-1].time
 
         # Create a new tagtime.
         t_curr = t_prev+split_dt
         r = self.readers.all()[0]
-        nt = TagTime.objects.create(tag_id=tag_id, time=t_curr,
-                milliseconds=t_curr.microsecond/1000, reader=r)
+        athlete = Athlete.objects.get(tag__id=tag_id)
+        nt = Split.objects.create(athlete=athlete, time=t_curr, reader=r)
 
         if shift:
             # Edit the rest of the tagtimes to maintain the other splits.
             for i in list(reversed(range(indx, len(tt)))):
                 cur_tt = tt[i]
-                new = cur_tt.full_time+split_dt
-                cur_tt.time = new
-                cur_tt.milliseconds = new.microsecond/1000
+                cur_t.time = cur_tt.time+split_dt
                 cur_tt.save()
 
         # Add the new tagtime after the rest of the splits have already been
         # adjusted.
-        self.tagtimes.add(nt.pk)
+        self.splits.add(nt.pk)
         self.save()
 
     # FIXME
@@ -438,7 +427,7 @@ class TimingSession(models.Model):
         splits and assign a final time only.
         """
         # Delete all existing times for this tag.
-        times = TagTime.objects.filter(timingsession=self, tag__id=tag_id)
+        times = self.splits.filter(tag__id=tag_id)
 
         first_tt = times[0]
 
@@ -449,23 +438,21 @@ class TimingSession(models.Model):
         #    self.start_button_time = timezone.now()
 
         r = self.readers.all()[0]
-        final_time = first_tt.full_time+timezone.timedelta(hours=hr, 
-                                                   minutes=mn, seconds=sc)
+        final_time = first_tt.time+(3600000*hr+60000*mn+1000*sc+ms)
 
-        new_ms = first_tt.milliseconds + ms
-        if new_ms > 999:
-            final_time += timezone.timedelta(hours=0, minutes=0, seconds=1)
-            new_ms = new_ms % 1000
+        #if new_ms > 999:
+        #    final_time += timezone.timedelta(hours=0, minutes=0, seconds=1)
+        #    new_ms = new_ms % 1000
 
-        tt = TagTime.objects.create(tag_id=tag_id, reader=r, time=final_time,
-                milliseconds=new_ms)
-        self.tagtimes.add(tt.pk)
+        athlete = Athlete.objects.get(tag__id=tag_id)
+        tt = Split.objects.create(tag_id=tag_id, reader=r, time=final_time)
+        self.splits.add(tt.pk)
         self.save()
 
 @receiver(pre_delete, sender=TimingSession, dispatch_uid="timingsession_pre_delete")
 def delete_tag_times(sender, instance, using, **kwargs):
     """
-    Delete all TagTime objects associated with this TimingSession prior to deletion.
+    Delete all Split objects associated with this TimingSession prior to deletion.
     """
     instance.splits.all().delete()
 

@@ -7,8 +7,9 @@ router.register(r'sessions', views.TimingSessionViewSet, 'Session')
 router.register(r'readers', views.ReaderViewSet, 'Reader')
 router.register(r'coaches', views.CoachViewSet, 'Coach')
 router.register(r'athletes', views.AthleteViewSet, 'Athlete')
-router.register(r'tags', views.TagViewSet, 'Tag')
+#router.register(r'tags', views.TagViewSet, 'Tag')
 router.register(r'score', views.ScoringViewSet, 'Score')
+router.register(r'teams', views.TeamViewSet, 'Team')
 #router.register(r'score/(?P<org>.+)', views.ScoringViewSet, 'Score')
 
 urlpatterns = [
