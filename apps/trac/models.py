@@ -7,6 +7,7 @@ from django.dispatch import receiver
 from filters import filter_splits, get_sec_ms
 from operator import itemgetter
 
+
 class Tag(models.Model):
     """
     An RFID tag that is worn by an athlete.
@@ -519,6 +520,7 @@ class CoachProfile(models.Model):
     """
     user = models.OneToOneField(User, related_name='coach')
     organization = models.CharField(max_length=50)
+    payment = models.CharField(max_length=50, default='incomplete')
     athletes = models.ManyToManyField(AthleteProfile)
 
     def __unicode__(self):

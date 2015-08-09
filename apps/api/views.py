@@ -7,6 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.db import IntegrityError
 from django.utils import timezone
+from django.core.urlresolvers import reverse
 from django.core.cache import cache
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import check_password
@@ -22,6 +23,7 @@ from rest_framework.decorators import link, api_view, permission_classes, detail
 from rest_framework.parsers import MultiPartParser, FormParser
 
 from provider.oauth2.models import Client, AccessToken
+from paypal.standard.forms import PayPalPaymentsForm
 
 
 from serializers import (UserSerializer, RegistrationSerializer, TagSerializer, 
@@ -32,6 +34,9 @@ from trac.models import (TimingSession, AthleteProfile, CoachProfile,
                          Tag, Reader, TagTime, RefTables)
 from trac.util import is_athlete, is_coach
 from util import create_split
+from settings.common import PAYPAL_RECEIVER_EMAIL
+from paypal.standard.models import ST_PP_COMPLETED
+from paypal.standard.ipn.signals import valid_ipn_received, invalid_ipn_received
 
 
 import json
@@ -43,6 +48,8 @@ import base64
 import datetime
 import math
 import stats
+import logging
+logging.basicConfig()
 
 default_distances=[100, 200, 400, 800, 1000, 1500, 1609, 2000, 3000, 5000, 10000]
 default_times=[14.3, 27.4, 61.7, 144.2, 165, 257.5, 278.7, 356.3, 550.8, 946.7, 1971.9, ]
@@ -772,8 +779,8 @@ def edit_athletes(request):
 def edit_info(request):
     data = request.POST
     user = request.user
-    group = user.groups.get(id=1)
-    group = data['org']
+    group, created = Group.objects.get_or_create(name = data['org'])
+    user.groups.add(group.pk)
     user.username = data['name']
     user.email = data['email']
     user.save()
@@ -783,7 +790,11 @@ def edit_info(request):
 @permission_classes((permissions.IsAuthenticated,))
 def get_info(request):
     user = request.user
-    result = {'org': user.groups.get(id=1).name, 'name': user.username, 'email': user.email}
+    try:
+        email = user.email
+    except:
+        email = ""
+    result = {'org': user.groups.get(id=1).name, 'name': user.username, 'email': email}
     return Response(result, status.HTTP_200_OK)
 
 @api_view(['GET'])
@@ -1066,6 +1077,35 @@ def analyze(request):
 
     return Response (r_dict, status.HTTP_200_OK)
 
+@api_view(['GET'])
+@permission_classes((permissions.IsAuthenticated,))
+@login_required
+@csrf_exempt
+def subscription(request):
+    user = request.user
+    r = Reader.objects.filter(owner_id = user.id)
+    num_readers = len(r)
+    price = float(25 * num_readers)
+    paypal_dict = {
+        "cmd": "_xclick-subscriptions",
+        "business": PAYPAL_RECEIVER_EMAIL,
+        "rm": 2,
+        "a3": str(price),
+        "p3": 1,
+        "t3": "M",
+        "src": "1",
+        "sra": "1",
+        "no_note": "1",
+        "payer_id": user.username,
+        "item_name": "TRAC DATA BEATCHES",
+        "notify_url": "http://127.0.0.1:8000/api/notify",
+        "return_url": "http://127.0.0.1:8000/home",
+        "cancel_return": "http://127.0.0.1:8000/home",
+    }
+    form = PayPalPaymentsForm(initial=paypal_dict, button_type="subscribe")
+    context = {"form": form}
+    return render(request, "payment.html", context)
+
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))
 def est_distance(request):
@@ -1145,6 +1185,38 @@ def est_distance(request):
 
     #return auto_edits 
     return HttpResponse(status.HTTP_200_OK)
+
+@api_view(['GET'])
+@login_required
+@permission_classes((permissions.IsAuthenticated,))
+def checkpayment(request):
+    u = request.user
+    cp = CoachProfile.objects.get(user = u)
+    if cp.payment == 'completed':
+        return HttpResponse(status.HTTP_200_OK)
+    else:
+        return HttpResponse(status.HTTP_403_FORBIDDEN)
+
+def ipnListener(sender, **kwargs):
+    ipn_obj = sender
+    print ipn_obj.payer_id
+    print ipn_obj.payment_status
+    if ipn_obj.payment_status == ST_PP_COMPLETED:
+        # Undertake some action depending upon `ipn_obj`.
+        user = ipn_obj.payer_id
+        try:
+            uu = User.objects.get(username = user)
+            cp = CoachProfile.objects.get(user = uu)
+            cp.payment = 'completed'
+            cp.save()
+        except:
+            print 'apple'
+    else:
+        #...
+        pass
+    print 'hello'
+
+invalid_ipn_received.connect(ipnListener)
 
 ######################### Do we need these? ###########################
 #@api_view(['GET'])

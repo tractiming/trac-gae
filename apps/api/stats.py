@@ -25,6 +25,8 @@ def calculate_distance(data_dict):
             runner['indices'].append(runner['times'].index(element))
 
     rests = cross_check_runners(list_of_lists)
+    if rests[0] == 0:
+        rests.pop(0)
     print rests
     data = data_dict
 

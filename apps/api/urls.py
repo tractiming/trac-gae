@@ -49,6 +49,9 @@ urlpatterns = [
         url(r'^VO2Max/$', views.VO2Max),
         url(r'^est_distance/$', views.est_distance),
         url(r'^analyze/$', views.analyze),
+        url(r'^e_payment/$', views.subscription),
+        url(r'^notify/$', include('paypal.standard.ipn.urls')),
+        url(r'^payment_check/$', views.checkpayment),
         #url(r'^IndividualTimes/$', views.IndividualTimes.as_view()),
 
         # Endpoint for readers.

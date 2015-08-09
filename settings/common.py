@@ -58,6 +58,7 @@ THIRD_PARTY_APPS = (
         'provider',
         'provider.oauth2',
         'south',
+        'paypal.standard.ipn',
 )
 
 LOCAL_APPS = (
@@ -225,4 +226,6 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 ############################################
+
+PAYPAL_RECEIVER_EMAIL = "GriffinKelly2013@gmail.com"
 

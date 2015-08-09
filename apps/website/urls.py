@@ -20,5 +20,5 @@ urlpatterns = patterns('',
     url(r'^Tutorial/(?P<page>.+)/$', views.tutorial, name='tutorial'),
     url(r'^UserSettings/(?P<pk>.+)/(?P<token>.+)/$', views.usersettings, name="UserSettings"),
     url(r'^account_settings/$', views.account_settings, name='account_settings'),
-
+    url(r'^ipntest/$', views.ipntest, name='ipnTest'),
     )
