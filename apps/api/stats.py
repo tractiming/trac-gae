@@ -411,4 +411,3 @@ def find_lt(a, x):
 #            lst = row['times']
 #            writer.writerow(lst)
 #        return 'finished'
->>>>>>> VO2
