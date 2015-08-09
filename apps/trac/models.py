@@ -546,13 +546,13 @@ class ArchivedTag(models.Model):
     def __unicode__(self):
         return "id=%s, user=%s" %(self.id_str, self.username)
 
-class RefTables(models.Model):
+class PerformanceRecord(models.Model):
     distance = models.IntegerField()
     time = models.FloatField()
     interval = models.CharField(max_length= 1)
     VO2 = models.IntegerField(null = True, blank = True)
-    Athlete = models.ManyToManyField(AthleteProfile)
-    Coach = models.ManyToManyField(CoachProfile)
+    Athlete = models.ForeignKey(AthleteProfile)
+    Coach = models.ForeignKey(CoachProfile)
 
     def __unicode__(self):
         return "coach=%s" %(self.Coach)

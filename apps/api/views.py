@@ -31,7 +31,7 @@ from serializers import (UserSerializer, RegistrationSerializer, TagSerializer,
                          CSVSerializer, ScoringSerializer)
 
 from trac.models import (TimingSession, AthleteProfile, CoachProfile, 
-                         Tag, Reader, TagTime, RefTables)
+                         Tag, Reader, TagTime, PerformanceRecord)
 from trac.util import is_athlete, is_coach
 from util import create_split
 from settings.common import PAYPAL_RECEIVER_EMAIL
@@ -124,8 +124,8 @@ class RegistrationView(views.APIView):
             #Creates the Default table for coaches when they register.
             cp = CoachProfile.objects.get(user= user)
             for i in range(0, len(default_distances)):
-                r = RefTables.objects.create(distance=default_distances[i], time=default_times[i])
-                cp.reftables_set.add(r)
+                r = PerformanceRecord.objects.create(distance=default_distances[i], time=default_times[i])
+                cp.performancerecord_set.add(r)
         # Add user to group
         group, created = Group.objects.get_or_create(name=data['organization'])
         user.groups.add(group.pk)
@@ -1017,7 +1017,7 @@ def VO2Max(request):
         for athlete in cp.athletes.all():
             sum_VO2 = 0
             count = 0
-            for entry in athlete.reftables_set.all():
+            for entry in athlete.performancerecord_set.all():
                 sum_VO2 += entry.VO2
                 count += 1
             try:
@@ -1132,7 +1132,7 @@ def est_distance(request):
     #Interpolate split_times to data in coach's table.
     #Predict the distance run.
     cp = CoachProfile.objects.get(user=user)
-    r = cp.reftables_set.all()
+    r = cp.performancerecord_set.all()
     distanceList = []
     for interval in split_times.keys():
         int_time = split_times[interval]
@@ -1150,7 +1150,7 @@ def est_distance(request):
                 continue
             else:
                 length = int(var2)
-                s = cp.reftables_set.get(distance = length)
+                s = cp.performancerecord_set.get(distance = length)
                 s.time = (s.time + int_time)/2
                 s.save()
                 distanceList.append({'Splits': interval-1, 'Distance': length})
@@ -1169,7 +1169,7 @@ def est_distance(request):
             for distance in distanceList:
                 if splits == distance['Splits'] and times != 0:
                     try:
-                        r= ap.reftables_set.get(distance= distance['Distance'], interval= results['interval'])
+                        r= ap.performancerecord_set.get(distance= distance['Distance'], interval= results['interval'])
                         r.time = (r.time + times)/2
                         velocity = r.distance / (r.time/60)
                         VO2 = (-4.60 + .182258 * velocity + 0.000104 * pow(velocity, 2)) / (.8 + .1894393 * pow(2.78, (-.012778 * r.time/60)) + .2989558 * pow(2.78, (-.1932605 * r.time/60)))
@@ -1180,8 +1180,8 @@ def est_distance(request):
                         velocity = distance['Distance']/ (times/60)
                         VO2 = (-4.60 + .182258 * velocity + 0.000104 * pow(velocity, 2)) / (.8 + .1894393 * pow(2.78, (-.012778 * times/60)) + .2989558 * pow(2.78, (-.1932605 * times/60)))
                         VO2 = int(VO2)
-                        r = RefTables.objects.create(distance=distance['Distance'], time=times, interval= results['interval'], VO2= VO2)
-                    ap.reftables_set.add(r)
+                        r = PerformanceRecord.objects.create(distance=distance['Distance'], time=times, interval= results['interval'], VO2= VO2)
+                    ap.performancerecord_set.add(r)
 
     #return auto_edits 
     return HttpResponse(status.HTTP_200_OK)
