@@ -90,6 +90,7 @@ class ReaderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Reader
+        fields = ('id', 'name', 'id_str')
 
 
 class TimingSessionSerializer(serializers.ModelSerializer):
