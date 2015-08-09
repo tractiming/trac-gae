@@ -23,8 +23,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from provider.oauth2.models import Client, AccessToken
 
 
-from serializers import (RegistrationSerializer,
-        AthleteSerializer,TagSerializer,
+from serializers import (RegistrationSerializer, AthleteSerializer,TagSerializer,
                          TimingSessionSerializer, ReaderSerializer, CoachSerializer,
                          ScoringSerializer, TeamSerializer)
 
@@ -47,7 +46,6 @@ class verifyLogin(views.APIView):
 	permission_classes = ()
 	def post(self,request):
 		data = request.POST
-		# print data
 		#Does the token exist?
 		try:
 			token = AccessToken.objects.get(token=data['token'])
@@ -185,12 +183,9 @@ class AthleteViewSet(viewsets.ModelViewSet):
         Override the default method to return the users that are associated
         with an athlete belonging to this coach.
         """
-        print 'in get'
         user = self.request.user
         if is_coach(user):
-            print 'is coach'
             coach = Coach.objects.get(user=user)
-            print 'found coach'
             return Athlete.objects.filter(team__in=coach.team_set.all())
 
         else:
@@ -301,7 +296,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         session = TimingSession.objects.get(pk=pk)
         raw_results = session.individual_results(limit, offset)
 
-        results = {'num_results': session.num_tags, 
+        results = {'num_results': session.num_athletes, 
                    'num_returned': len(raw_results),
                    'results': [{'name': r.name,
                                 'id': r.user_id,
