@@ -23,13 +23,12 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from provider.oauth2.models import Client, AccessToken
 
 
-from serializers import (UserSerializer, RegistrationSerializer,
-        AthleteSerializer,
+from serializers import (RegistrationSerializer,
+        AthleteSerializer,TagSerializer,
                          TimingSessionSerializer, ReaderSerializer, CoachSerializer,
                          ScoringSerializer, TeamSerializer)
 
-from trac.models import (TimingSession, Athlete, Coach, Tag, Reader, Split,
-        Team)
+from trac.models import (TimingSession, Athlete, Coach, Tag, Reader, Split, Team)
 from trac.util import is_athlete, is_coach
 from util import create_split
 
@@ -127,7 +126,7 @@ class RegistrationView(views.APIView):
         
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-'''
+
 class TagViewSet(viewsets.ModelViewSet):
     """
     Returns a list of tags associated with the current user.
@@ -144,23 +143,17 @@ class TagViewSet(viewsets.ModelViewSet):
 
         # If the user is an athlete, display the tags he owns.
         if is_athlete(user):
-            tags = user.tag_set.all()
+            tags = Tag.objects.filter(athlete_id=user.athlete.id)
 
         # If the user is a coach, list the tags owned by any of his athletes.
         elif is_coach(user):
-            tags = Tag.objects.filter(user__in=[a.user for a in
-                user.coach.athletes.all()])
+            tags = Tag.objects.filter(athlete__team__in=user.coach.team_set.all())
         
         # Otherwise, there are no tags to show.
         else:
             tags = Tag.objects.none()
         return tags
 
-    def create(self, request, *args, **kwargs):
-        if is_athlete(self.request.user):
-            request.DATA[u'user'] = self.request.user.pk
-        return super(TagViewSet, self).create(request, *args, **kwargs)
-'''
 
 class CoachViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAdminUser,)
@@ -174,20 +167,13 @@ class TeamViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         if is_coach(self.request.user):
-            return Team.objects.filter(coach__in=self.request.user.coach.team_set.all())
+            return self.request.user.coach.team_set.all()
     
         else:
-            return [self.request.user.athlete.team]
+            return Team.objects.filter(athlete__in=[self.request.user.athlete.pk])
 
-    def create(self, request):
-        if is_coach(request.user):
-            coach = request.user.coach
-            team = Team.objects.create(name=request.POST.get('name'),
-                    coach=coach)
-            return Response(status.HTTP_201_CREATED)
-        else:
-            return Response(status.HTTP_400_BAD_REQUEST)
-
+    def pre_save(self, obj):
+        obj.coach = self.request.user.coach
 
 
 class AthleteViewSet(viewsets.ModelViewSet):
@@ -199,31 +185,20 @@ class AthleteViewSet(viewsets.ModelViewSet):
         Override the default method to return the users that are associated
         with an athlete belonging to this coach.
         """
+        print 'in get'
         user = self.request.user
         if is_coach(user):
+            print 'is coach'
             coach = Coach.objects.get(user=user)
+            print 'found coach'
             return Athlete.objects.filter(team__in=coach.team_set.all())
 
         else:
             return Athlete.objects.get(user=user)
-   
-    def create(self, request):
-        user = User.objects.create(username=request.POST.get('username'))
 
-        try:
-            team = Team.objects.get(name=request.POST.get('team'))
-        except ObjectDoesNotExist:
-            coach_teams = request.user.coach.team_set.all()
-            if coach_teams:
-                team = coach_teams[0]
-            else:
-                team = None
-
-        athlete = Athlete.objects.create(user=user, team=team,
-                                         age=request.POST.get('age'),
-                                         gender=request.POST.get('gender'))
-        
-        return Response(status.HTTP_201_CREATED)
+    def pre_save(self, obj):
+        user = User.objects.create(username=self.request.DATA.get('username'))
+        obj.user = user
 
 
 class ReaderViewSet(viewsets.ModelViewSet):
@@ -301,16 +276,13 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             sessions = TimingSession.objects.filter(private=False)
         return sessions    
     
-    def create(self, request):
-        if not request.DATA[u'start_time']:
-            request.DATA['start_time']= str(timezone.now())
-        if not request.DATA[u'stop_time']:
-            request.DATA['stop_time'] = str(timezone.now())
-        return super(TimingSessionViewSet, self).create(request)
-
     def pre_save(self, obj):
         """Assigns a manager to the workout before it is saved."""
         obj.coach = self.request.user.coach
+        if not obj.start_time:
+            obj.start_time = timezone.now()
+        if not obj.stop_time:
+            obj.stop_time = timezone.now()
 
     def post_save(self, obj, created):
         """

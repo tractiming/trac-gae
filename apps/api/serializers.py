@@ -1,18 +1,10 @@
 from django.contrib.auth.models import User
-from django.utils import timezone, simplejson as json
+from django.utils import timezone
 from rest_framework import serializers
 from trac.models import TimingSession, Tag, Reader, Athlete, Coach, Team
 from trac.util import is_coach, is_athlete
 
-#class JSONReadOnlyField(serializers.Field):
-#    """A custom serializer for rendering JSON."""
-#
-#    def to_native(self, obj):
-#        return json.dumps(obj, encoding="utf8")
-#
-#    def from_native(self, value):
-#        return json.loads(value)
-'''
+
 class FilterRelatedMixin(object):
     """Mixin to filter related objects."""
     def __init__(self, *args, **kwargs):
@@ -27,27 +19,31 @@ class FilterRelatedMixin(object):
                     pass
                 else:
                     field.queryset = func(field.queryset)
-'''
-
-class UserSerializer(serializers.ModelSerializer):
-    #tags = JSONReadOnlyField(source='athlete.get_tags')
-
-    class Meta:
-        model = User
-        fields = ('id', 'first_name', 'last_name', 'username', 'tags', 'email')
 
 
-class AthleteSerializer(serializers.ModelSerializer):
+class AthleteSerializer(FilterRelatedMixin, serializers.ModelSerializer):
     username = serializers.CharField(source='user.username')
-    team = serializers.CharField(source='team', required=False)
     
     class Meta:
         model = Athlete
         fields = ('id', 'username', 'age', 'gender', 'team') 
+    
+    def filter_team(self, queryset):
+        """Only show teams belonging to the current coach."""
+        if 'request' in self.context:
+            user = self.context['request'].user
+        
+            if is_coach(user):
+                teams = Team.objects.filter(coach=user.coach)
+                return queryset.filter(pk__in=[team.pk for team in teams])
 
+            else:
+                return queryset.filter(pk=user.athlete.team.pk)
+
+        return queryset
+    
 
 class TeamSerializer(serializers.ModelSerializer):
-    athlete_set = AthleteSerializer(many=True, read_only=True)
 
     class Meta:
         model = Team
@@ -55,31 +51,31 @@ class TeamSerializer(serializers.ModelSerializer):
 
 
 class CoachSerializer(serializers.ModelSerializer):
-    organization = serializers.CharField(source='groups.all', read_only=True)
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'organization')
 
-#class TagSerializer(FilterRelatedMixin, serializers.ModelSerializer):
-#    username = serializers.CharField(source='user.username', read_only=True)
-#    first_name = serializers.CharField(source='user.first_name', read_only=True)
-#    last_name = serializers.CharField(source='user.last_name', read_only=True)
-#
-#    class Meta:
-#        model = Tag
-#        fields = ('id', 'id_str', 'user', 'username','first_name','last_name')
-#
-#    def filter_user(self, queryset):
-#        # Only show the users belonging to the current user,
-#        user = self.context['request'].user
-#
-#        if is_coach(user):
-#            pks = [a.user.pk for a in user.coach.athletes.all()]
-#            return queryset.filter(pk__in=pks)
-#        
-#        else:
-#            return queryset.filter(username=user.username)
+
+class TagSerializer(FilterRelatedMixin, serializers.ModelSerializer):
+    username = serializers.CharField(source='athlete.user.username', read_only=True)
+    full_name = serializers.CharField(source='athlete.user.get_full_name',
+                                      read_only=True)
+
+    class Meta:
+        model = Tag
+        fields = ('id', 'id_str', 'username', 'full_name', 'athlete')
+
+    def filter_athlete(self, queryset):
+        """Only show athletes belonging to the current coach."""
+        user = self.context['request'].user
+
+        if is_coach(user):
+            athletes = Athlete.objects.filter(team__in=user.coach.team_set.all())
+            return queryset.filter(pk__in=[athlete.pk for athlete in athletes])
+        
+        else:
+            return queryset.filter(pk=user.athlete.id)
+
 
 class RegistrationSerializer(serializers.ModelSerializer):
     user_type = serializers.CharField(max_length=15)
@@ -99,36 +95,19 @@ class ReaderSerializer(serializers.ModelSerializer):
 class TimingSessionSerializer(serializers.ModelSerializer):
     coach = serializers.Field(source='coach.user.username')
     readers = serializers.RelatedField(many=True, read_only=True)
-    #start_time = serializers.DateTimeField()
 
     class Meta:
         model = TimingSession
         lookup_field = 'session'
         exclude = ('splits',)
         read_only_fields = ('registered_tags', )
-        #fields = ('id', 'name', 'start_time', 'stop_time',
-        #          'start_button_time', 'private', 'filter_choice',
-        #          'comment')
-
-    '''
-    def create(self, request):
-        if request.DATA['start_time'] is None:
-            request.DATA['start_time'] = str(timezone.now())
-        if request.DATA['stop_time'] is None:
-            request.DATA['stop_time'] = str(timezone.now())
-        print request
-        super(TimingSessionSerializer, self).create(request)
-        #pass
-    '''
 
 
 class ScoringSerializer(serializers.ModelSerializer):
-    #final_score = JSONReadOnlyField(source='individual_results')
 
     class Meta:
         model = TimingSession
         lookup_field = 'session'
         fields = ('id', 'name')
 
-#class CSVSerializer(serializers.Serializer):
-#    csv_file = serializers.FileField(max_length=1000, allow_empty_file=False)
+
