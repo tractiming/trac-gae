@@ -1090,7 +1090,7 @@ def subscription(request):
         "cmd": "_xclick-subscriptions",
         "business": PAYPAL_RECEIVER_EMAIL,
         "rm": 2,
-        "a3": str(price),
+        "a3": "25.00",
         "p3": 1,
         "t3": "M",
         "src": "1",
