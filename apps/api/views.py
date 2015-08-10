@@ -679,7 +679,7 @@ def create_race(request):
     dateover = datestart + timezone.timedelta(days=1)
     # Create the timing session.
     name = data['race_name']
-    ts, created = TimingSession.objects.get_or_create(name=name, manager=uc, start_time=datestart, stop_time=dateover)
+    ts, created = TimingSession.objects.get_or_create(name=name, coach=c, start_time=datestart, stop_time=dateover)
     if not created:
         return HttpResponse(status.HTTP_400_BAD_REQUEST)
 
@@ -688,7 +688,7 @@ def create_race(request):
         try:
             r = Reader.objects.get(id_str=r_id)
         except ObjectDoesNotExist:
-            r = Reader.objects.create(id_str=r_id, owner=uc, name=r_id)
+            r = Reader.objects.create(id_str=r_id, coach=c, name=r_id)
         ts.readers.add(r.pk)
     ts.save()    
 
@@ -708,9 +708,10 @@ def create_race(request):
                                                    last_name=last_name,
                                                    username=username)
         a, created = Athlete.objects.get_or_create(user=user)
-        g, created = Group.objects.get_or_create(name='%s-%s' %(data['race_name'], athlete['team']))
-        a.user.groups.add(g.pk)
-        a.age = int(athlete['age'])
+        #g, created = Team.objects.get_or_create(name='%s' %(athlete['team']))
+
+        #a.team = g
+        #a.birth_date = timezone.date(athlete['age'])
         a.gender = athlete['gender']
         a.save()
 
@@ -722,10 +723,10 @@ def create_race(request):
             tag.user = user
             tag.save()
         except ObjectDoesNotExist:
-            tag = Tag.objects.create(id_str=tag_id, user=user)
+            tag = Tag.objects.create(id_str=tag_id, athlete=a)
         # FIXME: What does this do?
         except MultipleObjectsReturned:
-            tag = Tag.objects.create(id_str= 'colliding tag', user=user)
+            tag = Tag.objects.create(id_str= 'colliding tag', athlete=a)
 
         ts.registered_tags.add(tag.pk)
     return HttpResponse(status.HTTP_201_CREATED)
