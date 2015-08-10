@@ -868,12 +868,18 @@ def edit_athletes(request):
 def edit_info(request):
     data = request.POST
     user = request.user
-    group, created = Group.objects.get_or_create(name = data['org'])
-    user.groups.add(group.pk)
+    team, created = Team.objects.get_or_create(name = data['org'], 
+                                               coach=user.coach)
+
+    # Do not reassign the coach if the team already exists. 
+    if created:
+        team.coach = user.coach
+        team.save()
+
     user.username = data['name']
     user.email = data['email']
     user.save()
-    return HttpResponse(status.HTTP_200_OK)
+    return Response(status.HTTP_200_OK)
 
 @api_view(['GET'])
 @permission_classes((permissions.IsAuthenticated,))
