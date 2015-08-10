@@ -891,48 +891,31 @@ def get_info(request):
 @permission_classes((permissions.AllowAny,))
 def IndividualTimes(request):
 
-    data = int(request.GET.get('id'))
+    athlete_id = int(request.GET.get('id'))
     user = request.user
     
-    # If the user is an athlete, list all the workouts he has run. If coach, the user he wants.
-    # Uses the User.id, alternatively could use athelte.id
-    if is_coach(user):
-        ap = User.objects.get(id=data)
-    elif is_athlete(user):
-        ap = user
-    # If not a user or coach, no results can be found.
-    else:
-        return HttpResponse(status.HTTP_404_NOT_FOUND)
-    
     # Get the user's name.
-    name = ap.get_full_name()
+    athlete = Athlete.objects.get(id=athlete_id)
+    name = athlete.user.get_full_name()
     if not name:
-        name = ap.username
+        name = athlete.user.username
 
-    sessions = ap.athlete.get_completed_sessions()
+    sessions = [session for session in TimingSession.objects.all() if
+                athlete_id in session.splits.values_list('athlete_id',
+                flat=True).distinct()]
     results = {'name': name, 'sessions': []} 
-
-    # Get the user's tag.
-    user_tags = ap.tag_set.all()
-    if not user_tags:
-        return Response(results)
-    else:
-        tag_id = user_tags[0].id
 
     #Iterate through each session to get all of a single users workouts
     for session in sessions:
 
-        unique_tag_ids = session.tagtimes.values_list('tag_id', flat=True).distinct()
-        
-        if tag_id in unique_tag_ids:
-            session_results = session._calc_splits_by_tag(tag_id)
-            session_info = {'id': session.id,
-                            'name': session.name,
-                            'date': session.start_time,
-                            'splits': session_results[3],
-                            'total': session_results[4]
-                            }
-            results['sessions'].append(session_info)
+        session_results = session.calc_athlete_splits(athlete_id)
+        session_info = {'id': session.id,
+                        'name': session.name,
+                        'date': session.start_time,
+                        'splits': session_results[3],
+                        'total': session_results[4]
+                        }
+        results['sessions'].append(session_info)
 
     return Response(results)
 
