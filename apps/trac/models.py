@@ -7,6 +7,7 @@ from django.dispatch import receiver
 from filters import filter_splits, get_sec_ms
 from operator import itemgetter
 from collections import namedtuple
+import datetime
 
 
 class Coach(models.Model):
@@ -47,6 +48,24 @@ class Athlete(models.Model):
     
     def __unicode__(self):
         return "name=%s" %self.user.username
+
+    @property
+    def age(self):
+        """Athlete's current age (in years)."""
+        if not self.birth_date:
+            return None
+
+        today = datetime.date.today()
+        try:
+            birthday = self.birth_date.replace(year=today.year)
+        except ValueError:
+            birthday = self.birth_date.replace(year=today.year,
+                                               month=born.month+1,
+                                               day=1)
+        if birthday > today:
+            return today.year-self.birth_date.year-1
+        else:
+            return today.year-self.birth_date.year
 
 
 class Tag(models.Model):
