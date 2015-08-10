@@ -35,7 +35,7 @@ from trac.util import is_athlete, is_coach
 from util import create_split
 from settings.common import PAYPAL_RECEIVER_EMAIL
 from paypal.standard.models import ST_PP_COMPLETED
-from paypal.standard.ipn.signals import valid_ipn_received, invalid_ipn_received
+from paypal.standard.ipn.signals import valid_ipn_received
 
 
 import json
@@ -1175,9 +1175,9 @@ def subscription(request):
         "no_note": "1",
         "payer_id": user.username,
         "item_name": "TRAC DATA",
-        "notify_url": "https://trac-us.appspot.com/api/notify",
-        "return_url": "https://trac-us.appspot.com/home",
-        "cancel_return": "https://trac-us.appspot.com/home",
+        "notify_url": "https://trac-us.appspot.com/api/notify/",
+        "return_url": "https://trac-us.appspot.com/home/",
+        "cancel_return": "https://trac-us.appspot.com/home/",
     }
     form = PayPalPaymentsForm(initial=paypal_dict, button_type="subscribe")
     context = {"form": form}
@@ -1275,6 +1275,7 @@ def checkpayment(request):
     else:
         return HttpResponse(status.HTTP_403_FORBIDDEN)
 
+@csrf_exempt
 def ipnListener(sender, **kwargs):
     ipn_obj = sender
     if ipn_obj.payment_status == ST_PP_COMPLETED:
