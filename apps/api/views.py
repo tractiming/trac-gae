@@ -51,7 +51,7 @@ import stats
 import logging
 logging.basicConfig()
 
-EPOCH=datetime.datetime(1970,1,1)
+EPOCH=timezone.datetime(1970,1,1)
 DEFAULT_DISTANCES=[100, 200, 400, 800, 1000, 1500, 1609, 2000, 3000, 5000, 10000]
 DEFAULT_TIMES=[14.3, 27.4, 61.7, 144.2, 165, 257.5, 278.7, 356.3, 550.8, 946.7, 1971.9, ]
 
@@ -357,7 +357,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         
         if teams and not isinstance(teams, list):
             teams = [teams]
-    
+
         session = TimingSession.objects.get(pk=pk)
         raw_results = session.filtered_results(gender=gender,
                 age_range=[age_gte, age_lte], teams=teams)
@@ -955,12 +955,9 @@ def upload_workouts(request):
                         track_size=data['track_size'], 
                         interval_distance=data['interval_distance'], 
                         filter_choice=False, private=True)
-
-    # convert UTC-aware time to naive
-    start_time_naive = start_time.replace(tzinfo=None) - start_time.utcoffset()
     
     # set start button time in milliseconds since epoch
-    timestamp = (start_time_naive-EPOCH).total_seconds()
+    timestamp = (start_time-EPOCH).total_seconds()
     ts.start_button_time = int(round(timestamp * 10**3))
     ts.save()
 

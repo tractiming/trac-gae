@@ -55,7 +55,7 @@ class Athlete(models.Model):
         if not self.birth_date:
             return None
 
-        today = datetime.date.today()
+        today = timezone.now()
         try:
             birthday = self.birth_date.replace(year=today.year)
         except ValueError:
@@ -125,8 +125,8 @@ class TimingSession(models.Model):
     readers = models.ManyToManyField(Reader)
     splits = models.ManyToManyField(Split)
     
-    start_time = models.DateTimeField(default=timezone.now, blank=True)
-    stop_time = models.DateTimeField(default=timezone.now, blank=True)
+    start_time = models.DateTimeField(default=timezone.now(), blank=True)
+    stop_time = models.DateTimeField(default=timezone.now(), blank=True)
     start_button_time = models.BigIntegerField(null=True, blank=True)
     registered_tags = models.ManyToManyField(Tag)
     use_registered_tags_only = models.BooleanField(default=False)
@@ -339,8 +339,12 @@ class TimingSession(models.Model):
         # Filter by age.
         if age_range:
             assert (age_range[0]<age_range[1])&(age_range[0]>=0), "Invalid age range"
-            tt = tt.filter(athlete__age__lte=age_range[1],
-                           athlete__age__gte=age_range[0])
+            now = timezone.now()
+            birth_date_gte = now.replace(year=now.year-age_range[1])
+            birth_date_lte = now.replace(year=now.year-age_range[0])
+
+            tt = tt.filter(athlete__birth_date__lte=birth_date_lte,
+                           athlete__birth_date__gte=birth_date_gte)
 
         # Filter by team.
         if teams:
