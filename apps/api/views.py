@@ -35,7 +35,7 @@ from trac.util import is_athlete, is_coach
 from util import create_split
 from settings.common import PAYPAL_RECEIVER_EMAIL
 from paypal.standard.models import ST_PP_COMPLETED
-from paypal.standard.ipn.signals import valid_ipn_received
+from paypal.standard.ipn.signals import valid_ipn_received, invalid_ipn_received
 
 
 import json
@@ -1291,4 +1291,5 @@ def ipnListener(sender, **kwargs):
             pass
 
 valid_ipn_received.connect(ipnListener)
+invalid_ipn_received.connect(ipnListener)
 
