@@ -1165,7 +1165,7 @@ def subscription(request):
     price = float(25 * num_readers)
     paypal_dict = {
         "cmd": "_xclick-subscriptions",
-        "business": PAYPAL_RECEIVER_EMAIL,
+        "business": "GriffinKelly2013-facilitator@gmail.com",
         "rm": "2",
         "a3": "25.00",
         "p3": "1",
