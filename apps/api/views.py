@@ -946,18 +946,21 @@ def upload_workouts(request):
     if not is_coach(user):
         return HttpResponse(status.HTTP_403_FORBIDDEN)
 
-    coach = user
+    coach = user.coach
     start_time = dateutil.parser.parse(data['start_time'])
     #stop_time = dateutil.parser.parse(data['start_time'])
 
-    ts = TimingSession(name=data['title'], manager=coach, 
+    ts = TimingSession(name=data['title'], coach=coach, 
                         start_time=start_time, stop_time=start_time, 
                         track_size=data['track_size'], 
                         interval_distance=data['interval_distance'], 
                         filter_choice=False, private=True)
 
-    # set start button time to start time
-    timestamp = (start_time-EPOCH).total_seconds()
+    # convert UTC-aware time to naive
+    start_time_naive = start_time.replace(tzinfo=None) - start_time.utcoffset()
+    
+    # set start button time in milliseconds since epoch
+    timestamp = (start_time_naive-EPOCH).total_seconds()
     ts.start_button_time = int(round(timestamp * 10**3))
     ts.save()
 
@@ -965,12 +968,12 @@ def upload_workouts(request):
     if results:
         
         reader, created = Reader.objects.get_or_create(id_str='ArchivedReader', 
-                defaults={ 'name': 'Archived Reader', 'owner': coach })
+                defaults={ 'name': 'Archived Reader', 'coach': coach })
         ts.readers.add(reader.pk)
 
         for runner in results:
             new_user, created = User.objects.get_or_create(username=runner['username'], 
-                    defaults={ 'first_name': runner['first_name'], 'last_name': runner['last_name'], 'email': coach.email, 'password': 'password' })
+                    defaults={ 'first_name': runner['first_name'], 'last_name': runner['last_name'], 'email': user.email, 'password': 'password' })
             if created:
                 # Register new athlete.
                 athlete = Athlete()
@@ -1008,7 +1011,7 @@ def upload_workouts(request):
 
                 time += diff
 
-                tt = Split.objects.create(tag_id=tag.id, time=time, reader_id=reader.id)
+                tt = Split.objects.create(tag_id=tag.id, athlete_id=athlete.id, time=time, reader_id=reader.id)
                 ts.splits.add(tt.pk)
 
     return HttpResponse(status.HTTP_201_CREATED)
