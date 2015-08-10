@@ -96,7 +96,7 @@ class Reader(models.Model):
         Returns a list of all active sessions the reader belongs to.
         """
         return [session for session in TimingSession.objects.all() if
-                session.is_active()]
+                session.active]
 
 
 class Split(models.Model):
