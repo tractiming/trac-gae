@@ -39,6 +39,6 @@ def create_split(reader_str, tag_str, time):
 
         # Destroying the cache for this session will force the results to be
         # recalculated.
-        session.clear_cache(tag.id)
+        session.clear_cache(tag.athlete.id)
     
     return 0
