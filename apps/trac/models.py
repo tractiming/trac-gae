@@ -55,7 +55,7 @@ class Athlete(models.Model):
         if not self.birth_date:
             return None
 
-        today = timezone.now()
+        today = datetime.date.today()
         try:
             birthday = self.birth_date.replace(year=today.year)
         except ValueError:
@@ -288,15 +288,15 @@ class TimingSession(models.Model):
         """
         individual_results = self.individual_results()
         team_names = set([runner.team for runner in individual_results
-                          if runner.team is not None])
+                            if runner.team is not None])
         
         scores = {}
         for team in team_names:
             scores[team] = {'athletes': [],
                             'score': 0,
-                            'id': Team.objects.get(name=team).id,
-                            'name': team
-                            }
+                            'id': team.id,
+                            'name': team.name
+                           }
 
         place = 1
         for athlete in individual_results:
@@ -305,7 +305,9 @@ class TimingSession(models.Model):
             if athlete.team in scores:
 
                 if len(scores[athlete.team]['athletes']) < num_scorers:
-                    scores[athlete.team]['athletes'].append(athlete.name)
+                    scores[athlete.team]['athletes'].append({'name': athlete.name, 
+                                                             'place': place, 
+                                                             'total': athlete.total})
                     scores[athlete.team]['score'] += place
 
                 place += 1
