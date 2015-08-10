@@ -17,9 +17,11 @@ log = logging.getLogger(__name__)
 # PAYPAL_DATE_FORMAT = ("%H:%M:%S %b. %d, %Y PST", "%H:%M:%S %b %d, %Y PST",)
 # PayPal dates have been spotted in the wild with these formats, beware!
 PAYPAL_DATE_FORMATS = ["%H:%M:%S %b. %d, %Y PST",
-                       "%H:%M:%S %b. %d, %Y PDT",
-                       "%H:%M:%S %b %d, %Y PST",
-                       "%H:%M:%S %b %d, %Y PDT",
+                      "%H:%M:%S %b. %d, %Y PDT",
+                      "%H:%M:%S %d %b %Y PST",    # note this
+                      "%H:%M:%S %d %b %Y PDT",    # and that
+                      "%H:%M:%S %b %d, %Y PST",
+                      "%H:%M:%S %b %d, %Y PDT",
                       ]
 
 
