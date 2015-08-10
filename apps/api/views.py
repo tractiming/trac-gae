@@ -744,9 +744,9 @@ def WorkoutTags(request):
             table = TimingSession.objects.get(id=id_num)
             result = table.registered_tags.all()        
             for instance in result:
-                u_first = instance.user.first_name
-                u_last = instance.user.last_name
-                username = instance.user.username
+                u_first = instance.athlete.user.first_name
+                u_last = instance.athlete.user.last_name
+                username = instance.athlete.user.username
                 array.append({'id': instance.id, 'first': u_first, 'last': u_last, 'username': username, 'id_str': instance.id_str})
             return Response(array, status.HTTP_200_OK)
     elif request.method == 'POST':
@@ -769,7 +769,7 @@ def WorkoutTags(request):
                 a, created = Athlete.objects.get_or_create(user=user)
                 if is_coach(i_user):
                     cp = Coach.objects.get(user=i_user)
-                    cp.athletes.add(a.pk)
+                    #cp.athletes.add(a.pk)
                 a.save()
                 try:  #if tag exists update user. Or create tag.
                     user.first_name = fname
@@ -780,7 +780,7 @@ def WorkoutTags(request):
                     user.save()
                 except ObjectDoesNotExist:
                     try:
-                        tag = Tag.objects.get(user = user)
+                        tag = Tag.objects.get(athlete = user.athlete)
                         tag.id_str = request.POST.get('id_str')
                         tag.save()
                     except ObjectDoesNotExist:
@@ -820,9 +820,9 @@ def edit_athletes(request):
         return HttpResponse(status.HTTP_403_FORBIDDEN)
     else:
         if request.POST.get('submethod') == 'Delete': #Removes the link with coach account
-            cp = Coach.objects.get(user = i_user)
+            #cp = Coach.objects.get(user = i_user) #deletes entire user
             atl = Athlete.objects.get(id=request.POST.get('id'))
-            cp.athletes.remove(atl)
+            atl.delete()
         elif request.POST.get('submethod') == 'Update': #Change user's first and last names. Not change username.
             cp = Coach.objects.get(user = i_user)
             atl = Athlete.objects.get(id=request.POST.get('id'))
@@ -846,6 +846,8 @@ def edit_athletes(request):
             cp = Coach.objects.get(user = i_user)
             user, created = User.objects.get_or_create(username = request.POST.get('username'), first_name = request.POST.get('first_name'), last_name = request.POST.get('last_name'))
             atl, created = Athlete.objects.get_or_create(user = user)
+            atl.team = cp.team_set.all()[0]
+            #cp.team_set.all()
             #tag, created = Tag.objects.get_or_create(user = user, id_str = request.POST.get('id_str'))
             try:
                 tag = Tag.objects.get(id_str = request.POST.get('id_str'))
@@ -853,9 +855,11 @@ def edit_athletes(request):
             except ObjectDoesNotExist:
                 tag = Tag.objects.create(athlete = user.athlete, id_str = request.POST.get('id_str'))
             #cp.athletes.add(atl.pk)
+
             tag.save()
             atl.save()
             user.save()
+
         return HttpResponse(status.HTTP_200_OK)
 
 # TODO: Move to UserViewSet
