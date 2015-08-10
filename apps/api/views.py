@@ -45,13 +45,15 @@ import uuid
 import hashlib
 import base64
 import datetime
+import time
 import math
 import stats
 import logging
 logging.basicConfig()
 
-default_distances=[100, 200, 400, 800, 1000, 1500, 1609, 2000, 3000, 5000, 10000]
-default_times=[14.3, 27.4, 61.7, 144.2, 165, 257.5, 278.7, 356.3, 550.8, 946.7, 1971.9, ]
+EPOCH=timezone.datetime(1970,1,1)
+DEFAULT_DISTANCES=[100, 200, 400, 800, 1000, 1500, 1609, 2000, 3000, 5000, 10000]
+DEFAULT_TIMES=[14.3, 27.4, 61.7, 144.2, 165, 257.5, 278.7, 356.3, 550.8, 946.7, 1971.9, ]
 
 class verifyLogin(views.APIView):
 	permission_classes = ()
@@ -138,8 +140,8 @@ class RegistrationView(views.APIView):
 
             #Creates the Default table for coaches when they register.
             cp = Coach.objects.get(user=user)
-            for i in range(0, len(default_distances)):
-                r = PerformanceRecord.objects.create(distance=default_distances[i], time=default_times[i])
+            for i in range(0, len(DEFAULT_DISTANCES)):
+                r = PerformanceRecord.objects.create(distance=DEFAULT_DISTANCES[i], time=DEFAULT_TIMES[i])
                 cp.performancerecord_set.add(r)
 
         # Create the OAuth2 client.
@@ -355,7 +357,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         
         if teams and not isinstance(teams, list):
             teams = [teams]
-    
+
         session = TimingSession.objects.get(pk=pk)
         raw_results = session.filtered_results(gender=gender,
                 age_range=[age_gte, age_lte], teams=teams)
@@ -566,7 +568,7 @@ def edit_split(request):
     """
     data = request.POST
     ts = TimingSession.objects.get(id=int(data['id']))
-    all_tags = ts.tagtimes.values_list('tag_id', flat=True).distinct()
+    all_tags = ts.splits.values_list('tag_id', flat=True).distinct()
     tag = Tag.objects.filter(user_id=int(data['user_id']), id__in=all_tags)
     
     if data['action'] == 'edit':
@@ -949,37 +951,42 @@ def upload_workouts(request):
     if not is_coach(user):
         return HttpResponse(status.HTTP_403_FORBIDDEN)
 
-    coach = user
+    coach = user.coach
     start_time = dateutil.parser.parse(data['start_time'])
     #stop_time = dateutil.parser.parse(data['start_time'])
 
-    ts = TimingSession(name=data['title'], manager=coach, start_time=start_time, stop_time=start_time, track_size=data['track_size'], interval_distance=data['interval_distance'], filter_choice=False, private=True)
-
-    # set start button time to start time
-    ts.start_button_time = start_time
+    ts = TimingSession(name=data['title'], coach=coach, 
+                        start_time=start_time, stop_time=start_time, 
+                        track_size=data['track_size'], 
+                        interval_distance=data['interval_distance'], 
+                        filter_choice=False, private=True)
+    
+    # set start button time in milliseconds since epoch
+    timestamp = (start_time-EPOCH).total_seconds()
+    ts.start_button_time = int(round(timestamp * 10**3))
     ts.save()
 
     results = data['results']
     if results:
         
         reader, created = Reader.objects.get_or_create(id_str='ArchivedReader', 
-                defaults={ 'name': 'Archived Reader', 'owner': coach })
+                defaults={ 'name': 'Archived Reader', 'coach': coach })
         ts.readers.add(reader.pk)
 
         for runner in results:
             new_user, created = User.objects.get_or_create(username=runner['username'], 
-                    defaults={ 'first_name': runner['first_name'], 'last_name': runner['last_name'], 'email': coach.email, 'password': 'password' })
+                    defaults={ 'first_name': runner['first_name'], 'last_name': runner['last_name'], 'email': user.email, 'password': 'password' })
             if created:
                 # Register new athlete.
                 athlete = Athlete()
                 athlete.user = new_user
                 athlete.save()
 
-                # add coach's org to new athlete's org
-                if coach.groups.all():
-                    group = coach.groups.all()[0]
-                    new_user.groups.add(group.pk)
-                    new_user.save()
+                # add coach's team to new athlete's team
+                if coach.team_set.all():
+                    team = coach.team_set.all()[0]
+                    athlete.team = team
+                    athlete.save()
 
                 # Create the OAuth2 client.
                 #name = user.username
@@ -987,26 +994,27 @@ def upload_workouts(request):
                 #        client_id=name, client_secret='', client_type=1)
                 #client.save()
             
-            tags = Tag.objects.filter(user=new_user)
+            tags = Tag.objects.filter(athlete=athlete)
             if tags:
                 tag = tags[0]
             else:
-                tag = Tag.objects.create(id_str=runner['username'], user=new_user)
+                tag = Tag.objects.create(id_str=runner['username'], athlete=athlete)
 
-            # create reference tagtime
-            s_tt = TagTime(time=ts.start_button_time, milliseconds=0)
-            time = s_tt.full_time
+            # init reference timestamp
+            time = ts.start_button_time
 
             for split in runner['splits']:
                 try:
-                    x = timezone.datetime.strptime(split, "%M:%S.%f")
+                    #x = timezone.datetime.strptime(split, "%M:%S.%f")
+                    mins, secs = split.split(':')
+                    diff = int(round((int(mins) * 60 + float(secs)) * 10**3))
                 except:
-                    x = timezone.datetime.strptime(split, "%S.%f")
+                    diff = int(round(float(secs) * 10**3))
 
-                time += timezone.timedelta(minutes=x.minute,seconds=x.second,microseconds=x.microsecond)
+                time += diff
 
-                tt = TagTime.objects.create(tag_id=tag.id, time=time, reader_id=reader.id, milliseconds=time.microsecond/1000)
-                ts.tagtimes.add(tt.pk)
+                tt = Split.objects.create(tag_id=tag.id, athlete_id=athlete.id, time=time, reader_id=reader.id)
+                ts.splits.add(tt.pk)
 
     return HttpResponse(status.HTTP_201_CREATED)
 
