@@ -552,6 +552,7 @@ def post_splits(request):
     elif request.method == 'GET':
         return Response({str(timezone.now())}, status.HTTP_200_OK)
 
+# TODO: Move to TimingSessionViewSet
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))
 def edit_split(request):
@@ -1138,7 +1139,7 @@ def VO2Max(request):
             #print '800m: ' + str(800/vVO2)
             #print '1000m: ' + str(1000/vVO2)
             #print '1500m: ' + str(1500/vVO2)
-            #print '1609m: ' + str(1609/vVO2)
+            #print '1600m: ' + str(1609/vVO2)
             #print '3000m: ' + str(3000/vVO2)
             #print '5000m: ' + str(5000/vVO2)
             #print '10000m: ' + str(10000/vVO2)
