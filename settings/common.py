@@ -28,7 +28,8 @@ path.insert(0, join(DJANGO_ROOT, 'apps'))
 ########## SECRET CONFIGURATION ##########
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'gi8u=tes8q2*@@1lkfu69j^1&syc+p)l0%i0ut4$a3@5c&9b4z'
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'www.trac-us.appspot.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'www.trac-us.appspot.com',
+                 'trac-us.appspot.com']
 ##########################################
 
 ########## DEBUG CONFIGURATION ##########
