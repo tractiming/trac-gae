@@ -45,13 +45,15 @@ import uuid
 import hashlib
 import base64
 import datetime
+import time
 import math
 import stats
 import logging
 logging.basicConfig()
 
-default_distances=[100, 200, 400, 800, 1000, 1500, 1609, 2000, 3000, 5000, 10000]
-default_times=[14.3, 27.4, 61.7, 144.2, 165, 257.5, 278.7, 356.3, 550.8, 946.7, 1971.9, ]
+EPOCH=timezone.datetime(1970,1,1)
+DEFAULT_DISTANCES=[100, 200, 400, 800, 1000, 1500, 1609, 2000, 3000, 5000, 10000]
+DEFAULT_TIMES=[14.3, 27.4, 61.7, 144.2, 165, 257.5, 278.7, 356.3, 550.8, 946.7, 1971.9, ]
 
 class verifyLogin(views.APIView):
 	permission_classes = ()
@@ -138,8 +140,8 @@ class RegistrationView(views.APIView):
 
             #Creates the Default table for coaches when they register.
             cp = Coach.objects.get(user=user)
-            for i in range(0, len(default_distances)):
-                r = PerformanceRecord.objects.create(distance=default_distances[i], time=default_times[i])
+            for i in range(0, len(DEFAULT_DISTANCES)):
+                r = PerformanceRecord.objects.create(distance=DEFAULT_DISTANCES[i], time=DEFAULT_TIMES[i])
                 cp.performancerecord_set.add(r)
 
         # Create the OAuth2 client.
@@ -355,7 +357,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         
         if teams and not isinstance(teams, list):
             teams = [teams]
-    
+
         session = TimingSession.objects.get(pk=pk)
         raw_results = session.filtered_results(gender=gender,
                 age_range=[age_gte, age_lte], teams=teams)
@@ -429,7 +431,7 @@ def start_session(request):
     # real time. 
     # Also note that the start time is taken to be the time the request hits
     # the server, not the time the button is pressed on the phone, etc.
-    current_time = timezone.now()-timezone.timedelta(seconds=8)
+    current_time = timezone.now().replace(tzinfo=None)-timezone.timedelta(seconds=8)
     timestamp = int((current_time-timezone.datetime(1970, 1, 1)).total_seconds()*1000)
 
     try:
@@ -550,6 +552,7 @@ def post_splits(request):
     elif request.method == 'GET':
         return Response({str(timezone.now())}, status.HTTP_200_OK)
 
+# TODO: Move to TimingSessionViewSet
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))
 def edit_split(request):
@@ -566,7 +569,7 @@ def edit_split(request):
     """
     data = request.POST
     ts = TimingSession.objects.get(id=int(data['id']))
-    all_tags = ts.tagtimes.values_list('tag_id', flat=True).distinct()
+    all_tags = ts.splits.values_list('tag_id', flat=True).distinct()
     tag = Tag.objects.filter(user_id=int(data['user_id']), id__in=all_tags)
     
     if data['action'] == 'edit':
@@ -671,24 +674,24 @@ def create_race(request):
         }
     """
     data = json.loads(request.body)
+    user = request.user
+
     # Assign the session to a coach.
-    uc, created = User.objects.get_or_create(username=data['director_username'])
-    c, created = Coach.objects.get_or_create(user=uc)
+    c = user.coach
+
     date = data['race_date']
     datestart = dateutil.parser.parse(date)
     dateover = datestart + timezone.timedelta(days=1)
     # Create the timing session.
     name = data['race_name']
-    ts, created = TimingSession.objects.get_or_create(name=name, manager=uc, start_time=datestart, stop_time=dateover)
-    if not created:
-        return HttpResponse(status.HTTP_400_BAD_REQUEST)
+    ts = TimingSession.objects.create(name=name, coach=c, start_time=datestart, stop_time=dateover)
 
     # Create readers and add to the race.
     for r_id in data['readers']:
         try:
             r = Reader.objects.get(id_str=r_id)
         except ObjectDoesNotExist:
-            r = Reader.objects.create(id_str=r_id, owner=uc, name=r_id)
+            r = Reader.objects.create(id_str=r_id, coach=c, name=r_id)
         ts.readers.add(r.pk)
     ts.save()    
 
@@ -704,13 +707,17 @@ def create_race(request):
         first_name = athlete['first_name']
         last_name = athlete['last_name']
         username = first_name + last_name
-        user, created = User.objects.get_or_create(first_name=first_name,
-                                                   last_name=last_name,
-                                                   username=username)
-        a, created = Athlete.objects.get_or_create(user=user)
-        g, created = Group.objects.get_or_create(name='%s-%s' %(data['race_name'], athlete['team']))
-        a.user.groups.add(g.pk)
-        a.age = int(athlete['age'])
+        runner, created = User.objects.get_or_create(username=username,
+                defaults={'first_name':first_name, 'last_name':last_name})
+
+        a, created = Athlete.objects.get_or_create(user=runner)
+
+        team, created = Team.objects.get_or_create(name=athlete['team'], coach=c)
+        # add TFRRS team code here
+
+        today = datetime.date.today()
+        a.birth_date = today.replace(year=today.year - int(athlete['age']))
+        a.team = team
         a.gender = athlete['gender']
         a.save()
 
@@ -719,15 +726,16 @@ def create_race(request):
         try:
             # If the tag already exists in the system, overwrite its user.
             tag = Tag.objects.get(id_str=tag_id)
-            tag.user = user
+            tag.athlete = athlete
             tag.save()
         except ObjectDoesNotExist:
-            tag = Tag.objects.create(id_str=tag_id, user=user)
+            tag = Tag.objects.create(id_str=tag_id, athlete=a)
         # FIXME: What does this do?
         except MultipleObjectsReturned:
-            tag = Tag.objects.create(id_str= 'colliding tag', user=user)
+            tag = Tag.objects.create(id_str= 'colliding tag', athlete=a)
 
         ts.registered_tags.add(tag.pk)
+
     return HttpResponse(status.HTTP_201_CREATED)
 
 #registered tags endpoint for settings
@@ -744,9 +752,9 @@ def WorkoutTags(request):
             table = TimingSession.objects.get(id=id_num)
             result = table.registered_tags.all()        
             for instance in result:
-                u_first = instance.user.first_name
-                u_last = instance.user.last_name
-                username = instance.user.username
+                u_first = instance.athlete.user.first_name
+                u_last = instance.athlete.user.last_name
+                username = instance.athlete.user.username
                 array.append({'id': instance.id, 'first': u_first, 'last': u_last, 'username': username, 'id_str': instance.id_str})
             return Response(array, status.HTTP_200_OK)
     elif request.method == 'POST':
@@ -769,7 +777,7 @@ def WorkoutTags(request):
                 a, created = Athlete.objects.get_or_create(user=user)
                 if is_coach(i_user):
                     cp = Coach.objects.get(user=i_user)
-                    cp.athletes.add(a.pk)
+                    #cp.athletes.add(a.pk)
                 a.save()
                 try:  #if tag exists update user. Or create tag.
                     user.first_name = fname
@@ -780,7 +788,7 @@ def WorkoutTags(request):
                     user.save()
                 except ObjectDoesNotExist:
                     try:
-                        tag = Tag.objects.get(user = user)
+                        tag = Tag.objects.get(athlete = user.athlete)
                         tag.id_str = request.POST.get('id_str')
                         tag.save()
                     except ObjectDoesNotExist:
@@ -820,9 +828,9 @@ def edit_athletes(request):
         return HttpResponse(status.HTTP_403_FORBIDDEN)
     else:
         if request.POST.get('submethod') == 'Delete': #Removes the link with coach account
-            cp = Coach.objects.get(user = i_user)
+            #cp = Coach.objects.get(user = i_user) #deletes entire user
             atl = Athlete.objects.get(id=request.POST.get('id'))
-            cp.athletes.remove(atl)
+            atl.delete()
         elif request.POST.get('submethod') == 'Update': #Change user's first and last names. Not change username.
             cp = Coach.objects.get(user = i_user)
             atl = Athlete.objects.get(id=request.POST.get('id'))
@@ -846,6 +854,8 @@ def edit_athletes(request):
             cp = Coach.objects.get(user = i_user)
             user, created = User.objects.get_or_create(username = request.POST.get('username'), first_name = request.POST.get('first_name'), last_name = request.POST.get('last_name'))
             atl, created = Athlete.objects.get_or_create(user = user)
+            atl.team = cp.team_set.all()[0]
+            #cp.team_set.all()
             #tag, created = Tag.objects.get_or_create(user = user, id_str = request.POST.get('id_str'))
             try:
                 tag = Tag.objects.get(id_str = request.POST.get('id_str'))
@@ -853,9 +863,11 @@ def edit_athletes(request):
             except ObjectDoesNotExist:
                 tag = Tag.objects.create(athlete = user.athlete, id_str = request.POST.get('id_str'))
             #cp.athletes.add(atl.pk)
+
             tag.save()
             atl.save()
             user.save()
+
         return HttpResponse(status.HTTP_200_OK)
 
 # TODO: Move to UserViewSet
@@ -944,37 +956,42 @@ def upload_workouts(request):
     if not is_coach(user):
         return HttpResponse(status.HTTP_403_FORBIDDEN)
 
-    coach = user
+    coach = user.coach
     start_time = dateutil.parser.parse(data['start_time'])
     #stop_time = dateutil.parser.parse(data['start_time'])
 
-    ts = TimingSession(name=data['title'], manager=coach, start_time=start_time, stop_time=start_time, track_size=data['track_size'], interval_distance=data['interval_distance'], filter_choice=False, private=True)
-
-    # set start button time to start time
-    ts.start_button_time = start_time
+    ts = TimingSession(name=data['title'], coach=coach, 
+                        start_time=start_time, stop_time=start_time, 
+                        track_size=data['track_size'], 
+                        interval_distance=data['interval_distance'], 
+                        filter_choice=False, private=True)
+    
+    # set start button time in milliseconds since epoch
+    timestamp = (start_time-EPOCH).total_seconds()
+    ts.start_button_time = int(round(timestamp * 10**3))
     ts.save()
 
     results = data['results']
     if results:
         
         reader, created = Reader.objects.get_or_create(id_str='ArchivedReader', 
-                defaults={ 'name': 'Archived Reader', 'owner': coach })
+                defaults={ 'name': 'Archived Reader', 'coach': coach })
         ts.readers.add(reader.pk)
 
         for runner in results:
             new_user, created = User.objects.get_or_create(username=runner['username'], 
-                    defaults={ 'first_name': runner['first_name'], 'last_name': runner['last_name'], 'email': coach.email, 'password': 'password' })
+                    defaults={ 'first_name': runner['first_name'], 'last_name': runner['last_name'] })
             if created:
                 # Register new athlete.
                 athlete = Athlete()
                 athlete.user = new_user
                 athlete.save()
 
-                # add coach's org to new athlete's org
-                if coach.groups.all():
-                    group = coach.groups.all()[0]
-                    new_user.groups.add(group.pk)
-                    new_user.save()
+                # add coach's team to new athlete's team
+                if coach.team_set.all():
+                    team = coach.team_set.all()[0]
+                    athlete.team = team
+                    athlete.save()
 
                 # Create the OAuth2 client.
                 #name = user.username
@@ -982,26 +999,27 @@ def upload_workouts(request):
                 #        client_id=name, client_secret='', client_type=1)
                 #client.save()
             
-            tags = Tag.objects.filter(user=new_user)
+            tags = Tag.objects.filter(athlete=athlete)
             if tags:
                 tag = tags[0]
             else:
-                tag = Tag.objects.create(id_str=runner['username'], user=new_user)
+                tag = Tag.objects.create(id_str=runner['username'], athlete=athlete)
 
-            # create reference tagtime
-            s_tt = TagTime(time=ts.start_button_time, milliseconds=0)
-            time = s_tt.full_time
+            # init reference timestamp
+            time = ts.start_button_time
 
             for split in runner['splits']:
                 try:
-                    x = timezone.datetime.strptime(split, "%M:%S.%f")
+                    #x = timezone.datetime.strptime(split, "%M:%S.%f")
+                    mins, secs = split.split(':')
+                    diff = int(round((int(mins) * 60 + float(secs)) * 10**3))
                 except:
-                    x = timezone.datetime.strptime(split, "%S.%f")
+                    diff = int(round(float(secs) * 10**3))
 
-                time += timezone.timedelta(minutes=x.minute,seconds=x.second,microseconds=x.microsecond)
+                time += diff
 
-                tt = TagTime.objects.create(tag_id=tag.id, time=time, reader_id=reader.id, milliseconds=time.microsecond/1000)
-                ts.tagtimes.add(tt.pk)
+                tt = Split.objects.create(tag_id=tag.id, athlete_id=athlete.id, time=time, reader_id=reader.id)
+                ts.splits.add(tt.pk)
 
     return HttpResponse(status.HTTP_201_CREATED)
 
@@ -1121,7 +1139,7 @@ def VO2Max(request):
             #print '800m: ' + str(800/vVO2)
             #print '1000m: ' + str(1000/vVO2)
             #print '1500m: ' + str(1500/vVO2)
-            #print '1609m: ' + str(1609/vVO2)
+            #print '1600m: ' + str(1609/vVO2)
             #print '3000m: ' + str(3000/vVO2)
             #print '5000m: ' + str(5000/vVO2)
             #print '10000m: ' + str(10000/vVO2)
@@ -1165,19 +1183,20 @@ def subscription(request):
     price = float(25 * num_readers)
     paypal_dict = {
         "cmd": "_xclick-subscriptions",
-        "business": PAYPAL_RECEIVER_EMAIL,
-        "rm": 2,
+        "business": "GriffinKelly2013-facilitator@gmail.com",
+        "rm": "2",
         "a3": "25.00",
-        "p3": 1,
+        "p3": "1",
         "t3": "M",
         "src": "1",
         "sra": "1",
         "no_note": "1",
+        "test_ipn": "1",
         "payer_id": user.username,
         "item_name": "TRAC DATA",
-        "notify_url": "https://trac-us.appspot.com/api/notify",
-        "return_url": "https://trac-us.appspot.com/home",
-        "cancel_return": "https://trac-us.appspot.com/home",
+        "notify_url": "https://trac-us.appspot.com/api/notify/",
+        "return_url": "https://trac-us.appspot.com/home/",
+        "cancel_return": "https://trac-us.appspot.com/home/",
     }
     form = PayPalPaymentsForm(initial=paypal_dict, button_type="subscribe")
     context = {"form": form}
@@ -1275,6 +1294,7 @@ def checkpayment(request):
     else:
         return HttpResponse(status.HTTP_403_FORBIDDEN)
 
+@csrf_exempt
 def ipnListener(sender, **kwargs):
     ipn_obj = sender
     if ipn_obj.payment_status == ST_PP_COMPLETED:
@@ -1289,4 +1309,5 @@ def ipnListener(sender, **kwargs):
             pass
 
 valid_ipn_received.connect(ipnListener)
+invalid_ipn_received.connect(ipnListener)
 
