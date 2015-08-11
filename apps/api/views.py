@@ -188,15 +188,23 @@ class CoachViewSet(viewsets.ModelViewSet):
 
 
 class TeamViewSet(viewsets.ModelViewSet):
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.AllowAny,)
     serializer_class = TeamSerializer
     
     def get_queryset(self):
-        if is_coach(self.request.user):
-            return self.request.user.coach.team_set.all()
-    
+        user = self.request.user
+        public = self.request.GET.get('public', None)
+
+        if public == 'true':
+            teams = []
+            for coach in Coach.objects.all():
+                teams.append(coach.team_set.all()[0])
+            return teams
         else:
-            return Team.objects.filter(athlete__in=[self.request.user.athlete.pk])
+            if is_coach(user):
+                return user.coach.team_set.all()
+            elif is_athlete(user):
+                return Team.objects.filter(athlete__in=[user.athlete.pk])
 
     def pre_save(self, obj):
         obj.coach = self.request.user.coach
@@ -260,15 +268,15 @@ class ScoringViewSet(viewsets.ModelViewSet):
         """
         Overrides default method to filter public sessions by organization.
         """
-        org = self.request.GET.get('org', None)
-        if org == 'Unaffiliated':
+        team = self.request.GET.get('team', None)
+        if team == 'Unaffiliated':
             # return sessions belonging to unaffiliated users
-            managers = User.objects.filter(groups__isnull=True)
-            sessions = TimingSession.objects.filter(private=False, manager__in=managers)
-        elif org is not None:
+            coaches = Coach.objects.filter(team__isnull=True)
+            sessions = TimingSession.objects.filter(private=False, coach__in=coaches)
+        elif team is not None:
             # return sessions belonging to users under requested organization
-            managers = Group.objects.get(name=org).user_set.all()
-            sessions = TimingSession.objects.filter(private=False, manager=managers[0])
+            coach = Coach.objects.get(team_set__in=[team])
+            sessions = TimingSession.objects.filter(private=False, coach=coach)
         else:
             # return all public sessions
             sessions = TimingSession.objects.filter(private=False)
@@ -967,7 +975,7 @@ def upload_workouts(request):
                         filter_choice=False, private=True)
     
     # set start button time in milliseconds since epoch
-    timestamp = (start_time-EPOCH).total_seconds()
+    timestamp = (start_time.replace(tzinfo=None)-EPOCH).total_seconds()
     ts.start_button_time = int(round(timestamp * 10**3))
     ts.save()
 
@@ -999,7 +1007,7 @@ def upload_workouts(request):
                 #        client_id=name, client_secret='', client_type=1)
                 #client.save()
             
-            tags = Tag.objects.filter(athlete=athlete)
+            tags = Tag.objects.filter(athlete=new_user.athlete)
             if tags:
                 tag = tags[0]
             else:
@@ -1018,7 +1026,7 @@ def upload_workouts(request):
 
                 time += diff
 
-                tt = Split.objects.create(tag_id=tag.id, athlete_id=athlete.id, time=time, reader_id=reader.id)
+                tt = Split.objects.create(tag_id=tag.id, athlete_id=new_user.athlete.id, time=time, reader_id=reader.id)
                 ts.splits.add(tt.pk)
 
     return HttpResponse(status.HTTP_201_CREATED)

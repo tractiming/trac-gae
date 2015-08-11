@@ -1445,12 +1445,13 @@ google.setOnLoadCallback(function(){
 						if (results.length == 15){
 							$('ul.menulist').append('<li id="see-more"><a href="#">See More</a></li>');
 						}
-					}
-					// show most recent workout
-					if (!currentID)
-						currentID = idArray[0];
 
-					$('a#session-'+currentID).click();
+						// show most recent workout
+						if (!currentID)
+							currentID = idArray[0];
+
+						$('a#session-'+currentID).click();
+					}
 				}
 			});
 		}
