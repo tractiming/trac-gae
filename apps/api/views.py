@@ -132,8 +132,10 @@ class RegistrationView(views.APIView):
             coach.save()
 
             # Add user to group - TODO: should they be auto-added to group?
-            team, created = Team.objects.get_or_create(name=data['organization'],
-                                                       coach=coach)
+            team_name = data['organization']
+            team, created = Team.objects.get_or_create(name=team_name,
+                                                       coach=coach,
+                                                       tfrrs_code=team_name)
             if created:
                 team.coach = coach 
                 team.save()
