@@ -1257,6 +1257,11 @@ def est_distance(request):
 
     #update each individual runner tables with their own data for distances predicted above.
     for runner in r_times:
+        return_dict = []
+        accumulate_VO2 = 0
+        count_VO2 = 0
+        accumulate_t_VO2 = 0
+        count_t_VO2 = 0
         username = runner['name']
         a_user = User.objects.get(id = username)
         ap = Athlete.objects.get(user = a_user)
@@ -1270,17 +1275,28 @@ def est_distance(request):
                         r= ap.performancerecord_set.get(distance= distance['Distance'], interval= results['interval'])
                         r.time = (r.time + times)/2
                         velocity = r.distance / (r.time/60)
+                        t_velocity = r.distance/ (times/60)
+                        t_VO2 = (-4.60 + .182258 * t_velocity + 0.000104 * pow(t_velocity, 2)) / (.8 + .1894393 * pow(2.78, (-.012778 * times/60)) + .2989558 * pow(2.78, (-.1932605 * times/60)))
                         VO2 = (-4.60 + .182258 * velocity + 0.000104 * pow(velocity, 2)) / (.8 + .1894393 * pow(2.78, (-.012778 * r.time/60)) + .2989558 * pow(2.78, (-.1932605 * r.time/60)))
                         VO2 = int(VO2)
+                        t_VO2 = int(t_VO2)
                         r.VO2 = VO2
                         r.save()
                     except:
                         velocity = distance['Distance']/ (times/60)
                         VO2 = (-4.60 + .182258 * velocity + 0.000104 * pow(velocity, 2)) / (.8 + .1894393 * pow(2.78, (-.012778 * times/60)) + .2989558 * pow(2.78, (-.1932605 * times/60)))
                         VO2 = int(VO2)
+                        t_VO2 = VO2
                         r = PerformanceRecord.objects.create(distance=distance['Distance'], time=times, interval= results['interval'], VO2= VO2)
+                    accumulate_t_VO2 += t_VO2
+                    count_t_VO2 += 1
+                    accumulate_VO2 += VO2
+                    count_VO2 += 1
                     ap.performancerecord_set.add(r)
-
+        temp_t_VO2 = accumulate_t_VO2 / count_t_VO2
+        temp_VO2 = accumulate_VO2 / count_VO2
+        return_dict.append({"runner":runner, "CurrentWorkout":temp_t_VO2, "Average":temp_VO2})
+    print return_dict
     #return auto_edits 
     return HttpResponse(status.HTTP_200_OK)
 

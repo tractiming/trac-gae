@@ -89,5 +89,4 @@ def ipn(request, item_check_callable=None):
     if encoding_missing:
         # Wait until we have an ID to log warning
         log.warning("No charset passed with PayPalIPN: %s. Guessing %s", ipn_obj.id, encoding)
-
     return HttpResponse("OKAY")
