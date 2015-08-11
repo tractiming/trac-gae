@@ -431,7 +431,7 @@ def start_session(request):
     # real time. 
     # Also note that the start time is taken to be the time the request hits
     # the server, not the time the button is pressed on the phone, etc.
-    current_time = timezone.now()-timezone.timedelta(seconds=8)
+    current_time = timezone.now().replace(tzinfo=None)-timezone.timedelta(seconds=8)
     timestamp = int((current_time-timezone.datetime(1970, 1, 1)).total_seconds()*1000)
 
     try:
@@ -552,6 +552,7 @@ def post_splits(request):
     elif request.method == 'GET':
         return Response({str(timezone.now())}, status.HTTP_200_OK)
 
+# TODO: Move to TimingSessionViewSet
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))
 def edit_split(request):
@@ -673,17 +674,17 @@ def create_race(request):
         }
     """
     data = json.loads(request.body)
+    user = request.user
+
     # Assign the session to a coach.
-    uc, created = User.objects.get_or_create(username=data['director_username'])
-    c, created = Coach.objects.get_or_create(user=uc)
+    c = user.coach
+
     date = data['race_date']
     datestart = dateutil.parser.parse(date)
     dateover = datestart + timezone.timedelta(days=1)
     # Create the timing session.
     name = data['race_name']
-    ts, created = TimingSession.objects.get_or_create(name=name, coach=c, start_time=datestart, stop_time=dateover)
-    if not created:
-        return HttpResponse(status.HTTP_400_BAD_REQUEST)
+    ts = TimingSession.objects.create(name=name, coach=c, start_time=datestart, stop_time=dateover)
 
     # Create readers and add to the race.
     for r_id in data['readers']:
@@ -706,14 +707,17 @@ def create_race(request):
         first_name = athlete['first_name']
         last_name = athlete['last_name']
         username = first_name + last_name
-        user, created = User.objects.get_or_create(first_name=first_name,
-                                                   last_name=last_name,
-                                                   username=username)
-        a, created = Athlete.objects.get_or_create(user=user)
-        #g, created = Team.objects.get_or_create(name='%s' %(athlete['team']))
+        runner, created = User.objects.get_or_create(username=username,
+                defaults={'first_name':first_name, 'last_name':last_name})
 
-        #a.team = g
-        #a.birth_date = timezone.date(athlete['age'])
+        a, created = Athlete.objects.get_or_create(user=runner)
+
+        team, created = Team.objects.get_or_create(name=athlete['team'], coach=c)
+        # add TFRRS team code here
+
+        today = datetime.date.today()
+        a.birth_date = today.replace(year=today.year - int(athlete['age']))
+        a.team = team
         a.gender = athlete['gender']
         a.save()
 
@@ -722,7 +726,7 @@ def create_race(request):
         try:
             # If the tag already exists in the system, overwrite its user.
             tag = Tag.objects.get(id_str=tag_id)
-            tag.user = user
+            tag.athlete = athlete
             tag.save()
         except ObjectDoesNotExist:
             tag = Tag.objects.create(id_str=tag_id, athlete=a)
@@ -731,6 +735,7 @@ def create_race(request):
             tag = Tag.objects.create(id_str= 'colliding tag', athlete=a)
 
         ts.registered_tags.add(tag.pk)
+
     return HttpResponse(status.HTTP_201_CREATED)
 
 #registered tags endpoint for settings
@@ -975,7 +980,7 @@ def upload_workouts(request):
 
         for runner in results:
             new_user, created = User.objects.get_or_create(username=runner['username'], 
-                    defaults={ 'first_name': runner['first_name'], 'last_name': runner['last_name'], 'email': user.email, 'password': 'password' })
+                    defaults={ 'first_name': runner['first_name'], 'last_name': runner['last_name'] })
             if created:
                 # Register new athlete.
                 athlete = Athlete()
@@ -1134,7 +1139,7 @@ def VO2Max(request):
             #print '800m: ' + str(800/vVO2)
             #print '1000m: ' + str(1000/vVO2)
             #print '1500m: ' + str(1500/vVO2)
-            #print '1609m: ' + str(1609/vVO2)
+            #print '1600m: ' + str(1609/vVO2)
             #print '3000m: ' + str(3000/vVO2)
             #print '5000m: ' + str(5000/vVO2)
             #print '10000m: ' + str(10000/vVO2)
