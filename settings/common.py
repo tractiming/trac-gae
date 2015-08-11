@@ -28,11 +28,12 @@ path.insert(0, join(DJANGO_ROOT, 'apps'))
 ########## SECRET CONFIGURATION ##########
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'gi8u=tes8q2*@@1lkfu69j^1&syc+p)l0%i0ut4$a3@5c&9b4z'
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'trac-us.appspot.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'www.trac-us.appspot.com',
+                 'trac-us.appspot.com']
 ##########################################
 
 ########## DEBUG CONFIGURATION ##########
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 #########################################
 
@@ -117,6 +118,7 @@ if getenv('SERVER_SOFTWARE', '').startswith('Google App Engine'):
                 'HOST': '/cloudsql/trac-us:sql1',
                 'NAME': 'tracdb',
                 'USER': 'root',
+                'ATOMIC_REQUESTS': True,
             }
     }
 
@@ -130,6 +132,7 @@ elif getenv('SETTINGS_MODE') == 'prod':
                 'INSTANCE': 'trac-us:sql1',
                 'NAME': 'tracdb',
                 'USER': 'root',
+                'ATOMIC_REQUESTS': True,
             }
     }
 else:
@@ -142,7 +145,7 @@ else:
         dbn = 'tracdb'
 
         # Uncomment the next line to force sqlite, even if mysql is configured.
-        raise MySQLdb.Error
+        #raise MySQLdb.Error
 
         db = MySQLdb.connect(host=host, user=user, db=dbn)
         db.close()
