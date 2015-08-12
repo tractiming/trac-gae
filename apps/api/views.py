@@ -275,7 +275,7 @@ class ScoringViewSet(viewsets.ModelViewSet):
             sessions = TimingSession.objects.filter(private=False, coach__in=coaches)
         elif team is not None:
             # return sessions belonging to users under requested organization
-            coach = Coach.objects.get(team_set__in=[team])
+            coach = Coach.objects.get(team__in=[team])
             sessions = TimingSession.objects.filter(private=False, coach=coach)
         else:
             # return all public sessions
