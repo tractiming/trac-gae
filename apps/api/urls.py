@@ -9,6 +9,7 @@ router.register(r'coaches', views.CoachViewSet, 'Coach')
 router.register(r'athletes', views.AthleteViewSet, 'Athlete')
 router.register(r'tags', views.TagViewSet, 'Tag')
 router.register(r'score', views.ScoringViewSet, 'Score')
+router.register(r'teams', views.TeamViewSet, 'Team')
 #router.register(r'score/(?P<org>.+)', views.ScoringViewSet, 'Score')
 
 urlpatterns = [
@@ -46,7 +47,12 @@ urlpatterns = [
         url(r'^change_password/$', views.change_password),
         url(r'^send_email/$', views.send_email),
         url(r'^tutorial_limiter/$',views.tutorial_limiter),
+        url(r'^VO2Max/$', views.VO2Max),
+        url(r'^est_distance/$', views.est_distance),
         url(r'^analyze/$', views.analyze),
+        url(r'^e_payment/$', views.subscription),
+        url(r'^notify/$', include('paypal.standard.ipn.urls')),
+        url(r'^payment_check/$', views.checkpayment),
         #url(r'^IndividualTimes/$', views.IndividualTimes.as_view()),
 
         # Endpoint for readers.

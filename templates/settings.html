@@ -147,9 +147,10 @@ $("li a.logout").click(function(){
                                 fname = json[ii].first_name;
                                 lname = json[ii].last_name;
                                 uname = json[ii].username;
-                                tag_nest = json[ii].tags;
-                                var unnested_tags = $.parseJSON(tag_nest);
-                                user_tag = unnested_tags.ids[0];
+                                tag_nest = json[ii].tag;
+                                //Tags no Longer are nested
+                                //var unnested_tags = $.parseJSON(tag_nest);
+                                //user_tag = unnested_tags.ids[0];
 
                                 $('#roster tbody').append(
                                       '<tr class="ath">'+
@@ -159,7 +160,7 @@ $("li a.logout").click(function(){
                                           '<td id="lname" style="display:none">'+lname+'</td>'+
                                           '<td id="uname" style="display:none">'+uname+'</td>' +
                                           '<td id="full_name">'+fname+' '+lname+'</td>'+
-                                         '<td id="u_tag">'+user_tag+'</td>' +
+                                         '<td id="u_tag">'+tag_nest+'</td>' +
                                       '</tr>');
                           }
                     }

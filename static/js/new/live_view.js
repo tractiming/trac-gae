@@ -21,7 +21,8 @@ google.setOnLoadCallback(function(){
 				sessionData, sessionResults,									// current session data
 				resultOffset = 0, currentPage = 1,						// for results pagination
 				correctionData,	numCorrections,								// auto correction data
-				spinner, opts, target, teamSpinners = {},			// spinner variables
+				spinner, opts, target, 												// spinner variables
+				//teamSpinners = {},			// team spinners
 				currentTeamID, currentTeam,										// used in team results tab
 				calendarEvents,																// holds list of sessions formatted for fullcalendar
 				sessionFirst = 1, sessionLast = 15,						// used for sessions pagination
@@ -350,7 +351,7 @@ google.setOnLoadCallback(function(){
 
 						splitSplit(runner.id, correction.index, correction.times);
 						
-						//console.log(correction);
+						console.log(correctionData);
 						numCorrections++;
 					}
 				}
@@ -1385,12 +1386,11 @@ google.setOnLoadCallback(function(){
 					);
 
 					// create table rows
-					var team = {};
-					for (var i=0; i < results.length; i++) {
-						team = results[i];
+					for (var i=0; i<results.length; i++) {
+						var team = results[i];
 						var id = team.id;
 						$('#team-table-canvas>tbody').append(
-							'<tr id="team'+id+'" class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#team-table-canvas" data-target="#collapse-team'+id+'" aria-expanded="false" aria-controls="collapse-team'+id+'">' +
+							'<tr id="team-'+id+'" class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#team-table-canvas" data-target="#collapse-team-'+id+'" aria-expanded="false" aria-controls="collapse-team-'+id+'">' +
 								'<td>' + team.place + '</td>' +
 								'<td>' + team.name + '</td>' +
 								'<td>' + team.score + '</td>' +
@@ -1398,8 +1398,8 @@ google.setOnLoadCallback(function(){
 							'<tr></tr>'	+
 							'<tr class="team-runners">' +
 								'<td colspan="4">' +
-									'<div id="collapse-team'+id+'" class="accordion-body collapse" aria-labelledby="team'+id+'">' +
-										'<table id="runners-team'+id+'" class="table" style="text-align:center; background-color:transparent">' +
+									'<div id="collapse-team-'+id+'" class="accordion-body collapse" aria-labelledby="team-'+id+'">' +
+										'<table id="runners-team-'+id+'" class="table" style="text-align:center; background-color:transparent">' +
 											'<thead>' +
 												'<tr>' +
 													'<th style="text-align:center;">Place</th>' +
@@ -1414,8 +1414,20 @@ google.setOnLoadCallback(function(){
 								'</td>' +
 							'</tr>'
 						);
+						
+						for (var j=0; j<team.athletes.length; j++) {
+							var athlete = team.athletes[j];
+							$('table#runners-team-'+id+' tbody').append(
+								'<tr>' +
+									'<td>' + athlete.place + '</td>' +
+									'<td>' + athlete.name + '</td>' +
+									'<td>' + formatTime(Number(athlete.total)) + '</td>' +
+								'</tr>'
+							);
+						}
 					}
 
+					/*
 					// rebind click handler
 					$('body').off('click', '#team-table-canvas>tbody>tr.accordion-toggle');
 					$('body').on('click', '#team-table-canvas>tbody>tr.accordion-toggle', function(e) {
@@ -1439,21 +1451,26 @@ google.setOnLoadCallback(function(){
 
 							// get team members data
 							$.ajax({
-								url: 'api/filtered_results/?id='+currentID+'&team='+currentTeam,
+								url: 'api/sessions/'+currentID+'/filtered_results',
 								headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+								data: {
+									team: team.name,
+									offset: 0,
+									limit: 5
+								},
 								dataType: 'text',
 								success: function(runnerData) {
 									var runnerResults = $.parseJSON(runnerData).results;
 
 									// add team members to table
 									var runner = {};
-									for (var i=0; i < runnerResults.length; i++) {
+									for (var i=0; i < Math.min(runnerResults.length,5); i++) {
 										runner = runnerResults[i];
 										$('#runners-team'+currentTeamID+' tbody').append(
 											'<tr>' +
-												'<td>' + runner.place + '</td>' +
+												'<td>' + (i+1) + '</td>' +
 												'<td>' + runner.name + '</td>' +
-												'<td>' + formatTime(Number(runner.time)) + '</td>' +
+												'<td>' + formatTime(Number(runner.total)) + '</td>' +
 											'</tr>'
 										);
 									}
@@ -1469,6 +1486,7 @@ google.setOnLoadCallback(function(){
 							$('#collapse-team'+currentTeamID).find('div').remove();
 						}
 					});
+					//*/
 	
 					// stop spinner and show results
 					spinner.stop();
