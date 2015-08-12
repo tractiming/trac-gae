@@ -432,7 +432,7 @@ def start_session(request):
     # real time. 
     # Also note that the start time is taken to be the time the request hits
     # the server, not the time the button is pressed on the phone, etc.
-    current_time = timezone.now().replace(tzinfo=None)-timezone.timedelta(seconds=8)
+    current_time = datetime.datetime.utcnow()-datetime.timedelta(seconds=8)
     timestamp = int((current_time-timezone.datetime(1970, 1, 1)).total_seconds()*1000)
 
     try:
