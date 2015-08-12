@@ -413,7 +413,6 @@ def close_session(request):
     try:
         ts = TimingSession.objects.get(id=data['id'])
         ts.stop_time = timezone.now()
-        ts._build_tag_archive()
         ts.save()
         return HttpResponse(status.HTTP_202_ACCEPTED)
 
