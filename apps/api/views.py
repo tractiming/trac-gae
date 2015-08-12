@@ -969,7 +969,7 @@ def upload_workouts(request):
                         filter_choice=False, private=True)
     
     # set start button time in milliseconds since epoch
-    timestamp = (start_time-EPOCH).total_seconds()
+    timestamp = (start_time.replace(tzinfo=None)-EPOCH).total_seconds()
     ts.start_button_time = int(round(timestamp * 10**3))
     ts.save()
 
