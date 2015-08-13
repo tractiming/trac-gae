@@ -104,13 +104,13 @@ $(function() {
 						arr.push(json[i].id);
 					}
 					idArray = arr;
+
+					// show most recent workout
+					if (!currentID)
+						currentID = idArray[0];
+
+					$('a#session-'+currentID).click();
 				}
-
-				// show most recent workout
-				if (!currentID)
-					currentID = idArray[0];
-
-				$('a#session-'+currentID).click();
 			}
 		});
 	}
