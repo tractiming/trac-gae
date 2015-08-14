@@ -21,7 +21,8 @@ google.setOnLoadCallback(function(){
 				sessionData, sessionResults,									// current session data
 				resultOffset = 0, currentPage = 1,						// for results pagination
 				correctionData,	numCorrections,								// auto correction data
-				spinner, opts, target, teamSpinners = {},			// spinner variables
+				spinner, opts, target, 												// spinner variables
+				//teamSpinners = {},			// team spinners
 				currentTeamID, currentTeam,										// used in team results tab
 				calendarEvents,																// holds list of sessions formatted for fullcalendar
 				sessionFirst = 1, sessionLast = 15,						// used for sessions pagination
@@ -305,7 +306,7 @@ google.setOnLoadCallback(function(){
 
 			//var total = 0;
 			for (var j=0; j < splits.length; j++) {
-				var split = splits[j][0];
+				var split = Number(splits[j][0]).toFixed(3);
 
 				// add splits to subtable
 				$('table#splits-'+id+'>tbody').append(
@@ -355,7 +356,7 @@ google.setOnLoadCallback(function(){
 
 						splitSplit(runner.id, correction.index, correction.times);
 						
-						//console.log(correction);
+						console.log(correctionData);
 						numCorrections++;
 					}
 				}
@@ -381,6 +382,110 @@ google.setOnLoadCallback(function(){
 				});
 			}
 		}
+
+		// register handler for adding runner
+		$('body').on('click', 'button#add-missed-runner', function(e) {
+			e.stopPropagation();
+
+			// show warning modal
+			$('.notification').hide();
+			$('#add-missed-runner-modal').modal('show');
+
+			// force numbers on input field
+			$('#add-missed-runner-modal input').val('');
+			forceNumeric($('input.numeric-input'));
+
+			// show spinner
+			$('#spinner-add-missed-runner').css('height', 150);
+			spinner.spin(document.getElementById('spinner-add-missed-runner'));
+
+			// request for registered runners
+			$.ajax({
+				method: 'GET',
+				url: 'api/reg_tag',
+				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				data: {id: currentID, missed: true },
+				dataType: 'text',
+				success: function(data) {
+					data = $.parseJSON(data);
+					console.log(data);
+
+					if (data.length === 0) {
+						// disable select
+						$('#add-missed-runner-select').prop('disabled', true);
+
+						// hide spinner and show notification
+						spinner.stop();
+						$('#spinner-add-missed-runner').css('height', '');
+						$('.notification.no-missed-runners').show();
+						$('#add-missed-runner-body').hide();
+					} else {
+						$('#add-missed-runner-select').prop('disabled', false);
+
+						for (var i=0; i<data.length; i++) {
+							var tag = data[i];
+							$('#add-missed-runner-select').append(
+								'<option value="'+tag.id+'">'+tag.first+' '+tag.last+'</option>'
+							);
+						}
+
+						// hide spinner and show input form
+						spinner.stop();
+						$('#spinner-add-missed-runner').css('height', '');
+
+						$('.notification.add-missed-runner').show();
+						$('#add-missed-runner-body').show();
+
+						// register handlers for button clicks
+						$('body').off('click', '#add-missed-runner-confirm');
+						$('body').on('click', '#add-missed-runner-confirm', function(e) {
+							e.preventDefault();
+
+							tagID = $('#add-missed-runner-select option:selected').val();
+							hrs = Number($('#add-missed-runner-hrs').val());
+							mins = Number($('#add-missed-runner-mins').val());
+							secs = Number($('#add-missed-runner-secs').val());
+							ms = Number($('#add-missed-runner-ms').val());
+
+							if ((mins > 59) || (secs > 59) || (ms > 999)) {
+								$('.notification.add-missed-runner-error').show();
+								return;
+							}
+
+							$.ajax({
+								method: 'POST',
+								url: 'api/sessions/'+currentID+'/add_missed_runner/',
+								headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+								data: {
+									tag_id: tagID,
+									hour: hrs,
+									min: mins,
+									sec: secs,
+									mil: ms 
+								},
+								dataType: 'text',
+								success: function(data) {
+									$('#table-canvas').empty();
+									spinner.spin(target);
+									update(currentID, currentView);
+								},
+								error: function(jqXHR, exception) {
+									$('.notification.server-error').show();
+								}
+							});
+
+							$('#add-missed-runner-modal').modal('hide');
+						});
+
+						$('body').off('click', '#add-missed-runner-cancel');
+						$('body').on('click', '#add-missed-runner-cancel', function(e) {
+							e.preventDefault();
+							$('#add-missed-runner-modal').modal('hide');
+						});
+					}
+				}
+			});
+		});
 
 		// register handler for edit total time
 		$('body').on('mouseover', '#table-canvas>tbody>tr', function() {
@@ -564,7 +669,7 @@ google.setOnLoadCallback(function(){
 						'<input type="text" id="insert-'+runnerID+'-'+indx+'" class="form-control numeric-input" placeholder="Split value" style="color:#3c763d;" autofocus>' + 
 					'</td>' + 
 					'<td class="split-edit-options hidden-xs">' +
-						'<div class="modify-splits modify-splits-'+runnerID+'" style="display:none;">' +
+						'<div class="modify-splits modify-splits-'+runnerID+' pull-right" style="display:none;">' +
 							'<div class="insert-split"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></div>' +
 							'<div class="insert-split"><span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span></div>' +
 							'<div class="edit-split"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
@@ -867,7 +972,14 @@ google.setOnLoadCallback(function(){
 								$('tr#results-'+runnerID+'>td#latest-split-'+runnerID).html(latestSplit);
 							}
 
-							splitRow.remove();
+							if (splitRow.siblings().length === 0) {
+								var temp = $('#results-'+runnerID);
+								temp.next().remove();
+								temp.next().remove();
+								temp.remove();
+							} else {
+								splitRow.remove();
+							}
 
 							// restart updates
 							startUpdates();
@@ -1315,9 +1427,8 @@ google.setOnLoadCallback(function(){
 					);
 
 					// create table rows
-					var team = {};
-					for (var i=0; i < results.length; i++) {
-						team = results[i];
+					for (var i=0; i<results.length; i++) {
+						var team = results[i];
 						var id = team.id;
 						$('#team-table-canvas>tbody').append(
 							'<tr id="team-'+id+'" class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#team-table-canvas" data-target="#collapse-team-'+id+'" aria-expanded="false" aria-controls="collapse-team-'+id+'">' +
@@ -1344,8 +1455,20 @@ google.setOnLoadCallback(function(){
 								'</td>' +
 							'</tr>'
 						);
+						
+						for (var j=0; j<team.athletes.length; j++) {
+							var athlete = team.athletes[j];
+							$('table#runners-team-'+id+' tbody').append(
+								'<tr>' +
+									'<td>' + athlete.place + '</td>' +
+									'<td>' + athlete.name + '</td>' +
+									'<td>' + formatTime(Number(athlete.total)) + '</td>' +
+								'</tr>'
+							);
+						}
 					}
 
+					/*
 					// rebind click handler
 					$('body').off('click', '#team-table-canvas>tbody>tr.accordion-toggle');
 					$('body').on('click', '#team-table-canvas>tbody>tr.accordion-toggle', function(e) {
@@ -1371,15 +1494,20 @@ google.setOnLoadCallback(function(){
 							$.ajax({
 								url: 'api/sessions/'+currentID+'/filtered_results',
 								headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-								data: {'team': currentTeam},
+								data: {
+									team: team.name,
+									offset: 0,
+									limit: 5
+								},
 								dataType: 'text',
 								success: function(runnerData) {
 									var runnerResults = $.parseJSON(runnerData).results;
 
 									// add team members to table
-									for (var i=0; i < runnerResults.length; i++) {
-										var runner = runnerResults[i];
-										$('#runners-team-'+currentTeamID+' tbody').append(
+									var runner = {};
+									for (var i=0; i < Math.min(runnerResults.length,5); i++) {
+										runner = runnerResults[i];
+										$('#runners-team'+currentTeamID+' tbody').append(
 											'<tr>' +
 												'<td>' + (i+1) + '</td>' +
 												'<td>' + runner.name + '</td>' +
@@ -1399,6 +1527,7 @@ google.setOnLoadCallback(function(){
 							$('#collapse-team-'+currentTeamID).find('div').remove();
 						}
 					});
+					//*/
 	
 					// stop spinner and show results
 					spinner.stop();
