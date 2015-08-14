@@ -1848,9 +1848,8 @@ google.setOnLoadCallback(function(){
 			$('#download-status').show();
 
 			$.ajax({
-				url: '/api/tfrrs',
+				url: '/api/sessions/'+currentID+'/tfrrs',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-				data: {'id': currentID},
 				dataType: 'text',
 				success: function(data) {
 					data = $.parseJSON(data);
@@ -1859,7 +1858,7 @@ google.setOnLoadCallback(function(){
 					for (var i=0; i<data.length; i++)
 						CSV += data[i] + '\r\n';
 					
-					download(CSV, 'TFRRS');
+					download(CSV, sessionData.name+' TFRRS');
 
 					// hide status and show download buttons
 					$('#download-status').hide();

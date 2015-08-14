@@ -415,6 +415,71 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         session = TimingSession.objects.get(pk=pk)
         session.clear_results()
         return HttpResponse(status.HTTP_202_ACCEPTED)
+
+    @detail_route(methods=['get'], permission_classes=[])
+    def tfrrs(self, request, pk=None):
+        """
+        Create a TFRRS formatted CSV text string for the specified workout ID.
+        """
+        data = request.GET
+        user = request.user
+        coach = user.coach
+
+        if not is_coach(user):
+            return HttpResponse(status.HTTP_403_FORBIDDEN)
+
+        ts = TimingSession.objects.get(pk=pk, coach=coach)
+
+        tag_ids = ts.splits.values_list('tag_id',flat=True).distinct()
+        raw_results = ts.individual_results()
+
+        results = [];
+
+        for i, r in enumerate(raw_results):
+            athlete = Athlete.objects.get(id=r.user_id)
+            runner = athlete.user
+            team = athlete.team
+            birth_date = athlete.birth_date
+            tag = Tag.objects.get(id__in=tag_ids, athlete=athlete)
+
+            bib = tag.id_str
+            TFFRS_ID = athlete.tfrrs_id or ''
+            team_name = team.name or ''
+            team_code = team.tfrrs_code or ''
+            first_name = runner.first_name or ''
+            last_name = runner.last_name or ''
+            gender = athlete.gender or ''
+            year = ''
+            date_of_birth = str(birth_date.year)+'-'+ \
+                            str(birth_date.month)+'-'+ \
+                            str(birth_date.day) if birth_date else ''
+            event_code = str(ts.interval_distance) or ''
+            event_name = ts.name or ''
+            event_division = ''
+            event_min_age = ''
+            event_max_age = ''
+            sub_event_code = ''
+            mark = str(r.total)
+            metric = '1'
+            fat = '0'
+            place = str(i+1)
+            score = place
+            heat = ''
+            heat_place = ''
+            rnd = ''
+            points = ''
+            wind = ''
+            relay_squad = ''
+
+            results.append(bib +','+ TFFRS_ID +','+ team_name +','+ team_code +','+ \
+                        first_name +','+ last_name +','+ gender +','+ year +','+ \
+                        date_of_birth +','+ event_code +','+ event_name +','+ \
+                        event_division +','+ event_min_age +','+ event_max_age +','+ \
+                        sub_event_code +','+ mark +','+ metric +','+ fat +','+ \
+                        place +','+ score +','+ heat +','+ heat_place +','+ \
+                        rnd +','+ points +','+ wind +','+ relay_squad)
+
+        return Response(results, status.HTTP_200_OK)
             
 
 # TODO: Move to TimingSessionViewSet
@@ -1371,66 +1436,3 @@ def ipnListener(sender, **kwargs):
 
 valid_ipn_received.connect(ipnListener)
 invalid_ipn_received.connect(ipnListener)
-
-
-@api_view(['GET'])
-@permission_classes((permissions.IsAuthenticated,))
-def create_TFRRS(request):
-    """
-    Create a TFRRS formatted CSV text string for the specified workout ID.
-    """
-    data = request.GET
-    user = request.user
-
-    ts = TimingSession.objects.get(id=data['id'])
-    if not is_coach(user) or ts.manager != user:
-        return HttpResponse(status.HTTP_403_FORBIDDEN)
-
-    tag_ids = ts.tagtimes.values_list('tag_id',flat=True).distinct()
-    raw_results = ts.individual_results()
-
-    results = [];
-
-    for i, r in enumerate(raw_results):
-        runner = User.objects.get(id=r.user_id)
-        groups = runner.groups.all()
-
-        tag = Tag.objects.get(id__in=tag_ids, user=runner)
-
-        bib = tag.id_str
-        TFFRS_ID = ''
-        team_name = groups[0].name if groups.count() else ''
-        team_code = ''
-        first_name = runner.first_name
-        last_name = runner.last_name
-        gender = runner.athlete.gender
-        year = ''
-        date_of_birth = ''
-        event_code = str(ts.track_size)
-        event_name = ts.name
-        event_division = ''
-        event_min_age = ''
-        event_max_age = ''
-        sub_event_code = ''
-        mark = str(r.total)
-        metric = '1'
-        fat = '1'
-        place = str(i+1)
-        score = place
-        heat = ''
-        heat_place = ''
-        rnd = ''
-        points = ''
-        wind = ''
-
-        results.append(bib +','+ TFFRS_ID +','+ team_name +','+ team_code +','+ \
-                    first_name +','+ last_name +','+ gender +','+ year +','+ \
-                    date_of_birth +','+ event_code +','+ event_name +','+ \
-                    event_division +','+ event_min_age +','+ event_max_age +','+ \
-                    sub_event_code +','+ mark +','+ metric +','+ fat +','+ \
-                    place +','+ score +','+ heat +','+ heat_place +','+ \
-                    rnd +','+ points +','+ wind)
-
-    return Response(results, status.HTTP_200_OK)
-
-
