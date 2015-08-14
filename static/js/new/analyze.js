@@ -59,7 +59,16 @@ google.setOnLoadCallback(function(){
 				
 				loadSessions(id, target, isBase);
 
-				getVO2();
+				// reset content
+				$('#results-nav').hide();
+				$('.results-tab-content').hide();
+				$('#splits-table').empty();
+				$('#graph-canvas').empty();
+				$('.notification.select-sessions').show();
+
+				// hide VO2 container
+				$('#enable-vo2-container').hide();
+				switchery.disable();
 			});
 
 			// register handler for workout selection
@@ -200,6 +209,9 @@ google.setOnLoadCallback(function(){
 				drawTable(baseSession, compareSession)
 			else if (currentView === GRAPH_VIEW)
 				drawGraph(baseSession, compareSession)
+
+			// get VO2 scores
+			getVO2();
 		}
 
 		function drawTable(baseSession, compareSession) {
@@ -323,7 +335,7 @@ google.setOnLoadCallback(function(){
 
 		function getVO2() {
 			// don't do anything if user hasn't select workouts to compare
-			if (!$('#base-athlete-select').val() || !$('#compare-athlete-select').val())
+			if (!$('#base-workout-select').val() || !$('#compare-workout-select').val())
 				return;
 
 			// show switch
