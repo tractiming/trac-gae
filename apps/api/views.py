@@ -374,35 +374,36 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         return Response(results)
 
     @detail_route(methods=['post'], permission_classes=[])
-    def add_tagtime(self, request, pk=None):
+    def add_missed_runner(self, request, pk=None):
         """
-        Add a tagtime for a registered tag never picked up by the reader.
+        Add a split for a registered tag never picked up by the reader.
         """
         data = request.POST
 
         ts = TimingSession.objects.get(pk=pk)
         reg_tags = ts.registered_tags.all()
 
-        tag = Tag.objects.get(user_id=data['id'], id__in=reg_tags)[0]
+        tag = Tag.objects.get(id=data['tag_id'], id__in=reg_tags)
 
         # get reader
-        reader = ts.reader_set.all()[0]
+        reader = ts.readers.all()[0]
 
-        # create reference tagtime
+        # create reference split
         time = ts.start_button_time
-        tt_0 = TagTime.objects.create(tag_id=tag.id, time=time, reader_id=reader.id, milliseconds=time.microsecond/1000)
-        ts.tagtimes.add(tt_0.pk)
+        #tt_0 = TagTime.objects.create(tag_id=tag.id, time=time, reader_id=reader.id, milliseconds=time.microsecond/1000)
+        #ts.splits.add(tt_0.pk)
         
-        # create final tagtime
-        try:
-            x = timezone.datetime.strptime(data['time'], "%M:%S.%f")
-        except:
-            x = timezone.datetime.strptime(data['time'], "%S.%f")
+        # create final split
+        hours = int(data.get('hour', 0))
+        mins = int(data.get('min', 0))
+        secs = int(data.get('sec', 0))
+        ms = int(data.get('mil', 0))
 
-        time += timezone.timedelta(minutes=x.minute,seconds=x.second,microseconds=x.microsecond)
+        diff = hours * 3600000 + mins * 60000 + secs * 1000 + ms
+        time += diff
 
-        tt_1 = TagTime.objects.create(tag_id=tag.id, time=time, reader_id=reader.id, milliseconds=time.microsecond/1000)
-        ts.tagtimes.add(tt_1.pk)
+        tt = Split.objects.create(tag_id=tag.id, athlete_id=tag.athlete.id, time=time, reader_id=reader.id)
+        ts.splits.add(tt.pk)
 
         return HttpResponse(status.HTTP_202_ACCEPTED)
 
@@ -604,16 +605,17 @@ def edit_split(request):
     data = request.POST
     ts = TimingSession.objects.get(id=int(data['id']))
     all_tags = ts.splits.values_list('tag_id', flat=True).distinct()
-    tag = Tag.objects.filter(user_id=int(data['user_id']), id__in=all_tags)
+    tag = Tag.objects.filter(athlete_id=int(data['user_id']), id__in=all_tags)
+    dt = int(float(data.get('val', 0)) * 1000)
     
     if data['action'] == 'edit':
-        ts._edit_split(tag[0].id, int(data['indx']), float(data['val']))
+        ts._edit_split(tag[0].id, int(data['indx']), dt)
     elif data['action'] == 'insert':
-        ts._insert_split(tag[0].id, int(data['indx']), float(data['val']), True)
+        ts._insert_split(tag[0].id, int(data['indx']), dt, True)
     elif data['action'] == 'delete':
         ts._delete_split(tag[0].id, int(data['indx']))
     elif data['action'] == 'split':
-        ts._insert_split(tag[0].id, int(data['indx']), float(data['val']), False)
+        ts._insert_split(tag[0].id, int(data['indx']), dt, False)
     elif data['action'] == 'total_time':
         ts._overwrite_final_time(tag[0].id, int(data['hour']), int(data['min']), int(data['sec']), int(data['mil']))
     else:
@@ -790,7 +792,7 @@ def WorkoutTags(request):
             table = TimingSession.objects.get(id=id_num)
             result = table.registered_tags.all()
             if missed:
-                result = result.exclude(id__in=table.tagtimes.values_list('tag', flat=True).distinct())
+                result = result.exclude(id__in=table.splits.values_list('tag', flat=True).distinct())
             for instance in result:
                 u_first = instance.athlete.user.first_name
                 u_last = instance.athlete.user.last_name
@@ -1044,6 +1046,9 @@ def upload_workouts(request):
                 tag = tags[0]
             else:
                 tag = Tag.objects.create(id_str=runner['username'], athlete=athlete)
+
+            # register tag to the timing session
+            ts.registered_tags.add(tag.pk)
 
             # init reference timestamp
             time = ts.start_button_time

@@ -301,7 +301,7 @@ google.setOnLoadCallback(function(){
 
 			//var total = 0;
 			for (var j=0; j < splits.length; j++) {
-				var split = splits[j][0];
+				var split = Number(splits[j][0]).toFixed(3);
 
 				// add splits to subtable
 				$('table#splits-'+id+'>tbody').append(
@@ -379,20 +379,20 @@ google.setOnLoadCallback(function(){
 		}
 
 		// register handler for adding runner
-		$('body').on('click', 'button#add-tagtime', function(e) {
+		$('body').on('click', 'button#add-missed-runner', function(e) {
 			e.stopPropagation();
 
 			// show warning modal
 			$('.notification').hide();
-			$('#add-tagtime-modal').modal('show');
+			$('#add-missed-runner-modal').modal('show');
 
 			// force numbers on input field
-			$('#add-tagtime-modal input').val('');
+			$('#add-missed-runner-modal input').val('');
 			forceNumeric($('input.numeric-input'));
 
 			// show spinner
-			$('#spinner-add-tagtime').css('height', 150);
-			spinner.spin(document.getElementById('spinner-add-tagtime'));
+			$('#spinner-add-missed-runner').css('height', 150);
+			spinner.spin(document.getElementById('spinner-add-missed-runner'));
 
 			// request for registered runners
 			$.ajax({
@@ -407,52 +407,75 @@ google.setOnLoadCallback(function(){
 
 					if (data.length === 0) {
 						// disable select
-						$('#add-tagtime-select').prop('disabled', true);
+						$('#add-missed-runner-select').prop('disabled', true);
 
 						// hide spinner and show notification
 						spinner.stop();
-						$('#spinner-add-tagtime').css('height', '');
+						$('#spinner-add-missed-runner').css('height', '');
 						$('.notification.no-missed-runners').show();
+						$('#add-missed-runner-body').hide();
 					} else {
-						$('#add-tagtime-select').prop('disabled', false);
+						$('#add-missed-runner-select').prop('disabled', false);
 
 						for (var i=0; i<data.length; i++) {
 							var tag = data[i];
-							$('#add-tagtime-select').append(
+							$('#add-missed-runner-select').append(
 								'<option value="'+tag.id+'">'+tag.first+' '+tag.last+'</option>'
 							);
 						}
 
 						// hide spinner and show input form
 						spinner.stop();
-						$('#spinner-add-tagtime').css('height', '');
+						$('#spinner-add-missed-runner').css('height', '');
 
-						$('.notification.add-tagtime').show();
+						$('.notification.add-missed-runner').show();
+						$('#add-missed-runner-body').show();
 
 						// register handlers for button clicks
-						$('body').off('click', '#add-tagtime-confirm');
-						$('body').on('click', '#add-tagtime-confirm', function(e) {
+						$('body').off('click', '#add-missed-runner-confirm');
+						$('body').on('click', '#add-missed-runner-confirm', function(e) {
 							e.preventDefault();
+
+							tagID = $('#add-missed-runner-select option:selected').val();
+							hrs = Number($('#add-missed-runner-hrs').val());
+							mins = Number($('#add-missed-runner-mins').val());
+							secs = Number($('#add-missed-runner-secs').val());
+							ms = Number($('#add-missed-runner-ms').val());
+
+							if ((mins > 59) || (secs > 59) || (ms > 999)) {
+								$('.notification.add-missed-runner-error').show();
+								return;
+							}
 
 							$.ajax({
 								method: 'POST',
-								url: 'api/sessions/'+currentID+'/add_tagtime',
+								url: 'api/sessions/'+currentID+'/add_missed_runner/',
 								headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 								data: {
-									id: runnerID,
+									tag_id: tagID,
 									hour: hrs,
 									min: mins,
 									sec: secs,
 									mil: ms 
 								},
 								dataType: 'text',
-								success: function(data) {}
+								success: function(data) {
+									$('#table-canvas').empty();
+									spinner.spin(target);
+									update(currentID, currentView);
+								},
+								error: function(jqXHR, exception) {
+									$('.notification.server-error').show();
+								}
 							});
+
+							$('#add-missed-runner-modal').modal('hide');
 						});
-						$('body').off('click', '#add-tagtime-cancel');
-						$('body').on('click', '#add-tagtime-cancel', function(e) {
+
+						$('body').off('click', '#add-missed-runner-cancel');
+						$('body').on('click', '#add-missed-runner-cancel', function(e) {
 							e.preventDefault();
-							$('#add-tagtime-modal').modal('hide');
+							$('#add-missed-runner-modal').modal('hide');
 						});
 					}
 				}
@@ -640,7 +663,7 @@ google.setOnLoadCallback(function(){
 						'<input type="text" id="insert-'+runnerID+'-'+indx+'" class="form-control numeric-input" placeholder="Split value" style="color:#3c763d;" autofocus>' + 
 					'</td>' + 
 					'<td class="split-edit-options hidden-xs">' +
-						'<div class="modify-splits modify-splits-'+runnerID+'" style="display:none;">' +
+						'<div class="modify-splits modify-splits-'+runnerID+' pull-right" style="display:none;">' +
 							'<div class="insert-split"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></div>' +
 							'<div class="insert-split"><span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span></div>' +
 							'<div class="edit-split"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
@@ -943,7 +966,14 @@ google.setOnLoadCallback(function(){
 								$('tr#results-'+runnerID+'>td#latest-split-'+runnerID).html(latestSplit);
 							}
 
-							splitRow.remove();
+							if (splitRow.siblings().length === 0) {
+								var temp = $('#results-'+runnerID);
+								temp.next().remove();
+								temp.next().remove();
+								temp.remove();
+							} else {
+								splitRow.remove();
+							}
 
 							// restart updates
 							startUpdates();

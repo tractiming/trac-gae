@@ -173,9 +173,9 @@ footer {
 		display: inline-block;
 		margin: 0 auto;
 		text-align: left; }
-		footer .internal ul>li>a {
+		footer .external ul>li>a {
 			color: #3577A8 !important; }
-			footer .internal ul>li>a:hover {
+			footer .external ul>li>a:hover {
 				color: #F0B922 !important; }
 	footer address {
 		display: inline-block;

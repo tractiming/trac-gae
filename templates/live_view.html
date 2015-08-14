@@ -50,50 +50,55 @@
 		</div>
 	</div>
 
-	<div class="modal fade" id="add-tagtime-modal" role="dialog">
+	<div class="modal fade" id="add-missed-runner-modal" role="dialog">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
 					<h4 class="modal-title">Add Runner Time</h4>
 				</div>
 				<div class="modal-body">
-					<div id="spinner-add-tagtime"></div>
-					<div class="center">
-						<p class="notification notification-warning add-tagtime">You may only add a time for runners whose tag is registered in the current workout session but was never picked up by the reader.</p>
+					<div id="spinner-add-missed-runner"></div>
+					<div class="center" style="text-align:center;">
+						<p class="notification notification-warning add-missed-runner">You may only add a time for runners whose tag is registered in the current workout session but was never picked up by the reader.</p>
 						<p class="notification notification-error no-missed-runners">
 							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Looks like there are no missed runners.
 						</p>
+						<p class="notification notification-error add-missed-runner-error" role="alert">
+							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Input is an invalid time. Please try again.
+						</p>
 					</div>
-					<div class="center" style="margin-bottom:15px; width:252px;">
-						<label for="add-tagtime-select" class="sr-only">Select athlete:</label>
-						<select class="form-control" id="add-tagtime-select">
-							<option disabled selected>Select athlete...</option>
-						</select>
-					</div>
-					<div class="center" style="margin-bottom:15px;">
-						<div class="add-tagtime-input">
-							<label for="add-tagtime-hrs" class="sr-only">Hours</label>
-							<input type="text" id="add-tagtime-hrs" name="add-tagtime-hrs" class="form-control numeric-input" placeholder="hh" autofocus>
+					<div id="add-missed-runner-body">
+						<div class="center" style="margin-bottom:15px; width:252px;">
+							<label for="add-missed-runner-select" class="sr-only">Select athlete:</label>
+							<select class="form-control" id="add-missed-runner-select">
+								<option disabled selected>Select athlete...</option>
+							</select>
 						</div>
-						<span class="add-tagtime-separator">:</span>
-						<div class="add-tagtime-input">
-							<label for="add-tagtime-mins" class="sr-only">Minutes</label>
-							<input type="text" id="add-tagtime-mins" name="add-tagtime-mins" class="form-control numeric-input" placeholder="mm">
+						<div class="center" style="margin-bottom:15px;">
+							<div class="add-missed-runner-input">
+								<label for="add-missed-runner-hrs" class="sr-only">Hours</label>
+								<input type="text" id="add-missed-runner-hrs" name="add-missed-runner-hrs" class="form-control numeric-input" placeholder="hh" autofocus>
+							</div>
+							<span class="add-missed-runner-separator">:</span>
+							<div class="add-missed-runner-input">
+								<label for="add-missed-runner-mins" class="sr-only">Minutes</label>
+								<input type="text" id="add-missed-runner-mins" name="add-missed-runner-mins" class="form-control numeric-input" placeholder="mm">
+							</div>
+							<span class="add-missed-runner-separator">:</span>
+							<div class="add-missed-runner-input">
+								<label for="add-missed-runner-secs" class="sr-only">Seconds</label>
+								<input type="text" id="add-missed-runner-secs" name="add-missed-runner-secs" class="form-control numeric-input" placeholder="ss">
+							</div>
+							<span class="add-missed-runner-separator">.</span>
+							<div class="add-missed-runner-input" style="width:60px;">
+								<label for="add-missed-runner-ms" class="sr-only">Milliseconds</label>
+								<input type="text" id="add-missed-runner-ms" name="add-missed-runner-ms" class="form-control numeric-input" placeholder="ms">
+							</div>
 						</div>
-						<span class="add-tagtime-separator">:</span>
-						<div class="add-tagtime-input">
-							<label for="add-tagtime-secs" class="sr-only">Seconds</label>
-							<input type="text" id="add-tagtime-secs" name="add-tagtime-secs" class="form-control numeric-input" placeholder="ss">
+						<div class="center">
+							<button id="add-missed-runner-confirm" class="btn btn-primary btn-md" style="margin-right: 10px;">Confirm</button>
+							<button id="add-missed-runner-cancel" class="btn btn-danger btn-md">Cancel</button>
 						</div>
-						<span class="add-tagtime-separator">.</span>
-						<div class="add-tagtime-input" style="width:60px;">
-							<label for="add-tagtime-ms" class="sr-only">Milliseconds</label>
-							<input type="text" id="add-tagtime-ms" name="add-tagtime-ms" class="form-control numeric-input" placeholder="ms">
-						</div>
-					</div>
-					<div class="center">
-						<button id="add-tagtime-confirm" class="btn btn-primary btn-md" style="margin-right: 10px;">Yes</button>
-						<button id="add-tagtime-cancel" class="btn btn-danger btn-md">No</button>
 					</div>
 				</div>
 			</div>
@@ -121,7 +126,7 @@
 					<div class="center" style="">
 						<p class="notification notification-warning edit-total">Editing total time will delete all splits and replace them with a single split with the time you specify.</p>
 						<p class="notification notification-error total-time-error" role="alert">
-							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Looks like the input is an invalid time. Please try again.
+							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Input is an invalid time. Please try again.
 						</p>
 					</div>
 					<div class="center" style="margin-bottom:15px;">
@@ -201,9 +206,9 @@
 									<span class="results-show-status"></span>
 								</div>
 								<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
-									<div id="add-tagtime-container" class="pull-right">
-										<button type="button" class="btn btn-default" id="add-tagtime">
-											<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Runner
+									<div id="add-missed-runner-container" class="pull-right">
+										<button type="button" class="btn btn-default" id="add-missed-runner">
+											<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Missed Runner
 										</button>
 									</div>
 								</div>
