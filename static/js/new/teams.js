@@ -24,7 +24,7 @@ $(function() {
 			left: '50%', 						// Left position relative to parent
 			shadow: false, 					// Whether to render a shadow
 			hwaccel: false, 				// Whether to use hardware acceleration
-			position: 'absolute'	 	// Element positioning
+			position: 'relative'	 	// Element positioning
 		}
 		target = document.getElementById('spinner');
 		spinner = new Spinner(opts).spin(target);
@@ -38,11 +38,12 @@ $(function() {
 
 	function getTeams() {
 		$.ajax({
-			url: '/api/coaches/',
+			url: '/api/teams/',
+			data: { public: true },
 			dataType: 'text',
 			success: function(data){
-				var json = $.parseJSON(data);
-				if (json.length == 0){ 
+				var data = $.parseJSON(data);
+				if (data.length == 0){ 
 					spinner.stop();
 					$('#results-table').hide();
 					$('p.notification.notification-default').show();
@@ -51,43 +52,36 @@ $(function() {
 						'<thead>' +
 							'<tr>' +
 								'<th style="text-align:center;">Team Name</th>' +
-								//'<th>Coach</th>' +
 							'</tr>' +
 						'</thead>' +
 						'<tbody>' +
 						'</tbody>');
 
 					// sort all teams
-					var org = [], coaches = [];
-					for (var i=0; i < json.length; i++){
-						if (json[i].organization[0]) {
-							org.push(json[i].organization[0]);
-							coaches.push(json[i].username);
-						}
+					var teams = [];
+					for (var i=0; i<data.length; i++){
+						teams.push(data[i].name);
 					}
-					org.sort();
-					org.push('Unaffiliated');
-					coaches.push('N/A');
+					teams.sort();
 
 					// now add to team select dropdown
-					for (var i=0; i < org.length; i++){
+					for (var i=0; i < teams.length; i++){
 						$('#results-table tbody').append(
-							'<tr id="'+org[i]+'" onclick="document.location = \'/score/'+org[i]+'\';" style="cursor:pointer;">' + 
-								'<td>'+org[i]+'</td>' +
-								//'<td>'+coaches[i]+'</td>' +
+							'<tr id="'+teams[i]+'" onclick="document.location = \'/score/'+teams[i]+'\';" style="cursor:pointer;">' + 
+								'<td>'+teams[i]+'</td>' +
 							'</tr>');
 					}
 
 					$('#results-table').tablesorter();
 					var $rows = $('#results-table > tbody > tr');
 					$('#search').keyup(function() {
-					    var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
-					    
-					    $rows.show().filter(function() {
-					        var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
-					        return !~text.indexOf(val);
-					    }).hide();
-					}); 
+						var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+
+						$rows.show().filter(function() {
+							var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+							return !~text.indexOf(val);
+						}).hide();
+					});
 
 					spinner.stop();
 					$('#results-table').show();

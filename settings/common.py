@@ -28,7 +28,8 @@ path.insert(0, join(DJANGO_ROOT, 'apps'))
 ########## SECRET CONFIGURATION ##########
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'gi8u=tes8q2*@@1lkfu69j^1&syc+p)l0%i0ut4$a3@5c&9b4z'
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'trac-us.appspot.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'www.trac-us.appspot.com',
+                 'trac-us.appspot.com']
 ##########################################
 
 ########## DEBUG CONFIGURATION ##########
@@ -58,6 +59,7 @@ THIRD_PARTY_APPS = (
         'provider',
         'provider.oauth2',
         'south',
+        'paypal.standard.ipn',
 )
 
 LOCAL_APPS = (
@@ -116,6 +118,7 @@ if getenv('SERVER_SOFTWARE', '').startswith('Google App Engine'):
                 'HOST': '/cloudsql/trac-us:sql1',
                 'NAME': 'tracdb',
                 'USER': 'root',
+                'ATOMIC_REQUESTS': True,
             }
     }
 
@@ -129,6 +132,7 @@ elif getenv('SETTINGS_MODE') == 'prod':
                 'INSTANCE': 'trac-us:sql1',
                 'NAME': 'tracdb',
                 'USER': 'root',
+                'ATOMIC_REQUESTS': True,
             }
     }
 else:
@@ -225,4 +229,6 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 ############################################
+
+PAYPAL_RECEIVER_EMAIL = "GriffinKelly2013@gmail.com"
 

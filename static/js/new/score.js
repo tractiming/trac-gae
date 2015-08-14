@@ -104,13 +104,13 @@ $(function() {
 						arr.push(json[i].id);
 					}
 					idArray = arr;
+
+					// show most recent workout
+					if (!currentID)
+						currentID = idArray[0];
+
+					$('a#session-'+currentID).click();
 				}
-
-				// show most recent workout
-				if (!currentID)
-					currentID = idArray[0];
-
-				$('a#session-'+currentID).click();
 			}
 		});
 	}
@@ -145,12 +145,14 @@ $(function() {
 				if (results.length === 0) {
 					spinner.stop();
 					$('#notifications .notification-default').show();
+					$('.results-navigate-container').hide();
 					//$('.button-container').hide();
 					$('#results-table').hide().empty();
 				} else {
 					// hide spinner and notification and show results
 					spinner.stop();
 					$('#notifications .notification-default').hide();
+					$('.results-navigate-container').show();
 					//$('.button-container').show();
 					$('#results-table').empty().show();
 

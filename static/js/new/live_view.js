@@ -12,13 +12,17 @@ google.setOnLoadCallback(function(){
 		var UPDATE_INTERVAL = 5000,				// update live results every 5 secs
 				IDLE_TIMEOUT = 1200000;				// idle check after 20 minutes
 
+		var RESULTS_PER_PAGE = 25;				// number of results per page
+
 		var idArray = [],
 				currentID, currentView,												// used to identify current session and view
 				updateHandler, idleHandler,										// interval handlers
 				ajaxRequest, correctionAjaxRequest,						// used to keep track of ajax requests
 				sessionData, sessionResults,									// current session data
+				resultOffset = 0, currentPage = 1,						// for results pagination
 				correctionData,	numCorrections,								// auto correction data
-				spinner, opts, target, teamSpinners = {},			// spinner variables
+				spinner, opts, target, 												// spinner variables
+				//teamSpinners = {},			// team spinners
 				currentTeamID, currentTeam,										// used in team results tab
 				calendarEvents,																// holds list of sessions formatted for fullcalendar
 				sessionFirst = 1, sessionLast = 15,						// used for sessions pagination
@@ -97,22 +101,48 @@ google.setOnLoadCallback(function(){
 			if (ajaxRequest)
 				ajaxRequest.abort();
 
+			if (view === TABLE_VIEW)
+				data = {'limit': resultOffset + RESULTS_PER_PAGE, 'offset': resultOffset};
+			else if (view === GRAPH_VIEW)
+				data = {};
+			else if (view === IND_FINAL_VIEW) {
+				$('#results-table #table-canvas').empty();
+				$('#results-graph #graph-canvas').empty();
+				$('#results-graph #graph-toggle-options').empty();
+				$('#results-individual').show();
+				spinner.stop();
+				$('.notification').hide();
+				$('#results-nav').show();
+				drawIndividual();
+				return;
+			} else if (view === TEAM_FINAL_VIEW) {
+				$('#results-table #table-canvas').empty();
+				$('#results-graph #graph-canvas').empty();
+				$('#results-graph #graph-toggle-options').empty();
+				spinner.stop();
+				$('.notification').hide();
+				$('#results-nav').show();
+				drawTeam();
+				return;
+			}
+
 			ajaxRequest = $.ajax({
 				url: '/api/sessions/'+ idjson + '/individual_results',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				data: data,
 				dataType: 'text',
 				success: function(data) {
 					data = $.parseJSON(data);
 
 					var results = data.results;
 
-					//*
 					// if empty, hide spinner and show notification
 					if (results.length === 0) {
 						spinner.stop();
 						$('.notification.no-data').show();
 						$('#download-container').hide();
 						$('#results-nav').hide();
+						$('.results-navigate-container').hide();
 						$('.results-tab-content').hide();
 						$('#results-table #table-canvas').empty();
 						$('#results-graph #graph-canvas').empty();
@@ -121,6 +151,7 @@ google.setOnLoadCallback(function(){
 						spinner.stop();
 						$('.notification').hide();
 						$('#results-nav').show();
+						$('.results-navigate-container').show();
 
 						// hide all tab contents
 						$('.results-tab-content').hide();
@@ -128,31 +159,20 @@ google.setOnLoadCallback(function(){
 						if (view === TABLE_VIEW) {
 							$('#results-graph #graph-canvas').empty();
 							$('#results-graph #graph-toggle-options').empty();
-							drawTable(results);
+							drawTable(data);
 						} else if (view === GRAPH_VIEW) {
 							$('#results-table #table-canvas').empty();
-							drawGraph(results);
-						} else if (view === IND_FINAL_VIEW) {
-							$('#results-table #table-canvas').empty();
-							$('#results-graph #graph-canvas').empty();
-							$('#results-graph #graph-toggle-options').empty();
-							$('#results-individual').show();
-							drawIndividual();
-						} else if (view === TEAM_FINAL_VIEW) {
-							$('#results-table #table-canvas').empty();
-							$('#results-graph #graph-canvas').empty();
-							$('#results-graph #graph-toggle-options').empty();
-							drawTeam();
+							drawGraph(data);
 						}
 					}
-					//*/
 				}
 			});
 		}
 
 		//==================================== TABLE VIEW ====================================
 
-		function drawTable(results){
+		function drawTable(data){
+			var results = data.results;
 			//*
 			// add table skeleton if empty
 			if (!$.trim($('#table-canvas').html())) {
@@ -215,6 +235,33 @@ google.setOnLoadCallback(function(){
 					addNewRow(id, name, splits, total);
 				}
 			}
+
+			var numResults = data.num_results;
+			var numReturned = data.num_returned;
+
+			if (numResults < RESULTS_PER_PAGE) {
+				$('button.prev').attr('disabled', true);
+				$('button.next').attr('disabled', true);
+			} else {
+				if ((numReturned < RESULTS_PER_PAGE) || (numReturned * currentPage == numResults))
+					$('button.next').attr('disabled', true);
+				else
+					$('button.next').attr('disabled', false);
+
+				if (currentPage == 1)
+					$('button.prev').attr('disabled', true);
+				else
+					$('button.prev').attr('disabled', false);
+			}
+
+			// add page number and status
+			$('.results-page-number').html(currentPage);
+			$('.results-show-status').html(
+				'Showing '+
+					(resultOffset+1) +' - '+ 
+					(resultOffset+numReturned) +' of '+
+					numResults+' results'
+			);
 
 			// show results
 			$('#results-table').show();
@@ -304,7 +351,7 @@ google.setOnLoadCallback(function(){
 
 						splitSplit(runner.id, correction.index, correction.times);
 						
-						//console.log(correction);
+						console.log(correctionData);
 						numCorrections++;
 					}
 				}
@@ -1051,7 +1098,8 @@ google.setOnLoadCallback(function(){
 			lastSelected();
 		});
 
-		function drawGraph(results){
+		function drawGraph(data){
+			var results = data.results;
 
 			// add toggle checkboxes 
 			var toggleOptions = $('#results-graph #graph-toggle-options');
@@ -1257,12 +1305,11 @@ google.setOnLoadCallback(function(){
 					);
 
 					// create table rows
-					var team = {};
-					for (var i=0; i < results.length; i++) {
-						team = results[i];
+					for (var i=0; i<results.length; i++) {
+						var team = results[i];
 						var id = team.id;
 						$('#team-table-canvas>tbody').append(
-							'<tr id="team'+id+'" class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#team-table-canvas" data-target="#collapse-team'+id+'" aria-expanded="false" aria-controls="collapse-team'+id+'">' +
+							'<tr id="team-'+id+'" class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#team-table-canvas" data-target="#collapse-team-'+id+'" aria-expanded="false" aria-controls="collapse-team-'+id+'">' +
 								'<td>' + team.place + '</td>' +
 								'<td>' + team.name + '</td>' +
 								'<td>' + team.score + '</td>' +
@@ -1270,8 +1317,8 @@ google.setOnLoadCallback(function(){
 							'<tr></tr>'	+
 							'<tr class="team-runners">' +
 								'<td colspan="4">' +
-									'<div id="collapse-team'+id+'" class="accordion-body collapse" aria-labelledby="team'+id+'">' +
-										'<table id="runners-team'+id+'" class="table" style="text-align:center; background-color:transparent">' +
+									'<div id="collapse-team-'+id+'" class="accordion-body collapse" aria-labelledby="team-'+id+'">' +
+										'<table id="runners-team-'+id+'" class="table" style="text-align:center; background-color:transparent">' +
 											'<thead>' +
 												'<tr>' +
 													'<th style="text-align:center;">Place</th>' +
@@ -1286,8 +1333,20 @@ google.setOnLoadCallback(function(){
 								'</td>' +
 							'</tr>'
 						);
+						
+						for (var j=0; j<team.athletes.length; j++) {
+							var athlete = team.athletes[j];
+							$('table#runners-team-'+id+' tbody').append(
+								'<tr>' +
+									'<td>' + athlete.place + '</td>' +
+									'<td>' + athlete.name + '</td>' +
+									'<td>' + formatTime(Number(athlete.total)) + '</td>' +
+								'</tr>'
+							);
+						}
 					}
 
+					/*
 					// rebind click handler
 					$('body').off('click', '#team-table-canvas>tbody>tr.accordion-toggle');
 					$('body').on('click', '#team-table-canvas>tbody>tr.accordion-toggle', function(e) {
@@ -1311,21 +1370,26 @@ google.setOnLoadCallback(function(){
 
 							// get team members data
 							$.ajax({
-								url: 'api/filtered_results/?id='+currentID+'&team='+currentTeam,
+								url: 'api/sessions/'+currentID+'/filtered_results',
 								headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+								data: {
+									team: team.name,
+									offset: 0,
+									limit: 5
+								},
 								dataType: 'text',
 								success: function(runnerData) {
 									var runnerResults = $.parseJSON(runnerData).results;
 
 									// add team members to table
 									var runner = {};
-									for (var i=0; i < runnerResults.length; i++) {
+									for (var i=0; i < Math.min(runnerResults.length,5); i++) {
 										runner = runnerResults[i];
 										$('#runners-team'+currentTeamID+' tbody').append(
 											'<tr>' +
-												'<td>' + runner.place + '</td>' +
+												'<td>' + (i+1) + '</td>' +
 												'<td>' + runner.name + '</td>' +
-												'<td>' + formatTime(Number(runner.time)) + '</td>' +
+												'<td>' + formatTime(Number(runner.total)) + '</td>' +
 											'</tr>'
 										);
 									}
@@ -1341,6 +1405,7 @@ google.setOnLoadCallback(function(){
 							$('#collapse-team'+currentTeamID).find('div').remove();
 						}
 					});
+					//*/
 	
 					// stop spinner and show results
 					spinner.stop();
@@ -1380,12 +1445,13 @@ google.setOnLoadCallback(function(){
 						if (results.length == 15){
 							$('ul.menulist').append('<li id="see-more"><a href="#">See More</a></li>');
 						}
-					}
-					// show most recent workout
-					if (!currentID)
-						currentID = idArray[0];
 
-					$('a#session-'+currentID).click();
+						// show most recent workout
+						if (!currentID)
+							currentID = idArray[0];
+
+						$('a#session-'+currentID).click();
+					}
 				}
 			});
 		}
@@ -1576,7 +1642,7 @@ google.setOnLoadCallback(function(){
 			}
 		});
 
-		// attach handler for tab navigation
+		// register handler for tab navigation
 		$('body').on('click', '#results>ul>li', function(e){
 			e.preventDefault();
 			// update tab navbar
@@ -1609,27 +1675,51 @@ google.setOnLoadCallback(function(){
 			}
 		});
 
+		// register handler for results pagination
+		$('body').on('click', 'button.prev', function(e){
+			e.preventDefault();
+
+			if (currentPage != 1) {
+				resultOffset -= RESULTS_PER_PAGE;
+				currentPage--;
+			}
+
+			// clear table and update
+			$('#table-canvas').empty();
+			update(currentID, currentView);
+		});
+
+		$('body').on('click', 'button.next', function(e){
+			e.preventDefault();
+
+			resultOffset += RESULTS_PER_PAGE;
+			currentPage++;
+
+			// clear table and update
+			$('#table-canvas').empty();
+			update(currentID, currentView);
+		});
+
 		//Download to Excel Script
 		$('body').on('click', '#download', function(){
 			if ((currentView === TABLE_VIEW) || (currentView === GRAPH_VIEW))
-				createFullCSV(currentID);
+				createFullCSV(currentID, sessionData);
 			else if (currentView === IND_FINAL_VIEW)
-				createFilteredIndividualCSV(currentID);
+				createFilteredCSV(currentID, sessionData);
 			else if (currentView === TEAM_FINAL_VIEW)
-				createFilteredTeamCSV(currentID);
+				createTeamCSV(currentID, sessionData);
 		});
 	});
 });
 
-function createFullCSV(idjson){
+function createFullCSV(idjson, sessionData){
 	$.ajax({
-		url: '/api/sessions/'+idjson,
+		url: '/api/sessions/'+idjson+'/individual_results',
 		headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 		dataType: 'text',
 		success: function(data) {
-			var json = $.parseJSON(data);
 
-			var reportTitle = json.name + ' Full Results';
+			var reportTitle = sessionData.name + ' Full Results';
 			
 			// initialize file content
 			var CSV = '';
@@ -1638,37 +1728,36 @@ function createFullCSV(idjson){
 			CSV += reportTitle + '\r\n\r\n';
 
 			// format date and time
-			var d = new Date(UTC2local(json.start_time));
+			var d = new Date(UTC2local(sessionData.start_time));
 
 			CSV += 'Date,'+ d.toDateString() +'\r\n';
 			CSV += 'Time,'+ d.toLocaleTimeString() +'\r\n\r\n';
 
-			CSV += 'Track Size,'+ json.track_size +'\r\n';
-			CSV += 'Interval Distance,'+ json.interval_distance +'\r\n\r\n';
+			CSV += 'Track Size,'+ sessionData.track_size +'\r\n';
+			CSV += 'Interval Distance,'+ sessionData.interval_distance +'\r\n\r\n';
 
 			CSV += 'Name\r\n';
 
-			var results = $.parseJSON(json.results);
-			
 
-			// iterate into runner array
-			var runner = {};
-			for (var i=0; i < results.runners.length; i++) {
-				runner = results.runners[i];
+			var results = $.parseJSON(data).results;
+
+			// iterate into results array
+			for (var i=0; i < results.length; i++) {
+				var runner = results[i];
 
 				CSV += runner.name + ',';
 
-				for (var j=0; j < runner.interval.length; j++) {
+				for (var j=0; j < runner.splits.length; j++) {
 					//iterate over interval to get to nested time arrays
-					var interval = runner.interval[j];
+					var splits = runner.splits[j];
 
-					for (var k=0; k < runner.interval[j].length; k++) {
+					for (var k=0; k < runner.splits[j].length; k++) {
 						//interate over subarrays and pull out each individually and print
 						//do a little math to move from seconds to minutes and seconds
-						var subinterval = runner.interval[j][k];
+						var subinterval = runner.splits[j][k];
 						CSV += subinterval;
 
-						if (j != runner.interval.length-1)
+						if (j != runner.splits.length-1)
 							CSV += ',';
 					}
 				}
@@ -1687,111 +1776,91 @@ function createFullCSV(idjson){
 	});
 }
 
-function createFilteredIndividualCSV(idjson) {
+function createFilteredCSV(idjson, sessionData) {
+	var a = $('#age-select').val();
+	var g = $('#gender-select').val();
+
+	// gender or age wasn't selected
+	if ((a === null) || (g === null))
+		return;
+
+	ages = a.split('-');
+	var age_gte = ages[0].trim();
+	var age_lte = ages[1].trim();
+
+	var gender = (g.trim() === 'Male') ? 'M' : 'F';
+
 	$.ajax({
-		url: '/api/sessions/'+idjson,
+		url: '/api/sessions/'+idjson+'/filtered_results/?gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
 		headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 		dataType: 'text',
 		success: function(data) {
-			var json = $.parseJSON(data);
+			var results = $.parseJSON(data).results;
 
-			var a = $('#age-select').val();
-			var g = $('#gender-select').val();
+			var reportTitle = sessionData.name + ' Filtered Results';
+			
+			// initialize file content
+			var CSV = '';
 
-			// gender or age wasn't selected
-			if ((a === null) || (g === null))
-				return;
+			// set report title in first row or line
+			CSV += reportTitle + '\r\n\n';
 
-			ages = a.split('-');
-			var age_gte = ages[0].trim();
-			var age_lte = ages[1].trim();
+			// format date and time
+			var d = new Date(UTC2local(sessionData.start_time));
 
-			var gender = (g.trim() === 'Male') ? 'M' : 'F';
+			CSV += 'Date,'+ d.toDateString() +'\r\n';
+			CSV += 'Time,'+ d.toLocaleTimeString() +'\r\n\n';
 
-			$.ajax({
-				url: '/api/filtered_results/?id='+idjson+'&gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-				dataType: 'text',
-				success: function(filteredData) {
-					var filteredResults = $.parseJSON(filteredData).results;
+			// add group info
+			CSV += 'Gender,' + g + '\r\n';
+			CSV += 'Age bracket,' + a + '\r\n\n';
 
-					var reportTitle = json.name + ' Individual Results';
-					
-					// initialize file content
-					var CSV = '';
+			if (results.length != 0) {
+				CSV += 'Place,Name,Final Time\r\n';
 
-					// set report title in first row or line
-					CSV += reportTitle + '\r\n\n';
-
-					// format date and time
-					var d = new Date(UTC2local(json.start_time));
-
-					CSV += 'Date,'+ d.toDateString() +'\r\n';
-					CSV += 'Time,'+ d.toLocaleTimeString() +'\r\n\n';
-
-					// add group info
-					CSV += 'Gender,' + g + '\r\n';
-					CSV += 'Age bracket,' + a + '\r\n\n';
-
-					if (filteredResults != '') {
-						CSV += 'Place,Name,Final Time\r\n';
-
-						var runner = {};
-						for (var i=0; i < filteredResults.length; i++) {
-							runner = filteredResults[i];
-							CSV += runner.place + ',' + runner.name + ',' + formatTime(Number(runner.time)) + '\r\n';
-						}
-					}
-
-					download(CSV, reportTitle);
+				for (var i=0; i < results.length; i++) {
+					var runner = results[i];
+					CSV += (i+1) + ',' + runner.name + ',' + formatTime(Number(runner.total)) + '\r\n';
 				}
-			});
+			}
+
+			download(CSV, reportTitle);
 		}
 	});
 }
 
-function createFilteredTeamCSV(idjson) {
+function createTeamCSV(idjson, sessionData) {
 	$.ajax({
-		url: '/api/sessions/'+idjson,
+		url: 'api/sessions/'+idjson+'/team_results',
 		headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 		dataType: 'text',
 		success: function(data) {
-			var json = $.parseJSON(data);
+			var results = $.parseJSON(data);
 
-			$.ajax({
-				url: '/api/team_results/?id='+idjson,
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-				dataType: 'text',
-				success: function(teamData) {
-					var teamResults = $.parseJSON(teamData).results;
+			var reportTitle = sessionData.name + ' Team Results';
+			
+			// initialize file content
+			var CSV = '';
 
-					var reportTitle = json.name + ' Team Results';
-					
-					// initialize file content
-					var CSV = '';
+			// set report title in first row or line
+			CSV += reportTitle + '\r\n\n';
 
-					// set report title in first row or line
-					CSV += reportTitle + '\r\n\n';
+			// format date and time
+			var d = new Date(UTC2local(sessionData.start_time));
 
-					// format date and time
-					var d = new Date(UTC2local(json.start_time));
+			CSV += 'Date,'+ d.toDateString() +'\r\n';
+			CSV += 'Time,'+ d.toLocaleTimeString() +'\r\n\n';
 
-					CSV += 'Date,'+ d.toDateString() +'\r\n';
-					CSV += 'Time,'+ d.toLocaleTimeString() +'\r\n\n';
+			if (results.length != 0) {
+				CSV += 'Place,Name,Score\r\n';
 
-					if (teamResults != '') {
-						CSV += 'Place,Name,Score\r\n';
-
-						var team = {};
-						for (var i=0; i < teamResults.length; i++) {
-							team = teamResults[i];
-							CSV += team.place + ',' + team.name + ',' + team.score + '\r\n';
-						}
-					}
-
-					download(CSV, reportTitle);
+				for (var i=0; i < results.length; i++) {
+					var team = results[i];
+					CSV += team.place + ',' + team.name + ',' + team.score + '\r\n';
 				}
-			});
+			}
+
+			download(CSV, reportTitle);
 		}
 	});
 }
