@@ -389,9 +389,10 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         reader = ts.readers.all()[0]
 
         # create reference split
-        time = ts.start_button_time
-        #tt_0 = TagTime.objects.create(tag_id=tag.id, time=time, reader_id=reader.id, milliseconds=time.microsecond/1000)
-        #ts.splits.add(tt_0.pk)
+        if ts.start_button_time is not None:
+            time = ts.start_button_time
+        else:
+            time = 0
         
         # create final split
         hours = int(data.get('hour', 0))
