@@ -32,7 +32,7 @@ def calculate_distance(data_dict):
 
     #for each runner, if there are <= 2 universal rest points, it is continuous, else it is interval.
     for runner in data:
-        runner_specific_times.append({'name': runner['name'], 'results':[]})
+        runner_specific_times.append({'name': runner['id'], 'results':[]})
 
         #for continuous, just sum up total times. In order to estimate distance use the min of all the runners times of this interval.
         #add all individual times to respective tables.
@@ -41,12 +41,12 @@ def calculate_distance(data_dict):
             if (rests[1]+1) in list_of_times.keys():
                 list_of_times[rests[1]+1].append(temp_sum)
                 for entry in runner_specific_times:
-                    if entry['name'] == runner['name']:
+                    if entry['name'] == runner['id']:
                         entry['results'].append({'splits': rests[1], 'times': temp_sum, 'interval': 'c'})
             else:
                 list_of_times[rests[1]+1] = [temp_sum]
                 for entry in runner_specific_times:
-                    if entry['name'] == runner['name']:
+                    if entry['name'] == runner['id']:
                         entry['results'].append({'splits': rests[1], 'times': temp_sum, 'interval': 'c'})
         else: 
 
@@ -68,12 +68,12 @@ def calculate_distance(data_dict):
                             if (idy-idx) in list_of_times.keys():
                                 list_of_times[idy-idx].append(temp_sum)
                                 for entry in runner_specific_times:
-                                    if entry['name'] == runner['name']:
+                                    if entry['name'] == runner['id']:
                                         entry['results'].append({'splits': idy-idx-1, 'times': temp_sum, 'interval': 'i'})
                             else:
                                 list_of_times[idy-idx] = [temp_sum]
                                 for entry in runner_specific_times:
-                                    if entry['name'] == runner['name']:
+                                    if entry['name'] == runner['id']:
                                         entry['results'].append({'splits': idy-idx-1, 'times': temp_sum, 'interval': 'i'})
                         else:
                             continue
@@ -172,7 +172,7 @@ def investigate(data_dict):
         for runner in data_dict:
             #Set up the return dictionary
             if idx == 0:
-                return_dictionary.append({'id': runner['name'], 'results':[]})
+                return_dictionary.append({'id': runner['id'], 'results':[]})
             try:
 
                 #if idx is an index in the specific runner's rest points set, then investigate
@@ -189,7 +189,7 @@ def investigate(data_dict):
                         runner['times'][element] = half
                         runner['times'].insert(element, other_half)
                         for entry in return_dictionary:
-                            if entry['id'] == runner['name']:
+                            if entry['id'] == runner['id']:
                                 entry['results'].append({'index': element, 'times': [runner['times'][element], runner['times'][element+1]]})
                         for jj in range(0, len(runner['indices'])):
                             if runner['indices'][jj] > element:
@@ -200,7 +200,7 @@ def investigate(data_dict):
                         runner['times'][element] = round(runner['times'][element] - runner['average'], 3)
                         runner['times'].insert(element + 1, runner['average'])
                         for entry in return_dictionary:
-                            if entry['id'] == runner['name']:
+                            if entry['id'] == runner['id']:
                                 entry['results'].append({'index': element, 'times': [runner['times'][element], runner['times'][element+1]]})
                         for jj in range(0, len(runner['indices'])):
                                 if runner['indices'][jj] > element:
@@ -220,7 +220,7 @@ def investigate(data_dict):
                         runner['times'][element] = round(runner['times'][element] - runner['average'], 3)
                         runner['times'].insert(element, runner['average'])
                         for entry in return_dictionary:
-                            if entry['id'] == runner['name']:
+                            if entry['id'] == runner['id']:
                                 entry['results'].append({'index': element, 'times': [runner['times'][element], runner['times'][element+1]]})
                         for jj in range(0, len(runner['indices'])):
                             if runner['indices'][jj] > element:
@@ -234,7 +234,7 @@ def investigate(data_dict):
                         runner['times'][element] = half
                         runner['times'].insert(element, other_half)
                         for entry in return_dictionary:
-                            if entry['id'] == runner['name']:
+                            if entry['id'] == runner['id']:
                                 entry['results'].append({'index': element, 'times': [runner['times'][element], runner['times'][element+1]]})
                         for jj in range(0, len(runner['indices'])):
                             if runner['indices'][jj] > element:
@@ -377,8 +377,8 @@ def entropy(data):
             frequency[p_instance] += 1
         else:
             frequency[p_instance] = 1
-        for freq in frequency.values():
-            entropy += (-freq/len(data)) * math.log(float(freq)/len(data), 2)
+    for freq in frequency.values():
+        entropy += (-freq/len(data)) * math.log(float(freq)/len(data), 2)
     return entropy
 
 def find_ne(a, x):

@@ -1174,8 +1174,8 @@ def analyze(request):
         times = r[3]
         for index, item in enumerate(times):
             times[index] = float(item)
-        name = r[0]
-        dataList.append({'name': name, 'times': times})
+        id = r[0]
+        dataList.append({'id': id, 'times': times})
 
     r_dict = stats.investigate(dataList)
 
@@ -1228,8 +1228,8 @@ def est_distance(request):
         times = r[3]
         for index, item in enumerate(times):
             times[index] = float(item)
-        name = r[0]
-        dataList.append({'name': name, 'times': times})
+        id = r[0]
+        dataList.append({'id': id, 'times': times})
 
     #Analysis split_times is distance prediction, r_times is individual runner times, and r_dicts is auto_edit dictionary
     split_times, r_times = stats.calculate_distance(dataList)
