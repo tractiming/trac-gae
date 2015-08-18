@@ -12,7 +12,7 @@ def calculate_distance(data_dict):
     """
 
     #SET global variables
-    list_of_times = {}
+    list_of_times = []
     runner_specific_times=[]
     list_of_lists = []
 
@@ -25,70 +25,64 @@ def calculate_distance(data_dict):
             runner['indices'].append(runner['times'].index(element))
 
     rests = cross_check_runners(list_of_lists)
-    if rests[0] == 0:
+    if not rests and rests[0] == 0:
         rests.pop(0)
-    print rests
-    data = data_dict
 
-    #for each runner, if there are <= 2 universal rest points, it is continuous, else it is interval.
-    for runner in data:
-        runner_specific_times.append({'name': runner['id'], 'results':[]})
-
-        #for continuous, just sum up total times. In order to estimate distance use the min of all the runners times of this interval.
-        #add all individual times to respective tables.
-        if len(rests) <= 2 and rests[0] == 0 and rests[1] == (len(runner['times']) - 1):
+    if len(rests) < 2:
+        num_splits = 0
+        for runner in data_dict:
             temp_sum = sum(runner['times'])
-            if (rests[1]+1) in list_of_times.keys():
-                list_of_times[rests[1]+1].append(temp_sum)
-                for entry in runner_specific_times:
-                    if entry['name'] == runner['id']:
-                        entry['results'].append({'splits': rests[1], 'times': temp_sum, 'interval': 'c'})
-            else:
-                list_of_times[rests[1]+1] = [temp_sum]
-                for entry in runner_specific_times:
-                    if entry['name'] == runner['id']:
-                        entry['results'].append({'splits': rests[1], 'times': temp_sum, 'interval': 'c'})
-        else: 
+            if len(runner['times']) > num_splits:
+                num_splits = len(runner['times'])
+                list_of_times = [{'num_splits': num_splits, 'time': temp_sum}]
+            runner_specific_times.append({
+                'id': runner['id'],
+                'results': [
+                    {
+                        'num_splits': len(runner['times']),
+                        'time': temp_sum,
+                        'interval': 'c'
+                    }
+                ]
+            })
+    else:
+        temp_rests = list(rests)
+        temp_rests.insert(0,-1)
+        max_num_splits = max([len(runner['times']) for runner in data_dict]) 
+        if (rests[-1] < max_num_splits-1):
+            temp_rests.append(max_num_splits+1)
+        
+        # first create list of num_split/time pairs with dummy times
+        for i in range(0, len(temp_rests)-1):
+            start = temp_rests[i] + 1
+            end = temp_rests[i+1]
+            list_of_times.append({'num_splits': end-start, 'time': 10**6})
+        
+        # then go through data and update when necessary
+        for runner in data_dict:
+            results = []
+            for i in range(0, len(temp_rests)-1):
+                start = temp_rests[i] + 1
+                end = temp_rests[i+1]
+                
+                if len(runner['times'])+1 < end:
+                    continue
+                
+                temp_sum = sum(runner['times'][start:end])
+                results.append({
+                    'num_splits': end-start,
+                    'time': temp_sum,
+                    'interval': 'i'
+                })
+                
+                if temp_sum < list_of_times[i]['time']:
+                    list_of_times[i]['time'] = temp_sum
+            
+            runner_specific_times.append({
+                'id': runner['id'],
+                'results': results
+            })
 
-            #filter through each interval between rest points. If athlete personal rest intervals line up, sum up the times in
-            #between rest points. Take the minimum for distance prediction and all individual times are added to their own tables.
-            runner['indices'] = sorted(runner['indices'])
-            for index in range(0, len(rests)):
-                idx = rests[index]
-                try:
-                    idy = rests[index+1]
-                except:
-                    idy = rests[index]
-                if idx in runner['indices']:
-                    i = runner['indices'].index(idx)
-                    try:
-                        if runner['indices'][i+1] == idy:
-                            temp = runner['times'][idx+1:idy]
-                            temp_sum = sum(temp)
-                            if (idy-idx) in list_of_times.keys():
-                                list_of_times[idy-idx].append(temp_sum)
-                                for entry in runner_specific_times:
-                                    if entry['name'] == runner['id']:
-                                        entry['results'].append({'splits': idy-idx-1, 'times': temp_sum, 'interval': 'i'})
-                            else:
-                                list_of_times[idy-idx] = [temp_sum]
-                                for entry in runner_specific_times:
-                                    if entry['name'] == runner['id']:
-                                        entry['results'].append({'splits': idy-idx-1, 'times': temp_sum, 'interval': 'i'})
-                        else:
-                            continue
-                    except:
-                        continue
-
-    #distance prediction
-    for key in list_of_times.keys():
-        try:
-            average = min(i for i in list_of_times[key] if i>0)
-        except:
-            average = 0
-        #average = average / len(list_of_times[key])
-        list_of_times[key] = average
-    print list_of_times
     return list_of_times, runner_specific_times
 
 def create_list_of_lists(data_dict):
@@ -277,19 +271,19 @@ def cross_check_runners(data):
                 frequencies[lst.index(element)] += 1
             else:
                 frequencies[lst.index(element)] = 1
-        for keys in frequencies.keys():
-            count = 0
-            for instance in data:
-                if len(instance) > keys:
-                    count += 1
-            if frequencies[keys] >= (count/2):
-                if keys-1 in indices:
-                    ii = indices.index(keys-1)
-                    if frequencies[keys] < frequencies[keys-1]:
-                        keys = keys-1
-                    indices[ii] = keys
-                else:
-                    indices.append(keys)
+    for keys in frequencies.keys():
+        count = 0
+        for instance in data:
+            if len(instance) > keys:
+                count += 1
+        if frequencies[keys] >= (count/2):
+            if keys-1 in indices:
+                ii = indices.index(keys-1)
+                if frequencies[keys] < frequencies[keys-1]:
+                    keys = keys-1
+                indices[ii] = keys
+            else:
+                indices.append(keys)
     indices = sorted(indices)
     return indices
 

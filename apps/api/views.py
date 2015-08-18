@@ -679,7 +679,7 @@ def create_race(request):
          director_username: '',
          readers = [id1, id2, ...],
          athletes: [{first_name: '', last_name: '', tag: '', 
-                     team: '', age: '', gender: ''}, ...]
+                     team: '', tfrrs_code: '', age: '', gender: ''}, ...]
         }
     """
     data = json.loads(request.body)
@@ -721,7 +721,8 @@ def create_race(request):
 
         a, created = Athlete.objects.get_or_create(user=runner)
 
-        team, created = Team.objects.get_or_create(name=athlete['team'], coach=c)
+        team, created = Team.objects.get_or_create(name=athlete['team'], coach=c, 
+                                defaults={'tfrrs_code': athlete['tfrrs_code']})
         # add TFRRS team code here
 
         today = datetime.date.today()
