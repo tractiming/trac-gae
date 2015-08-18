@@ -721,7 +721,8 @@ def create_race(request):
 
         a, created = Athlete.objects.get_or_create(user=runner)
 
-        team, created = Team.objects.get_or_create(name=athlete['team'], coach=c)
+        team, created = Team.objects.get_or_create(name=athlete['team'], coach=c, 
+        			defaults={'tfrrs_code': athlete['team']})
         # add TFRRS team code here
 
         today = datetime.date.today()
