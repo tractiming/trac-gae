@@ -793,7 +793,7 @@ def WorkoutTags(request):
                     user.first_name = fname
                     user.last_name = lname
                     tag = Tag.objects.get(id_str = request.POST.get('id_str'))
-                    tag.user = user
+                    tag.athlete = a
                     tag.save()
                     user.save()
                 except ObjectDoesNotExist:
@@ -849,7 +849,7 @@ def edit_athletes(request):
             atl.user.save()
             try:  #if tag exists update user. Or create tag.
                 tag = Tag.objects.get(id_str = request.POST.get('id_str'))
-                tag.user = atl.user
+                tag.athlete = atl
                 tag.save()
             except ObjectDoesNotExist:
                 try:
@@ -857,7 +857,7 @@ def edit_athletes(request):
                     tag.id_str = request.POST.get('id_str')
                     tag.save()
                 except ObjectDoesNotExist:
-                    tag = Tag.objects.create(id_str=request.POST.get('id_str'), user=atl.user)
+                    tag = Tag.objects.create(id_str=request.POST.get('id_str'), athlete=atl)
             return HttpResponse(status.HTTP_200_OK)
 
         elif request.POST.get('submethod') == 'Create':
@@ -869,9 +869,9 @@ def edit_athletes(request):
             #tag, created = Tag.objects.get_or_create(user = user, id_str = request.POST.get('id_str'))
             try:
                 tag = Tag.objects.get(id_str = request.POST.get('id_str'))
-                tag.user = user
+                tag.athlete = atl
             except ObjectDoesNotExist:
-                tag = Tag.objects.create(athlete = user.athlete, id_str = request.POST.get('id_str'))
+                tag = Tag.objects.create(athlete = atl, id_str = request.POST.get('id_str'))
             #cp.athletes.add(atl.pk)
 
             tag.save()
