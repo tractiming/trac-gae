@@ -368,7 +368,6 @@ class TimingSession(models.Model):
         """Clear the session's cached results for a single tag."""
         cache.delete(('ts_%i_athlete_%i_results' %(self.id, athlete_id)))   
 
-    # FIXME
     def _delete_split(self, tag_id, split_indx):
         """
         Delete a result from the array of splits. The runner is identified by
@@ -388,7 +387,7 @@ class TimingSession(models.Model):
 
         # Get the offset and delete the time.
         splits = self.calc_athlete_splits(athlete.id)
-        offset_ms = splits[split_indx]
+        offset_ms = int(splits[3][split_indx] * 1000)
         tt[indx].delete()
 
         # Edit the rest of the splits to maintain the other splits.
@@ -396,7 +395,6 @@ class TimingSession(models.Model):
             tt[i].time = tt[i].time-offset_ms
             tt[i].save()
 
-    # FIXME
     def _insert_split(self, tag_id, split_indx, val, shift):
         """
         Insert a new split into the array before the given index.
@@ -423,13 +421,13 @@ class TimingSession(models.Model):
         t_curr = t_prev+split_dt
         r = self.readers.all()[0]
         athlete = Athlete.objects.get(tag__id=tag_id)
-        nt = Split.objects.create(athlete=athlete, time=t_curr, reader=r)
+        nt = Split.objects.create(tag_id=tag_id, athlete=athlete, time=t_curr, reader=r)
 
         if shift:
             # Edit the rest of the tagtimes to maintain the other splits.
             for i in list(reversed(range(indx, len(tt)))):
                 cur_tt = tt[i]
-                cur_t.time = cur_tt.time+split_dt
+                cur_tt.time = cur_tt.time+split_dt
                 cur_tt.save()
 
         # Add the new tagtime after the rest of the splits have already been
@@ -437,7 +435,6 @@ class TimingSession(models.Model):
         self.splits.add(nt.pk)
         self.save()
 
-    # FIXME
     def _edit_split(self, tag_id, split_indx, val):
         """
         Change the value of a split in the list of results. The split index
@@ -458,24 +455,21 @@ class TimingSession(models.Model):
         """
         # Delete all existing times for this tag.
         times = self.splits.filter(tag__id=tag_id)
-
-        first_tt = times[0]
-
-        times.exclude(pk=times[0].pk).delete()
+        times.delete()
 
         # If the start button has not been set, we need to set it.
         #if not self.start_button_active():
         #    self.start_button_time = timezone.now()
 
         r = self.readers.all()[0]
-        final_time = first_tt.time+(3600000*hr+60000*mn+1000*sc+ms)
+        final_time = self.start_button_time+(3600000*hr+60000*mn+1000*sc+ms)
 
         #if new_ms > 999:
         #    final_time += timezone.timedelta(hours=0, minutes=0, seconds=1)
         #    new_ms = new_ms % 1000
 
         athlete = Athlete.objects.get(tag__id=tag_id)
-        tt = Split.objects.create(tag_id=tag_id, reader=r, time=final_time)
+        tt = Split.objects.create(tag_id=tag_id, athlete=athlete, reader=r, time=final_time)
         self.splits.add(tt.pk)
         self.save()
 
