@@ -52,8 +52,8 @@ import logging
 logging.basicConfig()
 
 EPOCH=timezone.datetime(1970,1,1)
-DEFAULT_DISTANCES=[100, 200, 400, 800, 1000, 1500, 1609, 2000, 3000, 5000, 10000]
-DEFAULT_TIMES=[14.3, 27.4, 61.7, 144.2, 165, 257.5, 278.7, 356.3, 550.8, 946.7, 1971.9, ]
+DEFAULT_DISTANCES=[100, 200, 400, 800, 1000, 1500, 1609, 2000, 3000, 3200, 5000, 10000]
+DEFAULT_TIMES=[14.3, 27.4, 61.7, 144.2, 165, 257.5, 278.7, 356.3, 550.8, 598.3, 946.7, 1971.9, ]
 
 class verifyLogin(views.APIView):
 	permission_classes = ()
@@ -389,6 +389,106 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         session = TimingSession.objects.get(pk=pk)
         session.clear_results()
         return HttpResponse(status.HTTP_202_ACCEPTED)
+
+    #@api_view(['POST'])
+    #@permission_classes((permissions.AllowAny,))
+    @detail_route(methods=['get'], permission_classes=[])
+    def est_distance(self, request, pk=None):
+        """
+        Estimates distance and number of splits run.
+        """
+
+        #SETUP and parse dataList
+        user = request.user
+        ts = TimingSession.objects.get(pk=pk)
+        run = ts.individual_results()
+        dataList = []
+        for r in run:
+            times = r[3]
+            for index, item in enumerate(times):
+                times[index] = float(item)
+            id = r[0]
+            dataList.append({'id': id, 'times': times})
+
+        #Analysis split_times is distance prediction, r_times is individual runner times, and r_dicts is auto_edit dictionary
+        split_times, r_times = stats.calculate_distance(dataList)
+
+        #Interpolate split_times to data in coach's table.
+        #Predict the distance run.
+        cp = Coach.objects.get(user=user)
+        r = cp.performancerecord_set.all()
+        distanceList = []
+        for interval in split_times:
+            int_time = interval['time']
+            time_delta = 1000000
+            for row in r:
+                if abs(int_time-row.time) < time_delta:
+                    time_delta = abs(int_time-row.time)
+                    selected = row.distance
+
+            distanceList.append({'num_splits': interval['num_splits'], 'distance': selected})
+
+        return Response(distanceList)
+
+            #validate distance predictions with coach and update coach table as necessary.
+        #     var = raw_input("Did you run a "+str(selected)+" in "+str(interval-1)+" splits?")
+        #     if var == 'no':
+        #         var2 = raw_input("What was the distance? ")
+        #         if var2 == 'none':
+        #             continue
+        #         else:
+        #             length = int(var2)
+        #             s = cp.performancerecord_set.get(distance = length)
+        #             s.time = (s.time + int_time)/2
+        #             s.save()
+        #             distanceList.append({'Splits': interval-1, 'Distance': length})
+        #     else:
+        #         distanceList.append({'Splits': interval-1, 'Distance': selected})
+
+        # #update each individual runner tables with their own data for distances predicted above.
+        # for runner in r_times:
+        #     return_dict = []
+        #     accumulate_VO2 = 0
+        #     count_VO2 = 0
+        #     accumulate_t_VO2 = 0
+        #     count_t_VO2 = 0
+        #     username = runner['name']
+        #     a_user = User.objects.get(id = username)
+        #     ap = Athlete.objects.get(user = a_user)
+        #     cp.athletes.add(ap)
+        #     for results in runner['results']:
+        #         splits = results['splits']
+        #         times = results['times']
+        #         for distance in distanceList:
+        #             if splits == distance['Splits'] and times != 0:
+        #                 try:
+        #                     r= ap.performancerecord_set.get(distance= distance['Distance'], interval= results['interval'])
+        #                     r.time = (r.time + times)/2
+        #                     velocity = r.distance / (r.time/60)
+        #                     t_velocity = r.distance/ (times/60)
+        #                     t_VO2 = (-4.60 + .182258 * t_velocity + 0.000104 * pow(t_velocity, 2)) / (.8 + .1894393 * pow(2.78, (-.012778 * times/60)) + .2989558 * pow(2.78, (-.1932605 * times/60)))
+        #                     VO2 = (-4.60 + .182258 * velocity + 0.000104 * pow(velocity, 2)) / (.8 + .1894393 * pow(2.78, (-.012778 * r.time/60)) + .2989558 * pow(2.78, (-.1932605 * r.time/60)))
+        #                     VO2 = int(VO2)
+        #                     t_VO2 = int(t_VO2)
+        #                     r.VO2 = VO2
+        #                     r.save()
+        #                 except:
+        #                     velocity = distance['Distance']/ (times/60)
+        #                     VO2 = (-4.60 + .182258 * velocity + 0.000104 * pow(velocity, 2)) / (.8 + .1894393 * pow(2.78, (-.012778 * times/60)) + .2989558 * pow(2.78, (-.1932605 * times/60)))
+        #                     VO2 = int(VO2)
+        #                     t_VO2 = VO2
+        #                     r = PerformanceRecord.objects.create(distance=distance['Distance'], time=times, interval= results['interval'], VO2= VO2)
+        #                 accumulate_t_VO2 += t_VO2
+        #                 count_t_VO2 += 1
+        #                 accumulate_VO2 += VO2
+        #                 count_VO2 += 1
+        #                 ap.performancerecord_set.add(r)
+        #     temp_t_VO2 = accumulate_t_VO2 / count_t_VO2
+        #     temp_VO2 = accumulate_VO2 / count_VO2
+        #     return_dict.append({"runner":runner, "CurrentWorkout":temp_t_VO2, "Average":temp_VO2})
+        # print return_dict
+        # #return auto_edits 
+        # return HttpResponse(status.HTTP_200_OK)
             
 
 # TODO: Move to TimingSessionViewSet
@@ -579,7 +679,7 @@ def edit_split(request):
     data = request.POST
     ts = TimingSession.objects.get(id=int(data['id']))
     all_tags = ts.splits.values_list('tag_id', flat=True).distinct()
-    tag = Tag.objects.filter(user_id=int(data['user_id']), id__in=all_tags)
+    tag = Tag.objects.filter(athlete_id=int(data['user_id']), id__in=all_tags)
     
     if data['action'] == 'edit':
         ts._edit_split(tag[0].id, int(data['indx']), float(data['val']))
@@ -1211,102 +1311,6 @@ def subscription(request):
     form = PayPalPaymentsForm(initial=paypal_dict, button_type="subscribe")
     context = {"form": form}
     return render(request, "payment.html", context)
-
-@api_view(['POST'])
-@permission_classes((permissions.AllowAny,))
-def est_distance(request):
-    """
-    Updates user individual time tables using distance prediction.
-    """
-
-    #SETUP and parse dataList
-    user = request.user
-    idx = request.POST.get('id')
-    ts = TimingSession.objects.get(id = idx)
-    run = ts.individual_results()
-    dataList = []
-    for r in run:
-        times = r[3]
-        for index, item in enumerate(times):
-            times[index] = float(item)
-        id = r[0]
-        dataList.append({'id': id, 'times': times})
-
-    #Analysis split_times is distance prediction, r_times is individual runner times, and r_dicts is auto_edit dictionary
-    split_times, r_times = stats.calculate_distance(dataList)
-
-    #Interpolate split_times to data in coach's table.
-    #Predict the distance run.
-    cp = Coach.objects.get(user=user)
-    r = cp.performancerecord_set.all()
-    distanceList = []
-    for interval in split_times.keys():
-        int_time = split_times[interval]
-        time_delta = 1000000
-        for row in r:
-            if abs(int_time-row.time) < time_delta:
-                time_delta = abs(int_time-row.time)
-                selected = row.distance
-
-        #validate distance predictions with coach and update coach table as necessary.
-        var = raw_input("Did you run a "+str(selected)+" in "+str(interval-1)+" splits?")
-        if var == 'no':
-            var2 = raw_input("What was the distance? ")
-            if var2 == 'none':
-                continue
-            else:
-                length = int(var2)
-                s = cp.performancerecord_set.get(distance = length)
-                s.time = (s.time + int_time)/2
-                s.save()
-                distanceList.append({'Splits': interval-1, 'Distance': length})
-        else:
-            distanceList.append({'Splits': interval-1, 'Distance': selected})
-
-    #update each individual runner tables with their own data for distances predicted above.
-    for runner in r_times:
-        return_dict = []
-        accumulate_VO2 = 0
-        count_VO2 = 0
-        accumulate_t_VO2 = 0
-        count_t_VO2 = 0
-        username = runner['name']
-        a_user = User.objects.get(id = username)
-        ap = Athlete.objects.get(user = a_user)
-        cp.athletes.add(ap)
-        for results in runner['results']:
-            splits = results['splits']
-            times = results['times']
-            for distance in distanceList:
-                if splits == distance['Splits'] and times != 0:
-                    try:
-                        r= ap.performancerecord_set.get(distance= distance['Distance'], interval= results['interval'])
-                        r.time = (r.time + times)/2
-                        velocity = r.distance / (r.time/60)
-                        t_velocity = r.distance/ (times/60)
-                        t_VO2 = (-4.60 + .182258 * t_velocity + 0.000104 * pow(t_velocity, 2)) / (.8 + .1894393 * pow(2.78, (-.012778 * times/60)) + .2989558 * pow(2.78, (-.1932605 * times/60)))
-                        VO2 = (-4.60 + .182258 * velocity + 0.000104 * pow(velocity, 2)) / (.8 + .1894393 * pow(2.78, (-.012778 * r.time/60)) + .2989558 * pow(2.78, (-.1932605 * r.time/60)))
-                        VO2 = int(VO2)
-                        t_VO2 = int(t_VO2)
-                        r.VO2 = VO2
-                        r.save()
-                    except:
-                        velocity = distance['Distance']/ (times/60)
-                        VO2 = (-4.60 + .182258 * velocity + 0.000104 * pow(velocity, 2)) / (.8 + .1894393 * pow(2.78, (-.012778 * times/60)) + .2989558 * pow(2.78, (-.1932605 * times/60)))
-                        VO2 = int(VO2)
-                        t_VO2 = VO2
-                        r = PerformanceRecord.objects.create(distance=distance['Distance'], time=times, interval= results['interval'], VO2= VO2)
-                    accumulate_t_VO2 += t_VO2
-                    count_t_VO2 += 1
-                    accumulate_VO2 += VO2
-                    count_VO2 += 1
-                    ap.performancerecord_set.add(r)
-        temp_t_VO2 = accumulate_t_VO2 / count_t_VO2
-        temp_VO2 = accumulate_VO2 / count_VO2
-        return_dict.append({"runner":runner, "CurrentWorkout":temp_t_VO2, "Average":temp_VO2})
-    print return_dict
-    #return auto_edits 
-    return HttpResponse(status.HTTP_200_OK)
 
 @api_view(['GET'])
 @login_required

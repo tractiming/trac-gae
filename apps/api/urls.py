@@ -48,7 +48,7 @@ urlpatterns = [
         url(r'^send_email/$', views.send_email),
         url(r'^tutorial_limiter/$',views.tutorial_limiter),
         url(r'^VO2Max/$', views.VO2Max),
-        url(r'^est_distance/$', views.est_distance),
+        #url(r'^est_distance/$', views.est_distance),
         url(r'^analyze/$', views.analyze),
         url(r'^e_payment/$', views.subscription),
         url(r'^notify/$', include('paypal.standard.ipn.urls')),
