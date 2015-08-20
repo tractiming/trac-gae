@@ -496,4 +496,4 @@ class PerformanceRecord(models.Model):
             name = self.coach.user.username
         else:
             name = ''
-        return "user=%s" %(name)
+        return "user=%s distance=%i time=%.3f" %(name, self.distance, self.time)

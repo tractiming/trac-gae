@@ -515,17 +515,19 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         #Interpolate split_times to data in coach's table.
         #Predict the distance run.
         cp = Coach.objects.get(user=user)
-        r = cp.performancerecord_set.all()
+        distances = cp.performancerecord_set.values_list('distance',flat=True).distinct()
         distanceList = []
-        for interval in split_times:
-            int_time = interval['time']
+        for s in split_times:
+            int_time = s['time']
             time_delta = 1000000
-            for row in r:
-                if abs(int_time-row.time) < time_delta:
-                    time_delta = abs(int_time-row.time)
-                    selected = row.distance
+            for d in distances:
+                pr_set = cp.performancerecord_set.filter(distance=d)
+                avg_time = sum(pr_set.values_list('time',flat=True)) / pr_set.count()
+                if abs(int_time-avg_time) < time_delta:
+                    time_delta = abs(int_time-avg_time)
+                    distance = d
 
-            distanceList.append({'num_splits': interval['num_splits'], 'distance': selected})
+            distanceList.append({'num_splits': s['num_splits'], 'distance': distance, 'type': s['type']})
 
         return Response(distanceList, status.HTTP_200_OK)
 
@@ -588,6 +590,60 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         # print return_dict
         # #return auto_edits 
         # return HttpResponse(status.HTTP_200_OK)
+
+    @detail_route(methods=['post'], permission_classes=[])
+    def performance_record(self, request, pk=None):
+        """
+        Creates or updates the PerformanceRecord objects pertaining to this
+        workout. POST data is a list of objects in the following format:
+            - distance: the distance run in the interval
+            - num_splits: the number of splits run in the interval
+            - type: interval type, either 'i' for interval or 'c' for continuous
+        """
+        data = request.POST
+        user = request.user
+        c = Coach.objects.get(user=user)
+        ts = TimingSession.objects.get(pk=pk)
+
+        # remove old records
+        PerformanceRecord.objects.filter(timingsession=ts).delete()
+
+        # get session results
+        results = ts.individual_results()
+
+        # define start and end split indices
+        start = 0
+        end = 0
+        for s in data:
+            distance = s['distance']
+            interval_type = s['type']
+            end = start+s['num_splits']
+            min_time = 1000000
+            for r in results:
+                # skip incomplete sets
+                if end > len(r[3]):
+                    continue
+
+                time = round(sum(r[3][start:end]), 3)
+                velocity = distance / (time/60)
+                VO2 = (-4.60 + .182258 * velocity + 0.000104 * pow(velocity, 2)) \
+                        / (.8 + .1894393 * pow(2.78, (-.012778 * time/60)) + .2989558 * pow(2.78, (-.1932605 * time/60)))
+
+                pr = PerformanceRecord.objects.create(distance=distance, time=time, interval=interval_type, VO2=VO2)
+                a = Athlete.objects.get(id=r[0])
+                a.performancerecord_set.add(pr)
+
+                # update min_time for this interval
+                min_time = time if time < min_time else min_time
+
+            # save min_time performance record for future reference
+            pr = PerformanceRecord.objects.create(distance=distance, time=min_time)
+            c.performancerecord_set.add(pr)
+
+            # update start split index
+            start = end+1
+
+        return HttpResponse(status.HTTP_202_ACCEPTED)
 
 # TODO: Move to TimingSessionViewSet
 @api_view(['POST'])

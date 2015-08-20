@@ -41,7 +41,7 @@ def calculate_distance(data_dict):
                     {
                         'num_splits': len(runner['times']),
                         'time': temp_sum,
-                        'interval': 'c'
+                        'type': 'c'
                     }
                 ]
             })
@@ -56,7 +56,7 @@ def calculate_distance(data_dict):
         for i in range(0, len(temp_rests)-1):
             start = temp_rests[i] + 1
             end = temp_rests[i+1]
-            list_of_times.append({'num_splits': end-start, 'time': 10**6})
+            list_of_times.append({'num_splits': end-start, 'time': 10**6, 'type': 'i'})
         
         # then go through data and update when necessary
         for runner in data_dict:
@@ -72,7 +72,7 @@ def calculate_distance(data_dict):
                 results.append({
                     'num_splits': end-start,
                     'time': temp_sum,
-                    'interval': 'i'
+                    'type': 'i'
                 })
                 
                 if temp_sum < list_of_times[i]['time']:
