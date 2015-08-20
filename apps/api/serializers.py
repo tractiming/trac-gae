@@ -25,9 +25,9 @@ class AthleteSerializer(FilterRelatedMixin, serializers.ModelSerializer):
     username = serializers.CharField(source='user.username')
     first_name = serializers.CharField(source='user.first_name')
     last_name = serializers.CharField(source='user.last_name')
-    tag = serializers.CharField(source='tag.id_str')
-    age = serializers.IntegerField(source='age', read_only=True)
-    
+    tag = serializers.RelatedField('tag.id_str')
+    age = serializers.IntegerField(source='age', read_only=True)  
+
     class Meta:
         model = Athlete
         fields = ('id', 'username', 'tag','first_name','last_name','birth_date', 'gender', 'team', 'age') 

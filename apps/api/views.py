@@ -837,13 +837,11 @@ def create_race(request):
         try:
             # If the tag already exists in the system, overwrite its user.
             tag = Tag.objects.get(id_str=tag_id)
-            tag.athlete = athlete
+            tag.athlete = a
             tag.save()
         except ObjectDoesNotExist:
             tag = Tag.objects.create(id_str=tag_id, athlete=a)
         # FIXME: What does this do?
-        except MultipleObjectsReturned:
-            tag = Tag.objects.create(id_str= 'colliding tag', athlete=a)
 
         ts.registered_tags.add(tag.pk)
 
