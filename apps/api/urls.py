@@ -41,7 +41,7 @@ urlpatterns = [
         url(r'^get_info/$', views.get_info),
         url(r'^team_results/$', views.team_results),
         url(r'^upload_workouts/$', views.upload_workouts),
-
+        url(r'^give_athlete_password/$', views.give_athlete_password),
         url(r'^token_validation/$', views.token_validation),
         url(r'^reset_password/$', views.reset_password),
         url(r'^change_password/$', views.change_password),
