@@ -482,6 +482,7 @@ def delete_tag_times(sender, instance, using, **kwargs):
 
 
 class PerformanceRecord(models.Model):
+    timingsession = models.ForeignKey(TimingSession)
     distance = models.IntegerField()
     time = models.FloatField()
     interval = models.CharField(max_length=1)

@@ -632,6 +632,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                 pr = PerformanceRecord.objects.create(distance=distance, time=time, interval=interval_type, VO2=VO2)
                 a = Athlete.objects.get(id=r[0])
                 a.performancerecord_set.add(pr)
+                ts.performancerecord_set.add(pr)
 
                 # update min_time for this interval
                 min_time = time if time < min_time else min_time
@@ -639,6 +640,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             # save min_time performance record for future reference
             pr = PerformanceRecord.objects.create(distance=distance, time=min_time)
             c.performancerecord_set.add(pr)
+            ts.performancerecord_set.add(pr)
 
             # update start split index
             start = end+1
