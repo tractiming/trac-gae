@@ -105,6 +105,37 @@
 		</div>
 	</div>
 
+	<div class="modal fade" id="finalize-modal" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Finalize Workout Session</h4>
+				</div>
+				<div class="modal-body">
+					<div class="center" style="text-align:center;">
+						<p class="notification notification-warning finalize">Looks like the results haven't been finalized. Please confirm the session intervals to ensure accurate analytics.</p>
+					</div>
+					<div id="spinner-finalize"></div>
+					<div id="finalize-body">
+						<table id="interval-list" class="center table table-hover" style="width:90%;">
+						</table>
+						<div class="center">
+							<div id="add-interval">
+								+ add interval
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<div class="center">
+						<button id="finalize-confirm" class="btn btn-primary btn-md" style="margin-right: 10px;">Confirm</button>
+						<button id="finalize-cancel" class="btn btn-danger btn-md">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<div class="modal fade" id="filter-disable-modal" role="dialog">
 		<div class="modal-dialog">
 			<div class="modal-content">
@@ -208,7 +239,7 @@
 								<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
 									<div id="add-missed-runner-container" class="pull-right">
 										<button type="button" class="btn btn-default" id="add-missed-runner">
-											<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Missed Runner
+											<span class="glyphicon glyphicon-plus" aria-hidden="true" style="color:#2e6da4;"></span> Missed Runner
 										</button>
 									</div>
 								</div>
@@ -217,14 +248,23 @@
 						<table id="table-canvas" class="table table-striped table-hover" style="margin-top:10px;">
 						</table>
 						<div class="row results-navigate-container" style="margin-bottom:30px;">
-							<div class="center">
-								<div id="results-navigate-footer" class="results-navigate">
-									<button type="button" class="prev btn btn-default">
-										<span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span>
-									</button>
-									<span class="results-page-number"></span>
-									<button type="button" class="next btn btn-default">
-										<span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
+							<div class="col-lg-4 col-lg-offset-4 col-md-4 col-md-offset-4 col-sm-4 col-sm-offset-4 col-xs-12">
+								<div class="center">
+									<div id="results-navigate-footer" class="results-navigate">
+										<button type="button" class="prev btn btn-default">
+											<span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span>
+										</button>
+										<span class="results-page-number"></span>
+										<button type="button" class="next btn btn-default">
+											<span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
+										</button>
+									</div>
+								</div>
+							</div>
+							<div class="col-lg-4 col-md-4 hidden-xs">
+								<div id="finalize-container" class="pull-right">
+									<button type="button" class="btn btn-default" id="finalize">
+										<span class="glyphicon glyphicon-ok" aria-hidden="true" style="color:#468847;"></span> Finalize
 									</button>
 								</div>
 							</div>

@@ -19,6 +19,7 @@ google.setOnLoadCallback(function(){
 				updateHandler, idleHandler,										// interval handlers
 				ajaxRequest, correctionAjaxRequest,						// used to keep track of ajax requests
 				sessionData, sessionResults,									// current session data
+				intervals,																		// for finalizing session data and analytics
 				resultOffset = 0, currentPage = 1,						// for results pagination
 				correctionData,	numCorrections,								// auto correction data
 				spinner, opts, target, 												// spinner variables
@@ -356,7 +357,6 @@ google.setOnLoadCallback(function(){
 
 						splitSplit(runner.id, correction.index, correction.times);
 						
-						console.log(correctionData);
 						numCorrections++;
 					}
 				}
@@ -1198,6 +1198,96 @@ google.setOnLoadCallback(function(){
 				}
 			});
 		}
+
+		// register handler for finalizing session data
+		$('body').on('click', 'button#finalize', function(e) {
+			e.stopPropagation();
+
+			$('#finalize-modal').modal('show');
+			$('.notification').hide();
+
+			// show spinner
+			$('#spinner-finalize').css('height', 150);
+			spinner.spin(document.getElementById('spinner-finalize'));
+
+			$.ajax({
+				method: 'GET',
+				url: 'api/sessions/'+currentID+'/estimate_intervals',
+				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				dataType: 'text',
+				success: function(data) {
+					data = $.parseJSON(data);
+
+					// save estimations
+					intervals = data;
+
+					$('#interval-list').empty();
+					$('#interval-list').append(
+						'<thead>' +
+							'<tr>' +
+								'<th style="text-align:center;">#</th>' +
+								'<th style="text-align:center;">Distance</th>' +
+								'<th style="text-align:center;">Splits</th>' +
+								'<th></th>' +
+							'</tr>' +
+						'</thead>' +
+						'<tbody>' +
+						'</tbody>'
+					);
+
+					for (var i=0; i<data.length; i++) {
+						interval = data[i];
+						// setup interval list
+						$('#interval-list tbody').append(
+							'<tr>' +
+								'<td width="20px">'+ (i+1) +'</td>' +
+								'<td><div class="center"><input type="text" class="form-control numeric-input"></div></td>' +
+								'<td><div class="center"><input type="text" class="form-control numeric-input"></div></td>' +
+								'<td width="10px"><span class="remove-interval glyphicon glyphicon-remove" aria-hidden="true"></span></td>' +
+							'</tr>'
+						);
+
+						// then add the values
+						$('#interval-list tbody tr:nth-child('+ (i+1) +') td:nth-child(2) input').val(interval.distance);
+						$('#interval-list tbody tr:nth-child('+ (i+1) +') td:nth-child(3) input').val(interval.num_splits);
+					}
+
+					// attach handler for removing intervals
+					$('body').off('click', '.remove-interval');
+					$('body').on('click', '.remove-interval', function(e) {
+						e.preventDefault();
+
+						var row = $(this).closest('tr');
+						var rowsAfter = row.nextAll();
+						for (var i=0; i<rowsAfter.length; i++) {
+							var col = $(rowsAfter[i]).children().first();
+							col.html(col.html()-1);
+						}
+
+						row.remove();
+					});
+
+					// attach handler for adding intervals
+					$('body').off('click', '#add-interval');
+					$('body').on('click', '#add-interval', function(e) {
+						e.preventDefault();
+
+						$('#interval-list tbody').append(
+							'<tr>' +
+								'<td width="20px">'+ ($('#interval-list tbody tr').length+1) +'</td>' +
+								'<td><div class="center"><input type="text" class="form-control numeric-input" placeholder="Distance"></div></td>' +
+								'<td><div class="center"><input type="text" class="form-control numeric-input" placeholder="Splits"></div></td>' +
+								'<td width="10px"><span class="remove-interval glyphicon glyphicon-remove" aria-hidden="true"></span></td>' +
+							'</tr>'
+						);
+					});
+
+					// hide spinner
+					$('#spinner-finalize').css('height', '');
+					spinner.stop();
+				}
+			});
+		});
 
 		//==================================== GRAPH VIEW ====================================
 

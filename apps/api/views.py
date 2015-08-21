@@ -492,9 +492,9 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
     #@api_view(['POST'])
     #@permission_classes((permissions.AllowAny,))
     @detail_route(methods=['get'], permission_classes=[])
-    def est_distance(self, request, pk=None):
+    def estimate_intervals(self, request, pk=None):
         """
-        Estimates distance and number of splits run.
+        Estimates intervals with distance and number of splits run.
         """
 
         #SETUP and parse dataList
@@ -612,12 +612,13 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         results = ts.individual_results()
 
         # define start and end split indices
+        intervals = data['intervals']
         start = 0
         end = 0
-        for s in data:
-            distance = s['distance']
-            interval_type = s['type']
-            end = start+s['num_splits']
+        for interval in intervals:
+            distance = interval['distance']
+            interval_type = interval['type']
+            end = start+interval['num_splits']
             min_time = 1000000
             for r in results:
                 # skip incomplete sets

@@ -115,6 +115,23 @@ tr.splits {
 	margin-top: 10px;
 }
 
+#interval-list tbody { 
+	text-align: center; }
+	#interval-list tbody td { vertical-align: middle !important; }
+		#interval-list tr span.remove-interval { color: #999; }
+		#interval-list tr span.remove-interval:hover { 
+			color: #d9534f;
+			cursor: pointer;
+		}
+	#interval-list tbody input { 
+		text-align: center;
+		width: 90px;
+}
+#add-interval { color: #999; }
+	#add-interval:hover { 
+		color: #3c763d;
+		cursor: pointer;
+}
 
 tr.team-runners { 
 	color: #888;
