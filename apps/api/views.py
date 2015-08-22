@@ -1133,7 +1133,7 @@ def IndividualTimes(request):
 
     records = PerformanceRecord.objects.filter(athlete__id=athlete_id)
     vo2_list = records.values_list('VO2', flat=True)
-    avg_vo2 = int(sum(vo2_list) / len(vo2_list)) # cast to int or leave as float?
+    avg_vo2 = int(sum(vo2_list) / len(vo2_list)) if len(vo2_list) > 0 else 0 # cast to int or leave as float?
 
     results = {'name': name, 'sessions': [], 'avg_VO2': avg_vo2}
 
@@ -1143,20 +1143,21 @@ def IndividualTimes(request):
         session_results = session.calc_athlete_splits(athlete_id)
 
         # calculate vo2 up to but not including this session
-        avg_vo2_list = records.filter(timingsession__id__lte=session.id).values_list('VO2', flat=True)
-        avg_vo2 = int(sum(avg_vo2_list) / len(avg_vo2_list))      # cast to int or leave as float?
+        avg_vo2_list = records.filter(timingsession__id__lt=session.id).values_list('VO2', flat=True)
+        avg_vo2 = int(sum(avg_vo2_list) / len(avg_vo2_list)) if len(avg_vo2_list) > 0 else 0     # cast to int or leave as float?
 
         # calculate vo2 for this session
         vo2_list = records.filter(timingsession=session).values_list('VO2', flat=True)
-        vo2 = int(sum(vo2_list) / len(vo2_list))      # cast to int or leave as float?
-        session_info = {'id': session.id,
-                        'name': session.name,
-                        'date': session.start_time,
-                        'splits': session_results[3],
-                        'total': session_results[4],
-                        'prev_VO2': avg_vo2,
-                        'VO2': vo2
-                        }
+        vo2 = int(sum(vo2_list) / len(vo2_list)) if len(vo2_list) > 0 else 0    # cast to int or leave as float?
+        session_info = {
+            'id': session.id,
+            'name': session.name,
+            'date': session.start_time,
+            'splits': session_results[3],
+            'total': session_results[4],
+            'prev_VO2': avg_vo2,
+            'current_VO2': vo2
+        }
         results['sessions'].append(session_info)
 
     return Response(results)

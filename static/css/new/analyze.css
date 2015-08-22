@@ -14,3 +14,10 @@
 #notifications {
 	margin-top: 20px;
 }
+
+#vo2-collapse { margin-bottom: 20px; }
+.vo2-label { font-size: 0.9em; color: #777;}
+.vo2-score { font-size: 2.5em; }
+.current-vo2 { color: #468847; }
+.prev-vo2 { color: #d58512; }
+.total-vo2 { color: #2e6da4; }

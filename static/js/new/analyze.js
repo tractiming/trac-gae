@@ -46,8 +46,8 @@ google.setOnLoadCallback(function(){
 			switchery = new Switchery(switcheryTarget, { size: 'small', disabled: true });
 
 			//switchery = new Switchery(elem, { size: 'small' });
-			$('#enable-vo2-status').css('color', '#d9534f');
-			$('#enable-vo2-status').html(' VO2 disabled.');
+			//$('#enable-vo2-status').css('color', '#d9534f');
+			//$('#enable-vo2-status').html(' VO2 disabled.');
 
 			// register handler for athlete selection
 			$('.workout-select').prop('disabled', true);
@@ -67,6 +67,8 @@ google.setOnLoadCallback(function(){
 				$('.notification.select-sessions').show();
 
 				// hide VO2 container
+				if ($('#enable-vo2').prop('checked')) 
+					$('.switchery').click();
 				$('#enable-vo2-container').hide();
 				switchery.disable();
 			});
@@ -211,7 +213,14 @@ google.setOnLoadCallback(function(){
 				drawGraph(baseSession, compareSession)
 
 			// get VO2 scores
-			getVO2();
+			$('#base-vo2 .total-vo2').html(baseData.avg_VO2);
+			$('#base-vo2 .prev-vo2').html(baseSession.prev_VO2);
+			$('#base-vo2 .current-vo2').html(baseSession.current_VO2);
+			$('#compare-vo2 .total-vo2').html(compareData.avg_VO2);
+			$('#compare-vo2 .prev-vo2').html(compareSession.prev_VO2);
+			$('#compare-vo2 .current-vo2').html(compareSession.current_VO2);
+			$('#enable-vo2-container').show();
+			switchery.enable();
 		}
 
 		function drawTable(baseSession, compareSession) {
@@ -331,18 +340,6 @@ google.setOnLoadCallback(function(){
 			// hide spinner
 			spinner.stop();
 			$('#spinner').css('height', '');
-		}
-
-		function getVO2() {
-			// don't do anything if user hasn't select workouts to compare
-			if (!$('#base-workout-select').val() || !$('#compare-workout-select').val())
-				return;
-
-			// show switch
-			$('#enable-vo2-container').show();
-
-			// ajax call to get VO2 scores
-			switchery.enable();
 		}
 	});
 });
