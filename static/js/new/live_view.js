@@ -19,6 +19,7 @@ google.setOnLoadCallback(function(){
 				updateHandler, idleHandler,										// interval handlers
 				ajaxRequest, correctionAjaxRequest,						// used to keep track of ajax requests
 				sessionData, sessionType,											// current session data
+				autofinalize = false, 												// <--- change this condition to silence popups
 				resultOffset = 0, currentPage = 1,						// for results pagination
 				correctionData,	numCorrections,								// auto correction data
 				spinner, opts, target, 												// spinner variables
@@ -542,6 +543,7 @@ google.setOnLoadCallback(function(){
 						$('#spinner').css('height', 150);
 						spinner.spin(target);
 						update(currentID, currentView);
+						setBeforeUnload();
 					},
 					error: function(jqXHR, exception) {
 						$('.notification.server-error').show();
@@ -761,6 +763,8 @@ google.setOnLoadCallback(function(){
 
 							// restart updates
 							startUpdates();
+
+							setBeforeUnload();
 						}
 					});
 				} else {		// clicked cancel
@@ -874,6 +878,8 @@ google.setOnLoadCallback(function(){
 
 							// restart updates
 							startUpdates();
+
+							setBeforeUnload();
 						}
 					});
 				} else {		// clicked cancel
@@ -981,6 +987,8 @@ google.setOnLoadCallback(function(){
 
 							// restart updates
 							startUpdates();
+
+							setBeforeUnload();
 						}
 					});
 				} else {		// clicked cancel
@@ -1163,6 +1171,8 @@ google.setOnLoadCallback(function(){
 								// update auto-correction status
 								numCorrections--;
 								$('#num-corrections').html(numCorrections);
+
+								setBeforeUnload();
 							}
 						});
 					} else { console.log(Number(splitTime) + Number(newSplitTime) + ' != ' + Number(prevSplitTime)); }
@@ -1327,6 +1337,8 @@ google.setOnLoadCallback(function(){
 								$('#finalize-body').show();
 
 								$('#finalize-modal').modal('hide');
+
+								window.onbeforeunload = null;
 							}
 						});
 					});
@@ -1344,6 +1356,37 @@ google.setOnLoadCallback(function(){
 				}
 			});
 		});
+
+		// register handler to finalize session before navigating away
+		function setBeforeUnload() {
+			if (autofinalize)
+				window.onbeforeunload = function(e) { automateFinalize(); };
+			else
+				window.onbeforeunload = function(e) { return finalize(e); };
+		}
+		function finalize(event) {
+			var s = 'The current session has not been finalized. Navigating away before doing so may distort analysis results.';
+
+			$('#finalize').click();
+
+			event = event || window.event;
+			if (event) {
+				// This is for IE
+				event.returnValue = s;
+			}
+
+			// This is for all other browsers
+			return s;
+		}
+		function automateFinalize() {
+			$.ajax({
+				method: 'GET',
+				url: 'api/sessions/'+currentID+'/automate_analysis',
+				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				dataType: 'text',
+				success: function(data) {}
+			});
+		}
 
 		//==================================== GRAPH VIEW ====================================
 
@@ -1801,6 +1844,20 @@ google.setOnLoadCallback(function(){
 					$('.calendar-container').off('click','a.fc-day-grid-event');
 					$('.calendar-container').on('click','a.fc-day-grid-event', function(e) {
 						e.preventDefault();
+
+						// finalize before changing session
+						if (window.onbeforeunload) {
+							if (autofinalize) {
+								automateFinalize();
+							} else {
+								e.stopPropagation();
+								$('#calendar-overlay').hide();
+								$('#finalize').click();
+								$('.notification.finalize-warning').show();
+								return;
+							}
+						}
+
 						$('#calendar-overlay').hide();
 
 						// reset canvases and set new session id
@@ -1812,14 +1869,114 @@ google.setOnLoadCallback(function(){
 						currentID = parseInt($(this).attr('href').split('#'));
 						$('#spinner').css('height', 150);
 						spinner.spin(target);
-						update(currentID, currentView);
+						
+						loadCurrentSession();
 					});
 				}
 			});
 		}
 
+		function loadCurrentSession() {
+			// request for new session data
+			if (ajaxRequest)
+				ajaxRequest.abort();
+
+			ajaxRequest = $.ajax({
+				url: '/api/sessions/'+currentID,
+				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				dataType: 'text',
+				success: function(data) {
+					var json = $.parseJSON(data);
+
+					// add heat name
+					$('#results-title').html('Live Results: ' + json.name);
+
+					// hide auto-correction options
+					$('#correction-options').hide();
+
+					$('#spinner').css('height', 150);
+					spinner.spin(target);
+					update(currentID, currentView);
+
+					// update status
+					if (new Date() > new Date(json.stop_time)) {
+						// session is closed
+						$('#results-status>span').html('&#11044;');
+						$('#results-status>span').css('color', '#d9534f');
+						stopUpdates();
+
+						// show options
+						$('#correction-options').show();
+						$('#enable-corrections').prop('checked', false);
+
+						// create switchery checkbox
+						$('#enable-corrections').next('.switchery').remove();
+						switcheryTarget = $('#enable-corrections')[0];
+						switchery = new Switchery(switcheryTarget, { size: 'small', disabled: true });
+
+						//switchery = new Switchery(elem, { size: 'small' });
+						$('#enable-corrections-status').css('color', '#d9534f');
+						$('#enable-corrections-status').html(' Auto-correction disabled.');
+
+						// make ajax call for corrections
+						if (correctionAjaxRequest)
+							correctionAjaxRequest.abort();
+						
+						correctionAjaxRequest = $.ajax({
+							method: 'POST', 
+							url: '/api/analyze/',
+							headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+							dataType: 'json',
+							data: {
+								id: currentID,
+							},
+							success: function(data) {
+								// save data and enable toggle switch
+								correctionData = data;
+								switchery.enable();
+
+								// register handler for correction enabling
+								$('body').off('change', '#enable-corrections');
+								$('body').on('change', '#enable-corrections', function() {
+									toggleCorrections($(this).prop('checked'));
+								});
+							}
+						});
+					} else {
+						// session still active
+						$('#results-status>span').html('&#11044;');
+						$('#results-status>span').css('color', '#5cb85c');
+					}
+
+					// save session data
+					sessionData = json;
+
+					// remove check
+					if (sessionData.is_analyzed)
+						window.onbeforeunload = null;
+					else
+						setBeforeUnload();
+				}
+			});
+		}
+
 		// attach handler for heat menu item click
-		$('body').on('click', 'ul.menulist li a', function(){
+		$('body').on('click', 'ul.menulist li a', function(e){
+			e.preventDefault();
+
+			// finalize before changing session
+			if (window.onbeforeunload) {
+				if (autofinalize) {
+					automateFinalize();
+				} else {
+					e.stopPropagation();
+					$('#menu-btn').click();
+					$('#finalize').click();
+					$('.notification.finalize-warning').show();
+					return;
+				}
+			}
+
 			var value = $(this).html();
 			if (value == 'See More'){
 				sessionFirst += 15;
@@ -1838,81 +1995,7 @@ google.setOnLoadCallback(function(){
 				$('#download-container').hide();
 				currentID = idArray[indexClicked];
 
-				// request for new session data
-				if (ajaxRequest)
-					ajaxRequest.abort();
-
-				ajaxRequest = $.ajax({
-					url: '/api/sessions/'+ currentID,
-					headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-					dataType: 'text',
-					success: function(data) {
-						var json = $.parseJSON(data);
-
-						// add heat name
-						$('#results-title').html('Live Results: ' + json.name);
-
-						// hide auto-correction options
-						$('#correction-options').hide();
-
-						$('#spinner').css('height', 150);
-						spinner.spin(target);
-						update(currentID, currentView);
-
-						// update status
-						if (new Date() > new Date(json.stop_time)) {
-							// session is closed
-							$('#results-status>span').html('&#11044;');
-							$('#results-status>span').css('color', '#d9534f');
-							stopUpdates();
-
-							// show options
-							$('#correction-options').show();
-							$('#enable-corrections').prop('checked', false);
-
-							// create switchery checkbox
-							$('#enable-corrections').next('.switchery').remove();
-							switcheryTarget = $('#enable-corrections')[0];
-							switchery = new Switchery(switcheryTarget, { size: 'small', disabled: true });
-
-							//switchery = new Switchery(elem, { size: 'small' });
-							$('#enable-corrections-status').css('color', '#d9534f');
-							$('#enable-corrections-status').html(' Auto-correction disabled.');
-
-							// make ajax call for corrections
-							if (correctionAjaxRequest)
-								correctionAjaxRequest.abort();
-							
-							correctionAjaxRequest = $.ajax({
-								method: 'POST', 
-								url: '/api/analyze/',
-								headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
-								dataType: 'json',
-								data: {
-									id: currentID,
-								},
-								success: function(data) {
-									// save data and enable toggle switch
-									correctionData = data;
-									switchery.enable();
-
-									// register handler for correction enabling
-									$('body').off('change', '#enable-corrections');
-									$('body').on('change', '#enable-corrections', function() {
-										toggleCorrections($(this).prop('checked'));
-									});
-								}
-							});
-						} else {
-							// session still active
-							$('#results-status>span').html('&#11044;');
-							$('#results-status>span').css('color', '#5cb85c');
-						}
-
-						// save session data
-						sessionData = json;
-					}
-				});
+				loadCurrentSession();
 			}
 		});
 

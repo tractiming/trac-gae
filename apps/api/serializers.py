@@ -100,6 +100,7 @@ class ReaderSerializer(serializers.ModelSerializer):
 class TimingSessionSerializer(serializers.ModelSerializer):
     coach = serializers.Field(source='coach.user.username')
     readers = serializers.RelatedField(many=True, read_only=True)
+    is_analyzed = serializers.BooleanField(source='is_analyzed', read_only=True)
 
     class Meta:
         model = TimingSession

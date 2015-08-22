@@ -148,6 +148,11 @@ class TimingSession(models.Model):
         """Number of unique athletes seen in this workout."""
         return self.splits.values('athlete_id').distinct().count()
 
+    @property
+    def is_analyzed(self):
+        """ Whether this session has been analyzed. """
+        return self.performancerecord_set.count() > 0
+
     def sorted_athlete_list(self, limit, offset):
         """Return IDs of all distinct athletes seen in this workout.
 

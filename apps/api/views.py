@@ -790,6 +790,9 @@ def edit_split(request):
     else:
         return HttpResponse(status.HTTP_404_NOT_FOUND)
 
+    # then delete all saved performance records
+    ts.performancerecord_set.all().delete()
+
     return HttpResponse(status.HTTP_202_ACCEPTED)
     
 #pagination endpoint
