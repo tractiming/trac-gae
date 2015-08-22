@@ -531,66 +531,6 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
         return Response(distanceList, status.HTTP_200_OK)
 
-            #validate distance predictions with coach and update coach table as necessary.
-        #     var = raw_input("Did you run a "+str(selected)+" in "+str(interval-1)+" splits?")
-        #     if var == 'no':
-        #         var2 = raw_input("What was the distance? ")
-        #         if var2 == 'none':
-        #             continue
-        #         else:
-        #             length = int(var2)
-        #             s = cp.performancerecord_set.get(distance = length)
-        #             s.time = (s.time + int_time)/2
-        #             s.save()
-        #             distanceList.append({'Splits': interval-1, 'Distance': length})
-        #     else:
-        #         distanceList.append({'Splits': interval-1, 'Distance': selected})
-
-        # #update each individual runner tables with their own data for distances predicted above.
-        # for runner in r_times:
-        #     return_dict = []
-        #     accumulate_VO2 = 0
-        #     count_VO2 = 0
-        #     accumulate_t_VO2 = 0
-        #     count_t_VO2 = 0
-        #     username = runner['name']
-        #     a_user = User.objects.get(id = username)
-        #     ap = Athlete.objects.get(user = a_user)
-        #     cp.athletes.add(ap)
-        #     for results in runner['results']:
-        #         splits = results['splits']
-        #         times = results['times']
-        #         for distance in distanceList:
-        #             if splits == distance['Splits'] and times != 0:
-        #                 try:
-        #                     r= ap.performancerecord_set.get(distance= distance['Distance'], interval= results['interval'])
-        #                     r.time = (r.time + times)/2
-        #                     velocity = r.distance / (r.time/60)
-        #                     t_velocity = r.distance/ (times/60)
-        #                     t_VO2 = (-4.60 + .182258 * t_velocity + 0.000104 * pow(t_velocity, 2)) / (.8 + .1894393 * pow(2.78, (-.012778 * times/60)) + .2989558 * pow(2.78, (-.1932605 * times/60)))
-        #                     VO2 = (-4.60 + .182258 * velocity + 0.000104 * pow(velocity, 2)) / (.8 + .1894393 * pow(2.78, (-.012778 * r.time/60)) + .2989558 * pow(2.78, (-.1932605 * r.time/60)))
-        #                     VO2 = int(VO2)
-        #                     t_VO2 = int(t_VO2)
-        #                     r.VO2 = VO2
-        #                     r.save()
-        #                 except:
-        #                     velocity = distance['Distance']/ (times/60)
-        #                     VO2 = (-4.60 + .182258 * velocity + 0.000104 * pow(velocity, 2)) / (.8 + .1894393 * pow(2.78, (-.012778 * times/60)) + .2989558 * pow(2.78, (-.1932605 * times/60)))
-        #                     VO2 = int(VO2)
-        #                     t_VO2 = VO2
-        #                     r = PerformanceRecord.objects.create(distance=distance['Distance'], time=times, interval= results['interval'], VO2= VO2)
-        #                 accumulate_t_VO2 += t_VO2
-        #                 count_t_VO2 += 1
-        #                 accumulate_VO2 += VO2
-        #                 count_VO2 += 1
-        #                 ap.performancerecord_set.add(r)
-        #     temp_t_VO2 = accumulate_t_VO2 / count_t_VO2
-        #     temp_VO2 = accumulate_VO2 / count_VO2
-        #     return_dict.append({"runner":runner, "CurrentWorkout":temp_t_VO2, "Average":temp_VO2})
-        # print return_dict
-        # #return auto_edits 
-        # return HttpResponse(status.HTTP_200_OK)
-
     @detail_route(methods=['post'], permission_classes=[])
     def performance_record(self, request, pk=None):
         """
@@ -1190,17 +1130,32 @@ def IndividualTimes(request):
     sessions = [session for session in TimingSession.objects.all() if
                 athlete_id in session.splits.values_list('athlete_id',
                 flat=True).distinct()]
-    results = {'name': name, 'sessions': []} 
+
+    records = PerformanceRecord.objects.filter(athlete__id=athlete_id)
+    vo2_list = records.values_list('VO2', flat=True)
+    avg_vo2 = int(sum(vo2_list) / len(vo2_list)) # cast to int or leave as float?
+
+    results = {'name': name, 'sessions': [], 'avg_VO2': avg_vo2}
 
     #Iterate through each session to get all of a single users workouts
     for session in sessions:
 
         session_results = session.calc_athlete_splits(athlete_id)
+
+        # calculate vo2 up to but not including this session
+        avg_vo2_list = records.filter(timingsession__id__lte=session.id).values_list('VO2', flat=True)
+        avg_vo2 = int(sum(avg_vo2_list) / len(avg_vo2_list))      # cast to int or leave as float?
+
+        # calculate vo2 for this session
+        vo2_list = records.filter(timingsession=session).values_list('VO2', flat=True)
+        vo2 = int(sum(vo2_list) / len(vo2_list))      # cast to int or leave as float?
         session_info = {'id': session.id,
                         'name': session.name,
                         'date': session.start_time,
                         'splits': session_results[3],
-                        'total': session_results[4]
+                        'total': session_results[4],
+                        'prev_VO2': avg_vo2,
+                        'VO2': vo2
                         }
         results['sessions'].append(session_info)
 
@@ -1381,6 +1336,7 @@ def tutorial_limiter(request):
     else:
         return HttpResponse(status.HTTP_403_FORBIDDEN)
 
+# VO2 scores calculated within IndividualTimes. What do I do with thi? 
 @api_view(['GET'])
 @permission_classes((permissions.AllowAny,))
 def VO2Max(request):
