@@ -601,6 +601,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             - type: interval type, either 'i' for interval or 'c' for continuous
         """
         data = request.POST
+        print data
         user = request.user
         c = Coach.objects.get(user=user)
         ts = TimingSession.objects.get(pk=pk)
@@ -612,13 +613,13 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         results = ts.individual_results()
 
         # define start and end split indices
-        intervals = data['intervals']
+        intervals = ast.literal_eval(data['intervals'])
         start = 0
         end = 0
         for interval in intervals:
-            distance = interval['distance']
+            distance = int(interval['distance'])
             interval_type = interval['type']
-            end = start+interval['num_splits']
+            end = start+int(interval['num_splits'])
             min_time = 1000000
             for r in results:
                 # skip incomplete sets
@@ -630,18 +631,16 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                 VO2 = (-4.60 + .182258 * velocity + 0.000104 * pow(velocity, 2)) \
                         / (.8 + .1894393 * pow(2.78, (-.012778 * time/60)) + .2989558 * pow(2.78, (-.1932605 * time/60)))
 
-                pr = PerformanceRecord.objects.create(distance=distance, time=time, interval=interval_type, VO2=VO2)
+                pr = PerformanceRecord.objects.create(timingsession=ts, distance=distance, time=time, interval=interval_type, VO2=VO2)
                 a = Athlete.objects.get(id=r[0])
                 a.performancerecord_set.add(pr)
-                ts.performancerecord_set.add(pr)
 
                 # update min_time for this interval
                 min_time = time if time < min_time else min_time
 
             # save min_time performance record for future reference
-            pr = PerformanceRecord.objects.create(distance=distance, time=min_time)
+            pr = PerformanceRecord.objects.create(timingsession=ts, distance=distance, time=min_time)
             c.performancerecord_set.add(pr)
-            ts.performancerecord_set.add(pr)
 
             # update start split index
             start = end+1

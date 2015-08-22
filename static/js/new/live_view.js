@@ -18,8 +18,7 @@ google.setOnLoadCallback(function(){
 				currentID, currentView,												// used to identify current session and view
 				updateHandler, idleHandler,										// interval handlers
 				ajaxRequest, correctionAjaxRequest,						// used to keep track of ajax requests
-				sessionData, sessionResults,									// current session data
-				intervals,																		// for finalizing session data and analytics
+				sessionData, sessionType,											// current session data
 				resultOffset = 0, currentPage = 1,						// for results pagination
 				correctionData,	numCorrections,								// auto correction data
 				spinner, opts, target, 												// spinner variables
@@ -1206,7 +1205,10 @@ google.setOnLoadCallback(function(){
 			$('#finalize-modal').modal('show');
 			$('.notification').hide();
 
+			$('.notification.finalize-info').show();
+
 			// show spinner
+			$('#finalize-body').hide();
 			$('#spinner-finalize').css('height', 150);
 			spinner.spin(document.getElementById('spinner-finalize'));
 
@@ -1218,8 +1220,7 @@ google.setOnLoadCallback(function(){
 				success: function(data) {
 					data = $.parseJSON(data);
 
-					// save estimations
-					intervals = data;
+					sessionType = data[0].type;
 
 					$('#interval-list').empty();
 					$('#interval-list').append(
@@ -1228,6 +1229,7 @@ google.setOnLoadCallback(function(){
 								'<th style="text-align:center;">#</th>' +
 								'<th style="text-align:center;">Distance</th>' +
 								'<th style="text-align:center;">Splits</th>' +
+								'<th style="display:none;"></th>' +
 								'<th></th>' +
 							'</tr>' +
 						'</thead>' +
@@ -1243,6 +1245,7 @@ google.setOnLoadCallback(function(){
 								'<td width="20px">'+ (i+1) +'</td>' +
 								'<td><div class="center"><input type="text" class="form-control numeric-input"></div></td>' +
 								'<td><div class="center"><input type="text" class="form-control numeric-input"></div></td>' +
+								'<td style="display:none;">'+sessionType+'</td>' +
 								'<td width="10px"><span class="remove-interval glyphicon glyphicon-remove" aria-hidden="true"></span></td>' +
 							'</tr>'
 						);
@@ -1277,14 +1280,68 @@ google.setOnLoadCallback(function(){
 								'<td width="20px">'+ ($('#interval-list tbody tr').length+1) +'</td>' +
 								'<td><div class="center"><input type="text" class="form-control numeric-input" placeholder="Distance"></div></td>' +
 								'<td><div class="center"><input type="text" class="form-control numeric-input" placeholder="Splits"></div></td>' +
+								'<td style="display:none;">'+sessionType+'</td>' +
 								'<td width="10px"><span class="remove-interval glyphicon glyphicon-remove" aria-hidden="true"></span></td>' +
 							'</tr>'
 						);
 					});
 
+					// attach handler for button clicks
+					$('body').off('click', '#finalize-confirm');
+					$('body').on('click', '#finalize-confirm', function(e) {
+						e.preventDefault();
+						
+						// create JSON to send to backend
+						var data = {}, intervals = [];
+						var rows = $('#interval-list tbody tr');
+						for (var i=0; i<rows.length; i++) {
+							var row = $(rows[i]);
+							var distance = $(row.children()[1]).find('input').val(),
+									numSplits = $(row.children()[2]).find('input').val(),
+									intervalType = $(row.children()[3]).html();
+
+							intervals.push({
+								distance: distance,
+								num_splits: numSplits,
+								type: intervalType
+							});
+						}
+						
+						// show spinner
+						$('#finalize-body').hide();
+						$('#spinner-finalize').css('height', 150);
+						spinner.spin(document.getElementById('spinner-finalize'));
+
+						// post to backend
+						$.ajax({
+							method: 'POST',
+							url: 'api/sessions/'+currentID+'/performance_record/',
+							headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+							data: {
+								intervals: JSON.stringify(intervals)
+							},
+							dataType: 'json',
+							success: function() {
+								// hide spinner
+								$('#spinner-finalize').css('height', '');
+								spinner.stop();
+								$('#finalize-body').show();
+
+								$('#finalize-modal').modal('hide');
+							}
+						});
+					});
+
+					$('body').off('click', '#finalize-cancel');
+					$('body').on('click', '#finalize-cancel', function(e) {
+						e.preventDefault();
+						$('#finalize-modal').modal('hide');
+					});
+
 					// hide spinner
 					$('#spinner-finalize').css('height', '');
 					spinner.stop();
+					$('#finalize-body').show();
 				}
 			});
 		});
