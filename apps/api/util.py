@@ -45,6 +45,9 @@ def create_split(reader_str, tag_str, time):
     return 0
 
 def estimate_intervals(session):
+    """
+    Estimates intervals run with distance and number of splits in each interval
+    """
     run = session.individual_results()
     dataList = []
     for r in run:

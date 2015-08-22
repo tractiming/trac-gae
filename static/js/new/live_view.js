@@ -1380,10 +1380,11 @@ google.setOnLoadCallback(function(){
 		}
 		function automateFinalize() {
 			$.ajax({
-				method: 'GET',
+				method: 'POST',
 				url: 'api/sessions/'+currentID+'/automate_performance_record',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'text',
+				async: false,
 				success: function(data) {}
 			});
 		}
