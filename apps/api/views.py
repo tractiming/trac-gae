@@ -32,7 +32,7 @@ from serializers import (RegistrationSerializer, AthleteSerializer,TagSerializer
 from trac.models import (TimingSession, Athlete, Coach, Tag, Reader, Split,
                          Team, PerformanceRecord)
 from trac.util import is_athlete, is_coach
-from util import create_split
+from util import *
 from settings.common import PAYPAL_RECEIVER_EMAIL
 from paypal.standard.models import ST_PP_COMPLETED
 from paypal.standard.ipn.signals import valid_ipn_received, invalid_ipn_received
@@ -492,7 +492,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
     #@api_view(['POST'])
     #@permission_classes((permissions.AllowAny,))
     @detail_route(methods=['get'], permission_classes=[])
-    def estimate_intervals(self, request, pk=None):
+    def estimated_intervals(self, request, pk=None):
         """
         Estimates intervals with distance and number of splits run.
         """
@@ -500,39 +500,13 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         #SETUP and parse dataList
         user = request.user
         ts = TimingSession.objects.get(pk=pk)
-        run = ts.individual_results()
-        dataList = []
-        for r in run:
-            times = r[3]
-            for index, item in enumerate(times):
-                times[index] = float(item)
-            id = r[0]
-            dataList.append({'id': id, 'times': times})
+        
+        intervals = estimate_intervals(ts)
 
-        #Analysis split_times is distance prediction, r_times is individual runner times, and r_dicts is auto_edit dictionary
-        split_times, r_times = stats.calculate_distance(dataList)
-
-        #Interpolate split_times to data in coach's table.
-        #Predict the distance run.
-        cp = Coach.objects.get(user=user)
-        distances = cp.performancerecord_set.values_list('distance',flat=True).distinct()
-        distanceList = []
-        for s in split_times:
-            int_time = s['time']
-            time_delta = 1000000
-            for d in distances:
-                pr_set = cp.performancerecord_set.filter(distance=d)
-                avg_time = sum(pr_set.values_list('time',flat=True)) / pr_set.count()
-                if abs(int_time-avg_time) < time_delta:
-                    time_delta = abs(int_time-avg_time)
-                    distance = d
-
-            distanceList.append({'num_splits': s['num_splits'], 'distance': distance, 'type': s['type']})
-
-        return Response(distanceList, status.HTTP_200_OK)
+        return Response(intervals, status.HTTP_200_OK)
 
     @detail_route(methods=['post'], permission_classes=[])
-    def performance_record(self, request, pk=None):
+    def update_performance_records(self, request, pk=None):
         """
         Creates or updates the PerformanceRecord objects pertaining to this
         workout. POST data is a list of objects in the following format:
@@ -542,47 +516,22 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         """
         data = request.POST
         user = request.user
-        c = Coach.objects.get(user=user)
+        ts = TimingSession.objects.get(pk=pk)
+        intervals = ast.literal_eval(data['intervals'])
+
+        record_performance(ts, intervals)
+
+        return HttpResponse(status.HTTP_202_ACCEPTED)
+
+    @detail_route(methods=['post'], permission_classes=[])
+    def automate_performance_record(self, request, pk=None):
+        """
+        Automatically estimates intervals run in the session and updates the 
+        associated PerformanceRecord objects
+        """
         ts = TimingSession.objects.get(pk=pk)
 
-        # remove old records
-        PerformanceRecord.objects.filter(timingsession=ts).delete()
-
-        # get session results
-        results = ts.individual_results()
-
-        # define start and end split indices
-        intervals = ast.literal_eval(data['intervals'])
-        start = 0
-        end = 0
-        for interval in intervals:
-            distance = int(interval['distance'])
-            interval_type = interval['type']
-            end = start+int(interval['num_splits'])
-            min_time = 1000000
-            for r in results:
-                # skip incomplete sets
-                if end > len(r[3]):
-                    continue
-
-                time = round(sum(r[3][start:end]), 3)
-                velocity = distance / (time/60)
-                VO2 = (-4.60 + .182258 * velocity + 0.000104 * pow(velocity, 2)) \
-                        / (.8 + .1894393 * pow(2.78, (-.012778 * time/60)) + .2989558 * pow(2.78, (-.1932605 * time/60)))
-
-                pr = PerformanceRecord.objects.create(timingsession=ts, distance=distance, time=time, interval=interval_type, VO2=VO2)
-                a = Athlete.objects.get(id=r[0])
-                a.performancerecord_set.add(pr)
-
-                # update min_time for this interval
-                min_time = time if time < min_time else min_time
-
-            # save min_time performance record for future reference
-            pr = PerformanceRecord.objects.create(timingsession=ts, distance=distance, time=min_time)
-            c.performancerecord_set.add(pr)
-
-            # update start split index
-            start = end+1
+        record_performance(ts, estimate_intervals(ts))
 
         return HttpResponse(status.HTTP_202_ACCEPTED)
 

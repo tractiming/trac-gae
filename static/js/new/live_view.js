@@ -1223,7 +1223,7 @@ google.setOnLoadCallback(function(){
 
 			$.ajax({
 				method: 'GET',
-				url: 'api/sessions/'+currentID+'/estimate_intervals',
+				url: 'api/sessions/'+currentID+'/estimated_intervals',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
@@ -1324,7 +1324,7 @@ google.setOnLoadCallback(function(){
 						// post to backend
 						$.ajax({
 							method: 'POST',
-							url: 'api/sessions/'+currentID+'/performance_record/',
+							url: 'api/sessions/'+currentID+'/update_performance_records/',
 							headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
 							data: {
 								intervals: JSON.stringify(intervals)
@@ -1381,7 +1381,7 @@ google.setOnLoadCallback(function(){
 		function automateFinalize() {
 			$.ajax({
 				method: 'GET',
-				url: 'api/sessions/'+currentID+'/automate_analysis',
+				url: 'api/sessions/'+currentID+'/automate_performance_record',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'text',
 				success: function(data) {}
