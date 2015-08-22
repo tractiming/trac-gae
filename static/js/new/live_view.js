@@ -407,7 +407,6 @@ google.setOnLoadCallback(function(){
 				dataType: 'text',
 				success: function(data) {
 					data = $.parseJSON(data);
-					console.log(data);
 
 					if (data.length === 0) {
 						// disable select
@@ -1373,9 +1372,8 @@ google.setOnLoadCallback(function(){
 					'<label class="checkbox"><input type="checkbox" id="all" value="" checked>All</label>'
 				);
 
-			for (var i=0; i<results.length; i++) {
-				
-			}
+			//for (var i=0; i<results.length; i++) {
+			//}
 
 			// show results
 			$('#results-graph').show();

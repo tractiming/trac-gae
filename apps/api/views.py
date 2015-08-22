@@ -541,7 +541,6 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             - type: interval type, either 'i' for interval or 'c' for continuous
         """
         data = request.POST
-        print data
         user = request.user
         c = Coach.objects.get(user=user)
         ts = TimingSession.objects.get(pk=pk)
