@@ -504,6 +504,7 @@ class PerformanceRecord(models.Model):
             name = ''
         return "user=%s" %(name)
 
+'''
 class CoachPayment(models.Model):
     payment_date = models.DateTimeField()
     accum_charge = models.FloatField()
@@ -512,3 +513,4 @@ class CoachPayment(models.Model):
     def __unicode__(self):
         name = self.coach.user.username
         return "coach=%s date=%d charge=%.2f" %(name, self.payment_date, self.accum_charge)
+'''
