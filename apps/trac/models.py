@@ -503,3 +503,12 @@ class PerformanceRecord(models.Model):
         else:
             name = ''
         return "user=%s" %(name)
+
+class CoachPayment(models.Model):
+    payment_date = models.DateTimeField()
+    accum_charge = models.FloatField()
+    coach = models.ForeignKey(Coach, null=True)
+
+    def __unicode__(self):
+        name = self.coach.user.username
+        return "coach=%s date=%d charge=%.2f" %(name, self.payment_date, self.accum_charge)

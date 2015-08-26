@@ -30,7 +30,7 @@ from serializers import (RegistrationSerializer, AthleteSerializer,TagSerializer
                          ScoringSerializer, TeamSerializer)
 
 from trac.models import (TimingSession, Athlete, Coach, Tag, Reader, Split,
-                         Team, PerformanceRecord)
+                         Team, PerformanceRecord, CoachPayment)
 from trac.util import is_athlete, is_coach
 from util import create_split
 from settings.common import PAYPAL_RECEIVER_EMAIL
@@ -899,7 +899,7 @@ def get_info(request):
         email = user.email
     except:
         email = ""
-    result = {'org': user.groups.get(id=1).name, 'name': user.username, 'email': email}
+    result = {'org': 'New Group', 'name': user.username, 'email': email}
     return Response(result, status.HTTP_200_OK)
 
 # TODO: Move to athletes endpoint.
@@ -1000,8 +1000,7 @@ def upload_workouts(request):
                 #client = Client(user=user, name=name, url=''+name,
                 #        client_id=name, client_secret='', client_type=1)
                 #client.save()
-            
-            tags = Tag.objects.filter(athlete=athlete)
+            tags = Tag.objects.filter(athlete=new_user.athlete)
             if tags:
                 tag = tags[0]
             else:
@@ -1020,7 +1019,7 @@ def upload_workouts(request):
 
                 time += diff
 
-                tt = Split.objects.create(tag_id=tag.id, athlete_id=athlete.id, time=time, reader_id=reader.id)
+                tt = Split.objects.create(tag_id=tag.id, athlete_id=new_user.athlete.id, time=time, reader_id=reader.id)
                 ts.splits.add(tt.pk)
 
     return HttpResponse(status.HTTP_201_CREATED)
@@ -1107,48 +1106,30 @@ def tutorial_limiter(request):
     else:
         return HttpResponse(status.HTTP_403_FORBIDDEN)
 
-@api_view(['GET'])
+@api_view(['POST'])
 @permission_classes((permissions.AllowAny,))
 def VO2Max(request):
     user = request.user
-    if is_coach(user):
-        result = []
-        cp = Coach.objects.get(user = user)
-        for athlete in cp.athletes.all():
-            sum_VO2 = 0
-            count = 0
-            for entry in athlete.performancerecord_set.all():
-                sum_VO2 += entry.VO2
-                count += 1
-            try:
-                avg_VO2 = sum_VO2 / count
-                if entry.interval == 'i':
-                    avg_VO2 = avg_VO2 / .9
-                else:
-                    avg_VO2 = avg_VO2 / .8
-                avg_VO2 = int(avg_VO2)
-                vVO2 = 2.8859 + .0686 * (avg_VO2 - 29)
-                vVO2 = vVO2 / .9
-            except:
-                avg_VO2 = 'None'
-                vVO2 = 1
-            #print athlete
-            #print 'VO2: ' + str(avg_VO2)
-            #print 'vVO2: ' + str(vVO2)
-            #print '100m: ' + str(100/vVO2)
-            #print '200m: ' + str(200/vVO2)
-            #print '400m: ' + str(400/vVO2)
-            #print '800m: ' + str(800/vVO2)
-            #print '1000m: ' + str(1000/vVO2)
-            #print '1500m: ' + str(1500/vVO2)
-            #print '1600m: ' + str(1609/vVO2)
-            #print '3000m: ' + str(3000/vVO2)
-            #print '5000m: ' + str(5000/vVO2)
-            #print '10000m: ' + str(10000/vVO2)
-    elif is_athlete(user):
-        ap = Athlete.objects.get(user = user)
-
-    return HttpResponse(status.HTTP_200_OK)
+    result = []
+    VO2 = 0
+    workout_VO2 = 0
+    VO2_count = 0
+    ap = Athlete.objects.get(id=request.POST.get('athlete'))
+    for row in ap.performancerecord_set.all():
+        times = row.time
+        velocity = row.distance / (row.time/60)
+        VO2 += (-4.60 + .182258 * velocity + 0.000104 * pow(velocity, 2)) / (.8 + .1894393 * pow(2.78, (-.012778 * times/60)) + .2989558 * pow(2.78, (-.1932605 * times/60)))
+        workout_VO2 += row.VO2
+        VO2_count += 1
+    if VO2_count == 0:
+        VO2_count = 1
+    VO2 = VO2 / VO2_count
+    VO2 = int(VO2/.9)
+    workout_VO2 = workout_VO2 / VO2_count
+    workout_VO2 = int(workout_VO2/.9)
+    result.append(VO2)
+    result.append(workout_VO2)
+    return Response(result, status.HTTP_200_OK)
 
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))
@@ -1180,27 +1161,23 @@ def analyze(request):
 @csrf_exempt
 def subscription(request):
     user = request.user
-    r = Reader.objects.filter(coach=user.coach)
-    num_readers = len(r)
-    price = float(25 * num_readers)
+    counter = 0
+    cp = Coach.objects.get(user = user)
+    for ts in cp.timingsession_set.all():
+        for split in ts.splits.all():
+            counter += 1
+    price = counter * .0025
+    enc_u = base64.urlsafe_b64encode(force_bytes(user.username))
     paypal_dict = {
-        "cmd": "_xclick-subscriptions",
-        "business": "GriffinKelly2013-facilitator@gmail.com",
-        "rm": "2",
-        "a3": "25.00",
-        "p3": "1",
-        "t3": "M",
-        "src": "1",
-        "sra": "1",
-        "no_note": "1",
-        "test_ipn": "1",
-        "payer_id": user.username,
+        "business": "GriffinKelly2013@gmail.com",
+        "amount": "25.00",
+        "custom": enc_u,
         "item_name": "TRAC DATA",
         "notify_url": "https://trac-us.appspot.com/api/notify/",
         "return_url": "https://trac-us.appspot.com/home/",
         "cancel_return": "https://trac-us.appspot.com/home/",
     }
-    form = PayPalPaymentsForm(initial=paypal_dict, button_type="subscribe")
+    form = PayPalPaymentsForm(initial=paypal_dict)
     context = {"form": form}
     return render(request, "payment.html", context)
 
@@ -1216,6 +1193,7 @@ def est_distance(request):
     idx = request.POST.get('id')
     ts = TimingSession.objects.get(id = idx)
     run = ts.individual_results()
+    result = []
     dataList = []
     for r in run:
         times = r[3]
@@ -1231,7 +1209,6 @@ def est_distance(request):
     #Predict the distance run.
     cp = Coach.objects.get(user=user)
     r = cp.performancerecord_set.all()
-    distanceList = []
     for interval in split_times.keys():
         int_time = split_times[interval]
         time_delta = 1000000
@@ -1239,64 +1216,73 @@ def est_distance(request):
             if abs(int_time-row.time) < time_delta:
                 time_delta = abs(int_time-row.time)
                 selected = row.distance
+        result.append({'distance':selected, 'splits': interval-1})
+    return Response(result, status.HTTP_200_OK)
 
-        #validate distance predictions with coach and update coach table as necessary.
-        var = raw_input("Did you run a "+str(selected)+" in "+str(interval-1)+" splits?")
-        if var == 'no':
-            var2 = raw_input("What was the distance? ")
-            if var2 == 'none':
-                continue
-            else:
-                length = int(var2)
-                s = cp.performancerecord_set.get(distance = length)
-                s.time = (s.time + int_time)/2
-                s.save()
-                distanceList.append({'Splits': interval-1, 'Distance': length})
-        else:
-            distanceList.append({'Splits': interval-1, 'Distance': selected})
+@api_view(['POST'])
+@login_required
+@permission_classes((permissions.AllowAny,))
+def fill_performance_record(request):
+    #validate distance predictions with coach and update coach table as necessary.
 
-    #update each individual runner tables with their own data for distances predicted above.
+    user = request.user
+    cp = Coach.objects.get(user=user)
+    idx = request.POST.get('id')
+    flag = request.POST.get('flag')
+    ts = TimingSession.objects.get(id = idx)
+    run = ts.individual_results()
+    distances = [ dict(y.split(':') for y in x.split(',')) for x in request.POST.get('splits').split('|')]
+    distanceList = []
+    for interval in distances:
+        split = int(interval['splits'])
+        distance = int(interval['distance'])
+        distanceList.append({'Splits': split, 'Distance': distance})
+
+    dataList = []
+    for r in run:
+        times = r[3]
+        for index, item in enumerate(times):
+            times[index] = float(item)
+        name = r[0]
+        dataList.append({'name': name, 'times': times})
+
+    split_times, r_times = stats.calculate_distance(dataList)
+
+#update each individual runner tables with their own data for distances predicted above.
     for runner in r_times:
-        return_dict = []
-        accumulate_VO2 = 0
-        count_VO2 = 0
-        accumulate_t_VO2 = 0
-        count_t_VO2 = 0
-        username = runner['name']
-        a_user = User.objects.get(id = username)
-        ap = Athlete.objects.get(user = a_user)
-        cp.athletes.add(ap)
+        id = runner['name']
+        ap = Athlete.objects.get(id = id)
+        team = cp.team_set.all()[0]
+        ap.team = team
+        ap.save()
         for results in runner['results']:
             splits = results['splits']
             times = results['times']
+            count = 0
             for distance in distanceList:
                 if splits == distance['Splits'] and times != 0:
-                    try:
-                        r= ap.performancerecord_set.get(distance= distance['Distance'], interval= results['interval'])
-                        r.time = (r.time + times)/2
-                        velocity = r.distance / (r.time/60)
-                        t_velocity = r.distance/ (times/60)
-                        t_VO2 = (-4.60 + .182258 * t_velocity + 0.000104 * pow(t_velocity, 2)) / (.8 + .1894393 * pow(2.78, (-.012778 * times/60)) + .2989558 * pow(2.78, (-.1932605 * times/60)))
-                        VO2 = (-4.60 + .182258 * velocity + 0.000104 * pow(velocity, 2)) / (.8 + .1894393 * pow(2.78, (-.012778 * r.time/60)) + .2989558 * pow(2.78, (-.1932605 * r.time/60)))
-                        VO2 = int(VO2)
-                        t_VO2 = int(t_VO2)
-                        r.VO2 = VO2
+                    if flag == 'predict distance':
+                        try:
+                            r= ap.performancerecord_set.get(distance= distance['Distance'], interval= results['interval'])
+                            r.time = (r.time + times)/2
+                            r.save()
+                        except:
+                            r = PerformanceRecord.objects.create(distance=distance['Distance'], time=times, interval= results['interval'])
+                        ap.performancerecord_set.add(r)
+                    elif flag == 'get workout VO2':
+                        time = times
+                        velocity = distance['Distance'] / (time/60)
+                        VO2 = (-4.60 + .182258 * velocity + 0.000104 * pow(velocity, 2)) / (.8 + .1894393 * pow(2.78, (-.012778 * time/60)) + .2989558 * pow(2.78, (-.1932605 * time/60)))
+                        if count != 0:
+                            r = ap.performancerecord_set.get(distance= distance['Distance'], interval = results['interval'])
+                            r.VO2 = VO2
+                        else:
+                            for r in ap.performancerecord_set.all():
+                                r.VO2 = VO2
+                        print ap.user.first_name
+                        print int(VO2/.9)
                         r.save()
-                    except:
-                        velocity = distance['Distance']/ (times/60)
-                        VO2 = (-4.60 + .182258 * velocity + 0.000104 * pow(velocity, 2)) / (.8 + .1894393 * pow(2.78, (-.012778 * times/60)) + .2989558 * pow(2.78, (-.1932605 * times/60)))
-                        VO2 = int(VO2)
-                        t_VO2 = VO2
-                        r = PerformanceRecord.objects.create(distance=distance['Distance'], time=times, interval= results['interval'], VO2= VO2)
-                    accumulate_t_VO2 += t_VO2
-                    count_t_VO2 += 1
-                    accumulate_VO2 += VO2
-                    count_VO2 += 1
-                    ap.performancerecord_set.add(r)
-        temp_t_VO2 = accumulate_t_VO2 / count_t_VO2
-        temp_VO2 = accumulate_VO2 / count_VO2
-        return_dict.append({"runner":runner, "CurrentWorkout":temp_t_VO2, "Average":temp_VO2})
-    print return_dict
+
     #return auto_edits 
     return HttpResponse(status.HTTP_200_OK)
 
@@ -1317,9 +1303,10 @@ def ipnListener(sender, **kwargs):
     ipn_obj = sender
     if ipn_obj.payment_status == ST_PP_COMPLETED:
         # Undertake some action depending upon `ipn_obj`.
-        user = ipn_obj.payer_id
+        user = ipn_obj.custom
         try:
-            uu = User.objects.get(username = user)
+            username = base64.urlsafe_b64decode(user.encode('utf-8'))
+            uu = User.objects.get(username = username)
             cp = Coach.objects.get(user = uu)
             cp.payment = 'completed'
             cp.save()
@@ -1327,5 +1314,3 @@ def ipnListener(sender, **kwargs):
             pass
 
 valid_ipn_received.connect(ipnListener)
-invalid_ipn_received.connect(ipnListener)
-

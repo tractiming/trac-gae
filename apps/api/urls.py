@@ -47,6 +47,7 @@ urlpatterns = [
         url(r'^change_password/$', views.change_password),
         url(r'^send_email/$', views.send_email),
         url(r'^tutorial_limiter/$',views.tutorial_limiter),
+        url(r'^fill_record/$', views.fill_performance_record),
         url(r'^VO2Max/$', views.VO2Max),
         url(r'^est_distance/$', views.est_distance),
         url(r'^analyze/$', views.analyze),
