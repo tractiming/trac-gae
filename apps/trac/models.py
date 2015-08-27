@@ -362,7 +362,11 @@ class TimingSession(models.Model):
         athlete_ids = self.splits.values_list('athlete_id', flat=True).distinct()
         for athlete_id in athlete_ids:
             self.clear_cache(athlete_id)
-        self.splits.all().delete()
+
+        # Clear the link between split and session. Only delete the split if it
+        # does not belong to any other sessions.
+        self.splits.clear()
+        Split.objects.filter(timingsession=None).delete()
 
     def clear_cache(self, athlete_id):
         """Clear the session's cached results for a single tag."""
@@ -478,7 +482,7 @@ def delete_tag_times(sender, instance, using, **kwargs):
     """
     Delete all Split objects associated with this TimingSession prior to deletion.
     """
-    instance.splits.all().delete()
+    instance.clear_results()
 
 
 class PerformanceRecord(models.Model):
