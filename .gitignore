@@ -32,7 +32,6 @@ bin/
 migrations/
 *.sqlite3
 env/
-fixtures/
 
 build/
 .gaedata/

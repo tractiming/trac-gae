@@ -372,6 +372,7 @@ class TimingSession(models.Model):
         """Clear the session's cached results for a single tag."""
         cache.delete(('ts_%i_athlete_%i_results' %(self.id, athlete_id)))   
 
+    # TODO: Move to utils.
     def _delete_split(self, tag_id, split_indx):
         """
         Delete a result from the array of splits. The runner is identified by
@@ -399,6 +400,7 @@ class TimingSession(models.Model):
             tt[i].time = tt[i].time-offset_ms
             tt[i].save()
 
+    # TODO: Move to utils.
     def _insert_split(self, tag_id, split_indx, val, shift):
         """
         Insert a new split into the array before the given index.
@@ -439,6 +441,7 @@ class TimingSession(models.Model):
         self.splits.add(nt.pk)
         self.save()
 
+    # TODO: Move to utils.
     def _edit_split(self, tag_id, split_indx, val):
         """
         Change the value of a split in the list of results. The split index
@@ -451,7 +454,7 @@ class TimingSession(models.Model):
         self._delete_split(tag_id, split_indx)
         self._insert_split(tag_id, split_indx, val, True)
 
-    # FIXME
+    # TODO: Move to utils.
     def _overwrite_final_time(self, tag_id, hr, mn, sc, ms):
         """
         Force a final time for the given tag id. This will delete all existing
