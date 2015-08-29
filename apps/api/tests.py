@@ -2,7 +2,8 @@ from django.test import TestCase
 from django.utils import timezone
 from django.core.urlresolvers import reverse
 import mock
-from trac.models import *
+from trac.models import User, TimingSession
+#import trac.models
 from api.views import *
 from rest_framework.test import APITestCase
 from provider.oauth2.models import Client, AccessToken
@@ -10,33 +11,55 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 
 
 
-class TagViewSetTestCase(APITestCase):
+class TagViewSetTest(APITestCase):
 
     fixtures = ['trac_min.json']
 
-
-    def test_get_queryset(self):
-        #url = reverse('api/tags')
-        #self.client.force_authenticate(user=User.objects.get(username='alsal'))
-        #resp = self.client.get('/tags/1')
-        #resp = TagViewSet(self.client)
-        #print resp.data
-        print(Tag.objects.all())
-        factory = APIRequestFactory()
-        request = factory.get('/api/tags', '', content_type='application/json')
+    def test_get_tags_coach(self):
+        """Test that a coach can view all his athletes' tags."""
         user = User.objects.get(username='alsal')
-        view = TagViewSet.as_view(actions={'get': 'retrieve'})
-        #self.client.force_authenticate(user=user)
-        #resp = self.client.get('/api/tags/1/', format='json')
-        #print(resp)
-        #import pdb; pdb.set_trace()
-        #request = factory.get('/api/tags/')
-        #force_authenticate(request, user=user)
-        print user.is_authenticated
-        request.user = user
-        response = view(request)
-        print response.data
+        self.client.force_authenticate(user=user)
+        resp = self.client.get('/api/tags/', format='json')
+        self.assertEqual(len(resp.data), 2)
+        self.assertEqual(resp.data[0]['id'], 1)
+        self.assertEqual(resp.data[1]['id'], 2)
+    
+    def test_get_tags_athlete(self):
+        """Test an athlete can only view his tags."""
+        user = User.objects.get(username='grupp')
+        self.client.force_authenticate(user=user)
+        resp = self.client.get('/api/tags/', format='json')
+        self.assertEqual(len(resp.data), 1)
+        self.assertEqual(resp.data[0]['id'], 1)
 
 
-    def test_something(self):
+class AthleteViewSetTest(APITestCase):
+
+    fixtures = ['trac_min.json']
+
+    def test_get_athletes_coach(self):
+        """Test that a coach can view all his athletes."""
         pass
+
+    def test_get_athletes_athlete(self):
+        """Test an athlete can only view himself."""
+        pass
+
+    def test_pre_save(self):
+        """Test that a user is created before the athlete is."""
+        pass
+
+
+class TimingSessionViewSetTest(APITestCase):
+
+    fixtures = ['trac_min.json']
+
+    @mock.patch('trac.models.TimingSession')
+    def test_individual_results(self, mock_session):
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.get('/api/sessions/1/individual_results/', format='json')
+        #mock_session.objects.get.assert_called_with(pk=1)
+
+
+
