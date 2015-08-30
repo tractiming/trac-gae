@@ -81,6 +81,12 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
+# If running on appengine, include appstats.
+if getenv('SERVER_SOFTWARE', '').startswith('Google App Engine'):
+    MIDDLEWARE_CLASSES = (
+        ('google.appengine.ext.appstats.recording.AppStatsDjangoMiddleware',)+
+        MIDDLEWARE_CLASSES)
+
 ##############################################
 REST_FRAMEWORK = {
         'DEFAULT_PERMISSION_CLASSES': (
@@ -145,7 +151,7 @@ else:
         dbn = 'tracdb'
 
         # Uncomment the next line to force sqlite, even if mysql is configured.
-        #raise MySQLdb.Error
+        raise MySQLdb.Error
 
         db = MySQLdb.connect(host=host, user=user, db=dbn)
         db.close()
