@@ -30,5 +30,4 @@ script:
 after_success:
   - >
     if [ "$BRANCH" == "master" ] && [ "$PULL_REQUEST" = false ];
-    then echo "$GAE_PASSWORD" | $GAE_DIR/google_appengine/appcfg.py
-    -e "$GAE_EMAIL" --passin update .; fi
+    then echo "ok to deploy"; fi
