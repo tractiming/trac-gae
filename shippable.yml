@@ -5,16 +5,7 @@ python:
 
 env:
   global:
-    - GAE_DIR=/tmp/gae
     - SETTINGS_MODE=test
-    - secure: v5n3ENjzbv4l81wcgGOfJiOwLjg+3GUdj/rCwEFByLHR1YrIQl4FQ5cHX3ucYDp0Ud9KC0XRdsGLHgeMcrAYuijpBERUZbx50BTcsJu59G0PQNIseZLS5NNmfMH/6nCcsQcsSje+263OnYqNLEopPaYg0cf144Ivzi5ZVI1/nTznv08HNYL3VMzRSPqdnIg2iEHx2CN0Ck9ypZYV49Zm5SV6Sk9mrwjsvn7KCsAd7Zfg4kEr8R9+PIuCeyQVgvE9ktHSfgBavsHrjDPim+y/SiFKmeYnkrSlPcy/SZd63EbE0AWoE85MfegAedoBI38C+z/YDmHYuIA1hYsib9CfRA==
-
-before_install:
-  - >
-    test -e $GAE_DIR ||
-    (mkdir -p $GAE_DIR &&
-     wget https://storage.googleapis.com/appengine-sdks/featured/google_appengine_1.9.25.zip -q -O /tmp/gae.zip &&
-     unzip /tmp/gae.zip -d $GAE_DIR)
 
 install:
   - pip install -r requirements.txt
