@@ -141,6 +141,17 @@ elif getenv('SETTINGS_MODE') == 'prod':
                 'ATOMIC_REQUESTS': True,
             }
     }
+
+elif getenv('SETTINGS_MODE') == 'test':
+    # Running in testing. Use the shippable settings.
+    DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.mysql',
+                'NAME': 'test',
+                'USER': 'shippable',
+            }
+    }
+
 else:
     # Running in development. Try to use a mysql db if one exists on the
     # system, otherwise use a sqlite db.

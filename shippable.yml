@@ -6,6 +6,7 @@ python:
 env:
   global:
     - GAE_DIR=/tmp/gae
+    - SETTINGS_MODE=test
 
 before_install:
   - >
@@ -20,9 +21,7 @@ install:
 before_script:
   - mkdir -p shippable/testresults
   - mkdir -p shippable/codecoverage
-  - mysql -e "create database tracdb;"
-  - mysql -e "create user 'trac'@'localhost';"
-  - mysql -e "grant all privileges on tracdb.* to 'trac'@'localhost';"
+  - mysql -e 'create database test;'
 
 script:
   - python manage.py test trac
