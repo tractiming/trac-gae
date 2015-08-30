@@ -7,6 +7,7 @@ env:
   global:
     - GAE_DIR=/tmp/gae
     - SETTINGS_MODE=test
+    - secure: v5n3ENjzbv4l81wcgGOfJiOwLjg+3GUdj/rCwEFByLHR1YrIQl4FQ5cHX3ucYDp0Ud9KC0XRdsGLHgeMcrAYuijpBERUZbx50BTcsJu59G0PQNIseZLS5NNmfMH/6nCcsQcsSje+263OnYqNLEopPaYg0cf144Ivzi5ZVI1/nTznv08HNYL3VMzRSPqdnIg2iEHx2CN0Ck9ypZYV49Zm5SV6Sk9mrwjsvn7KCsAd7Zfg4kEr8R9+PIuCeyQVgvE9ktHSfgBavsHrjDPim+y/SiFKmeYnkrSlPcy/SZd63EbE0AWoE85MfegAedoBI38C+z/YDmHYuIA1hYsib9CfRA==
 
 before_install:
   - >
@@ -27,4 +28,7 @@ script:
   - python manage.py test trac
 
 after_success:
-  - if [ "$BRANCH" == "master" ]; then $GAE_DIR/google_appengine/appcfg.py update .; fi
+  - >
+    if [ "$BRANCH" == "master" ] && [[ -z "$PULL_REQUEST" ]];
+    then echo "$GAE_PASSWORD" | $GAE_DIR/google_appengine/appcfg.py
+    -e "$GAE_EMAIL" --passin update .; fi
