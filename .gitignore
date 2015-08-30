@@ -29,7 +29,6 @@
 bin/
 
 # Django
-migrations/
 *.sqlite3
 env/
 

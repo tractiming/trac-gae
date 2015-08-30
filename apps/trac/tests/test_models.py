@@ -78,7 +78,8 @@ class TimingSessionTestCase(TestCase):
         # and should be deleted.
         session2.clear_results()
         self.assertEqual(Split.objects.all().count(), 0)
-        mock_cache.delete.assert_called_with('ts_2_athlete_1_results')
+        mock_cache.delete.assert_called_with('ts_{}_athlete_1_results'.format(
+            session2.id))
 
     def test_is_active(self):
         """Test determining if the workout is open or closed."""

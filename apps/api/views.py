@@ -195,18 +195,15 @@ class TeamViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         user = self.request.user
-        public = self.request.GET.get('public', None)
 
-        if public == 'true':
-            teams = []
-            for coach in Coach.objects.all():
-                teams.append(coach.team_set.all()[0])
-            return teams
+        if is_coach(user):
+            return user.coach.team_set.all()
+
+        elif is_athlete(user):
+            return Team.objects.filter(athlete__in=[user.athlete.pk])
+
         else:
-            if is_coach(user):
-                return user.coach.team_set.all()
-            elif is_athlete(user):
-                return Team.objects.filter(athlete__in=[user.athlete.pk])
+            return Team.objects.none()
 
     def pre_save(self, obj):
         obj.coach = self.request.user.coach
