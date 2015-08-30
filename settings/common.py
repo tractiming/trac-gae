@@ -44,6 +44,10 @@ ADMINS = (
 MANAGERS = ADMINS
 ###########################################
 
+# Check if we are running on Appengine or Shippable.
+APP_ENGINE = getenv('SERVER_SOFTWARE', '').startswith('Google App Engine')
+SHIPPABLE = getenv('SETTINGS_MODE') == 'test'
+
 ########## APP CONFIGURATION ##########
 DJANGO_APPS = (
     'django.contrib.admin',
@@ -62,6 +66,7 @@ THIRD_PARTY_APPS = (
         'paypal.standard.ipn',
 )
 
+
 LOCAL_APPS = (
         'trac',
         'api',
@@ -70,6 +75,24 @@ LOCAL_APPS = (
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 ########################################
+
+################# TESTING ####################
+if not APP_ENGINE:
+    INSTALLED_APPS = INSTALLED_APPS + ('django_nose',)
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+NOSE_ARGS = [
+    '--with-coverage', '--cover-inclusive',
+    '--cover-package=trac,api,website'
+]
+
+if SHIPPABLE:
+    NOSE_ARGS += [
+        '--with-xunit', '--xunit-file=shippable/testresults/test.xml',
+        '--cover-xml', '--cover-xml-file=shippable/codecoverage/coverage.xml'
+        ]
+##############################################
 
 ########## MIDDLEWARE CONFIGURATION ##########
 MIDDLEWARE_CLASSES = (
@@ -82,7 +105,7 @@ MIDDLEWARE_CLASSES = (
 )
 
 # If running on appengine, include appstats.
-if getenv('SERVER_SOFTWARE', '').startswith('Google App Engine'):
+if APP_ENGINE:
     MIDDLEWARE_CLASSES = (
         ('google.appengine.ext.appstats.recording.AppStatsDjangoMiddleware',)+
         MIDDLEWARE_CLASSES)
@@ -116,7 +139,7 @@ ROOT_URLCONF = 'trac.urls'
 # Here we choose the backend based on whether we are running locally or in
 # production. For reference, see:
 # https://developers.google.com/appengine/docs/python/cloud-sql/django#development-settings
-if getenv('SERVER_SOFTWARE', '').startswith('Google App Engine'):
+if APP_ENGINE:
     # Running on production App Engine, so use a Google Cloud SQL database.
     DATABASES = {
             'default': {
@@ -142,7 +165,7 @@ elif getenv('SETTINGS_MODE') == 'prod':
             }
     }
 
-elif getenv('SETTINGS_MODE') == 'test':
+elif SHIPPABLE:
     # Running in testing. Use the shippable settings.
     DATABASES = {
             'default': {
@@ -195,7 +218,7 @@ else:
 ########## CACHE CONFIGURATION ############
 # If running on appengine, use the custom cache backend that uses google's api
 # with django's caching interface.
-if getenv('SERVER_SOFTWARE', '').startswith('Google App Engine'):
+if APP_ENGINE:
     CACHES = {
             'default': {
                 'BACKEND': 'backends.gae_cache.GaeMemcachedCache',
