@@ -1,0 +1,28 @@
+language: python
+
+python:
+  - 2.7
+
+env:
+  global:
+    - GAE_DIR=/tmp/gae
+
+before_install:
+  - >
+    test -e $GAE_DIR ||
+    (mkdir -p $GAE_DIR &&
+     wget https://storage.googleapis.com/appengine-sdks/featured/google_appengine_1.9.6.zip -q -O /tmp/gae.zip &&
+     unzip /tmp/gae.zip -d $GAE_DIR)
+
+install:
+  - pip install -r requirements.txt
+
+before_script:
+  - mkdir -p shippable/testresults
+  - mkdir -p shippable/codecoverage
+  - mysql -e 'create database tracdb;'
+  - mysql -e 'create user trac@localhost; grant all priveleges on tracdb.* to trac@localhost'
+
+script:
+  - python manage.py test trac
+

@@ -1,0 +1,6 @@
+coverage
+Django==1.5
+django-nose
+mock
+mock-django
+MySQL-python
