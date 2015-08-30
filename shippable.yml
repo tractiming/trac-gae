@@ -27,4 +27,4 @@ script:
   - python manage.py test trac
 
 after_success:
-  - if [ "$BRANCH" == "master" ]; then $GAE_DIR/google_appengine/appcfg.py update .
+  - if [ "$BRANCH" == "master" ]; then $GAE_DIR/google_appengine/appcfg.py update .; fi
