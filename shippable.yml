@@ -22,7 +22,7 @@ before_script:
   - mkdir -p shippable/codecoverage
   - mysql -e "create database tracdb;"
   - mysql -e "create user 'trac'@'localhost';"
-  - mysql -e "grant all priveleges on tracdb.* to 'trac'@'localhost';"
+  - mysql -e "grant all privileges on tracdb.* to 'trac'@'localhost';"
 
 script:
   - python manage.py test trac
