@@ -223,8 +223,11 @@ class AthleteViewSet(viewsets.ModelViewSet):
             coach = Coach.objects.get(user=user)
             return Athlete.objects.filter(team__in=coach.team_set.all())
 
+        elif is_athlete(user):
+            return Athlete.objects.filter(user=user)
+
         else:
-            return Athlete.objects.get(user=user)
+            return Athlete.objects.none()
 
     def pre_save(self, obj):
         user = User.objects.create(username=self.request.DATA.get('username'))
@@ -244,14 +247,14 @@ class ReaderViewSet(viewsets.ModelViewSet):
         """
         user = self.request.user
         if is_coach(user):
-            readers = Reader.objects.filter(coach=user.coach)
+            return Reader.objects.filter(coach=user.coach)
+        
         else:
-            reader = []
-        return readers
+            return Reader.objects.none() # Athletes don't have readers.
 
     def pre_save(self, obj):
         """
-        Assign the reader to this user.
+        Assign the reader to this coach.
         """
         obj.coach = self.request.user.coach
 
@@ -284,30 +287,32 @@ class ScoringViewSet(viewsets.ModelViewSet):
         
 class TimingSessionViewSet(viewsets.ModelViewSet):
     """
-    Returns a list of all sessions associated with the user.
+    Return a list of all sessions associated with the user.
     """
     serializer_class = TimingSessionSerializer
     permission_classes = (permissions.AllowAny,)
 
     def get_queryset(self):
-        """Overrides default method to filter sessions by user."""
+        """Override default method to filter sessions by user."""
         user = self.request.user
+
         # If the user is an athlete, list all the workouts he has run.
         if is_athlete(user):
-            ap = Athlete.objects.get(user=user)
-            sessions = ap.get_completed_sessions()
+            # FIXME: this is no longer implemented.
+            return TimingSession.objects.none()
+            #ap = Athlete.objects.get(user=user)
+            #sessions = ap.get_completed_sessions()
         
         # If the user is a coach, list all sessions he manages.
         elif is_coach(user):
-            sessions = TimingSession.objects.filter(coach=user.coach)
+            return TimingSession.objects.filter(coach=user.coach)
             
         # If not a user or coach, list all public sessions.
         else:
-            sessions = TimingSession.objects.filter(private=False)
-        return sessions    
+            return TimingSession.objects.filter(private=False)
     
     def pre_save(self, obj):
-        """Assigns a manager to the workout before it is saved."""
+        """Assign a manager to the workout before it is saved."""
         obj.coach = self.request.user.coach
         if not obj.start_time:
             obj.start_time = timezone.now()
@@ -316,19 +321,51 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
     def post_save(self, obj, created):
         """
-        Assigns reader to workout after it saves. Right now, this just adds all
+        Assign reader to workout after it saves. Right now, this just adds all
         of the readers currently owned by the user.
         """
         readers = Reader.objects.filter(coach=self.request.user.coach)
         obj.readers.add(*readers)
         obj.save()
     
+    @detail_route(methods=['post'])
+    def reset(self, request, *args, **kwargs):
+        """
+        Reset a timing session by clearing all of its tagtimes.
+        """
+        session = self.get_object()
+        session.clear_results()
+        return Response({}, status=status.HTTP_202_ACCEPTED)
+    
+    @detail_route(methods=['post'])
+    def open(self, request, *args, **kwargs):
+        """
+        Open a session by setting its start time to now and its stop time
+        to one day from now.
+        """
+        session = self.get_object()
+        session.start_time = timezone.now()-timezone.timedelta(seconds=8)
+        session.stop_time = session.start_time+timezone.timedelta(days=1)
+        session.save()
+        return Response({}, status=status.HTTP_202_ACCEPTED)
+
+    @detail_route(methods=['post'],
+                  permission_classes=[permissions.IsAuthenticated])
+    def close(self, request, *args, **kwargs):
+        """
+        Close a session by setting its stop time to now.
+        """
+        session = self.get_object()
+        session.stop_time = timezone.now()
+        session.save()
+        return Response({}, status=status.HTTP_202_ACCEPTED)
+
     @detail_route(methods=['get'])
-    def individual_results(self, request, pk=None):
+    def individual_results(self, request, *args, **kwargs):
         limit = int(request.GET.get('limit', 1000))
         offset = int(request.GET.get('offset', 0))
 
-        session = TimingSession.objects.get(pk=pk)
+        session = self.get_object()
         raw_results = session.individual_results(limit, offset)
 
         results = {'num_results': session.num_athletes, 
@@ -413,14 +450,6 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
         return HttpResponse(status.HTTP_202_ACCEPTED)
 
-    @detail_route(methods=['post'], permission_classes=[])
-    def reset(self, request, pk=None):
-        """
-        Reset a timing session by clearing all of its tagtimes.
-        """
-        session = TimingSession.objects.get(pk=pk)
-        session.clear_results()
-        return HttpResponse(status.HTTP_202_ACCEPTED)
 
     @detail_route(methods=['get'], permission_classes=[])
     def tfrrs(self, request, pk=None):
@@ -488,7 +517,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         return Response(results, status.HTTP_200_OK)
             
 
-# TODO: Move to TimingSessionViewSet
+# DEPRECATED
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))
 def open_session(request):
@@ -507,7 +536,7 @@ def open_session(request):
     except ObjectDoesNotExist:
 		return HttpResponse(status.HTTP_404_NOT_FOUND)
             
-# TODO: Move to TimingSessionViewSet
+# DEPRECATED
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))
 def close_session(request):
@@ -548,7 +577,7 @@ def start_session(request):
     except ObjectDoesNotExist:
 		return HttpResponse(status.HTTP_404_NOT_FOUND)
     
-# TODO: Move to TimingSessionViewSet
+# DEPRECATED
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))
 def reset_session(request):
@@ -651,7 +680,7 @@ def post_splits(request):
         if split_status:
             return HttpResponse(status.HTTP_400_BAD_REQUEST)
         else:
-            return HttpResponse(status.HTTP_201_CREATED)
+            return Response({}, status=status.HTTP_201_CREATED)
 
     # To avoid having to navigate between different urls on the readers, we use
     # this same endpoint to retrieve the server time. 
