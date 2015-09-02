@@ -221,7 +221,7 @@ class AthleteViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if is_coach(user):
             coach = Coach.objects.get(user=user)
-            return Athlete.objects.filter(team__in=coach.team_set.all())
+            return Athlete.objects.filter(team=coach.team_set.all()[0])
 
         elif is_athlete(user):
             return Athlete.objects.filter(user=user)
@@ -868,6 +868,10 @@ def create_race(request):
         except ObjectDoesNotExist:
             tag = Tag.objects.create(id_str=tag_id, athlete=a)
         # FIXME: What does this do?
+        name = a.user.username
+        client = Client(user=user, name=name, url=''+name,
+                client_id=name, client_secret='', client_type=1)
+        client.save()
 
         ts.registered_tags.add(tag.pk)
 
@@ -1004,7 +1008,10 @@ def edit_athletes(request):
             except ObjectDoesNotExist:
                 tag = Tag.objects.create(athlete = atl, id_str = request.POST.get('id_str'))
             #cp.athletes.add(atl.pk)
-
+            name = atl.user.username
+            client = Client(user=user, name=name, url=''+name,
+                client_id=name, client_secret='', client_type=1)
+            client.save()
             tag.save()
             atl.save()
             user.save()
@@ -1235,6 +1242,49 @@ def send_email(request):
         }
         url = c['domain'] + '/UserSettings/' + c['uid'] + '/' + c['token'] + '/'
         email_body = loader.render_to_string('../templates/email_template.html', c)
+        send_mail('Reset Password Request', email_body, 'tracchicago@gmail.com', [c['email'],], fail_silently=False)
+        return HttpResponse(status.HTTP_200_OK)
+    else:
+        return HttpResponse(status.HTTP_403_FORBIDDEN)
+@csrf_exempt
+@permission_classes((permissions.AllowAny,))
+def give_athlete_password(request):
+    atl = Athlete.objects.get(id=request.POST.get('id'))
+    atl.user.first_name = request.POST.get('first_name')
+    atl.user.last_name = request.POST.get('last_name')
+    atl.user.email = request.POST.get('email')
+    atl.user.save()
+    try:  #if tag exists update user. Or create tag.
+        tag = Tag.objects.get(id_str = request.POST.get('id_str'))
+        tag.athlete = atl
+        tag.save()
+    except ObjectDoesNotExist:
+        try:
+            tag = Tag.objects.get(athlete = atl)
+            tag.id_str = request.POST.get('id_str')
+            tag.save()
+        except ObjectDoesNotExist:
+            tag = Tag.objects.create(id_str=request.POST.get('id_str'), athlete=atl)
+    email = request.POST.get('email')
+    name = request.POST.get('username')
+    u = User.objects.get(email = email)
+    user2 = User.objects.get(username = name)
+    if u == user2:
+        uidb64 = base64.urlsafe_b64encode(force_bytes(u.pk))
+        token = AccessToken(user = user2, client = user2.oauth2_client.get(user = user2), expires = timezone.now()+timezone.timedelta(minutes=2880))
+        token.save()
+        c = {
+            'email': email,
+            'domain': request.META['HTTP_HOST'],
+            'site_name': 'TRAC',
+            'uid': uidb64,
+            'user': u,
+            'username':name,
+            'token': str(token),
+            'protocol': 'https://',
+        }
+        url = c['domain'] + '/UserSettings/' + c['uid'] + '/' + c['token'] + '/'
+        email_body = loader.render_to_string('../templates/athlete_password.html', c)
         send_mail('Reset Password Request', email_body, 'tracchicago@gmail.com', [c['email'],], fail_silently=False)
         return HttpResponse(status.HTTP_200_OK)
     else:

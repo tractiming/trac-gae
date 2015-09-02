@@ -25,12 +25,13 @@ class AthleteSerializer(FilterRelatedMixin, serializers.ModelSerializer):
     username = serializers.CharField(source='user.username')
     first_name = serializers.CharField(source='user.first_name')
     last_name = serializers.CharField(source='user.last_name')
+    email = serializers.CharField(source='user.email')
     tag = serializers.RelatedField('tag.id_str')
     age = serializers.IntegerField(source='age', read_only=True)  
 
     class Meta:
         model = Athlete
-        fields = ('id', 'username', 'tag','first_name','last_name','birth_date', 'gender', 'team', 'age') 
+        fields = ('id', 'username', 'tag','first_name','last_name','birth_date', 'gender', 'team', 'age', 'email') 
     
     def filter_team(self, queryset):
         """Only show teams belonging to the current coach."""

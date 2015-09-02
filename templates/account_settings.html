@@ -5,6 +5,18 @@
 <link rel="stylesheet" href="{% static "css/new/main.css" %}" />
 <link rel="stylesheet" href="{% static "css/new/score.css" %}" />
 <link rel="stylesheet" href="{% static "css/new/create.css" %}" />
+<style>
+    #edit-password, #edit-information{
+      width:300px;
+      margin: 0 auto;
+    }
+    label{
+      display:block;
+    }
+    input,textarea{
+      width:75%;
+    }
+  </style>
 {% endblock %}
 
 {% block js_scripts %}
@@ -37,6 +49,7 @@ $(document).ready(function(){
           e.preventDefault();
           $('#edit-password').hide();
           $('#payment').hide()
+          $('#athletes').hide();
           $('#edit-information').fadeIn(500);
           $.ajax({
                   type: "GET",
@@ -54,7 +67,8 @@ $(document).ready(function(){
       $('body').on('click', 'a#e_password', function(e){
           e.preventDefault();
           $('#edit-information').hide();   
-          $('#payment').hide();       
+          $('#payment').hide(); 
+          $('#athletes').hide();      
           $('#edit-password').fadeIn(500);
       });
       $('body').on('click', 'a#e_payment', function(e){
@@ -62,6 +76,7 @@ $(document).ready(function(){
           $('#edit-information').hide();   
           $('#payment').fadeIn(500);       
           $('#edit-password').hide();
+          $('#athletes').hide();
           $.ajax({
               type:'GET',
               url: '/api/e_payment/',
@@ -70,6 +85,58 @@ $(document).ready(function(){
                 $('#payment').html(data)
               }
           });
+      });
+      $('body').on('click', 'a#e_roster', function(e){
+          e.preventDefault();
+          $('#edit-information').hide();   
+          $('#athletes').fadeIn(500);       
+          $('#edit-password').hide();
+          $.ajax({
+              url: '/api/athletes/',
+              headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+              dataType: 'text',
+              success: function(data){
+                          $('#athletes').empty();
+                          var json = $.parseJSON(data);
+                          json = json.reverse();
+                          $('#athletes').append(
+                                  'Send Athlete Username & Password: <table id="workouts-table" class="table table-striped table-hover">' +
+                                        '<thead>' +
+                                              '<tr>' +
+                                                    '<th class="hidden-xs hidden-sm hidden-md hidden-lg">id</th>'+
+                                                    '<th>First Name</th>'+
+                                                    '<th>Last Name</th>' + 
+                                                    '<th>Username</th>' +
+                                                    '<th>Tag ID</th>' + 
+                                                    '<th>Email</th>' + 
+                                              '</tr>'+
+                                        '</thead>'+
+                                        '<tbody>'+
+                                        '</tbody>' +
+                                  '</table>');
+                          $('#athletes').addClass('col-md-6 col-md-offset-0 colr-sm-8 col-sm-offset-0');
+                          for (var ii=0;ii < json.length;ii++){
+               //alert(ii);
+                                id = json[ii].id;
+                                fname = json[ii].first_name;
+                                lname = json[ii].last_name;
+                                uname = json[ii].username;
+                                tag = json[ii].tag;
+                                email = json[ii].email;
+                                $('#athletes tbody').append(
+                                      '<tr id="formtr" data-href="/individual/'+id+'/">' +
+                                          '<td id="id" class="hidden-xs hidden-sm hidden-md hidden-lg"><input id="id" type="text" class="form-control" value="' + id + '" readonly></td>' +
+                                          '<td><input id="first_name" type="text" class="form-control" value="'+fname+'" readonly></td>'+
+                                          '<td><input id="last_name" type="text" class="form-control" value="'+lname+'" readonly></td>'+
+                                          '<td><input id="username" type="text" class="form-control" value="'+uname+'" required readonly></td>' +
+                                          '<td><input id="id_str" type="text" class="form-control" value="'+tag+'" required readonly></td>' +
+                                          '<td><input id="email" type="text" class="form-control" value="'+email+'" required></td>' +
+                                          '<td><input type="button" id="submit" class="form-control btn btn-primary" value="Send Email"></td>'+
+                                      '</tr>');
+                          }
+                    }
+          });
+          
       });
       $('#edit-information').on('submit', function(e){
           e.preventDefault();
@@ -94,6 +161,45 @@ $(document).ready(function(){
                   }
           });
       });
+      $('#athletes').on('click','input#submit', function(e){
+          e.preventDefault();
+          var value = $(this).closest('tr');
+            var id=value.find('input[id=id]').val();   
+            var fname=value.find('input[id=first_name]').val();
+            var lname=value.find('input[id=last_name]').val();
+            var uname=value.find('input[id=username]').val();
+            var id_str=value.find('input[id=id_str]').val();
+            var email=value.find('input[id=email]').val();
+          alert(id);
+          alert(fname);
+          
+          $.ajax({
+           type: "POST",
+           dataType:'json',
+           url: "/api/give_athlete_password/",
+           headers: {Authorization: "Bearer " + sessionStorage.access_token},
+           data: {
+               id: id,
+               first_name: fname,
+               last_name: lname,
+               username: uname,
+               id_str: id_str,
+               email: email,
+               
+           }, 
+                      success: function(data) {
+                      alert("Success")
+                    },
+                     error: function(xhr, errmsg, err){
+                      alert ("Error Sending Email.");
+                    }
+                });
+         
+      });
+
+
+
+
       $('#edit-password').on('submit', function(e){
           e.preventDefault();
           $('#edit-password').hide();
@@ -132,35 +238,38 @@ $(document).ready(function(){
 <div class="container fluid-content">
   <div class="content" id ="content">
     <h3 style="text-align: left;">Account Settings</h3><br>
-    <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5 pull-left">
-      <a href="somewhere" id="e_profile">Edit Profile Information</a><br>
-      <a href="somewhere" id="e_password">Change Your Password</a><br>
-      <a href="somewhere" id="e_payment">Set up and Edit Paypal Information</a>
+    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3 pull-left">
+      <a href="" id="e_profile">Edit Profile Information</a><br>
+      <a href="" id="e_password">Change Your Password</a><br>
+      <a href="" id="e_payment">Set up and Edit Paypal Information</a><br>
+      <a href="" id="e_roster">Manage Roster</a>
     </div>
-    <div class = "col-lg-7 col-md-7 col-sm-7 col-xs-7">
-      <form id="edit-information" name="edit-information" style="display: none;" data-parsley-validate>
+    <div class = "col-lg-9 col-md-9 col-sm-9 col-xs-9">
+      <form id="edit-information" name="edit-information"  style="display: none;" data-parsley-validate>
         <div class="form-group">
           <label for="organization">Organization</label><br>
-          <input type="text" id="organization" name="organization" class="form-group" required autofocus data-parsley-group="block1">
+          <input type="text" id="organization" name="organization" class="form-group form-control" required autofocus data-parsley-group="block1">
           <label for="username">Username</label><br>
-          <input type="text" id="username" name="username" class="form-group" required autofocus data-parsley-group="block1">
+          <input type="text" id="username" name="username" class="form-group form-control" required autofocus data-parsley-group="block1">
           <label for="email">Email</label><br>
-          <input type="text" id="email" name="email" class="form-group" required autofocus data-parsley-group="block1">
-          <button type="submit" id="submit" class="btn btn-primary">Make Changes</button>
+          <input type="text" id="email" name="email" class="form-group form-control" required autofocus data-parsley-group="block1">
+          <button type="submit" id="submit" class="btn btn-primary form-control">Make Changes</button>
         </div>
       </form>
       <form id="edit-password" name="edit-password" style="display: none;" data-parsley-validate>
         <div class="form-group">
           <label for="o_password">Old Password</label><br>
-          <input type="password" id="o_password" name="o_password" class="form-group" required autofocus data-parsley-group="block1">
+          <input type="password" id="o_password" name="o_password" class="form-group form-control" required autofocus data-parsley-group="block1">
           <label for="n_password">New Password</label><br>
-          <input type="password" id="n_password" name="n_password" class="form-group" required autofocus data-parsley-group="block1">
+          <input type="password" id="n_password" name="n_password" class="form-group form-control" required autofocus data-parsley-group="block1">
           <label for="c_password">Confirm Password</label><br>
-          <input type="password" id="c_password" name="c_password" class="form-group" required autofocus data-parsley-group="block1">
-          <button type="submit" id="submit" class="btn btn-primary">Change Password</button>
+          <input type="password" id="c_password" name="c_password" class="form-group form-control" required autofocus data-parsley-group="block1">
+          <button type="submit" id="submit" class="btn btn-primary form-control">Change Password</button>
         </div>
       </form>
-      <div id='payment' style='display: none;'></div> 
+      <div id='payment' style='display: none; width:40%'></div> 
+      <div id="athletes" class="table" style='display: none;'>
+      </div>
     </div>
   </div>
 </div>
