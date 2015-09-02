@@ -1,5 +1,5 @@
 from django.utils import timezone
-from models import TimingSession
+#from trac.models import TimingSession
 
 def is_athlete(user):
     """
@@ -32,6 +32,7 @@ def user_type(user):
     else:
         return 'user'
 
+'''
 class RaceReport(object):
     """
     A summary of a race's results.
@@ -91,3 +92,4 @@ class RaceReport(object):
         Write a csv file  with the results.
         """
         raise NotImplementedError
+'''

@@ -25,14 +25,15 @@ from provider.oauth2.models import Client, AccessToken
 from paypal.standard.forms import PayPalPaymentsForm
 
 
-from serializers import (RegistrationSerializer, AthleteSerializer,TagSerializer,
+from trac.serializers import (RegistrationSerializer, AthleteSerializer,TagSerializer,
                          TimingSessionSerializer, ReaderSerializer, CoachSerializer,
                          ScoringSerializer, TeamSerializer)
 
 from trac.models import (TimingSession, Athlete, Coach, Tag, Reader, Split,
                          Team, PerformanceRecord)
-from trac.util import is_athlete, is_coach
-from util import create_split
+from trac.utils.util import is_athlete, is_coach
+from trac.utils.split_util import create_split
+#from util import create_split
 from settings.common import PAYPAL_RECEIVER_EMAIL
 from paypal.standard.models import ST_PP_COMPLETED
 from paypal.standard.ipn.signals import valid_ipn_received, invalid_ipn_received

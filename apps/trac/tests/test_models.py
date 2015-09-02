@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.utils import timezone
 import mock
 from trac.models import *
-from trac.util import RaceReport
+#from trac.util import RaceReport
 
 class ReaderTestCase(TestCase):
 

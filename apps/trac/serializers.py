@@ -1,8 +1,8 @@
 from django.contrib.auth.models import User
 from django.utils import timezone
 from rest_framework import serializers
-from trac.models import TimingSession, Tag, Reader, Athlete, Coach, Team
-from trac.util import is_coach, is_athlete
+from models import TimingSession, Tag, Reader, Athlete, Coach, Team
+from trac.utils.util import is_coach, is_athlete
 
 
 class FilterRelatedMixin(object):

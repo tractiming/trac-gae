@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.core.cache import cache
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
-from filters import filter_splits, get_sec_ms
+from trac.utils.filters import filter_splits, get_sec_ms
 from operator import itemgetter
 from collections import namedtuple
 import datetime
