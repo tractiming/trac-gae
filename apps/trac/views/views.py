@@ -48,7 +48,7 @@ import base64
 import datetime
 import time
 import math
-import stats
+from stats import stats
 import logging
 logging.basicConfig()
 
