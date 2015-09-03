@@ -1,8 +1,13 @@
 from django.test import TestCase
 from django.utils import timezone
 import mock
-from trac.models import User, TimingSession, Reader
-from trac.views import views
+from trac.models import TimingSession, Reader
+from django.contrib.auth.models import User
+from trac.views.user_views import *
+from trac.views.tag_views import *
+from trac.views.reader_views import *
+from trac.views.session_views import *
+from trac.views.team_views import *
 from rest_framework.test import APITestCase, force_authenticate
 from django.utils import timezone
 import datetime
