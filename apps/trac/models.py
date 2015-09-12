@@ -1,5 +1,5 @@
 from django.db import models, connection 
-from django.db.models.signals import pre_delete
+from django.db.models.signals import pre_delete, post_save
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.core.cache import cache
@@ -7,7 +7,7 @@ from django.dispatch import receiver
 from trac.utils.filters import filter_splits
 from collections import namedtuple
 import datetime
-
+from oauth2_provider.models import Application
 
 class Coach(models.Model):
     """
@@ -495,19 +495,10 @@ def delete_tag_times(sender, instance, using, **kwargs):
     instance.clear_results()
 
 
-class PerformanceRecord(models.Model):
-    distance = models.IntegerField()
-    time = models.FloatField()
-    interval = models.CharField(max_length=1)
-    VO2 = models.IntegerField(null=True, blank=True)
-    athlete = models.ForeignKey(Athlete, null=True)
-    coach = models.ForeignKey(Coach, null=True)
+@receiver(post_save, sender=User, dispatch_uid="user_post_save")
+def create_auth_client(sender, instance, created=False, **kwargs):
+    if created:
+        Application.objects.create(user=instance,
+            client_type=Application.CLIENT_CONFIDENTIAL,
+            authorization_grant_type=Application.GRANT_PASSWORD)
 
-    def __unicode__(self):
-        if self.athlete:
-            name = self.athlete.user.username
-        elif self.coach:
-            name = self.coach.user.username
-        else:
-            name = ''
-        return "user={}".format(name)

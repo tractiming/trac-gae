@@ -96,26 +96,36 @@ $(function() {
 			$.ajax({
 				type: 'POST',
 				dataType:'json',
-				url: '/oauth2/access_token/',
-				data: {
-					username: username,
-					password: password,
-					grant_type: 'password',
-					client_id: username
-				},
-				// Login was successful.
+				url: '/api/login/',
+                beforeSend: function(request) {
+                    request.setRequestHeader("Authorization",
+                        "Basic " + btoa(username + ":" + password));
+                },
+				
+                // Login was successful.
 				success: function(data) {
 					// Get the access token and store client side.
-					var access_token = data.access_token;
-					sessionStorage.setItem('access_token', access_token);
+					var client_id = data.client_id;
+                    var client_secret = data.client_secret;
+                    var usertype = data.user_type;
+
+				    sessionStorage.setItem('usertype', usertype);
 					sessionStorage.setItem('username', username);
 					$.ajax({
-						url: '/api/userType/',
-						dataType: 'text',			//force to handle it as text
-						headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-							success: function(data) {
-								var usertype = data;
-								sessionStorage.setItem('usertype', usertype);
+                        type: 'POST',
+						url: '/oauth2/token/',
+                        data: {
+                            username: username,
+                            password: password,
+                            client_id: client_id,
+                            client_secret: client_secret,
+                            grant_type: 'password'
+                        },
+						success: function(data) {
+								var access_token = data.access_token;
+                                var refresh_token = data.refresh_token;
+					            sessionStorage.setItem('access_token', access_token);
+					            sessionStorage.setItem('refresh_token', refresh_token);
 								location.href = '/home';
 							},
 							error: function(xhr, errmsg, err) {

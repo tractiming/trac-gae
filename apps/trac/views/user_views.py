@@ -1,22 +1,20 @@
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from trac.models import Coach, Athlete, Team, Tag
-from trac.serializers import (AthleteSerializer, CoachSerializer,
-                              RegistrationSerializer)
+from trac.serializers import (
+    AthleteSerializer, CoachSerializer, RegistrationSerializer
+)
 from rest_framework import viewsets, permissions, status, views
 from django.core.exceptions import ObjectDoesNotExist
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import (
+    api_view, permission_classes, authentication_classes
+)
+from rest_framework.authentication import BasicAuthentication
 from trac.utils.util import is_athlete, is_coach
 from rest_framework.response import Response
 from django.contrib.auth.models import User
-from provider.oauth2.models import Client, AccessToken
 from django.utils import timezone
-from paypal.standard.ipn.signals import valid_ipn_received, invalid_ipn_received
 
-DEFAULT_DISTANCES = [100, 200, 400, 800, 1000, 1500,
-                     1609, 2000, 3000, 5000, 10000]
-DEFAULT_TIMES = [14.3, 27.4, 61.7, 144.2, 165, 257.5,
-                 278.7, 356.3, 550.8, 946.7, 1971.9, ]
 
 
 class CoachViewSet(viewsets.ModelViewSet):
@@ -108,15 +106,10 @@ class RegistrationView(views.APIView):
             #    r = PerformanceRecord.objects.create(
             #            distance=DEFAULT_DISTANCES[i], time=DEFAULT_TIMES[i])
             #    cp.performancerecord_set.add(r)
-
-        # Create the OAuth2 client.
-        name = user.username
-        client = Client(user=user, name=name, url=''+name,
-                client_id=name, client_secret='', client_type=1)
-        client.save()
         
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+# DEPRECATE
 class verifyLogin(views.APIView):
     permission_classes = ()
 
@@ -133,6 +126,20 @@ class verifyLogin(views.APIView):
             return Response({}, status.HTTP_404_NOT_FOUND)
         else:
             return Response({}, status.HTTP_200_OK)
+
+@api_view(['POST'])
+@authentication_classes((BasicAuthentication,))
+def login(request):
+    """
+    Log a user into the site.
+    """
+    application = Application.objects.get(user=request.user) 
+    credentials = {'username': request.user.username,
+                   'client_id': application.client_id,
+                   'client_secret': application.client_secret,
+                   'user_type': user_type(request.user)
+                   }
+    return Response(credentials)
 
 class userType(views.APIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -327,63 +334,3 @@ def tutorial_limiter(request):
         return HttpResponse(status.HTTP_403_FORBIDDEN)
 
 
-
-@api_view(['GET'])
-@permission_classes((permissions.IsAuthenticated,))
-@login_required
-@csrf_exempt
-def subscription(request):
-    user = request.user
-    r = Reader.objects.filter(coach=user.coach)
-    num_readers = len(r)
-    price = float(25 * num_readers)
-    paypal_dict = {
-        "cmd": "_xclick-subscriptions",
-        "business": "GriffinKelly2013-facilitator@gmail.com",
-        "rm": "2",
-        "a3": "25.00",
-        "p3": "1",
-        "t3": "M",
-        "src": "1",
-        "sra": "1",
-        "no_note": "1",
-        "test_ipn": "1",
-        "payer_id": user.username,
-        "item_name": "TRAC DATA",
-        "notify_url": "https://trac-us.appspot.com/api/notify/",
-        "return_url": "https://trac-us.appspot.com/home/",
-        "cancel_return": "https://trac-us.appspot.com/home/",
-    }
-    form = PayPalPaymentsForm(initial=paypal_dict, button_type="subscribe")
-    context = {"form": form}
-    return render(request, "payment.html", context)
-
-
-@api_view(['GET'])
-@login_required
-@permission_classes((permissions.IsAuthenticated,))
-def checkpayment(request):
-    """Lock user out of site if they haven't paid."""
-    u = request.user
-    cp = Coach.objects.get(user=u)
-    if cp.payment == 'completed':
-        return HttpResponse(status.HTTP_200_OK)
-    else:
-        return HttpResponse(status.HTTP_403_FORBIDDEN)
-
-@csrf_exempt
-def ipnListener(sender, **kwargs):
-    ipn_obj = sender
-    if ipn_obj.payment_status == ST_PP_COMPLETED:
-        # Undertake some action depending upon `ipn_obj`.
-        user = ipn_obj.payer_id
-        try:
-            uu = User.objects.get(username = user)
-            cp = Coach.objects.get(user = uu)
-            cp.payment = 'completed'
-            cp.save()
-        except:
-            pass
-
-valid_ipn_received.connect(ipnListener)
-invalid_ipn_received.connect(ipnListener)

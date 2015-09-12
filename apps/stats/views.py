@@ -1,3 +1,7 @@
+DEFAULT_DISTANCES = [100, 200, 400, 800, 1000, 1500,
+                     1609, 2000, 3000, 5000, 10000]
+DEFAULT_TIMES = [14.3, 27.4, 61.7, 144.2, 165, 257.5,
+                 278.7, 356.3, 550.8, 946.7, 1971.9, ]
 # Create your views here.
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))

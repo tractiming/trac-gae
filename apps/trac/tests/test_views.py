@@ -3,14 +3,16 @@ from django.utils import timezone
 import mock
 from trac.models import TimingSession, Reader
 from django.contrib.auth.models import User
-from trac.views.user_views import *
-from trac.views.tag_views import *
-from trac.views.reader_views import *
-from trac.views.session_views import *
-from trac.views.team_views import *
+#from trac.views.user_views import *
+#from trac.views.tag_views import *
+#from trac.views.reader_views import *
+#from trac.views.session_views import *
+#from trac.views.team_views import *
 from rest_framework.test import APITestCase, force_authenticate
 from django.utils import timezone
 import datetime
+import sys
+print sys.path
 
 
 class TagViewSetTest(APITestCase):
@@ -89,7 +91,7 @@ class AthleteViewSetTest(APITestCase):
         self.assertEqual(resp.data[0]['id'], 1)
         self.assertEqual(resp.status_code, 200)
 
-    @mock.patch.object(views, 'User')
+    @mock.patch.object(trac.views.user_views, 'User')
     def test_pre_save(self, mock_user):
         """Test that a user is created before the athlete is."""
         user = User.objects.get(username='alsal')
@@ -176,7 +178,8 @@ class TimingSessionViewSetTest(APITestCase):
         self.assertEqual(len(session.readers.all()), 2)
         self.assertEqual(resp.status_code, 201)
 
-    @mock.patch.object(views, 'TimingSessionViewSet', autospec=True)
+    @mock.patch.object(trac.views.session_views, 'TimingSessionViewSet',
+                       autospec=True)
     def test_reset(self, mock_session):
         """Test resetting a workout."""
         user = User.objects.get(username='alsal')
@@ -192,7 +195,7 @@ class TimingSessionViewSetTest(APITestCase):
         resp = self.client.get('/api/sessions/1/individual_results/', format='json')
         self.assertEqual(resp.status_code, 200)
 
-    @mock.patch.object(views, 'timezone')
+    @mock.patch.object(trac.views.session_views, 'timezone')
     def test_open(self, mock_timezone):
         """Test opening a session."""
         now = timezone.now()
@@ -224,7 +227,8 @@ class TimingSessionViewSetTest(APITestCase):
 
 class PostSplitsTest(APITestCase):
 
-    @mock.patch.object(views, 'create_split')
+    '''
+    @mock.patch.object(views.reader_views, 'create_split')
     def test_post_splits(self, mock_create_split):
         """Test creating splits from reader messages."""
 
@@ -237,11 +241,11 @@ class PostSplitsTest(APITestCase):
         #self.assertEqual(resp.status_code, 201)
         mock_create_split.assert_called_with(reader, tag, stime)
 
-    @mock.patch.object(views, 'timezone')
+    @mock.patch.object(views.reader_views, 'timezone')
     def test_get_server_time(self, mock_timezone):
         """Test sending the current time to the readers."""
         now = timezone.now()
         mock_timezone.now.return_value = now
         resp = self.client.get('/api/updates/')
         self.assertEqual(list(resp.data)[0], str(now))
-        
+    ''' 

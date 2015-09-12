@@ -7,9 +7,6 @@ api_version: 1
 threadsafe: yes
 
 libraries:
-- name: django
-  version: "1.5"
-
 - name: MySQLdb
   version: "latest"
 

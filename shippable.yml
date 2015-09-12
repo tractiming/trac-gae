@@ -8,7 +8,7 @@ env:
     - SETTINGS_MODE=test
 
 install:
-  - pip install -r requirements.txt
+  - pip install -r requirements/test.txt
 
 before_script:
   - mkdir -p shippable/testresults

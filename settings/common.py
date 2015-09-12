@@ -18,8 +18,13 @@ SITE_ROOT = dirname(DJANGO_ROOT)
 SITE_NAME = basename(DJANGO_ROOT)
 path.append(DJANGO_ROOT)
 
+# Check if we are running on Appengine or Shippable.
+APP_ENGINE = getenv('SERVER_SOFTWARE', '').startswith('Google App Engine')
+SHIPPABLE = getenv('SETTINGS_MODE') == 'test'
+
 # Add the location of third-party libraries to the path.
-path.insert(0, join(DJANGO_ROOT, 'libs'))
+if APP_ENGINE:
+    path.insert(0, join(DJANGO_ROOT, 'libs'))
 
 # Add the location of the apps to the path.
 path.insert(0, join(DJANGO_ROOT, 'apps'))
@@ -44,9 +49,6 @@ ADMINS = (
 MANAGERS = ADMINS
 ###########################################
 
-# Check if we are running on Appengine or Shippable.
-APP_ENGINE = getenv('SERVER_SOFTWARE', '').startswith('Google App Engine')
-SHIPPABLE = getenv('SETTINGS_MODE') == 'test'
 
 ########## APP CONFIGURATION ##########
 DJANGO_APPS = (
@@ -60,17 +62,17 @@ DJANGO_APPS = (
 
 THIRD_PARTY_APPS = (
         'rest_framework',
-        'provider',
-        'provider.oauth2',
-        'south',
-        'paypal.standard.ipn',
+        'oauth2_provider',
+        #'provider',
+        #'provider.oauth2',
+        #'paypal.standard.ipn',
 )
 
 
 LOCAL_APPS = (
         'trac',
-        'api',
         'website',
+        'stats',
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -84,7 +86,7 @@ TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 NOSE_ARGS = [
     '--with-coverage', '--cover-inclusive',
-    '--cover-package=trac,api,website'
+    '--cover-package=trac,website,stats'
 ]
 
 if SHIPPABLE:
@@ -116,7 +118,7 @@ REST_FRAMEWORK = {
             'rest_framework.permissions.IsAuthenticated',
         ),
         'DEFAULT_AUTHENTICATION_CLASSES': (
-            'rest_framework.authentication.OAuth2Authentication',
+            'oauth2_provider.ext.rest_framework.OAuth2Authentication',
             'rest_framework.authentication.SessionAuthentication',
             'rest_framework.authentication.BasicAuthentication',
         ),
@@ -124,14 +126,12 @@ REST_FRAMEWORK = {
             'rest_framework.serializers.ModelSerializer',
         ),
 }
-
-################ SOUTH ################
-SOUTH_TESTS_MIGRATE = False
-SKIP_SOUTH_TESTS = True
-#######################################
+OAUTH2_PROVIDER = {
+    'SCOPES': {'read': 'Read scope', 'write': 'Write scope'}
+}
 
 ########## URL CONFIGURATION ##########
-ROOT_URLCONF = 'trac.urls'
+ROOT_URLCONF = 'trac.urls.trac_urls'
 #######################################
 
 ########## DATABASE CONFIGURATION ##########
@@ -154,7 +154,6 @@ if APP_ENGINE:
 elif getenv('SETTINGS_MODE') == 'prod':
     # Running in development, but want to access the Google Cloud SQL instance
     # in production.
-    SOUTH_DATABASE_ADAPTERS = {'default': 'south.db.mysql'}
     DATABASES = {
             'default': {
                 'ENGINE': 'google.appengine.ext.django.backends.rdbms',

@@ -25,7 +25,7 @@ class AthleteSerializer(FilterRelatedMixin, serializers.ModelSerializer):
     username = serializers.CharField(source='user.username')
     first_name = serializers.CharField(source='user.first_name')
     last_name = serializers.CharField(source='user.last_name')
-    tag = serializers.RelatedField('tag.id_str')
+    tag = serializers.RelatedField(read_only=True)
     age = serializers.IntegerField(source='age', read_only=True)  
 
     class Meta:
@@ -100,7 +100,7 @@ class ReaderSerializer(serializers.ModelSerializer):
 
 
 class TimingSessionSerializer(serializers.ModelSerializer):
-    coach = serializers.Field(source='coach.user.username')
+    coach = serializers.ReadOnlyField(source='coach.user.username')
     readers = serializers.RelatedField(many=True, read_only=True)
 
     class Meta:

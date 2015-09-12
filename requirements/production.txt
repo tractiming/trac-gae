@@ -1,0 +1,12 @@
+Django==1.8
+MySQL-python==1.2.5
+argparse==1.2.1
+distribute==0.7.3
+django-oauth2-provider==0.2.6.1
+djangorestframework==3.2.3
+paypal==1.2.1
+python-dateutil==2.4.2
+requests==2.7.0
+shortuuid==0.4.2
+six==1.9.0
+wsgiref==0.1.2

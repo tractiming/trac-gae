@@ -17,8 +17,8 @@ urlpatterns = [
         # General endpoints.(?P<username>.+)/
         url(r'^register/$', user_views.RegistrationView.as_view()),
         url(r'^verifyLogin/$', user_views.verifyLogin.as_view()),
+        url(r'^login/$', user_views.login),
         url(r'^userType/$', user_views.userType.as_view()),
-        #url(r'^auth_verify/$', views.verify_login, name='auth_verify'),
 
         # Timing session functionality.
         url(r'^open_session/$', session_views.open_session),
@@ -47,9 +47,6 @@ urlpatterns = [
         #url(r'^VO2Max/$', views.VO2Max),
         #url(r'^est_distance/$', views.est_distance),
         #url(r'^analyze/$', views.analyze),
-        url(r'^e_payment/$', user_views.subscription),
-        url(r'^notify/$', include('paypal.standard.ipn.urls')),
-        url(r'^payment_check/$', user_views.checkpayment),
         #url(r'^IndividualTimes/$', views.IndividualTimes.as_view()),
 
         # Endpoint for readers.
