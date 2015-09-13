@@ -35,3 +35,5 @@ env/
 build/
 .gaedata/
 *.db
+.coverage
+libs/
