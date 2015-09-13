@@ -1,7 +1,9 @@
 from django.test import TestCase
 from django.utils import timezone
+import datetime
 import mock
-from trac.models import *
+from trac.models import Athlete, Coach, User, Reader, TimingSession, Split, Tag
+import trac.models
 
 class ReaderTestCase(TestCase):
 
@@ -25,9 +27,16 @@ class ReaderTestCase(TestCase):
 
 class AthleteTestCase(TestCase):
 
-    def test_age(self):
+    fixtures = ['trac_min.json']
+
+    @mock.patch.object(trac.models, 'datetime')
+    def test_age(self, mock_datetime):
         """Test calculating an athlete's age."""
-        pass
+        galen = Athlete.objects.get(user__username='grupp')
+        cam = Athlete.objects.get(user__username='clevins')
+        mock_datetime.date.today.return_value = datetime.date(2000, 5, 27)
+        self.assertIsNone(galen.age)
+        self.assertEqual(cam.age, 10)
 
 
 class TimingSessionTestCase(TestCase):
