@@ -44,10 +44,6 @@ class AthleteViewSet(viewsets.ModelViewSet):
         else:
             return Athlete.objects.none()
 
-    #def pre_save(self, obj):
-    #    print 'in pre-save!'
-    #    user = User.objects.create(username=self.request.data.get('username'))
-    #    obj.user = user
 
 # FIXME: add to timingsession serializer.
 class RegistrationView(views.APIView):
@@ -102,7 +98,7 @@ class RegistrationView(views.APIView):
                 team.save()
 
             #Creates the Default table for coaches when they register.
-            cp = Coach.objects.get(user=user)
+            #cp = Coach.objects.get(user=user)
             # Not sure this is the best place for this.
             #for i in range(0, len(DEFAULT_DISTANCES)):
             #    r = PerformanceRecord.objects.create(
@@ -143,6 +139,7 @@ def login(request):
                    }
     return Response(credentials)
 
+''' I think we can remove this.
 class userType(views.APIView):
     permission_classes = (permissions.IsAuthenticated,)
     def get(self, request):
@@ -158,6 +155,7 @@ class userType(views.APIView):
                 return Response({}, status.HTTP_404_NOT_FOUND)
             return Response("athlete")
         return Response("coach")
+'''
 
 # TODO: Move to UserViewSet
 @api_view(['POST'])

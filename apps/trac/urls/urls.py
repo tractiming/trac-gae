@@ -18,7 +18,7 @@ urlpatterns = [
         url(r'^register/$', user_views.RegistrationView.as_view()),
         url(r'^verifyLogin/$', user_views.verifyLogin.as_view()),
         url(r'^login/$', user_views.login),
-        url(r'^userType/$', user_views.userType.as_view()),
+        #url(r'^userType/$', user_views.userType.as_view()),
 
         # Timing session functionality.
         #url(r'^open_session/$', session_views.open_session),
