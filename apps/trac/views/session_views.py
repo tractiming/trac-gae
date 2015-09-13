@@ -95,7 +95,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'])
     def team_results(self, request, pk=None):
-        session = TimingSession.objects.get(pk=pk)
+        session = self.get_object()
         raw_results = session.team_results()
 
         results = []
@@ -116,7 +116,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         if teams and not isinstance(teams, list):
             teams = [teams]
 
-        session = TimingSession.objects.get(pk=pk)
+        session = self.get_object()
         raw_results = session.filtered_results(gender=gender,
                 age_range=[age_gte, age_lte], teams=teams)
         
@@ -420,12 +420,6 @@ def upload_workouts(request):
                     athlete.team = team
                     athlete.save()
 
-                # Create the OAuth2 client.
-                #name = user.username
-                #client = Client(user=user, name=name, url=''+name,
-                #        client_id=name, client_secret='', client_type=1)
-                #client.save()
-            
             tags = Tag.objects.filter(athlete=new_user.athlete)
             if tags:
                 tag = tags[0]
