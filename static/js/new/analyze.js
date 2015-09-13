@@ -130,12 +130,9 @@ google.setOnLoadCallback(function(){
 
 			$.ajax({
 				type: 'GET',
-				url: '/api/individual_splits/',
+				url: '/api/athletes/'+athleteID+'/completed_sessions/',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'json',
-				data: {
-					id: athleteID,
-				},
 				success: function(data) {
 					if (isBase)
 						baseData = data;

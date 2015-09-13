@@ -1,13 +1,13 @@
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
-from trac.models import Coach, Athlete, Team, Tag
+from trac.models import Coach, Athlete, Team, Tag, TimingSession
 from trac.serializers import (
     AthleteSerializer, CoachSerializer, RegistrationSerializer
 )
 from rest_framework import viewsets, permissions, status, views
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.decorators import (
-    api_view, permission_classes, authentication_classes
+    api_view, permission_classes, authentication_classes, detail_route
 )
 from rest_framework.authentication import BasicAuthentication
 from trac.utils.user_util import is_athlete, is_coach, user_type
@@ -43,6 +43,37 @@ class AthleteViewSet(viewsets.ModelViewSet):
 
         else:
             return Athlete.objects.none()
+    
+    @detail_route(methods=['get'])
+    def completed_sessions(self, request, *args, **kwargs):
+        """
+        Get all the sessions an athlete has participated in.
+        """
+        athlete = self.get_object()
+
+        # Get the user's name.
+        name = athlete.user.get_full_name()
+        if not name:
+            name = athlete.user.username
+
+        sessions = [session for session in TimingSession.objects.all()
+                    if athlete.id in session.splits.values_list('athlete_id',
+                        flat=True).distinct()]
+        results = {'name': name,
+                   'sessions': []} 
+
+        #Iterate through each session to get all of a single users workouts
+        for session in sessions:
+            session_results = session.calc_athlete_splits(athlete_id)
+            session_info = {'id': session.id,
+                            'name': session.name,
+                            'date': session.start_time,
+                            'splits': session_results[3],
+                            'total': session_results[4]
+                            }
+            results['sessions'].append(session_info)
+
+        return Response(results)
 
 
 # FIXME: add to timingsession serializer.
