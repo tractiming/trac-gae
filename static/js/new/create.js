@@ -326,10 +326,9 @@ $(function() {
 				$.ajax({
 					type: 'POST',
 					dataType:'json',
-					url: '/api/time_create/',
+					url: '/api/sessions/',
 					headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
 					data: {
-						id: 0,
 						name: title,
 						start_time: startDateTime.toISOString(),
 						stop_time: endDateTime.toISOString(),
@@ -684,10 +683,9 @@ $(function() {
 			$.ajax({
 				type: 'POST',
 				dataType:'json',
-				url: '/api/time_create/',
+				url: '/api/sessions/'+id,
 				headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
 				data: {
-					id: id,
 					name: title,
 					start_time: startDateTime.toISOString(),
 					stop_time: endDateTime.toISOString(),

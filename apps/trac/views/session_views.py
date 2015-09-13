@@ -237,149 +237,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                         rnd +','+ points +','+ wind +','+ relay_squad)
 
         return Response(results, status.HTTP_200_OK)
-            
 
-# DEPRECATED
-@api_view(['POST'])
-@permission_classes((permissions.IsAuthenticated,))
-def open_session(request):
-    """
-    Opens a timing session by setting its start time to now and its stop time
-    to one day from now.
-    """
-    data = request.POST
-    try:
-        ts = TimingSession.objects.get(id=data['id'])
-        ts.start_time = timezone.now()-timezone.timedelta(seconds=8)
-        ts.stop_time = ts.start_time+timezone.timedelta(days=1)
-        ts.save()
-        return Response({}, status.HTTP_202_ACCEPTED)
-
-    except ObjectDoesNotExist:
-		return Response({}, status.HTTP_404_NOT_FOUND)
-            
-# DEPRECATED
-@api_view(['POST'])
-@permission_classes((permissions.IsAuthenticated,))
-def close_session(request):
-    """
-    Closes a timing session by setting its stop time to now.
-    """
-    data = request.POST
-    try:
-        ts = TimingSession.objects.get(id=data['id'])
-        ts.stop_time = timezone.now()
-        ts.save()
-        return Response({}, status.HTTP_202_ACCEPTED)
-
-    except ObjectDoesNotExist:
-		return Response({}, status.HTTP_404_NOT_FOUND)
-
-# TODO: Move to TimingSessionViewSet
-@api_view(['POST'])
-@permission_classes((permissions.AllowAny,))
-def start_session(request):
-    """
-    Press the session's 'start button'. This sets the time that all the splits
-    are calculated relative to. Effectively acts as the gun time.
-    """
-    data = request.POST
-    # FIXME: This is a hack that offsets the delay the reader has in setting its
-    # real time. 
-    # Also note that the start time is taken to be the time the request hits
-    # the server, not the time the button is pressed on the phone, etc.
-    current_time = datetime.datetime.utcnow()-datetime.timedelta(seconds=8)
-    timestamp = int((current_time-timezone.datetime(1970, 1, 1)).total_seconds()*1000)
-
-    try:
-        ts = TimingSession.objects.get(id=data['id'])
-        ts.start_button_time = timestamp
-        ts.save()
-        return Response({}, status.HTTP_202_ACCEPTED)
-    except ObjectDoesNotExist:
-        return Response({}, status.HTTP_404_NOT_FOUND)
-    
-# DEPRECATED
-@api_view(['POST'])
-@permission_classes((permissions.IsAuthenticated,))
-def reset_session(request):
-    """
-    Reset a timing session by clearing all of its tagtimes.
-    """
-    data = request.POST
-    user = request.user
-        
-    # If the user is an athlete do not allow them to edit.
-    # TODO: define better permissions for this function.
-    if not is_coach(user):
-        return Response({}, status.HTTP_403_FORBIDDEN)
-        
-    else:
-        try:
-            session = TimingSession.objects.get(id=data['id'])
-            session.clear_results()
-            return Response({}, status.HTTP_202_ACCEPTED)
-        
-        except:
-            return Response({}, status.HTTP_404_NOT_FOUND)
-
-# TODO: DEPRECATED
-@api_view(['GET'])
-@permission_classes((permissions.IsAuthenticated,))
-def filtered_results(request):
-    """
-    Get the filtered results for a given session.
-    """
-    data = request.GET
-
-    # Get the session.
-    if 'id' in data:
-        try:
-            session = TimingSession.objects.get(id=data['id'])
-        except ObjectDoesNotExist:
-            return Response({}, status.HTTP_404_NOT_FOUND)
-
-    else:
-        return Response({}, status.HTTP_404_NOT_FOUND)
-
-    # Filter age.
-    if ('age_lte' in data) and ('age_gte' in data):
-        age_range = [int(data['age_gte']), int(data['age_lte'])]
-    else:
-        age_range = []
-
-    # Filter gender.
-    if 'gender' in data:
-        g = data['gender']
-    else:
-        g = ''
-
-    # Filter by team.
-    if 'team' in data:
-        t = [data['team']]
-    else:
-        t = []
-
-    results = session.filtered_results(gender=g, age_range=age_range, teams=t)
-    return Response(results, status.HTTP_200_OK)
-
-#TODO: DEPRECATED
-@api_view(['GET'])
-@permission_classes((permissions.IsAuthenticated,))
-def team_results(request):
-    """
-    Return the team scores for a given session.
-    """
-    data = request.GET
-
-    # Get the session.
-    try:
-        session = TimingSession.objects.get(id=data['id'])
-    except ObjectDoesNotExist:
-        return Response({}, status.HTTP_404_NOT_FOUND)
-
-    results = session.get_team_results()
-    return Response(results, status.HTTP_200_OK)
 
 #pagination endpoint
 @api_view(['GET'])
@@ -426,7 +284,7 @@ def string2bool(string):
         return True
     elif string == 'false':
         return False
-
+'''
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))
 def time_create(request):
@@ -456,6 +314,7 @@ def time_create(request):
     ts.readers.add(*r)
     ts.save()
     return Response({}, status.HTTP_201_CREATED)
+'''
 
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))
