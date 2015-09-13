@@ -279,42 +279,6 @@ def sessions_paginate(request):
         return Response({'results': result, 'num_sessions': len(table)},
                         status.HTTP_200_OK)
 
-def string2bool(string):
-    if string == 'true':
-        return True
-    elif string == 'false':
-        return False
-'''
-@api_view(['POST'])
-@permission_classes((permissions.AllowAny,))
-def time_create(request):
-    #time backend. Decided not to change any of the api's just make another intermediary endpoint that funnels from create.html into sessions model
-    data = request.POST
-    user = request.user
-    begin_time = dateutil.parser.parse(data['start_time'])
-    stop_time = dateutil.parser.parse(data['stop_time'])    #KEY: parsing date and time into datetime objects before putting into database.
-    if int(data['id']) == 0: #for new instances
-        ts, created = TimingSession.objects.get_or_create(name=data['name'],
-                            coach=user.coach, start_time=begin_time,
-                            stop_time=stop_time, track_size=data['track_size'],
-                            interval_distance=data['interval_distance'],
-                            filter_choice=string2bool(data['filter_choice']),
-                            private=string2bool(data['private']))
-    else:
-        ts = TimingSession.objects.get(id=int(data['id'])) #for updated instances
-        ts.name = data['name']
-        ts.coach = user.coach
-        ts.start_time = begin_time
-        ts.stop_time = stop_time
-        ts.track_size = data['track_size']
-        ts.interval_distance = data['interval_distance']
-        ts.filter_choice = string2bool(data['filter_choice'])
-        ts.private = string2bool(data['private'])
-    r = Reader.objects.filter(coach=user.coach)
-    ts.readers.add(*r)
-    ts.save()
-    return Response({}, status.HTTP_201_CREATED)
-'''
 
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))
