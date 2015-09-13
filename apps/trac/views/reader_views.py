@@ -28,12 +28,6 @@ class ReaderViewSet(viewsets.ModelViewSet):
         else:
             return Reader.objects.none() # Athletes don't have readers.
 
-    def pre_save(self, obj):
-        """
-        Assign the reader to this coach.
-        """
-        obj.coach = self.request.user.coach
-
 
 @csrf_exempt
 @api_view(['POST','GET'])

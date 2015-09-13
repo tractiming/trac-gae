@@ -42,23 +42,6 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         else:
             return TimingSession.objects.filter(private=False)
     
-    def pre_save(self, obj):
-        """Assign a manager to the workout before it is saved."""
-        obj.coach = self.request.user.coach
-        if not obj.start_time:
-            obj.start_time = timezone.now()
-        if not obj.stop_time:
-            obj.stop_time = timezone.now()
-
-    def post_save(self, obj, created):
-        """
-        Assign reader to workout after it saves. Right now, this just adds all
-        of the readers currently owned by the user.
-        """
-        readers = Reader.objects.filter(coach=self.request.user.coach)
-        obj.readers.add(*readers)
-        obj.save()
-    
     @detail_route(methods=['post'])
     def reset(self, request, *args, **kwargs):
         """

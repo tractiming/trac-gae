@@ -10,10 +10,11 @@ from rest_framework.decorators import (
     api_view, permission_classes, authentication_classes
 )
 from rest_framework.authentication import BasicAuthentication
-from trac.utils.util import is_athlete, is_coach
+from trac.utils.util import is_athlete, is_coach, user_type
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from django.utils import timezone
+from oauth2_provider.models import Application
 
 
 
@@ -43,9 +44,10 @@ class AthleteViewSet(viewsets.ModelViewSet):
         else:
             return Athlete.objects.none()
 
-    def pre_save(self, obj):
-        user = User.objects.create(username=self.request.DATA.get('username'))
-        obj.user = user
+    #def pre_save(self, obj):
+    #    print 'in pre-save!'
+    #    user = User.objects.create(username=self.request.data.get('username'))
+    #    obj.user = user
 
 # FIXME: add to timingsession serializer.
 class RegistrationView(views.APIView):
@@ -55,7 +57,7 @@ class RegistrationView(views.APIView):
     permission_classes = ()
 
     def post(self, request):
-        serializer = RegistrationSerializer(data=request.DATA)
+        serializer = RegistrationSerializer(data=request.data)
 
         if not serializer.is_valid():
             return Response(serializer.errors,
@@ -64,7 +66,7 @@ class RegistrationView(views.APIView):
         # Create the user in the database.
         user = User.objects.create(username=data['username'])
         user.set_password(data['password'])
-        user.email = request.DATA['email']
+        user.email = request.data['email']
         user.save()
 
         user_type = data['user_type']

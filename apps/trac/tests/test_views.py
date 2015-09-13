@@ -1,18 +1,12 @@
 from django.test import TestCase
 from django.utils import timezone
-import mock
-from trac.models import TimingSession, Reader
 from django.contrib.auth.models import User
-#from trac.views.user_views import *
-#from trac.views.tag_views import *
-#from trac.views.reader_views import *
-#from trac.views.session_views import *
-#from trac.views.team_views import *
 from rest_framework.test import APITestCase, force_authenticate
-from django.utils import timezone
+from trac.models import TimingSession, Reader
+import trac.views
+import mock
 import datetime
-import sys
-print sys.path
+import json
 
 
 class TagViewSetTest(APITestCase):
@@ -78,8 +72,8 @@ class AthleteViewSetTest(APITestCase):
         self.client.force_authenticate(user=user)
         resp = self.client.get('/api/athletes/', format='json')
         self.assertEqual(len(resp.data), 2)
-        self.assertEqual(resp.data[0]['username'], 'grupp')
-        self.assertEqual(resp.data[1]['username'], 'clevins')
+        self.assertEqual(resp.data[0]['user']['username'], 'grupp')
+        self.assertEqual(resp.data[1]['user']['username'], 'clevins')
         self.assertEqual(resp.status_code, 200)
 
     def test_get_athletes_athlete(self):
@@ -91,7 +85,7 @@ class AthleteViewSetTest(APITestCase):
         self.assertEqual(resp.data[0]['id'], 1)
         self.assertEqual(resp.status_code, 200)
 
-    @mock.patch.object(trac.views.user_views, 'User')
+    @mock.patch.object(trac.serializers, 'User')
     def test_pre_save(self, mock_user):
         """Test that a user is created before the athlete is."""
         user = User.objects.get(username='alsal')
@@ -99,13 +93,15 @@ class AthleteViewSetTest(APITestCase):
         mock_user.objects.create.return_value = (
             User.objects.create(username='mock'))
         resp = self.client.post('/api/athletes/',
-                                data={'username': 'kennyb',
-                                      'first_name': 'Kenenisa',
-                                      'last_name': 'Bekele'})
+                data=json.dumps(
+                    {'user': {
+                        'username': 'kennyb',
+                        'first_name': 'Kenenisa',
+                        'last_name': 'Bekele'}
+                        }), content_type='application/json')
         mock_user.objects.create.assert_called_with(
-            username='kennyb')
+            username='kennyb', first_name='Kenenisa', last_name='Bekele')
         self.assertEqual(resp.status_code, 201)
-
 
 class ReaderViewSetTest(APITestCase):
 
@@ -167,7 +163,7 @@ class TimingSessionViewSetTest(APITestCase):
         self.assertIsNotNone(session.start_time)
         self.assertIsNotNone(session.stop_time)
         self.assertEqual(resp.status_code, 201)
-
+    
     def test_post_save(self):
         """Test that readers are automatically added to session."""
         user = User.objects.get(username='alsal')
@@ -212,7 +208,7 @@ class TimingSessionViewSetTest(APITestCase):
                          now.replace(microsecond=0))
         self.assertEqual(resp.status_code, 202)
 
-    @mock.patch.object(views, 'timezone')
+    @mock.patch.object(trac.views.session_views, 'timezone')
     def test_close(self, mock_timezone):
         """Test closing a session."""
         now = timezone.now()
@@ -227,25 +223,24 @@ class TimingSessionViewSetTest(APITestCase):
 
 class PostSplitsTest(APITestCase):
 
-    '''
-    @mock.patch.object(views.reader_views, 'create_split')
+    @mock.patch.object(trac.views.reader_views, 'create_split')
     def test_post_splits(self, mock_create_split):
         """Test creating splits from reader messages."""
 
+        mock_create_split.return_value = 0
         reader = 'A1010'
         tag = 'A0C3 0001'
         stime = timezone.now().strftime("%Y/%m/%d %H:%M:%S.%f") 
         resp = self.client.post('/api/updates/',
                                 data={'r': reader,
                                       's': "[['{}', '{}'],]".format(tag, stime)})
-        #self.assertEqual(resp.status_code, 201)
+        self.assertEqual(resp.status_code, 201)
         mock_create_split.assert_called_with(reader, tag, stime)
 
-    @mock.patch.object(views.reader_views, 'timezone')
+    @mock.patch.object(trac.views.reader_views, 'timezone')
     def test_get_server_time(self, mock_timezone):
         """Test sending the current time to the readers."""
         now = timezone.now()
         mock_timezone.now.return_value = now
         resp = self.client.get('/api/updates/')
         self.assertEqual(list(resp.data)[0], str(now))
-    ''' 
