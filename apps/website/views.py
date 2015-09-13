@@ -5,6 +5,15 @@ from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 def index(request):
     return render(request, 'index.html', {})
 
+def demo(request):
+    return render(request, 'blog.html', {})
+
+def mile_demo(request):
+    return render(request, 'ignatius.html', {})
+
+def cinci_demo(request):
+    return render(request, 'cinci.html', {})
+    
 @ensure_csrf_cookie
 def login(request):
     return render(request, 'login.html', {})

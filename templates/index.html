@@ -1,1 +1,476 @@
-{% extends  "base.html" %}
+<!DOCTYPE html>
+
+{% load static %}
+
+<html lang="en" class="">
+
+<head>
+  <meta name="description"  content="A Chicago based startup focusing on simplifying the track and field experience."> 
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+  {% block facebook_meta %}
+  <meta property="og:image" content="http://trac-us.com/images/shoes-video.jpg">
+  <meta property="og:title" content="TRAC | Timing and Racing Around the Clock ">
+  <meta property="fb:admins" content="804255640">
+  <meta property="og:type"   content="website"> 
+  <meta property="og:site_name" content="Timing and Racing Around the Clock">
+  <meta property="og:url"    content="http://www.trac-us.com">
+  <meta property="og:description" content="A Chicago based startup focusing on simplifying the track and field experience."> 
+  {% endblock %}
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+  <link rel="canonical" href="http://www.trac-us.com">
+  <link rel="icon" href="{% static "img/favicon.ico" %}" type="image/x-icon">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js" type="text/javascript"></script>
+  <!-- Twitter Bootstrap -->
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+
+  <!-- Vendor CSS -->
+  <link href="{% static "css/pushy.css" %}" rel="stylesheet" type="text/css">
+  <link href="{% static "css/progression.min.css" %}" rel="stylesheet" type="text/css">
+  <link href="{% static "css/jquery.dropdown.css" %}" rel="stylesheet" type="text/css">
+  <link href="{% static "css/parsley.css" %}" rel="stylesheet" type="text/css">
+  <link href="{% static "css/switchery.min.css" %}" rel="stylesheet" type="text/css">
+  <link href="{% static "css/new/blog.css" %}" rel="stylesheet" type="text/css">
+  <link href="{% static "css/new/main.css" %}" rel="stylesheet" type="text/css">
+   <link href="{% static "css/new/style.css" %}" rel="stylesheet" type="text/css">
+     <link href="{% static "css/colorbox.css" %}" rel="stylesheet" type="text/css">
+
+  <!-- Vendor scripts -->
+
+  <script src="{% static "js/jquery.scrollorama.js" %}" type="text/javascript"></script>
+  <script src="{% static "js/jquery.scrollTo.js" %}" type="text/javascript"></script>
+  <script src="{% static "js/jquery.serializeJSON.min.js" %}" type="text/javascript"></script>
+  <script src="{% static "js/jquery.dropdown.js" %}" type="text/javascript"></script>
+  <script src="{% static "js/jquery.tablesorter.min.js" %}" type="text/javascript"></script>
+  <script src="{% static "js/papaparse.min.js" %}" type="text/javascript"></script>
+  <script src="{% static "js/moment.min.js" %}" type="text/javascript"></script>
+  
+  <script src="{% static "js/parsley.min.js" %}" type="text/javascript"></script>
+  <script src="{% static "js/progression.min.js" %}" type="text/javascript"></script>
+  <script src="{% static "js/spin.min.js" %}" type="text/javascript"></script>
+  <script src="{% static "js/jspdf.debug.js" %}" type="text/javascript"></script>
+  <script src="{% static "js/pushy.min.js" %}" type="text/javascript"></script>
+  <script src="{% static "js/switchery.min.js" %}" type="text/javascript"></script>
+  <script src="{% static "js/switchery.min.js" %}" type="text/javascript"></script>
+  <script src="{% static "js/new/jquery.colorbox.js" %}" type="text/javascript"></script>
+  <script src="{% static "js/bowtruss.js" %}" type="text/javascript"></script>
+
+
+
+  
+<!--colorbox-->
+<link rel="stylesheet" href="static/css/colorbox.css" />  
+<script src="static/js/new/jquery.colorbox.js"></script>
+<script>
+	$(document).ready(function(){
+		//$(".youtube").colorbox({iframe:true, innerWidth:640, innerHeight:390});	
+		$(".youtube").colorbox({iframe:true, width:"90%", height:"95%"});	
+		$(".iframe").colorbox({iframe:true, width:"50%", height:"65%"}); 
+	});
+</script>
+	
+	
+  <!-- Google Analytics -->  
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-52974012-1', 'auto');
+  ga('require', 'displayfeatures');
+  ga('send', 'pageview');
+
+</script>
+</head>
+
+<body>
+<!--   <div id="bowtruss-header" class="container">
+    <a href="#" id="pull"></a>
+    <ul>
+      <li>
+        <a href="/" class="scrollto logo" title="TRAC">TRAC</a>
+      </li>
+      
+         
+      <li>
+        <a href="/#top" class="scrollto" rel="top">Home</a>
+      </li>
+      <li>
+        <a href="/#bg2" class="scrollto" rel="bg2">Product</a>
+      </li>
+	<li>
+        <a href="/#bg3" class="scrollto" rel="bg3">About</a>
+      </li>
+      <li>
+        <a href="/#bg5" class="scrollto" rel="bg5">Team</a>
+      </li>
+     <li>
+        <a href="/#bg4" class="scrollto" rel="bg4">Blog</a>
+      </li>
+      <li>
+        <a href="/#bg6" class="scrollto" rel="bg6">Contact</a>
+      </li>
+     
+    <li class="button">
+	<form action="https://trac-us.appspot.com">
+        <input type="submit" value="Log In"></input>
+        </form>
+      </li>
+      
+     
+    </ul>
+  </div> -->
+
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container" id="bowtruss-header">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a id="logo" class="navbar-brand" href="/home">
+          <img class="footer-img" src={% static "img/trac_small.gif" %} alt="TRAC" aria-hidden="true" >
+        </a>
+      </div>
+      <div id="navbar" class="navbar-collapse collapse">
+        <ul class="nav navbar-nav navbar-right">
+            <li><a href="/#top" class="scrollto" rel="top">Home</a></li>
+            <li><a href="/#bg2" class="scrollto" rel="bg2">Product</a></li>
+            <li><a href="/#bg3" class="scrollto" rel="bg3">About</a></li>
+            <li><a href="/#bg4" class="scrollto" rel="bg4">Blog</a></li>
+            <li><a href="/#bg5" class="scrollto" rel="bg5">Team</a></li>
+            <li><a href="/#bg6" class="scrollto" rel="bg6">Contact</a></li>
+            <li class="hidden-sm hidden-xs"><button class="btn btn-warning" style="margin-top:20%; margin-left:5%" onclick="location.href='/login';">Log in</button></li>
+        </ul>
+      </div><!--/.nav-collapse -->
+    </div>
+  </nav>
+
+
+  <div class="parallax">
+    <div id="top">
+      <div id="banner" class="content">
+        
+        <a href="#" class="target" id="target" title="play">PLAY</a>
+      </div>
+      <div id='' class="video-background">
+      	  <a href='https://www.youtube.com/embed/0mxy3hyEMno?rel=0&amp;wmode=transparent' class='youtube'><img src={% static "img/shoes-video.jpg" %} style='width:100%;' class='' /></a>
+      </div>
+	     
+    </div>
+	<div style="position:absolute; margin-top:-60px;">
+		<h1 class="logo hidden-xs" style="font-family: 'GothamHTF-Book', 'Helvetica', 'Arial', sans; font-size:30px; color:#fff; margin-right:auto; margin-left:auto; font-weight:700;">Timing And Racing Around the Clock</h1> 
+	  </div> 
+    <div id="bg2">  
+     
+	  <div class="content">
+        <h2>Product</h2>
+        <br>
+          <br>
+        <div class="pictures hidden-xs">
+        <div class="left">
+          <img src={% static "img/runningguy.png" %} height="150px">
+        </div>
+        <div class="wifione hidden-xs">
+          <img src={% static "img/wifi.png" %} height="100px">
+        </div>
+        <div class="mid">
+          
+          <img src={% static "img/cloud.png" %} height="100px">
+            
+        </div>
+        <div class="wifitwo hidden-xs">
+          <img src={% static "img/wifi.png" %} height="100px">
+        </div>
+        <div class="right">
+          <img src={% static "img/phone.png" %} height="150px">
+        </div>
+        </div>
+        <div class="text hidden-xs">
+          <div class="left">
+            <p>
+              The runner is tracked by our proprietary hardware and wearable sensors. Timing information is then live streamed to our servers.
+            </p>
+          </div>
+          <div class="mid">
+            <p>Server-side code interprets runner's I.D.s, times, and computes pace.</p>
+          </div>
+          <div class="right">
+            <p>Times are immediately pushed from the cloud to your personal device or tablet.</p>
+          </div>
+           
+        </div>
+        <div class="row hidden-lg hidden-md hidden-sm">
+          <img src={% static "img/runningguy.png" %} height="150px">
+          <p>
+              The runner is tracked by our proprietary hardware and wearable sensors. Timing information is then live streamed to our servers.
+            </p>
+          <div class="col-4-xs">
+          </div>
+          <div class="col-4-xs">
+            <img src={% static "img/cloud.png" %} height="100px">
+            <p>Server-side code interprets runner's I.D.s, times, and computes pace.</p>
+          </div>
+          <div class="col-4-xs">
+            <img src={% static "img/phone.png" %} height="150px">
+            <p>Times are immediately pushed from the cloud to your personal device or tablet.</p>
+          </div>
+        </div>
+
+      <!--  <br><br><br><br><br>
+        &#8226; Eliminates the need for clipboards and stopwatches
+        <br><br>
+          &#8226; Hardware is lightweight (5lbs) and rechargable
+          <br><br>
+           &#8226; Wearables attach to shoes and never need to be charged-->
+      </div>
+    </div>
+
+	<div id="bg3">
+      <div class="text"><br>
+      <div class="content">
+        <div class="row">
+              <div class="col-lg-12 col-md-12 col-sm-7 col-xs-6">
+      <br><br><br><h2>About</h2>
+    </div>
+  </div>
+        <div class="row">
+              <div class="col-lg-12 col-md-12 hidden-sm hidden-xs">
+                 <p>
+                  To the backdrop of Northwestern University, Elliot and Griffin met their freshman year running track & field. They have built a strong sense of collaboration, not only as teammates on the track, but through working on hours engineering homework together. 
+                </p>
+              </div>
+          </div>
+           <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-6 col-xs-5">
+              <br> <br> <br>
+              <p>
+                After finishing their master's degrees in the winter of 2009, Elliot and Griffin thought it would be the end of their journey. However, after forgetting his watch multiple times on lonely winter runs, Griffin realized technology was missing from track and field and cross-country running. Needing a partner who could share the dream, and the burden of the startup life, Griffin reached out to Elliot.
+              </p>
+              <br>
+            </div>
+    </div>
+        <br>
+          <br>
+          <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-6 col-xs-6">
+      <p>        TRAC was born.
+        
+      </p>
+            </div>
+          </div>
+      </div>
+      </div>
+        
+    </div>
+    <div id="bg4">
+      <div class="text"><br>
+      <div class="content">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-5 col-xs-5">
+              <br><br>
+            <h2>Trac on the track</h2><br>
+          </div>
+        </div>
+
+      <div class="container">
+        <div class="row">
+            <div class="col-lg-5 col-md-5 col-sm-5 hidden-xs">
+             <img src={% static "img/Tempo_Run2.jpg" %} style="width:100%">
+            </div>
+            <div class="col-lg-7 col-md-7 col-sm-7 col-xs-6">
+               <p style="text-align:left">
+              <i>Team:</i> Northwestern Men XC<br>
+              <i>Workout:</i> Montrose Tempo<br>
+              <i>Interval:</i> 3 X 2 Mile at tempo pace with 1 min rest <br>
+              <i>Set-Up:</i> 1 TRAC reader at the start/finish line on a 400 m track<br><br><br>
+              <i class="hidden-sm"> "By taking the work associated with splits out of the equation entirely, I can focus on actually watching the athletes and giving constructive feedback in real time." </i> <b class="hidden-sm">Coach Peter Foote</b>
+            </p>
+            </div>
+        </div>
+        <div class="row" style="padding-top:5%">
+          <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
+             <a href="/demo" >Checkout other workouts in action</a>
+          </div>
+
+        </div>
+      </div>
+
+         
+
+      
+      </div>
+      </div>
+        
+    </div>
+    <div id="bg5">
+      <div class="content">
+        <h2>Meet T.R.A.C.</h2>
+       <div class="picture hidden-sm hidden-xs">
+          <h3>Our Founders:</h3>
+          <img src={% static "img/DSC0385.JPG" %} width="450px">
+          <h4>Griffin Kelly &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp Elliot Hevel</h4>
+        </div>
+          
+        <div class="text"><p>
+        <h3>Our Team:</h3>
+        
+          <h4 >
+          &#8226;<a href="https://www.linkedin.com/in/grifkelly/"> Griffin Kelly: Chief Executive Officer</a>
+          <br>
+             &#8226;<a href="https://www.linkedin.com/pub/elliot-hevel/90/3b0/43b"> Elliot Hevel: Chief Technology Officer</a>
+             <br>
+            &#8226; AJ Greenway: Business Development Analyst</a>
+            <br>
+            &#8226;<a href="https://www.linkedin.com/pub/nathanael-robinson/83/973/712"> Nate Robinson: Hardware Design Engineer</a> 
+            <br>
+            &#8226;<a href="https://www.linkedin.com/pub/jason-hoover/29/67a/6b5"> Jason Hoover: Front-End Developer</a>
+            <br>
+		&#8226;<a href="https://www.linkedin.com/pub/charles-hoffert/20/403/667"> Charlie Hoffert: Firmware Design Engineer</a>
+	<br>
+		&#8226;<a href="https://www.linkedin.com/pub/kanut-harichanwong/89/87/527"> Bew Harichanwong: Front-End Developer</a>
+  </h4>
+  <h4 class="hidden-sm hidden-xs">
+    &#8226; Jason Rhee: Backend-End Developer</a>
+    <br>
+    &#8226; Oscar Aguinaga: Business Development Analyst</a>
+    <br>
+
+    <br>
+	
+          </h4>
+              <h3 class="hidden-sm hidden-xs">Our Board:</h3>
+              <h4 class="hidden-sm hidden-xs">
+            &#8226;<a href="https://www.linkedin.com/pub/howard-kelly/5/66a/b02"> Howard Kelly: Chairman, President of Vancive Medical Technologies</a>
+            <br>
+            &#8226;<a href="https://www.linkedin.com/pub/vinny-finneran/1b/358/973"> Vincent Finneran: Boardmember, Former Program Director of CARA</a>
+          </h4>
+            
+           
+            
+        </div>
+      </div>
+    </div>
+
+    <div id="bg6">
+      <div class="content">
+        <h2>CONTACT US</h2>
+        <br>
+          <br>
+        <p>For more information regarding Timing and Racing Around the Clock or about purchasing one of our systems reach us at:</p>
+        <br>
+          <br>
+         <h3><a href="mailto:info@trac-us.com?subject=TRAC System Interest&body=Hi TRAC Team, I am interested in more information regarding your timing system.">info@trac-us.com</a></h3>
+      </div>
+    </div>
+
+<!--Footer Addition -->
+ <footer class="footer">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-3 col-sm-6 footer-item">
+          <img class="footer-img" src= {% static "img/trac_small.gif" %} alt="TRAC" aria-hidden="true" >
+        </div>
+
+        <div class="col-md-3 col-sm-6 footer-item">
+          <div class="internal">
+            <a href="https://www.facebook.com/timingracing"><img src={% static "img/facebook.png" %}></a>
+            <a href="http://youtu.be/9OxhM_fiHWo"><img src={% static "img/youtube.png" %} width="50px"></a>
+            <a href="https://angel.co/timing-and-racing-around-the-clock"><img src= {% static "img/angellist.png" %}></a>
+            <a href="https://twitter.com/TRAC_Chicago"><img src= {% static "img/twitter2.png" %} style="width:56px"></a>
+          </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6 hidden-xs footer-item">
+          <div class="external">
+            <ul>
+              <li><a href="/bg3" class="scrollto" rel="bg3">About</a></li>
+              <li><a href="/Tutorial/5/">Frequently Asked Questions</a></li>
+              <li><a href="mailto:info@trac-us.com">Contact us</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6 footer-item">
+          <address style="color:black">
+            Timing and Racing Around the Clock<br>
+            The Garage<br>
+            2311 Campus Drive<br>
+            Evanston, IL 60208<br><br>
+          </address>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script type="text/javascript">
+  
+    $(document).ready(function() {
+      bowtrussHeader();
+	Footer();
+    });
+  </script>
+  <script>
+/*!function ($) {
+  $(document).ready(function() {
+    /* fancy background video player deally */    
+  /*  $('.video-background').videobackground({
+      videoSource: ['video/trac.mov', 'video/mov'], 
+      poster: '',
+      resize: false,
+      loop: true,
+      autoplay: true,
+
+      preloadCallback: function() {
+      },
+      loadedCallback: function() {
+        $(this).videobackground('mute');
+      }
+    });
+	
+    /* physical controls */   
+/*    $("#target").click(function() {
+      $('.video-background').videobackground('play');
+      $('#intro-copy').addClass('fadeintro');
+      $('.video-background').toggleClass('visible')
+      $('#top').toggleClass('top-hide');
+      $('#banner').toggleClass('lower-opacity'); 
+    }); 
+*/
+    /* controlling the video with page scroll triggers */
+ /*   var wasUserPlaying = false;
+      $("div#bg3").waypoint(function (direction) { 
+          if (direction == 'down' ) {
+            if( !$('.video-background video').get(0).paused ) {
+              $('.video-background video').get(0).pause();
+              wasUserPlaying = true;
+            } else {
+              wasUserPlaying = false;
+            }
+          }
+          else if(direction === 'up' && wasUserPlaying ) {
+        $('.video-background video').get(0).play();
+          }
+    }, { offset: 200 });
+
+$("video").bind("ended", function() {
+   alert("I'm done!");
+});
+    
+    
+
+    
+    
+  });
+}(window.jQuery);
+*/
+</script>
+
+  </body>
+</html>
