@@ -3,7 +3,10 @@ from django.views.generic import TemplateView
 import views
 
 urlpatterns = patterns('',
-    url(r'^$', views.home, name='home'),
+    url(r'^$', views.index, name='index'),
+    url(r'^demo', views.demo, name='demo'),
+    url(r'^mile_demo', views.mile_demo, name='mile_demo'),
+    url(r'^cinci_demo', views.cinci_demo, name='cinci_demo'),
     url(r'^home', views.home, name='home'),
     url(r'^login', views.login, name='login'),
     url(r'^register', views.register, name='register'),
