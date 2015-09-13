@@ -7,7 +7,6 @@ https://docs.djangoproject.com/en/1.6/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.6/ref/settings/
 """
-
 from os.path import abspath, basename, dirname, join, normpath
 from os import getenv
 from sys import path
@@ -49,7 +48,6 @@ ADMINS = (
 MANAGERS = ADMINS
 ###########################################
 
-
 ########## APP CONFIGURATION ##########
 DJANGO_APPS = (
     'django.contrib.admin',
@@ -63,9 +61,6 @@ DJANGO_APPS = (
 THIRD_PARTY_APPS = (
         'rest_framework',
         'oauth2_provider',
-        #'provider',
-        #'provider.oauth2',
-        #'paypal.standard.ipn',
 )
 
 
@@ -82,12 +77,12 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 if not APP_ENGINE:
     INSTALLED_APPS = INSTALLED_APPS + ('django_nose',)
 
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+    TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
-NOSE_ARGS = [
-    '--with-coverage', '--cover-inclusive',
-    '--cover-package=trac,website,stats'
-]
+    NOSE_ARGS = [
+        '--with-coverage', '--cover-inclusive',
+        '--cover-package=trac,website,stats'
+    ]
 
 if SHIPPABLE:
     NOSE_ARGS += [
@@ -268,6 +263,4 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 ############################################
-
-PAYPAL_RECEIVER_EMAIL = "GriffinKelly2013@gmail.com"
 

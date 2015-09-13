@@ -194,7 +194,7 @@ class TimingSessionViewSetTest(APITestCase):
     @mock.patch.object(trac.views.session_views, 'timezone')
     def test_open(self, mock_timezone):
         """Test opening a session."""
-        now = timezone.now()
+        now = timezone.now().replace(microsecond=0)
         one_day_from_now = now + timezone.timedelta(days=1)
         mock_timezone.timedelta.return_value = timezone.timedelta(0)
         mock_timezone.now.return_value = now
@@ -202,22 +202,19 @@ class TimingSessionViewSetTest(APITestCase):
         self.client.force_authenticate(user=user)
         resp = self.client.post('/api/sessions/1/open/')
         # This is hacky, just like our 8 second delay.
-        self.assertEqual(TimingSession.objects.get(pk=1).start_time,
-                         now.replace(microsecond=0))
-        self.assertEqual(TimingSession.objects.get(pk=1).stop_time,
-                         now.replace(microsecond=0))
+        self.assertEqual(TimingSession.objects.get(pk=1).start_time, now)
+        self.assertEqual(TimingSession.objects.get(pk=1).stop_time, now)
         self.assertEqual(resp.status_code, 202)
 
     @mock.patch.object(trac.views.session_views, 'timezone')
     def test_close(self, mock_timezone):
         """Test closing a session."""
-        now = timezone.now()
+        now = timezone.now().replace(microsecond=0)
         mock_timezone.now.return_value = now
         user = User.objects.get(username='alsal')
         self.client.force_authenticate(user=user)
         resp = self.client.post('/api/sessions/1/close/')
-        self.assertEqual(TimingSession.objects.get(pk=1).stop_time,
-                now.replace(microsecond=0))
+        self.assertEqual(TimingSession.objects.get(pk=1).stop_time, now)
         self.assertEqual(resp.status_code, 202)
 
 
