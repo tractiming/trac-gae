@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.core.cache import cache
 from django.dispatch import receiver
-from trac.utils.filters import filter_splits
+from trac.utils.filter_util import filter_splits
 from collections import namedtuple
 import datetime
 from oauth2_provider.models import Application

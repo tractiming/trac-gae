@@ -10,7 +10,7 @@ from rest_framework.decorators import (
     api_view, permission_classes, authentication_classes
 )
 from rest_framework.authentication import BasicAuthentication
-from trac.utils.util import is_athlete, is_coach, user_type
+from trac.utils.user_util import is_athlete, is_coach, user_type
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from django.utils import timezone

@@ -1,6 +1,6 @@
 from trac.models import Team, TimingSession, Coach
 from trac.serializers import TeamSerializer, ScoringSerializer
-from trac.utils.util import is_athlete, is_coach
+from trac.utils.user_util import is_athlete, is_coach
 from rest_framework import viewsets, permissions
 
 

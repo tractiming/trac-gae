@@ -1,6 +1,6 @@
 from trac.models import TimingSession, Reader, Tag, Split, Team, Athlete
 from trac.serializers import TimingSessionSerializer
-from trac.utils.util import is_athlete, is_coach
+from trac.utils.user_util import is_athlete, is_coach
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from django.utils import timezone

@@ -1,6 +1,6 @@
 from trac.models import Reader
 from trac.serializers import ReaderSerializer
-from trac.utils.util import is_coach
+from trac.utils.user_util import is_coach
 from trac.utils.split_util import create_split
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response

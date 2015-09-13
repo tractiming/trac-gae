@@ -1,6 +1,6 @@
 from trac.models import TimingSession, Tag
 from trac.serializers import TagSerializer
-from trac.utils.util import is_athlete, is_coach
+from trac.utils.user_util import is_athlete, is_coach
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
