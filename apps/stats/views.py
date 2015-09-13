@@ -1,7 +1,17 @@
+from trac.models import TimingSession, Coach
+from trac.utils.user_util import is_athlete, is_athlete
+from rest_framework import permissions, status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
+import stats
+
+
 DEFAULT_DISTANCES = [100, 200, 400, 800, 1000, 1500,
                      1609, 2000, 3000, 5000, 10000]
 DEFAULT_TIMES = [14.3, 27.4, 61.7, 144.2, 165, 257.5,
                  278.7, 356.3, 550.8, 946.7, 1971.9, ]
+
+
 # Create your views here.
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))
@@ -25,7 +35,7 @@ def analyze(request):
 
     r_dict = stats.investigate(dataList)
 
-    return Response (r_dict, status.HTTP_200_OK)
+    return Response(r_dict, status.HTTP_200_OK)
 
 @api_view(['GET'])
 @permission_classes((permissions.AllowAny,))
@@ -76,11 +86,10 @@ def est_distance(request):
     """
     Updates user individual time tables using distance prediction.
     """
-
     #SETUP and parse dataList
     user = request.user
     idx = request.POST.get('id')
-    ts = TimingSession.objects.get(id = idx)
+    ts = TimingSession.objects.get(id=idx)
     run = ts.individual_results()
     dataList = []
     for r in run:
@@ -162,6 +171,6 @@ def est_distance(request):
         temp_t_VO2 = accumulate_t_VO2 / count_t_VO2
         temp_VO2 = accumulate_VO2 / count_VO2
         return_dict.append({"runner":runner, "CurrentWorkout":temp_t_VO2, "Average":temp_VO2})
-    print return_dict
-    #return auto_edits 
-    return HttpResponse(status.HTTP_200_OK)
+    
+    #LOG: print return_dict
+    return Response({}, status.HTTP_200_OK)

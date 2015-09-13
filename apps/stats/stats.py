@@ -6,9 +6,11 @@ import itertools
 
 def calculate_distance(data_dict):
     """
-    If the universal rest times and runners personal rest times line up, sum up all of the splits in between restpoints to find how
-    far a runner runs given total time and number of splits. If only 2 splits, then it was likely a continuous workout so find total
-    time. Take the minimum of each time per interval to interpolate from an average times per distance graph.
+    If the universal rest times and runners personal rest times line up, sum up
+    all of the splits in between restpoints to find how far a runner runs given
+    total time and number of splits. If only 2 splits, then it was likely a
+    continuous workout so find total time. Take the minimum of each time per
+    interval to interpolate from an average times per distance graph.
     """
 
     #SET global variables
@@ -27,31 +29,39 @@ def calculate_distance(data_dict):
     rests = cross_check_runners(list_of_lists)
     if rests[0] == 0:
         rests.pop(0)
-    print rests
     data = data_dict
 
-    #for each runner, if there are <= 2 universal rest points, it is continuous, else it is interval.
+    # For each runner, if there are <= 2 universal rest points, it is
+    # continuous, else it is interval.
     for runner in data:
         runner_specific_times.append({'name': runner['name'], 'results':[]})
 
-        #for continuous, just sum up total times. In order to estimate distance use the min of all the runners times of this interval.
-        #add all individual times to respective tables.
-        if len(rests) <= 2 and rests[0] == 0 and rests[1] == (len(runner['times']) - 1):
+        # For continuous, just sum up total times. In order to estimate distance
+        # use the min of all the runners times of this interval. Add all
+        # individual times to respective tables.
+        if (len(rests) <= 2 and rests[0] == 0 and
+                rests[1] == (len(runner['times']) - 1)):
             temp_sum = sum(runner['times'])
             if (rests[1]+1) in list_of_times.keys():
                 list_of_times[rests[1]+1].append(temp_sum)
                 for entry in runner_specific_times:
                     if entry['name'] == runner['name']:
-                        entry['results'].append({'splits': rests[1], 'times': temp_sum, 'interval': 'c'})
+                        entry['results'].append({'splits': rests[1],
+                                                 'times': temp_sum,
+                                                 'interval': 'c'})
             else:
                 list_of_times[rests[1]+1] = [temp_sum]
                 for entry in runner_specific_times:
                     if entry['name'] == runner['name']:
-                        entry['results'].append({'splits': rests[1], 'times': temp_sum, 'interval': 'c'})
+                        entry['results'].append({'splits': rests[1],
+                                                 'times': temp_sum,
+                                                 'interval': 'c'})
         else: 
 
-            #filter through each interval between rest points. If athlete personal rest intervals line up, sum up the times in
-            #between rest points. Take the minimum for distance prediction and all individual times are added to their own tables.
+            # Filter through each interval between rest points. If athlete
+            # personal rest intervals line up, sum up the times in between rest
+            # points. Take the minimum for distance prediction and all individual
+            # times are added to their own tables.
             runner['indices'] = sorted(runner['indices'])
             for index in range(0, len(rests)):
                 idx = rests[index]
@@ -69,12 +79,18 @@ def calculate_distance(data_dict):
                                 list_of_times[idy-idx].append(temp_sum)
                                 for entry in runner_specific_times:
                                     if entry['name'] == runner['name']:
-                                        entry['results'].append({'splits': idy-idx-1, 'times': temp_sum, 'interval': 'i'})
+                                        entry['results'].append(
+                                                {'splits': idy-idx-1,
+                                                 'times': temp_sum,
+                                                 'interval': 'i'})
                             else:
                                 list_of_times[idy-idx] = [temp_sum]
                                 for entry in runner_specific_times:
                                     if entry['name'] == runner['name']:
-                                        entry['results'].append({'splits': idy-idx-1, 'times': temp_sum, 'interval': 'i'})
+                                        entry['results'].append(
+                                                {'splits': idy-idx-1,
+                                                 'times': temp_sum,
+                                                 'interval': 'i'})
                         else:
                             continue
                     except:
@@ -88,12 +104,13 @@ def calculate_distance(data_dict):
             average = 0
         #average = average / len(list_of_times[key])
         list_of_times[key] = average
-    print list_of_times
+    #LOG: print list_of_times
     return list_of_times, runner_specific_times
 
 def create_list_of_lists(data_dict):
     """
-    SubTool for Investigate: reset all rest_indices after new splits added to keep them all lined up.
+    SubTool for Investigate: reset all rest_indices after new splits added to
+    keep them all lined up.
     """
     list_of_lists = []
     for runner in data_dict:
@@ -102,14 +119,18 @@ def create_list_of_lists(data_dict):
 
 def investigate(data_dict):
     """
-    Auto-FIX: first loop through all times for runners to find individual rest indices using 
-    median_deviation and then calc_rest_interval (both below). Using those append individual rest
-    indices into data_dict and create universal_rest_indices list. After that begins point by point analysis.
-    If there are enough rest times that are close to each other, then flag all absurdly large or small rests.
-    If a point is in line with a universal rest, then probably a rest. If it is one in front of it, then it is
-    probably a split and a rest. If the rest is nowhere near a universal rest, it is probably two splits or an
-    unusual rest. The big analysis loop is ordered to go through every runners' first point, then every runners'
-    other points in that order. It is to dynamically ensure that all the splits and rests eventually line up.
+    Auto-FIX: first loop through all times for runners to find individual rest
+    indices using median_deviation and then calc_rest_interval (both below).
+    Using those append individual rest indices into data_dict and create
+    universal_rest_indices list. After that begins point by point analysis.  If
+    there are enough rest times that are close to each other, then flag all
+    absurdly large or small rests.  If a point is in line with a universal
+    rest, then probably a rest. If it is one in front of it, then it is
+    probably a split and a rest. If the rest is nowhere near a universal rest,
+    it is probably two splits or an unusual rest. The big analysis loop is
+    ordered to go through every runners' first point, then every runners' other
+    points in that order. It is to dynamically ensure that all the splits and
+    rests eventually line up.
     """
     # FUNCTION VARIABLE DECLARATIONS
     useUniversalRestAvg = False
@@ -163,7 +184,8 @@ def investigate(data_dict):
 
     #If runner's average is absurd, make it the median of the total average.
     for runner in data_dict:
-        if abs(runner['average'] - median(rest_avg)) < abs(runner['average'] - median(tot_result_avg)):
+        if (abs(runner['average'] - median(rest_avg)) <
+                abs(runner['average'] - median(tot_result_avg))):
             runner['average'] = round(median(tot_result_avg), 3)
 
 
@@ -190,7 +212,10 @@ def investigate(data_dict):
                         runner['times'].insert(element, other_half)
                         for entry in return_dictionary:
                             if entry['id'] == runner['name']:
-                                entry['results'].append({'index': element, 'times': [runner['times'][element], runner['times'][element+1]]})
+                                entry['results'].append(
+                                        {'index': element,
+                                         'times': [runner['times'][element],
+                                                   runner['times'][element+1]]})
                         for jj in range(0, len(runner['indices'])):
                             if runner['indices'][jj] > element:
                                 runner['indices'][jj] += 1
@@ -201,7 +226,10 @@ def investigate(data_dict):
                         runner['times'].insert(element + 1, runner['average'])
                         for entry in return_dictionary:
                             if entry['id'] == runner['name']:
-                                entry['results'].append({'index': element, 'times': [runner['times'][element], runner['times'][element+1]]})
+                                entry['results'].append(
+                                        {'index': element,
+                                         'times': [runner['times'][element],
+                                                   runner['times'][element+1]]})
                         for jj in range(0, len(runner['indices'])):
                                 if runner['indices'][jj] > element:
                                     runner['indices'][jj] += 1
@@ -221,12 +249,16 @@ def investigate(data_dict):
                         runner['times'].insert(element, runner['average'])
                         for entry in return_dictionary:
                             if entry['id'] == runner['name']:
-                                entry['results'].append({'index': element, 'times': [runner['times'][element], runner['times'][element+1]]})
+                                entry['results'].append(
+                                        {'index': element,
+                                         'times': [runner['times'][element],
+                                                   runner['times'][element+1]]})
                         for jj in range(0, len(runner['indices'])):
                             if runner['indices'][jj] > element:
                                runner['indices'][jj] += 1
 
-                #If not either of those, it is a rest that does not belong, check to split if it is an even split if not it is a rest.
+                # If not either of those, it is a rest that does not belong,
+                # check to split if it is an even split if not it is a rest.
                 else:
                     if abs((runner['times'][element]/2) - runner['average']) < 5:
                         half = round(runner['times'][element]/2, 3)
@@ -235,7 +267,10 @@ def investigate(data_dict):
                         runner['times'].insert(element, other_half)
                         for entry in return_dictionary:
                             if entry['id'] == runner['name']:
-                                entry['results'].append({'index': element, 'times': [runner['times'][element], runner['times'][element+1]]})
+                                entry['results'].append(
+                                        {'index': element,
+                                         'times': [runner['times'][element],
+                                                   runner['times'][element+1]]})
                         for jj in range(0, len(runner['indices'])):
                             if runner['indices'][jj] > element:
                                 runner['indices'][jj] += 1
@@ -263,8 +298,9 @@ def investigate(data_dict):
 
 def cross_check_runners(data):
     """
-    SubTool for Investigate: This lines up all runner rest indices and if the frequency of a certain index is high enough,
-    add the index to a universal index list.
+    SubTool for Investigate: This lines up all runner rest indices and if the
+    frequency of a certain index is high enough, add the index to a universal
+    index list.
     """
     frequencies = {}
     count = 0
@@ -299,8 +335,9 @@ def quantify(iterable, pred=bool):
 
 def calc_rest_interval(data):
     """
-    SubTool for Investigate: after median_deviation filters through all the points run entropy on the remaining non_rest points.
-    This will filter the close but could still be rest points.
+    SubTool for Investigate: after median_deviation filters through all the
+    points run entropy on the remaining non_rest points.  This will filter the
+    close but could still be rest points.
     """
     lst, rest = median_deviation(data)
     average = median(data)
@@ -338,7 +375,8 @@ def standard_deviation(data):
 
 def median_deviation(data):
     """
-    This takes all the points and filters rests by determining as rests all points one standard deviation away from the median.
+    This takes all the points and filters rests by determining as rests all
+    points one standard deviation away from the median.
     """
     average = median(data)
     lst = data

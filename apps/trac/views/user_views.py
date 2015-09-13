@@ -64,7 +64,7 @@ class AthleteViewSet(viewsets.ModelViewSet):
 
         #Iterate through each session to get all of a single users workouts
         for session in sessions:
-            session_results = session.calc_athlete_splits(athlete_id)
+            session_results = session.calc_athlete_splits(athlete.id)
             session_info = {'id': session.id,
                             'name': session.name,
                             'date': session.start_time,

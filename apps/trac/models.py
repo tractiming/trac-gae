@@ -9,6 +9,7 @@ from collections import namedtuple
 import datetime
 from oauth2_provider.models import Application
 
+
 class Coach(models.Model):
     """
     A coach is a type of user who has a team of athletes, creates workouts,
