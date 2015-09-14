@@ -91,7 +91,8 @@ class RegistrationView(views.APIView):
                     status=status.HTTP_400_BAD_REQUEST)
         data = serializer.data
         # Create the user in the database.
-        user = User.objects.create(username=data['username'])
+        user = User.objects.create(username=data['username'],
+                                   last_login=timezone.now())
         user.set_password(data['password'])
         user.email = request.data['email']
         user.save()
