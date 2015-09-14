@@ -15,6 +15,8 @@ from rest_framework.response import Response
 from django.contrib.auth.models import User
 from django.utils import timezone
 from oauth2_provider.models import Application
+from django.contrib.auth import authenticate, login
+from django.contrib.auth import logout as auth_logout
 
 
 
@@ -158,9 +160,9 @@ class verifyLogin(views.APIView):
 
 @api_view(['POST'])
 @authentication_classes((BasicAuthentication,))
-def login(request):
+def auth_login(request):
     """
-    Log a user into the site.
+    Log a user into the site. Create Django backend token.
     """
     application = Application.objects.get(user=request.user) 
     credentials = {'username': request.user.username,
@@ -168,7 +170,20 @@ def login(request):
                    'client_secret': application.client_secret,
                    'user_type': user_type(request.user)
                    }
+	
+    username = request.POST.get('username')
+    password = request.POST.get('password')
+    user = authenticate(username=username, password=password)
+    login(request,user)
     return Response(credentials)
+
+@api_view(['POST'])
+def logout(request):
+    """
+    Logout a user into the site; delete django backend token.
+    TODO: Fix broken pipe
+    """
+    auth_logout(request)
 
 ''' I think we can remove this.
 class userType(views.APIView):

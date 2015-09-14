@@ -1,6 +1,8 @@
 {% extends "base_new.html" %}
 {% load static %}
-
+{% block js_scripts %}
+	<script type="text/javascript" src="{% static "js/access_token.js" %}"></script>
+{% endblock %}
 {% block content %}
   <!-- Modal for server update -->
   <div class="modal fade" id="in-progress">
