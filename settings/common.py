@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 """
 from os.path import abspath, basename, dirname, join, normpath
 from os import getenv
+import os
 from sys import path
 
 ########## PATH CONFIGURATION ##########
@@ -65,6 +66,7 @@ THIRD_PARTY_APPS = (
 
 
 LOCAL_APPS = (
+		'djstripe',
         'trac',
         'website',
         'stats',
@@ -264,3 +266,27 @@ EMAIL_USE_TLS = True
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 ############################################
 
+############### STRIPE API ################
+STRIPE_PUBLIC_KEY = os.environ.get("STRIPE_PUBLIC_KEY", "pk_test_CDTkwilGwFbGM1v30Sw46FtO")
+STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", "sk_test_8dwmRwbSMzZNticzW7fQaKu0")
+
+DJSTRIPE_PLANS = {
+    "monthly": {
+        "stripe_plan_id": "Monthly",
+        "name": "($9.99/month)",
+        "description": "The monthly base charge",
+        "price": 999,  # $9.99
+        "currency": "usd",
+        "interval": "month"
+    },
+    "yearly": {
+        "stripe_plan_id": "Yearly",
+        "name": "($110/year)",
+        "description": "Yearly base charge",
+        "price": 10999,  # $109.99
+        "currency": "usd",
+        "interval": "year"
+    }
+}
+
+###########################################

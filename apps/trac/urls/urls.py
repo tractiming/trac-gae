@@ -19,7 +19,8 @@ urlpatterns = [
         # General endpoints.
         url(r'^register/$', user_views.RegistrationView.as_view()),
         url(r'^verifyLogin/$', user_views.verifyLogin.as_view()),
-        url(r'^login/$', user_views.login),
+        url(r'^login/$', user_views.auth_login),
+        url(r'^logout/$', user_views.logout),
 
         # Timing session functionality.
         url(r'^raceregistration/$', session_views.create_race, name='racereg'),
@@ -37,6 +38,7 @@ urlpatterns = [
         url(r'^change_password/$', user_views.change_password),
         url(r'^send_email/$', user_views.send_email),
         url(r'^tutorial_limiter/$', user_views.tutorial_limiter),
+        url(r'^stripe/$', user_views.subscribe),
 
         # Endpoint for readers.
         url(r'^updates/$', reader_views.post_splits, name='updates'),

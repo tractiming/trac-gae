@@ -9,5 +9,7 @@ urlpatterns = patterns('',
     url(r'^stats/', include('stats.urls')),
     url(r'^oauth2/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^payments/', include('djstripe.urls', namespace='djstripe')),
+    
 )
 

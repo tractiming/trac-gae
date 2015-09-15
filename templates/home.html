@@ -26,20 +26,6 @@ else{
           location.href="/login";
       });
 
-       $.ajax({
-          url: "api/payment_check/",
-          headers: {Authorization: "Bearer " + sessionStorage.access_token},
-          dataType: 'text',
-          success: function(data){
-            if(data != 200){
-                    location.href='/account_settings';
-            }
-          },
-          error: function(xhr, errmsg, err) {
-            location.href='/account_settings';
-          }
-
-        });
 
        $.ajax({
           url: "api/tutorial_limiter/",
