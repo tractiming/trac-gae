@@ -1,5 +1,45 @@
 {% extends "djstripe/base.html" %}
+{% block js_scripts %}
 
+<script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+<script type="text/javascript">
+  // This identifies your website in the createToken call below
+
+  Stripe.setPublishableKey('{{ STRIPE_PUBLIC_KEY }}');
+  
+      var stripeResponseHandler = function(status, response) {
+      var $form = $('#change-card-form');
+
+      if (response.error) {
+        // Show the errors on the form
+        $form.find('.payment-errors').text(response.error.message);
+        $form.find('button').prop('disabled', false);
+      } else {
+        // token contains id, last4, and card type
+        var token = response.id;
+        // Insert the token into the form so it gets submitted to the server
+        $form.append($('<input type="hidden" name="stripe_token" />').val(token));
+        // and submit
+        $form.get(0).submit();
+      }
+    };
+  
+  jQuery(function($) {
+    $('#change-card-form').submit(function(event) {
+        var $form = $(this);
+
+        // Disable the submit button to prevent repeated clicks
+        $form.find('button').prop('disabled', true);
+
+        Stripe.card.createToken($form, stripeResponseHandler);
+
+        // Prevent the form from submitting with the default action
+        return false;
+    });
+});
+</script>
+
+{% endblock %}
 {% block title %}Change Card{% endblock title %}
 
 {% block content %}
@@ -12,7 +52,7 @@
     </div>
 </div>
 
-<div class="row">
+<div class="row" style="margin-left:2%; margin-top:2%; margin-bottom:4%">
     <div class="col-xs-12">
         <h2>Current Card</h2>
         <p class="lead">
@@ -29,7 +69,7 @@
         {% endif %}
         
             
-        <form action="{% url 'djstripe:change_card' %}" method="POST" id="change-card-form">
+        <form action="/api/stripe/" method="POST" id="change-card-form">
         {% csrf_token %}
           <span class="payment-errors"></span>
 
@@ -62,43 +102,3 @@
 </div>
 {% endblock content %}
 
-
-{% block javascript %}
-{{ block.super }}
-<script type="text/javascript" src="https://js.stripe.com/v2/"></script>
-<script type="text/javascript">
-  // This identifies your website in the createToken call below
-  Stripe.setPublishableKey('{{ STRIPE_PUBLIC_KEY }}');
-  jQuery(function($) {
-    $('#change-card-form').submit(function(event) {
-        var $form = $(this);
-
-        // Disable the submit button to prevent repeated clicks
-        $form.find('button').prop('disabled', true);
-
-        Stripe.card.createToken($form, stripeResponseHandler);
-
-        // Prevent the form from submitting with the default action
-        return false;
-    });
-
-    var stripeResponseHandler = function(status, response) {
-      var $form = $('#change-card-form');
-
-      if (response.error) {
-        // Show the errors on the form
-        $form.find('.payment-errors').text(response.error.message);
-        $form.find('button').prop('disabled', false);
-      } else {
-        // token contains id, last4, and card type
-        var token = response.id;
-        // Insert the token into the form so it gets submitted to the server
-        $form.append($('<input type="hidden" name="stripe_token" />').val(token));
-        // and submit
-        $form.get(0).submit();
-      }
-    };
-});
-</script>
-
-{% endblock javascript %}

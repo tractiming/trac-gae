@@ -17,6 +17,11 @@ from django.utils import timezone
 from oauth2_provider.models import Application
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout as auth_logout
+import stripe
+from djstripe.models import Customer
+from django.conf import settings
+from django.http import HttpResponse
+from django.shortcuts import redirect
 
 
 
@@ -379,4 +384,20 @@ def tutorial_limiter(request):
     else:
         return HttpResponse(status.HTTP_403_FORBIDDEN)
 
+def subscribe(request, **kwargs):
+	data = request.POST
+	print data
+	user = request.user
+	print user
+	try:
+		customer = user.customer
+	except:
+		customer = Customer.create(user)
+	print request.POST.get('stripe_token')
+	customer.update_card(request.POST.get('stripe_token'))
+	customer.subscribe('monthly')
+	
+	stripe.api_key = settings.STRIPE_SECRET_KEY
+	
+	return redirect('/payments')
 

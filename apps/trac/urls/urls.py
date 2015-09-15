@@ -38,6 +38,7 @@ urlpatterns = [
         url(r'^change_password/$', user_views.change_password),
         url(r'^send_email/$', user_views.send_email),
         url(r'^tutorial_limiter/$', user_views.tutorial_limiter),
+        url(r'^stripe/$', user_views.subscribe),
 
         # Endpoint for readers.
         url(r'^updates/$', reader_views.post_splits, name='updates'),

@@ -32,22 +32,19 @@
     	{% else %}        
 
         
-        <p class="lead">
-          Are you sure you want to cancel your subscription?
-        </p>
+
 
         {% block cancellation_ramifications %}
-        <h3>What you lose by cancelling your subscription:</h2>
-        <ul>
+        <h3 style="margin-top:2%">What you lose by cancelling your subscription:</h3>
+        <ul style="text-align:center">
           <li>Access to subscription-only content.</li>
           <li>Ability to use subscription-only features.</li>
         </ul>
         {% endblock cancellation_ramifications %}
 
-        <h3>Are you sure you want to cancel?</h3>
-        <form action="{% url 'djstripe:cancel_subscription' %}" method="post" id="cancel-form">
+        <form action="{% url 'djstripe:cancel_subscription' %}" method="post" id="cancel-form" style="margin-bottom:2%; margin-top:2%; text-align:center">
             {% csrf_token %}
-            <a href="{% url 'djstripe:account' %}" class="btn btn-primary">I change my mind!</a>
+            <a href="{% url 'djstripe:account' %}" class="btn btn-primary">I changed my mind!</a>
             <button class="btn btn-danger">Cancel my subscription!</button>
         </form>
         

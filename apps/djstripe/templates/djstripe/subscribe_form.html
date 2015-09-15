@@ -47,9 +47,6 @@
                     disabled="true"
                   {% endif %}
                  type="submit" class="btn btn-primary">
-                  {% with image=plan.image|default:"img/default-plan-image.png" %}
-                    <img src="{% static image %}" class="img-thumbnail" />
-                  {% endwith %}
                   <h3>{{ plan.name }}</h3>
                   <p>{{ plan.description }}</p>
                 </button>
@@ -70,7 +67,7 @@
 
 {% endblock content %}
 
-{% block javascript %}
+{% block js_scripts %}
 {{ block.super }}
 <script src="https://checkout.stripe.com/v2/checkout.js"></script>
 <script text="text/javascript">
@@ -108,4 +105,4 @@
 
     });
 </script>
-{% endblock javascript %}
+{% endblock js_scripts %}
