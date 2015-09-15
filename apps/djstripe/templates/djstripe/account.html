@@ -1,6 +1,7 @@
 {% extends "djstripe/base.html" %}
 {% load static %}
 {% block js_scripts %}
+<script type="text/javascript" src="{% static "js/demo.js" %}" />
 {{ block.super }}
 {% if plans %}
     <script>
@@ -23,6 +24,7 @@
 {% endblock js_scripts %}
 
 {% block stylesheets %}
+<link rel="stylesheet" href="{% static "css/demo.css" %}" />
 {% endblock stylesheets %}
 
 
@@ -46,7 +48,7 @@
         </div>
         <div class="col-xs-4">
             <p>
-                <a class="btn btn-primary pull-right" href="{% url 'djstripe:change_card' %}">Register Card</a>
+                <a class="btn btn-primary pull-right" data-toggle="modal" href="#register-card">Register Card</a>
             </p>
         </div>
     </div>
@@ -130,7 +132,67 @@
     </div><!-- /.modal-dialog -->
   </div><!-- /.modal -->
 
+  <!-- Modal for showing card -->
+  <div class="modal fade" id="register-card">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Card on File</h4>
+        </div>
+        <div class="modal-body demo">
+            <form>
+                    <h4>Payment details</h4>
 
+                    <ul>
+                        <li>
+                            <label for="card_number">Card number </label>
+                            <input type="text" name="card_number" id="card_number" placeholder="1234 5678 9012 3456">
+
+                           
+                        </li>
+
+                        <li class="vertical">
+                            <ul>
+                                <li>
+                                    <label for="expiry_date">Expiry date</label>
+                                    <input type="text" name="expiry_date" id="expiry_date" maxlength="5" placeholder="mm/yy">
+                                </li>
+
+                                <li>
+                                    <label for="cvv">CVV</label>
+                                    <input type="text" name="cvv" id="cvv" maxlength="3" placeholder="123">
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li class="vertical maestro">
+                            <ul>
+                                <li>
+                                    <label for="issue_date">Issue date</label>
+                                    <input type="text" name="issue_date" id="issue_date" maxlength="5" placeholder="mm/yy">
+                                </li>
+
+                                <li>
+                                    <span class="or">or</span>
+                                    <label for="issue_number">Issue number</label>
+                                    <input type="text" name="issue_number" id="issue_number" maxlength="2">
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li>
+                            <label for="name_on_card">Name on card</label>
+                            <input type="text" name="name_on_card" id="name_on_card" placeholder="A Sample">
+                        </li>
+                    </ul>
+                </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
 
 {% endblock content %}
 
