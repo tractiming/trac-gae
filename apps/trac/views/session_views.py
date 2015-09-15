@@ -407,7 +407,8 @@ def upload_workouts(request):
             new_user, created = User.objects.get_or_create(
                                     username=runner['username'], defaults={
                                         'first_name': runner['first_name'],
-                                        'last_name': runner['last_name'] })
+                                        'last_name': runner['last_name'],
+                                        'last_login': timezone.now()})
             if created:
                 # Register new athlete.
                 athlete = Athlete()
