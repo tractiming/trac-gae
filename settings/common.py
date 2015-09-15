@@ -153,11 +153,11 @@ elif getenv('SETTINGS_MODE') == 'prod':
     # in production.
     DATABASES = {
             'default': {
-                'ENGINE': 'google.appengine.ext.django.backends.rdbms',
-                'INSTANCE': 'trac-us:sql1',
+                'ENGINE': 'django.db.backends.mysql',
+                'HOST': '173.194.82.95',
                 'NAME': 'tracdb',
                 'USER': 'root',
-                'ATOMIC_REQUESTS': True,
+                'PASSWORD': 'sub4mile'
             }
     }
 

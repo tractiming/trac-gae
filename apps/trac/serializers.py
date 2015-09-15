@@ -75,7 +75,7 @@ class AthleteSerializer(FilterRelatedMixin, serializers.ModelSerializer):
 
     def create(self, validated_data):
         user_info = validated_data.pop('user')
-        user = User.objects.create(**user_info)
+        user = User.objects.create(last_login=timezone.now(), **user_info)
         athlete = Athlete.objects.create(user=user, **validated_data)
         return athlete
     
