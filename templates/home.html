@@ -91,9 +91,9 @@ else{
                           for (var ii=0;ii < json.length;ii++){
                //alert(ii);
                                 id = json[ii].id;
-                                fname = json[ii].first_name;
-                                lname = json[ii].last_name;
-                                uname = json[ii].username;
+                                fname = json[ii].user.first_name;
+                                lname = json[ii].user.last_name;
+                                uname = json[ii].user.username;
                                 $('#athletes tbody').append(
                                       '<tr data-href="/individual/'+id+'/">' +
                                           '<td class="hidden-xs hidden-sm hidden-md hidden-lg">' + id + '</td>' +
