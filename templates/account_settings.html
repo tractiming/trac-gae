@@ -59,17 +59,7 @@ $(document).ready(function(){
       });
       $('body').on('click', 'a#e_payment', function(e){
           e.preventDefault();
-          $('#edit-information').hide();   
-          $('#payment').fadeIn(500);       
-          $('#edit-password').hide();
-          $.ajax({
-              type:'GET',
-              url: '/api/e_payment/',
-              headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-              success: function(data){
-                $('#payment').html(data)
-              }
-          });
+          location.href='/payments';
       });
       $('#edit-information').on('submit', function(e){
           e.preventDefault();
@@ -133,21 +123,9 @@ $(document).ready(function(){
   <div class="content" id ="content">
     <h3 style="text-align: left;">Account Settings</h3><br>
     <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5 pull-left">
-		<form action="/api/stripe/" method="POST">
-			{% csrf_token %}
-		  <script
-			src="https://checkout.stripe.com/checkout.js" class="stripe-button"
-			data-key="pk_test_CDTkwilGwFbGM1v30Sw46FtO"
-			data-amount="2000"
-			data-name="TRAC Registration"
-			data-description="Card Registration"
-			data-image="/128x128.png"
-			data-locale="auto">
-		  </script>
-		</form>
       <a href="somewhere" id="e_profile">Edit Profile Information</a><br>
       <a href="somewhere" id="e_password">Change Your Password</a><br>
-      <a href="somewhere" id="e_payment">Set up and Edit Paypal Information</a>
+      <a href="somewhere" id="e_payment">Set up and Edit Payment & Subscription Information</a>
     </div>
     <div class = "col-lg-7 col-md-7 col-sm-7 col-xs-7">
       <form id="edit-information" name="edit-information" style="display: none;" data-parsley-validate>
