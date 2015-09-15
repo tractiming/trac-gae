@@ -57,12 +57,9 @@ google.setOnLoadCallback(function(){
 
 			ajaxRequest = $.ajax({
 				type: 'GET',
-				url: '/api/individual_splits/',
+				url: '/api/athletes/'+athleteID+'/completed_sessions/',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'json',
-				data: {
-					id: athleteID,
-				},
 				success: function(data){
 					var name = data.name,
 							sessions = data.sessions;
@@ -166,12 +163,10 @@ google.setOnLoadCallback(function(){
 
 			ajaxRequest = $.ajax({
 				type: 'GET',
-				url: '/api/individual_splits/',
+				url: '/api/athletes/'+athleteID+'/completed_sessions/',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'json',
-				data: {
-					id: athleteID,
-				},
+				
 				success: function(data){
 					var name = data.name,
 							sessions = data.sessions;
@@ -297,12 +292,10 @@ google.setOnLoadCallback(function(){
 
 			ajaxRequest = $.ajax({
 				type: 'GET',
-				url: '/api/individual_splits/',
+				url: '/api/athletes/'+athleteID+'/completed_sessions/',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'json',
-				data: {
-					id: athleteID,
-				},
+				
 				success: function(data) {
 					baseData = data;
 
@@ -324,7 +317,7 @@ google.setOnLoadCallback(function(){
 							for (var i=0; i<data2.length; i++) {
 								$('#compare-athlete-select').append(
 									'<option value="'+data2[i].id+'">' +
-										data2[i].first_name + ' ' + data2[i].last_name +
+										data2[i].user.first_name + ' ' + data2[i].user.last_name +
 									'</option>'
 								);
 							}
@@ -342,12 +335,10 @@ google.setOnLoadCallback(function(){
 
 						$.ajax({
 							type: 'GET',
-							url: '/api/individual_splits/',
+							url: '/api/athletes/'+id+'/completed_sessions/',
 							headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 							dataType: 'json',
-							data: {
-								id: id,
-							},
+							
 							success: function(data) {
 								compareData = data;
 
