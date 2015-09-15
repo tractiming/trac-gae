@@ -29,11 +29,11 @@
 bin/
 
 # Django
-migrations/
 *.sqlite3
 env/
-fixtures/
 
 build/
 .gaedata/
 *.db
+.coverage
+libs/

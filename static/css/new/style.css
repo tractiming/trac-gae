@@ -1,0 +1,575 @@
+html { color: #000; background: #FFF; }
+
+body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, code, form, fieldset, legend, input, textarea, p, blockquote, th, td { margin: 0; padding: 0; }
+
+table { border-collapse: collapse;  border-spacing: 0; }
+
+fieldset, img {border: 0; }
+
+address, caption, cite, code, dfn, em, strong, th, var {font-style: normal; font-weight: normal; }
+
+ol, ul { list-style: none; }
+
+caption, th { text-align: left; }
+
+h1, h2, h3, h4, h5, h6 { font-size: 100%; font-weight: normal; }
+
+q:before, q:after {content: ''; }
+
+abbr, acronym { border: 0; font-variant: normal; }
+
+sup { vertical-align: text-top; }
+
+sub {vertical-align: text-bottom; }
+
+input, textarea, select {font-family: inherit;font-size: inherit;font-weight: inherit; }
+
+input, textarea, select { *font-size: 100%; }
+
+legend {color: #000; }
+
+@font-face {font-family: 'GothamHTF-Book';
+src: url("../../fonts/GothamHTF-Book.eot?#iefix") format("embedded-opentype"), url("../../fonts/GothamHTF-Book.ttf") format("truetype"), url("../../fonts/GothamHTF-Book.svg#GothamHTF-Book") format("svg"); }
+
+@font-face {
+  font-family: 'GothamHTF-Medium';
+  src: url("../../fonts/GothamHTF-Medium.eot?#iefix") format("embedded-opentype"), url("../../fonts/GothamHTF-Medium.ttf") format("truetype"), url("../../fonts/GothamHTF-Medium.svg#GothamHTF-Medium") format("svg"); }
+
+/* Base */
+body {
+  font-family: 'GothamHTF-Medium', 'Helvetica', 'Arial', sans;
+  color: #fff;
+  height: 100%; }
+
+.pull-left {
+  float: left; }
+
+.pull-right {
+  float: right; }
+
+.clear {
+  clear: both; }
+
+.clearfix:after {
+  visibility: hidden;
+  display: block;
+  font-size: 0;
+  content: " ";
+  clear: both;
+  height: 0; }
+
+.container {
+  margin: 0 auto;
+  max-width: 960px; }
+
+h2 {
+  font-family: 'GothamHTF-Book', 'Helvetica', 'Arial', sans;
+  font-size: 48px;
+  margin-bottom: 24px;
+  text-transform: uppercase;
+  transition: font-size 0.3s ease; }
+  @media only screen and (max-width: 719px) {
+    h2 {
+      font-size: 32px; } }
+
+h3 {
+  font-family: "Georgia", "Times", serif;
+  font-size: 22px;
+  font-style: italic;
+  margin-bottom: 24px;
+  text-transform: lowercase; }
+  
+  h4{ font-family: 'GothamHTF-Book', 'Helvetica', 'Arial', sans;
+  font-size: 14px;
+  margin-bottom: 24px;
+  text-transform: uppercase;
+  transition: font-size 0.3s ease;
+   line-height: 24px;
+  margin-bottom: 24px;
+  width: 95%;
+  margin: 0 auto;
+  }
+
+p {
+  line-height: 24px;
+  margin-bottom: 24px;
+  width: 95%;
+  margin: 0 auto;
+  transition: font-size 0.3s ease; }
+  @media only screen and (max-width: 719px) {
+    p {
+      font-size: 0.8em;
+      line-height: 20px; } }
+
+a {
+  color: #fff;
+  text-decoration: none; }
+  a:hover {
+    text-decoration: underline; }
+
+.align-center {
+  text-align: center; }
+
+form label {
+  font-size: 12px;
+  font-weight: bold; }
+form input[type=text],
+form textarea {
+  -webkit-box-shadow: inset 1px 1px 0 0 rgba(0, 0, 0, 0.1);
+  box-shadow: inset 1px 1px 0 0 rgba(0, 0, 0, 0.1);
+  border: 1px solid #aaa;
+  font-size: 12px;
+  padding: 5px 4px;
+  width: 360px; }
+form input[type=submit] {
+  cursor: pointer; }
+
+/* Header */
+/*div#bowtruss-header {
+  background-color: white;
+  color: black;
+  position: fixed;
+  width: 100%;
+  max-width: none;
+  top: 0;
+  z-index: 100; }
+  div#bowtruss-header a {
+    color: #3577A8;
+    text-decoration: none; }
+    div#bowtruss-header a:hover {
+      color: #F0B922; }
+    div#bowtruss-header a.logo {
+      background: url("../images/trac_small.gif") no-repeat;
+      display: inline-block;
+      width: 200px;
+      height: 60px;
+      text-indent: -999999px; }
+      @media all and (-webkit-min-device-pixel-ratio: 1.5) {
+        div#bowtruss-header a.logo {
+          background-image: url("../images/trac_small.gif");
+          background-size: 200px 60px; } }
+      @media only screen and (max-width: 719px) {
+        div#bowtruss-header a.logo {
+          text-indent: 0;
+          background: none;
+          width: auto; } }
+  div#bowtruss-header ul {
+    margin: 0 auto;
+    width: 1000px;
+    transition: width 0.3s ease;
+    overflow: hidden; }
+    div#bowtruss-header ul:after {
+      visibility: hidden;
+      display: block;
+      font-size: 0;
+      content: " ";
+      clear: both;
+      height: 0; }
+    @media only screen and (min-width: 720px) and (max-width: 959px) {
+      div#bowtruss-header ul {
+        width: 720px; } }
+    div#bowtruss-header ul li {
+      float: left;
+      height: 60px;
+      line-height: 60px;
+      padding: 0 20px;
+      text-transform: uppercase;
+      transition: padding 0.3s ease; }
+      @media only screen and (min-width: 720px) and (max-width: 959px) {
+        div#bowtruss-header ul li {
+          padding: 0 21px; } }
+      @media only screen and (max-width: 719px) {
+        div#bowtruss-header ul li {
+          height: 45px;
+          padding: 0; } }
+	div#bowtruss-header ul li.button {float: right;}
+        div#bowtruss-header ul li.button input {
+        
+          float: none;
+width: 80px;
+background: #F0B922;
+font-size: 15px;
+color: #FFF;
+padding: 7px;
+border-radius: 6px;
+border: none;
+margin: 0 auto;
+cursor: pointer;
+        }          
+       
+         
+          
+        
+  div#bowtruss-header a#pull {
+    overflow: hidden;
+    display: none;
+    background: url("../images/trac_small.gif") no-repeat center;
+    background-size: 200px 60px; }
+
+@media only screen and (max-width: 719px) {
+  div#bowtruss-header {
+    text-align: center; }
+    div#bowtruss-header ul {
+      display: none;
+      height: auto;
+      position: relative;
+      width: 100%; }
+      div#bowtruss-header ul li {
+        display: block;
+        float: none;
+        width: 100%;
+        line-height: 45px; }
+        div#bowtruss-header ul li:after {
+          visibility: hidden;
+          display: block;
+          font-size: 0;
+          content: " ";
+          clear: both;
+          height: 0; }
+    div#bowtruss-header a#pull {
+      display: block;
+      height: 45px;
+      width: 75px;
+      background-color: #fff;
+      width: 100%; }
+      div#bowtruss-header a#pull:after {
+        content: "";
+        background: url("../images/trac_small.gif") no-repeat;
+        background-size: 200px 60px;
+        width: 31px;
+        height: 19px;
+        display: inline-block;
+        position: absolute;
+        right: 18px;
+        top: 12px; } }
+        */
+        
+        
+        
+        
+        
+        
+        
+/* Backgrounds */
+div.parallax {
+  position: absolute;
+  width: 100%; }
+  div.parallax > div {
+    background-size: cover;
+    margin: 0 auto;
+    width: 100%; }
+    @media only screen and (device-width: 768px) {
+      div.parallax > div {
+        background-attachment: scroll !important; } }
+    @media only screen and (device-width: 320px) {
+      div.parallax > div {
+        background-attachment: scroll !important; } }
+    div.parallax > div div.content {
+      margin: 0 auto;
+      max-width: 960px; }
+  div.parallax div#top {
+    background: none;
+    text-align: center;
+    position: relative;
+    height: 945px; }
+    @media only screen and (max-width: 719px) {
+      div.parallax div#top {
+        height: 245px; } }
+    div.parallax div#top div.content {
+      padding: 300px 0;
+      z-index: 10;
+      position: relative;
+      visibility: hidden; }
+      div.parallax div#top div.content h1.logo {
+        background: url("../../img/logo.png") no-repeat;
+        display: block;
+        height: 191px;
+        margin: 0 auto;
+        text-indent: -999999px;
+        width: 280px; }
+  div.parallax div.top-hide {
+    background: none !important; }
+  div.parallax div.lower-opacity {
+    opacity: 0.5; }
+  div.parallax div.visible {
+    visibility: visible !important; }
+  div.parallax div.video-background {
+    overflow: hidden;
+    background-color: #000;
+    height: 900px;
+    position: absolute;
+    width: 100%;
+    top: 45px;
+    left: 0; }
+    @media only screen and (max-width: 719px) {
+      div.parallax div.video-background {
+        height: 200px; } }
+    div.parallax div.video-background video {
+      min-height: 100%;
+      width: 100%;
+      background-color: #000; }
+    div.parallax div.video-background div.ui-video-background {
+      position: absolute;
+      top: 100px;
+      right: 100px; }
+    div.parallax div.video-background a.ui-icon {
+      text-indent: -99999px;
+      display: block;
+      opacity: 0.7;
+      background-image: no-repeat;
+      overflow: hidden; }
+    div.parallax div.video-background li.ui-video-background-play {
+      visibility: hidden; }
+    div.parallax div.video-background li.ui-video-background-mute {
+      padding: 10px;
+      display: block; }
+      div.parallax div.video-background li.ui-video-background-mute a.ui-icon-volume-on {
+        background: url("../../img/Icon_unmute.png") no-repeat;
+        display: block;
+        width: 70px;
+        height: 65px; }
+      div.parallax div.video-background li.ui-video-background-mute a.ui-icon-volume-off {
+        background: url("../../img/images/Icon_mute.png") no-repeat;
+        display: block;
+        width: 70px;
+        height: 65px; }
+      @media only screen and (device-width: 768px) {
+        div.parallax div.video-background li.ui-video-background-mute {
+          display: none; } }
+      @media only screen and (device-width: 320px) {
+        div.parallax div.video-background li.ui-video-background-mute {
+          display: none; } }
+     
+          
+          
+          
+          
+          /* Product */
+  div.parallax div#bg2 {
+    background: #3577A8;
+    text-align: center; }
+    @media only screen and (min-width: 960px) {
+      div.parallax div#bg2 {
+        min-height: 800px; } }
+    div.parallax div#bg2 div.content {
+      padding-top: 135px;
+      padding-bottom: 135px; }
+      @media only screen and (min-width: 720px) and (max-width: 959px) {
+        div.parallax div#bg2 div.content {
+          padding-top: 100px;
+          padding-bottom: 100px; } }
+      @media only screen and (max-width: 719px) {
+        div.parallax div#bg2 div.content {
+          padding-top: 80px;
+          padding-bottom: 80px; } }
+          div.parallax div#bg2 div.content .pictures{
+            width: inherit;
+          }
+          div.parallax div#bg2 div.content .pictures .left{
+            float:left;
+            width: 150px;
+            height:150px;
+          }
+          div.parallax div#bg2 div.content .pictures .wifione{
+            display:inline;
+            margin-top: 20px;
+            padding-right: 75px;
+          }
+          div.parallax div#bg2 div.content .pictures .mid{
+            width: 269px;
+            padding-top:25px;
+            display: inline;
+            height: 100px;
+          }
+           div.parallax div#bg2 div.content .pictures .wifitwo{
+            display:inline;
+            padding-left: 75px;
+          }
+          div.parallax div#bg2 div.content .pictures .right{
+            float:right;
+            width: 89px;
+            height: 100px;
+          }
+          div.parallax div#bg2 div.content .text{padding-top: 100px;}
+          
+          div.parallax div#bg2 div.content .text .left{
+            float:left;
+            width: 200px;
+            height:100px;
+          }
+        
+          div.parallax div#bg2 div.content .text .mid{
+            width: 200px;
+            display: inline-table;
+           
+            height: 100px;
+          }
+         
+          div.parallax div#bg2 div.content .text .right{
+            float:right;
+            width: 200px;
+            height: 100px;
+          }
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+  div.parallax div#bg5 {
+    background: #222;
+    text-align: center; }
+    @media only screen and (min-width: 960px) {
+      div.parallax div#bg5 {
+        min-height: 800px; } }
+    div.parallax div#bg5 div.content {
+      padding-top: 135px;
+      padding-bottom: 135px; }
+      @media only screen and (min-width: 720px) and (max-width: 959px) {
+        div.parallax div#bg5 div.content {
+        min-height:700px;  
+	padding-top: 100px;
+          padding-bottom: 100px; } }
+      @media only screen and (max-width: 719px) {
+        div.parallax div#bg5 div.content {
+        min-height:700px; 
+	 padding-top: 80px;
+          padding-bottom: 80px; } }
+      div.parallax div#bg5 div.content p {
+        margin: 0 auto 24px; }
+        
+        div.parallax div#bg5 div.content .picture{
+          float:left;
+        }
+        
+         div.parallax div#bg5 div.content .text{
+          float:right;
+          width: 450px;
+         }
+        
+        
+        
+        
+        
+  div.parallax div#bg6 {
+    background: #3577A8;
+    text-align: center; }
+    @media only screen and (min-width: 960px) {
+      div.parallax div#bg6 {
+        min-height: 525px; } }
+    div.parallax div#bg6 div.content {
+      padding-top: 135px;
+      padding-bottom: 135px; }
+      @media only screen and (min-width: 720px) and (max-width: 959px) {
+        div.parallax div#bg6 div.content {
+          padding-top: 100px;
+          padding-bottom: 100px; } }
+      @media only screen and (max-width: 719px) {
+        div.parallax div#bg6 div.content {  
+          padding-top: 80px;
+          padding-bottom: 80px; } }
+      div.parallax div#bg6 div.content p {
+        margin: 0 auto 24px; }
+ 
+ #top{
+	xbackground:url("../../img/shoes-video.jpg");   
+ }
+
+
+div.parallax div#footer {
+  width:100%;
+  height:125px;
+  margin:0 auto;
+  display:block;
+  color: #222;
+padding-top:42px;
+}
+
+div.parallax div#footer div.row { 
+display:block;
+
+  color: #222;}
+  div.parallax div#footer div.row div.left {width:25%;
+  padding-left: 30px;
+  position: relative;
+min-height: 1px;
+
+padding-right: 15px;
+box-sizing: border-box;
+float:left;
+
+}
+  
+  div.parallax div#footer div.row div.col-md-3 {width:25%;
+  position: relative;
+min-height: 1px;
+padding-left: 15px;
+padding-right: 15px;
+box-sizing: border-box;
+float:left;
+
+}
+div.parallax div#footer div.row div.col-md-3 ul.list-reset a{color:#3577A8; text-decoration: none;}
+div.parallax div#footer div.row div.col-md-3 ul.list-reset a:hover{color:#F0B922; text-decoration: none;}
+
+
+/* About Page Picture*/
+
+div.parallax div#bg3 {
+  width:100%;
+  background:url("../../img/dyche.jpg") no-repeat center;
+  background-size: cover;
+  height:700px;
+  
+}
+
+div.parallax div#bg3 div.text{
+  width:100%;
+  position:inherit;
+  background-color:black;
+  text-align: center;
+  height:700px;
+  opacity:0.6; /* transparency */  
+    filter:alpha(opacity=60);
+  
+}
+div.parallax div#bg3 div.text div.content{width:1200px}
+
+div.parallax div#bg4 {
+  width:100%;
+  background:#fff;
+  background-size: cover;
+  height:500px;
+  
+}
+
+div.parallax div#bg4 div.text{
+  width:100%;
+  position:inherit;
+  text-align: center;
+  height:700px;
+  
+ 
+  
+}
+div.parallax div#bg4 div.text p{
+color:#555;
+}
+div.parallax div#bg4 div.text h2{
+color:#555;
+}
+div.parallax div#bg4 div.text div.content{width:1200px}
+div.parallax div#bg4 div.text a{
+  color:#3577A8 !important;
+}
+
+div.parallax div#bg4 div.text a:hover{
+  color:#F0B922 !important; 
+}

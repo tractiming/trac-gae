@@ -1,0 +1,25 @@
+language: python
+
+python:
+  - 2.7
+
+env:
+  global:
+    - SETTINGS_MODE=test
+
+install:
+  - pip install -r requirements/production.txt
+  - pip install -r requirements/test.txt
+
+before_script:
+  - mkdir -p shippable/testresults
+  - mkdir -p shippable/codecoverage
+  - mysql -e 'create database test;'
+
+script:
+  - python manage.py test apps
+
+after_success:
+  - >
+    if [ "$BRANCH" == "master" ] && [ "$PULL_REQUEST" = false ];
+    then echo "ok to deploy"; fi

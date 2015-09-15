@@ -133,13 +133,13 @@ google.setOnLoadCallback(function(){
 					for (var i=0; i<data.length; i++) {
 						$('#base-athlete-select').append(
 							'<option value="'+data[i].id+'">' +
-								data[i].first_name + ' ' + data[i].last_name +
+								data[i].user.first_name + ' ' + data[i].user.last_name +
 							'</option>'
 						);
 
 						$('#compare-athlete-select').append(
 							'<option value="'+data[i].id+'">' +
-								data[i].first_name + ' ' + data[i].last_name +
+								data[i].user.first_name + ' ' + data[i].user.last_name +
 							'</option>'
 						);
 					}
@@ -163,12 +163,9 @@ google.setOnLoadCallback(function(){
 
 			$.ajax({
 				type: 'GET',
-				url: '/api/individual_splits/',
+				url: '/api/athletes/'+athleteID+'/completed_sessions/',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'json',
-				data: {
-					id: athleteID,
-				},
 				success: function(data) {
 					if (isBase)
 						baseData = data;

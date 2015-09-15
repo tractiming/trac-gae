@@ -1925,7 +1925,7 @@ google.setOnLoadCallback(function(){
 						
 						correctionAjaxRequest = $.ajax({
 							method: 'POST', 
-							url: '/api/analyze/',
+							url: '/stats/analyze/',
 							headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
 							dataType: 'json',
 							data: {

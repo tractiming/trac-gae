@@ -7,7 +7,6 @@ https://docs.djangoproject.com/en/1.6/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.6/ref/settings/
 """
-
 from os.path import abspath, basename, dirname, join, normpath
 from os import getenv
 from sys import path
@@ -18,8 +17,13 @@ SITE_ROOT = dirname(DJANGO_ROOT)
 SITE_NAME = basename(DJANGO_ROOT)
 path.append(DJANGO_ROOT)
 
+# Check if we are running on Appengine or Shippable.
+APP_ENGINE = getenv('SERVER_SOFTWARE', '').startswith('Google App Engine')
+SHIPPABLE = getenv('SETTINGS_MODE') == 'test'
+
 # Add the location of third-party libraries to the path.
-path.insert(0, join(DJANGO_ROOT, 'libs'))
+if APP_ENGINE:
+    path.insert(0, join(DJANGO_ROOT, 'libs'))
 
 # Add the location of the apps to the path.
 path.insert(0, join(DJANGO_ROOT, 'apps'))
@@ -56,20 +60,36 @@ DJANGO_APPS = (
 
 THIRD_PARTY_APPS = (
         'rest_framework',
-        'provider',
-        'provider.oauth2',
-        'south',
-        'paypal.standard.ipn',
+        'oauth2_provider',
 )
+
 
 LOCAL_APPS = (
         'trac',
-        'api',
         'website',
+        'stats',
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 ########################################
+
+################# TESTING ####################
+if not APP_ENGINE:
+    INSTALLED_APPS = INSTALLED_APPS + ('django_nose',)
+
+    TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+    NOSE_ARGS = [
+        '--with-coverage', '--cover-inclusive',
+        '--cover-package=trac,website,stats'
+    ]
+
+if SHIPPABLE:
+    NOSE_ARGS += [
+        '--with-xunit', '--xunit-file=shippable/testresults/test.xml',
+        '--cover-xml', '--cover-xml-file=shippable/codecoverage/coverage.xml'
+        ]
+##############################################
 
 ########## MIDDLEWARE CONFIGURATION ##########
 MIDDLEWARE_CLASSES = (
@@ -81,13 +101,19 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
+# If running on appengine, include appstats.
+if APP_ENGINE:
+    MIDDLEWARE_CLASSES = (
+        ('google.appengine.ext.appstats.recording.AppStatsDjangoMiddleware',)+
+        MIDDLEWARE_CLASSES)
+
 ##############################################
 REST_FRAMEWORK = {
         'DEFAULT_PERMISSION_CLASSES': (
             'rest_framework.permissions.IsAuthenticated',
         ),
         'DEFAULT_AUTHENTICATION_CLASSES': (
-            'rest_framework.authentication.OAuth2Authentication',
+            'oauth2_provider.ext.rest_framework.OAuth2Authentication',
             'rest_framework.authentication.SessionAuthentication',
             'rest_framework.authentication.BasicAuthentication',
         ),
@@ -95,14 +121,12 @@ REST_FRAMEWORK = {
             'rest_framework.serializers.ModelSerializer',
         ),
 }
-
-################ SOUTH ################
-SOUTH_TESTS_MIGRATE = False
-SKIP_SOUTH_TESTS = True
-#######################################
+OAUTH2_PROVIDER = {
+    'SCOPES': {'read': 'Read scope', 'write': 'Write scope'}
+}
 
 ########## URL CONFIGURATION ##########
-ROOT_URLCONF = 'trac.urls'
+ROOT_URLCONF = 'trac.urls.trac_urls'
 #######################################
 
 ########## DATABASE CONFIGURATION ##########
@@ -110,7 +134,7 @@ ROOT_URLCONF = 'trac.urls'
 # Here we choose the backend based on whether we are running locally or in
 # production. For reference, see:
 # https://developers.google.com/appengine/docs/python/cloud-sql/django#development-settings
-if getenv('SERVER_SOFTWARE', '').startswith('Google App Engine'):
+if APP_ENGINE:
     # Running on production App Engine, so use a Google Cloud SQL database.
     DATABASES = {
             'default': {
@@ -125,16 +149,26 @@ if getenv('SERVER_SOFTWARE', '').startswith('Google App Engine'):
 elif getenv('SETTINGS_MODE') == 'prod':
     # Running in development, but want to access the Google Cloud SQL instance
     # in production.
-    SOUTH_DATABASE_ADAPTERS = {'default': 'south.db.mysql'}
     DATABASES = {
             'default': {
-                'ENGINE': 'google.appengine.ext.django.backends.rdbms',
-                'INSTANCE': 'trac-us:sql1',
+                'ENGINE': 'django.db.backends.mysql',
+                'HOST': '173.194.82.95',
                 'NAME': 'tracdb',
                 'USER': 'root',
-                'ATOMIC_REQUESTS': True,
+                'PASSWORD': 'sub4mile'
             }
     }
+
+elif SHIPPABLE:
+    # Running in testing. Use the shippable settings.
+    DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.mysql',
+                'NAME': 'test',
+                'USER': 'shippable',
+            }
+    }
+
 else:
     # Running in development. Try to use a mysql db if one exists on the
     # system, otherwise use a sqlite db.
@@ -145,7 +179,7 @@ else:
         dbn = 'tracdb'
 
         # Uncomment the next line to force sqlite, even if mysql is configured.
-        #raise MySQLdb.Error
+        raise MySQLdb.Error
 
         db = MySQLdb.connect(host=host, user=user, db=dbn)
         db.close()
@@ -178,7 +212,7 @@ else:
 ########## CACHE CONFIGURATION ############
 # If running on appengine, use the custom cache backend that uses google's api
 # with django's caching interface.
-if getenv('SERVER_SOFTWARE', '').startswith('Google App Engine'):
+if APP_ENGINE:
     CACHES = {
             'default': {
                 'BACKEND': 'backends.gae_cache.GaeMemcachedCache',
@@ -229,6 +263,4 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 ############################################
-
-PAYPAL_RECEIVER_EMAIL = "GriffinKelly2013@gmail.com"
 

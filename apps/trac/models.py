@@ -1,13 +1,13 @@
 from django.db import models, connection 
-from django.contrib.auth.models import User, Group
+from django.db.models.signals import pre_delete, post_save
+from django.contrib.auth.models import User
 from django.utils import timezone
 from django.core.cache import cache
-from django.db.models.signals import pre_delete
 from django.dispatch import receiver
-from filters import filter_splits, get_sec_ms
-from operator import itemgetter
+from trac.utils.filter_util import filter_splits
 from collections import namedtuple
 import datetime
+from oauth2_provider.models import Application
 
 
 class Coach(models.Model):
@@ -19,7 +19,7 @@ class Coach(models.Model):
     payment = models.CharField(max_length=25, null=True, blank=True)
 
     def __unicode__(self):
-        return "name=%s" %self.user.username
+        return "name={}".format(self.user.username)
 
 
 class Team(models.Model):
@@ -31,7 +31,7 @@ class Team(models.Model):
     tfrrs_code = models.CharField(max_length=20, unique=True)
 
     def __unicode__(self):
-        return "team_name=%s" %self.name
+        return "team_name={}".format(self.name)
 
 
 class Athlete(models.Model):
@@ -47,7 +47,7 @@ class Athlete(models.Model):
     year = models.CharField(max_length=10, null=True, blank=True)
     
     def __unicode__(self):
-        return "name=%s" %self.user.username
+        return "name={}".format(self.user.username)
 
     @property
     def age(self):
@@ -76,7 +76,7 @@ class Tag(models.Model):
     athlete = models.OneToOneField(Athlete)
 
     def __unicode__(self):
-        return "id=%s, athlete=%s" %(self.id_str, self.athlete.user.username)
+        return "id={}, athlete={}".format(self.id_str, self.athlete.user.username)
 
 
 class Reader(models.Model):
@@ -88,7 +88,7 @@ class Reader(models.Model):
     coach = models.ForeignKey(Coach)
 
     def __unicode__(self):
-        return "id=%s, name=%s" %(self.id_str, self.name)
+        return "id={}, name={}".format(self.id_str, self.name)
 
     @property
     def active_sessions(self):
@@ -112,8 +112,8 @@ class Split(models.Model):
         unique_together = ("tag", "time",)
 
     def __unicode__(self):
-        return "time=%s, tag=%s, reader=%s" %(self.time, self.tag.id_str,
-                                              self.reader.id_str)
+        return "time={}, tag={}, reader={}".format(
+                self.time, self.tag.id_str, self.reader.id_str)
 
 
 class TimingSession(models.Model):
@@ -140,8 +140,8 @@ class TimingSession(models.Model):
     filter_choice = models.BooleanField(default=True)
 
     def __unicode__(self):
-        return "num=%i, name=%s, coach=%s" %(self.id, self.name,
-                                             self.coach.user.username)
+        return "num={}, name={}, coach={}".format(
+                self.id, self.name, self.coach.user.username)
 
     @property
     def num_athletes(self):
@@ -218,7 +218,8 @@ class TimingSession(models.Model):
         # Try to read from the cache. Note that results are cached on a per tag
         # basis.
         if use_cache:
-            results = cache.get(('ts_%i_athlete_%i_results' %(self.id, athlete_id)))
+            results = cache.get(('ts_%i_athlete_%i_results'
+                                 %(self.id, athlete_id)))
         else:
             results = None
 
@@ -262,7 +263,8 @@ class TimingSession(models.Model):
         else:
             interval = results[-1]
 
-        return Results(results[0], results[1], results[2], interval, sum(interval))
+        return Results(results[0], results[1], results[2],
+                       interval, sum(interval))
 
     def individual_results(self, limit=10000000, offset=0):
         """Calculate individual results for a session.
@@ -310,15 +312,16 @@ class TimingSession(models.Model):
             if athlete.team in scores:
 
                 if len(scores[athlete.team]['athletes']) < num_scorers:
-                    scores[athlete.team]['athletes'].append({'name': athlete.name, 
-                                                             'place': place, 
-                                                             'total': athlete.total})
+                    scores[athlete.team]['athletes'].append(
+                            {'name': athlete.name,  'place': place, 
+                             'total': athlete.total})
                     scores[athlete.team]['score'] += place
 
                 place += 1
 
-        teams_with_enough_runners = [scores[team] for team in scores if
-                                     len(scores[team]['athletes']) == num_scorers]
+        teams_with_enough_runners = (
+                [scores[team] for team in scores if 
+                 len(scores[team]['athletes']) == num_scorers])
 
         return sorted(teams_with_enough_runners, key=lambda x: x['score'])
 
@@ -345,7 +348,8 @@ class TimingSession(models.Model):
 
         # Filter by age.
         if age_range:
-            assert (age_range[0]<age_range[1])&(age_range[0]>=0), "Invalid age range"
+            assert ((age_range[0]<age_range[1])
+                    and (age_range[0]>=0)), "Invalid age range"
             now = timezone.now()
             birth_date_gte = now.replace(year=now.year-age_range[1])
             birth_date_lte = now.replace(year=now.year-age_range[0])
@@ -364,15 +368,21 @@ class TimingSession(models.Model):
 
     def clear_results(self):
         """Remove all the splits that currently exist in the session."""
-        athlete_ids = self.splits.values_list('athlete_id', flat=True).distinct()
+        athlete_ids = self.splits.values_list('athlete_id',
+                                              flat=True).distinct()
         for athlete_id in athlete_ids:
             self.clear_cache(athlete_id)
-        self.splits.all().delete()
+
+        # Clear the link between split and session. Only delete the split if it
+        # does not belong to any other sessions.
+        self.splits.clear()
+        Split.objects.filter(timingsession=None).delete()
 
     def clear_cache(self, athlete_id):
         """Clear the session's cached results for a single tag."""
         cache.delete(('ts_%i_athlete_%i_results' %(self.id, athlete_id)))   
 
+    # TODO: Move to utils.
     def _delete_split(self, tag_id, split_indx):
         """
         Delete a result from the array of splits. The runner is identified by
@@ -400,6 +410,7 @@ class TimingSession(models.Model):
             tt[i].time = tt[i].time-offset_ms
             tt[i].save()
 
+    # TODO: Move to utils.
     def _insert_split(self, tag_id, split_indx, val, shift):
         """
         Insert a new split into the array before the given index.
@@ -426,7 +437,8 @@ class TimingSession(models.Model):
         t_curr = t_prev+split_dt
         r = self.readers.all()[0]
         athlete = Athlete.objects.get(tag__id=tag_id)
-        nt = Split.objects.create(tag_id=tag_id, athlete=athlete, time=t_curr, reader=r)
+        nt = Split.objects.create(tag_id=tag_id, athlete=athlete, time=t_curr,
+                                  reader=r)
 
         if shift:
             # Edit the rest of the tagtimes to maintain the other splits.
@@ -440,6 +452,7 @@ class TimingSession(models.Model):
         self.splits.add(nt.pk)
         self.save()
 
+    # TODO: Move to utils.
     def _edit_split(self, tag_id, split_indx, val):
         """
         Change the value of a split in the list of results. The split index
@@ -452,7 +465,7 @@ class TimingSession(models.Model):
         self._delete_split(tag_id, split_indx)
         self._insert_split(tag_id, split_indx, val, True)
 
-    # FIXME
+    # TODO: Move to utils.
     def _overwrite_final_time(self, tag_id, hr, mn, sc, ms):
         """
         Force a final time for the given tag id. This will delete all existing
@@ -474,32 +487,24 @@ class TimingSession(models.Model):
         #    new_ms = new_ms % 1000
 
         athlete = Athlete.objects.get(tag__id=tag_id)
-        tt = Split.objects.create(tag_id=tag_id, athlete=athlete, reader=r, time=final_time)
+        tt = Split.objects.create(tag_id=tag_id, athlete=athlete, reader=r,
+                                  time=final_time)
         self.splits.add(tt.pk)
         self.save()
 
-@receiver(pre_delete, sender=TimingSession, dispatch_uid="timingsession_pre_delete")
+@receiver(pre_delete, sender=TimingSession,
+          dispatch_uid="timingsession_pre_delete")
 def delete_tag_times(sender, instance, using, **kwargs):
     """
     Delete all Split objects associated with this TimingSession prior to deletion.
     """
-    instance.splits.all().delete()
+    instance.clear_results()
 
 
-class PerformanceRecord(models.Model):
-    timingsession = models.ForeignKey(TimingSession)
-    distance = models.IntegerField()
-    time = models.FloatField()
-    interval = models.CharField(max_length=1)
-    VO2 = models.FloatField(null=True, blank=True)
-    athlete = models.ForeignKey(Athlete, null=True)
-    coach = models.ForeignKey(Coach, null=True)
+@receiver(post_save, sender=User, dispatch_uid="user_post_save")
+def create_auth_client(sender, instance, created=False, **kwargs):
+    if created:
+        Application.objects.create(user=instance,
+            client_type=Application.CLIENT_CONFIDENTIAL,
+            authorization_grant_type=Application.GRANT_PASSWORD)
 
-    def __unicode__(self):
-        if self.athlete:
-            name = self.athlete.user.username
-        elif self.coach:
-            name = self.coach.user.username
-        else:
-            name = ''
-        return "user=%s distance=%i time=%.3f" %(name, self.distance, self.time)

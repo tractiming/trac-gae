@@ -24,7 +24,8 @@ prettyPrint();
 
 // Bootstrap tooltips.
 $('.js-tooltip').tooltip({
-    delay: 1000
+    delay: 1000,
+    container: 'body'
 });
 
 // Deal with rounded tab styling after tab clicks.
@@ -44,6 +45,10 @@ var selectedTab = null;
 var selectedTabName = getCookie('tabstyle');
 
 if (selectedTabName) {
+    selectedTabName = selectedTabName.replace(/[^a-z-]/g, '');
+}
+
+if (selectedTabName) {
     selectedTab = $('.form-switcher a[name=' + selectedTabName + ']');
 }
 
@@ -54,3 +59,7 @@ if (selectedTab && selectedTab.length > 0) {
     // If no tab selected, display rightmost tab.
     $('.form-switcher a:first').tab('show');
 }
+
+$(window).load(function(){
+    $('#errorModal').modal('show');
+});

@@ -1,0 +1,188 @@
+[
+{
+    "pk": 1,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Alberto",
+        "last_name": "Salazar",
+        "username": "alsal",
+        "password": "sha1$e2fd5$96edae9adc8870fd87a65c051e7fdace6226b5a8"
+    }
+},
+{
+    "pk": 2,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Galen",
+        "last_name": "Rupp",
+        "username": "grupp",
+        "password": "sha1$e2fd5$96edae9adc8870fd87a65c051e7fdace6226b5a8"
+    }
+},
+{
+    "pk": 3,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Cam",
+        "last_name": "Levins",
+        "username": "clevins",
+        "password": "sha1$e2fd5$96edae9adc8870fd87a65c051e7fdace6226b5a8"
+    }
+},
+{
+    "pk": 1, 
+    "model": "trac.coach", 
+    "fields": {
+        "user": 1, 
+        "payment": null
+    }
+},
+{
+    "pk": 1, 
+    "model": "trac.team", 
+    "fields": {
+        "tfrrs_code": "", 
+        "coach": 1, 
+        "name": "Nike"
+    }
+},
+{
+    "pk": 1, 
+    "model": "trac.athlete", 
+    "fields": {
+        "gender": null, 
+        "team": 1, 
+        "user": 2, 
+        "year": null, 
+        "birth_date": null, 
+        "tfrrs_id": null
+    }
+},
+{
+    "pk": 2, 
+    "model": "trac.athlete", 
+    "fields": {
+        "gender": "M", 
+        "team": 1, 
+        "user": 3, 
+        "year": null, 
+        "birth_date": "1990-05-26", 
+        "tfrrs_id": null
+    }
+},
+{
+    "pk": 1, 
+    "model": "trac.tag", 
+    "fields": {
+        "athlete": 1, 
+        "id_str": "AAAA 0001"
+    }
+},
+{
+    "pk": 2, 
+    "model": "trac.tag", 
+    "fields": {
+        "athlete": 2, 
+        "id_str": "AAAA 0002"
+    }
+},
+{
+    "pk": 1, 
+    "model": "trac.reader", 
+    "fields": {
+        "coach": 1, 
+        "name": "Alien 1", 
+        "id_str": "A1010"
+    }
+},
+{
+    "pk": 2, 
+    "model": "trac.reader", 
+    "fields": {
+        "coach": 1, 
+        "name": "Alien 2", 
+        "id_str": "A1011"
+    }
+},
+{
+    "pk": 1, 
+    "model": "trac.split", 
+    "fields": {
+        "athlete": 1, 
+        "tag": 1, 
+        "time": 1440647434003,
+        "reader": 1
+    }
+},
+{
+    "pk": 2, 
+    "model": "trac.split", 
+    "fields": {
+        "athlete": 2, 
+        "tag": 2, 
+        "time": 1440647435021,
+        "reader": 1
+    }
+},
+{
+    "pk": 3, 
+    "model": "trac.split", 
+    "fields": {
+        "athlete": 2, 
+        "tag": 2, 
+        "time": 1440647630601,
+        "reader": 2
+    }
+},
+{
+    "pk": 4, 
+    "model": "trac.split", 
+    "fields": {
+        "athlete": 1, 
+        "tag": 1, 
+        "time": 1440647631240,
+        "reader": 2
+    }
+},
+{
+    "pk": 5, 
+    "model": "trac.split", 
+    "fields": {
+        "athlete": 1, 
+        "tag": 1, 
+        "time": 1440647701045,
+        "reader": 1
+    }
+},
+{
+    "pk": 1, 
+    "model": "trac.timingsession", 
+    "fields": {
+        "comment": "", 
+        "coach": 1, 
+        "name": "60 x 400m", 
+        "readers": [
+            1,
+            2
+        ], 
+        "use_registered_tags_only": false, 
+        "start_time": "2015-08-27T03:47:28Z", 
+        "registered_tags": [], 
+        "private": false, 
+        "filter_choice": false, 
+        "interval_distance": 400, 
+        "start_button_time": 1440647312000, 
+        "stop_time": "2015-08-28T03:47:28Z", 
+        "rest_time": 0, 
+        "track_size": 400, 
+        "interval_number": 0, 
+        "splits": [
+            1,
+            2,
+            3,
+            4,
+            5
+        ]
+    }
+}
+]
