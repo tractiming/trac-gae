@@ -144,9 +144,9 @@ $("li a.logout").click(function(){
                //alert(ii);  
                          
                                 id = json[ii].id;
-                                fname = json[ii].first_name;
-                                lname = json[ii].last_name;
-                                uname = json[ii].username;
+                                fname = json[ii].user.first_name;
+                                lname = json[ii].user.last_name;
+                                uname = json[ii].user.username;
                                 tag_nest = json[ii].tag;
                                 //Tags no Longer are nested
                                 //var unnested_tags = $.parseJSON(tag_nest);

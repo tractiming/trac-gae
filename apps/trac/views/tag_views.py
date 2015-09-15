@@ -68,7 +68,7 @@ def WorkoutTags(request):
                               'last': u_last, 'username': username,
                               'id_str': instance.id_str})
             
-                return Response(array, status.HTTP_200_OK)
+            return Response(array, status.HTTP_200_OK)
     
     elif request.method == 'POST':
         id_num = request.POST.get('id')
