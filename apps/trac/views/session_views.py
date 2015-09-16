@@ -13,6 +13,7 @@ from django.contrib.auth.models import User
 import dateutil.parser
 import ast
 from stats.util import estimate_intervals, record_performance
+from django.http import HttpResponse
 
 
 EPOCH = timezone.datetime(1970, 1, 1)
@@ -240,14 +241,18 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
         return Response(results, status.HTTP_200_OK)
 
+  
     @detail_route(methods=['get'], permission_classes=[])
     def estimated_intervals(self, request, pk=None):
         """
         Estimates intervals with distance and number of splits run.
         """
+
         #SETUP and parse dataList
-        session = self.get_object()
-        intervals = estimate_intervals(session)
+        user = request.user
+        ts = TimingSession.objects.get(pk=pk)
+        
+        intervals = estimate_intervals(ts)
 
         return Response(intervals, status.HTTP_200_OK)
 
@@ -262,12 +267,12 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         """
         data = request.POST
         user = request.user
-        session = self.get_object()
+        ts = TimingSession.objects.get(pk=pk)
         intervals = ast.literal_eval(data['intervals'])
 
-        record_performance(session, intervals)
+        record_performance(ts, intervals)
 
-        return Response({}, status.HTTP_202_ACCEPTED)
+        return HttpResponse(status.HTTP_202_ACCEPTED)
 
     @detail_route(methods=['post'], permission_classes=[])
     def automate_performance_record(self, request, pk=None):
@@ -275,11 +280,11 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         Automatically estimates intervals run in the session and updates the 
         associated PerformanceRecord objects
         """
-        session = self.get_object()
+        ts = TimingSession.objects.get(pk=pk)
 
-        record_performance(session, estimate_intervals(session))
+        record_performance(ts, estimate_intervals(ts))
 
-        return Response({}, status.HTTP_202_ACCEPTED)
+        return HttpResponse(status.HTTP_202_ACCEPTED)
 
 
 #pagination endpoint

@@ -1,7 +1,6 @@
 from trac.models import Athlete
-from stats.models import PerformanceRecord
+from models import PerformanceRecord
 import stats_calcs as stats
-
 
 def estimate_intervals(session):
     """
@@ -33,13 +32,9 @@ def estimate_intervals(session):
             if abs(int_time-avg_time) < time_delta:
                 time_delta = abs(int_time-avg_time)
                 distance = d
-
-        intervals.append({'num_splits': s['num_splits'],
-                          'distance': distance,
-                          'type': s['type']})
+        intervals.append({'num_splits': s['num_splits'], 'distance': distance, 'type': s['type']})
 
     return intervals
-
 
 def record_performance(session, intervals):
     """ 
