@@ -74,8 +74,6 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         session.save()
         return Response({}, status=status.HTTP_202_ACCEPTED)
 
-    @api_view(['POST'])
-    @permission_classes((permissions.AllowAny,))
     @detail_route(methods=['POST'])
     def start_session(request):
         """
