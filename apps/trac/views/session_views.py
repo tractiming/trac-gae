@@ -74,6 +74,27 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         session.save()
         return Response({}, status=status.HTTP_202_ACCEPTED)
 
+    @api_view(['POST'])
+    @permission_classes((permissions.AllowAny,))
+    @detail_route(methods=['POST'])
+    def start_session(request):
+        """
+        Press the session's 'start button'. This sets the time that all the
+        splits are calculated relative to. Effectively acts as the gun time.
+        """
+        # FIXME: This is a hack that offsets the delay the reader has in
+        # setting its real time.  Also note that the start time is taken to be
+        # the time the request hits the server, not the time the button is
+        # pressed on the phone, etc.
+        current_time = datetime.datetime.utcnow()-datetime.timedelta(seconds=8)
+        timestamp = int((current_time-
+            timezone.datetime(1970, 1, 1)).total_seconds()*1000)
+
+        session = self.get_object()
+        session.start_button_time = timestamp
+        session.save()
+        return Response({}, status.HTTP_202_ACCEPTED)
+
     @detail_route(methods=['get'])
     def individual_results(self, request, *args, **kwargs):
         limit = int(request.GET.get('limit', 1000))
