@@ -24,8 +24,7 @@ script:
 after_success:
   - >
     if [ "$BRANCH" == "master" ] && [ "$PULL_REQUEST" = false ]; then
-        test -e $GAE_DIR || (mkdir -p $GAE_DIR &&
-        wget https://storage.googleapis.com/appengine-sdks/featured/google_appengine_1.9.25.zip -q -O /tmp/gae.zip &&
-        unzip /tmp/gae.zip -d $GAE_DIR)
-        ./deploy.sh
+    (test -e $GAE_DIR || (mkdir -p $GAE_DIR &&
+    wget 'https://storage.googleapis.com/appengine-sdks/featured/google_appengine_1.9.25.zip' -q -O /tmp/gae.zip &&
+    unzip /tmp/gae.zip -d $GAE_DIR)) && ./deploy.sh;
     fi
