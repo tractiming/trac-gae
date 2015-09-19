@@ -6,6 +6,8 @@ python:
 env:
   global:
     - SETTINGS_MODE=test
+    - GAE_DIR=/tmp/gae
+    - secure: OF4JVvu3j0MBCr1niGyKLsolziwyaSd5HOLrsI8pPprclZmxZHX5X1Te+TVzhs3KpQlVPv1c785blcAYI+sglz+JnpBhwDn2Uf8lM3pnIU+lCHrbC9A3eYadLQm49yqMHP2HO7GbYtbWpW94EkT6q8FpNvzuGgf5oJn4T1w+1VNb85StP0oEdeOkIQhqNndySN//uTsk4QSnplqWyg9ytoc6TMPauoNUR4Y5M74SRWl9eL8OD9mvai0ggXYn7Qa6JITW7EwEGA9ITzNOLkBjNmGNn1fJL1aCTFiDoA0CaoXnR3UcfR/szOzmMA7m6ZWWcO7KwihvRfkXfOYdWWV0sA==
 
 install:
   - pip install -r requirements/production.txt
@@ -21,5 +23,9 @@ script:
 
 after_success:
   - >
-    if [ "$BRANCH" == "master" ] && [ "$PULL_REQUEST" = false ];
-    then echo "ok to deploy"; fi
+    if [ "$BRANCH" == "master" ] && [ "$PULL_REQUEST" = false ]; then
+        test -e $GAE_DIR || (mkdir -p $GAE_DIR &&
+        wget https://storage.googleapis.com/appengine-sdks/featured/google_appengine_1.9.25.zip -q -O /tmp/gae.zip &&
+        unzip /tmp/gae.zip -d $GAE_DIR)
+        ./deploy.sh
+    fi
