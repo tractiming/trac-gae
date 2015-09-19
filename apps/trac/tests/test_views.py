@@ -85,9 +85,12 @@ class AthleteViewSetTest(APITestCase):
         self.assertEqual(resp.data[0]['id'], 1)
         self.assertEqual(resp.status_code, 200)
 
+    @mock.patch.object(trac.serializers, 'timezone')
     @mock.patch.object(trac.serializers, 'User')
-    def test_pre_save(self, mock_user):
+    def test_pre_save(self, mock_user, mock_tz):
         """Test that a user is created before the athlete is."""
+        now = timezone.now().replace(microsecond=0)
+        mock_tz.now.return_value = now
         user = User.objects.get(username='alsal')
         self.client.force_authenticate(user=user)
         mock_user.objects.create.return_value = (
@@ -100,7 +103,8 @@ class AthleteViewSetTest(APITestCase):
                         'last_name': 'Bekele'}
                         }), content_type='application/json')
         mock_user.objects.create.assert_called_with(
-            username='kennyb', first_name='Kenenisa', last_name='Bekele')
+            username='kennyb', first_name='Kenenisa', last_name='Bekele',
+            last_login=now)
         self.assertEqual(resp.status_code, 201)
 
 class ReaderViewSetTest(APITestCase):
