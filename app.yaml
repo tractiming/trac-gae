@@ -33,4 +33,5 @@ handlers:
 skip_files:
 - local
 - venv
+- requirements
 

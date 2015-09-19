@@ -83,7 +83,8 @@ if not APP_ENGINE:
 
     NOSE_ARGS = [
         '--with-coverage', '--cover-inclusive',
-        '--cover-package=trac,website,stats'
+        '--cover-package=trac,website,stats',
+        '--exclude-dir=apps/djstripe'
     ]
 
 if SHIPPABLE:
