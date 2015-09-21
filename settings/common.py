@@ -101,6 +101,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'djstripe.middleware.SubscriptionPaymentMiddleware',
 )
 
 # If running on appengine, include appstats.
@@ -288,5 +289,24 @@ DJSTRIPE_PLANS = {
         "interval": "year"
     }
 }
+
+DJSTRIPE_SUBSCRIPTION_REQUIRED_EXCEPTION_URLS = (
+    'home',
+    'index',
+    'readers',
+    'payments',
+    'login',
+    'register',
+    'about',
+    'score',
+    'demo',
+    'tutorial',
+    'account_settings',
+    'mile_demo',
+    'cinci_demo',
+    '(trac)',
+      # anything in the django-allauth URLConf
+
+)
 
 ###########################################
