@@ -5,6 +5,8 @@
 
 {% block content %}
 {{ block.super }}
+<div id="content" class="container-fluid">
+    <div class="container">
 <ul class="breadcrumb">
   <li><a href="{% url 'djstripe:account' %}">Home</a></li>
   <li class="active">Subscription</li>
@@ -18,53 +20,54 @@
     <div class="alert alert-error">{{ view.error }}</div>
 {% endif %}
 
-<div class="row">
-    {% for plan in PLAN_LIST %}
-      {% with plan_count=PLAN_LIST|length %}
-        <div class="col-xs-{{ 12|djdiv:plan_count|floatformat }}">
-      {% endwith %}
-            <form
-              {% if not customer.current_subscription or customer.current_subscription.status == CurrentSubscription.STATUS_CANCELLED %}
-                  action="{% url 'djstripe:subscribe' %}" class="djstripe-subscribe"  
-                  data-key="{{ STRIPE_PUBLIC_KEY }}"
-                  data-amount="{{ plan.price }}"
-                  data-name="{{ plan.name }}"
-                  data-description="{{ plan.description }}"
-              {% else %}
-                  data-stripe-key="{{ STRIPE_PUBLIC_KEY }}" 
-                  action="{% url 'djstripe:change_plan' %}" class="djstripe-change-plan"
-              {% endif %}
-            method="POST">
+        <div class="row">
+            {% for plan in PLAN_LIST %}
+              {% with plan_count=PLAN_LIST|length %}
+                <div class="col-xs-{{ 12|djdiv:plan_count|floatformat }}">
+              {% endwith %}
+                    <form
+                      {% if not customer.current_subscription or customer.current_subscription.status == CurrentSubscription.STATUS_CANCELLED %}
+                          action="{% url 'djstripe:subscribe' %}" class="djstripe-subscribe"  
+                          data-key="{{ STRIPE_PUBLIC_KEY }}"
+                          data-amount="{{ plan.price }}"
+                          data-name="{{ plan.name }}"
+                          data-description="{{ plan.description }}"
+                      {% else %}
+                          data-stripe-key="{{ STRIPE_PUBLIC_KEY }}" 
+                          action="{% url 'djstripe:change_plan' %}" class="djstripe-change-plan"
+                      {% endif %}
+                    method="POST">
 
-               
-                {% csrf_token %}
-                <input type="hidden" name="plan" value="{{ plan.plan }}" />
-                <input name="stripe_token" type="hidden" /> 
+                       
+                        {% csrf_token %}
+                        <input type="hidden" name="plan" value="{{ plan.plan }}" />
+                        <input name="stripe_token" type="hidden" /> 
 
-                <!-- disable this when clicked -->
-                <button
-                  {% if customer.current_subscription.plan == plan.plan and customer.current_subscription.status != CurrentSubscription.STATUS_CANCELLED %}
-                    disabled="true"
-                  {% endif %}
-                 type="submit" class="btn btn-primary">
-                  <h3>{{ plan.name }}</h3>
-                  <p>{{ plan.description }}</p>
-                </button>
+                        <!-- disable this when clicked -->
+                        <button
+                          {% if customer.current_subscription.plan == plan.plan and customer.current_subscription.status != CurrentSubscription.STATUS_CANCELLED %}
+                            disabled="true"
+                          {% endif %}
+                         type="submit" class="btn btn-primary">
+                          <h3>{{ plan.name }}</h3>
+                          <p>{{ plan.description }}</p>
+                        </button>
 
-              {% if not customer.current_subscription or customer.current_subscription.status == CurrentSubscription.STATUS_CANCELLED %}
-                <!-- do nothing -->
-              {% elif customer.current_subscription.plan == plan.plan %}
-                <h4>Your Current Plan</h4>
-              {% elif customer.current_subscription.amount < plan.price|djdiv:100 %}
-                <h4>Upgrade</h4>
-              {% elif customer.current_subscription.amount > plan.price|djdiv:100 %}
-                <h4>Downgrade</h4>
-              {% endif %}
-            </form>
+                      {% if not customer.current_subscription or customer.current_subscription.status == CurrentSubscription.STATUS_CANCELLED %}
+                        <!-- do nothing -->
+                      {% elif customer.current_subscription.plan == plan.plan %}
+                        <h4>Your Current Plan</h4>
+                      {% elif customer.current_subscription.amount < plan.price|djdiv:100 %}
+                        <h4>Upgrade</h4>
+                      {% elif customer.current_subscription.amount > plan.price|djdiv:100 %}
+                        <h4>Downgrade</h4>
+                      {% endif %}
+                    </form>
+                </div>
+            {% endfor %}
         </div>
-    {% endfor %}
-</div>
-
+      </div>
+    </div>
 {% endblock content %}
 
 {% block js_scripts %}

@@ -1,7 +1,44 @@
 {% extends "djstripe/base.html" %}
 {% load static %}
 {% block js_scripts %}
-<script type="text/javascript" src="{% static "js/demo.js" %}" />
+<script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+ <script type="text/javascript">;
+  // This identifies your website in the createToken call below
+
+  Stripe.setPublishableKey('{{ STRIPE_PUBLIC_KEY }}');
+  
+      var stripeResponseHandler = function(status, response) {
+      var $form = $('#change-card-form');
+
+      if (response.error) {
+        // Show the errors on the form
+        $form.find('.payment-errors').text(response.error.message);
+        $form.find('button').prop('disabled', false);
+      } else {
+        // token contains id, last4, and card type
+        var token = response.id;
+        // Insert the token into the form so it gets submitted to the server
+        $form.append($('<input type="hidden" name="stripe_token" />').val(token));
+        // and submit
+        $form.get(0).submit();
+      }
+    };
+  
+  jQuery(function($) {
+    $('#change-card-form').submit(function(event) {
+        var $form = $(this);
+        alert('hello');
+        // Disable the submit button to prevent repeated clicks
+        $form.find('button').prop('disabled', true);
+
+        Stripe.card.createToken($form, stripeResponseHandler);
+
+        // Prevent the form from submitting with the default action
+        return false;
+    });
+});
+</script>
+
 {{ block.super }}
 {% if plans %}
     <script>
@@ -20,6 +57,7 @@
             });
         });
     </script>
+
 {% endif %}
 {% endblock js_scripts %}
 
@@ -48,7 +86,7 @@
         </div>
         <div class="col-xs-4">
             <p>
-                <a class="btn btn-primary pull-right" data-toggle="modal" href="#register-card">Register Card</a>
+                <a class="btn btn-primary pull-right" href="{% url 'djstripe:change_card' %}">Register Card</a>
             </p>
         </div>
     </div>
@@ -137,54 +175,71 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title">Card on File</h4>
+          <h4 class="modal-title">Credit Card Details</h4>
         </div>
         <div class="modal-body demo">
-            <form>
-                    <h4>Payment details</h4>
+  {% if stripe_error %}
+            <div class="alert alert-error">{{ stripe_error }}</div>
+        {% endif %}
 
+            <form action="/api/stripe/" method="POST" id="change-card-form" class="form-group">
+                {% csrf_token %}
+                <span class="payment-errors"></span>
                     <ul>
                         <li>
                             <label for="card_number">Card number </label>
-                            <input type="text" name="card_number" id="card_number" placeholder="1234 5678 9012 3456">
+                            <input type="text" id="card_number" placeholder="1234 5678 9012 3456" data-stripe="number">
 
                            
                         </li>
 
-                        <li class="vertical">
-                            <ul>
-                                <li>
-                                    <label for="expiry_date">Expiry date</label>
-                                    <input type="text" name="expiry_date" id="expiry_date" maxlength="5" placeholder="mm/yy">
-                                </li>
-
-                                <li>
-                                    <label for="cvv">CVV</label>
-                                    <input type="text" name="cvv" id="cvv" maxlength="3" placeholder="123">
-                                </li>
-                            </ul>
-                        </li>
+                        <div class="row">
+                           <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                                    <label for="expiry_date">Expiry Month</label>
+                                    <input class="col-lg-6 col-md-6 col-sm-6 col-xs-6" type="text" id="expiry_date" maxlength="2" placeholder="mm" data-stripe="exp_month">
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                                    <label for="expiry_date">Expiry Year</label>
+                                    <input  class="col-lg-6 col-md-6 col-sm-6 col-xs-6" type="text" id="expiry_date" maxlength="2" placeholder="yy" data-stripe="exp_year">
+                                </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                                    <label  for="cvv">CVV</label>
+                                    <input class="col-lg-6 col-md-6 col-sm-6 col-xs-6" type="text" id="cvv" maxlength="3" placeholder="123" data-stripe="cvc">
+                            </div>
+                        </div>
+                        
 
                         <li class="vertical maestro">
                             <ul>
                                 <li>
                                     <label for="issue_date">Issue date</label>
-                                    <input type="text" name="issue_date" id="issue_date" maxlength="5" placeholder="mm/yy">
+                                    <input type="text"  id="issue_date" maxlength="5" placeholder="mm/yy">
                                 </li>
 
                                 <li>
                                     <span class="or">or</span>
                                     <label for="issue_number">Issue number</label>
-                                    <input type="text" name="issue_number" id="issue_number" maxlength="2">
+                                    <input type="text"  id="issue_number" maxlength="2">
                                 </li>
                             </ul>
                         </li>
 
                         <li>
                             <label for="name_on_card">Name on card</label>
-                            <input type="text" name="name_on_card" id="name_on_card" placeholder="A Sample">
+                            <input type="text" id="name_on_card" placeholder="Full Name" data-stripe="name">
+                        </li>
+                        <li>
+                            <label for="email">Name on card</label>
+                            <input type="text" id="name_on_card" placeholder="Email Address" data-stripe="email">
                         </li>
                     </ul>
+                    <div class="row">
+                        <div class="center-block">
+                             <button class="btn btn-primary change-card " type="submit" style="">Change Card</button>
+                        </div>
+                    </div>
                 </form>
         </div>
         <div class="modal-footer">

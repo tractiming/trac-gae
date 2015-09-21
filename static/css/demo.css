@@ -4,10 +4,8 @@
 */
 
 .demo {
-  height: 476px;
   margin: 0 auto;
   position: relative;
-  width: 327px;
 }
 .demo h3 {
   background: url(../img/images.png) top no-repeat;
@@ -73,21 +71,7 @@
   margin-bottom: 56px;
   text-align: center;
 }
-form {
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  border-radius: 5px;
-  -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-  -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-  background-color: #f9f9f7;
-  border: 1px solid #fff;
-  margin: 0 auto 0;
-  left: 0;
-  padding: 13px 20px;
-  position: absolute;
-  width: 287px;
-}
+
 form h2 {
   color: #555;
   font-family: "ff-dagny-web-pro", "Helvetica Neue", Verdana, Geneva, Arial, Helvetica, sans-serif;
@@ -183,6 +167,19 @@ form #card_number.valid.maestro {
 form #card_number.valid.discover {
   background-position: 2px -331px, 260px -87px;
 }
+form #card_number.valid.amex {
+  background-position:  260px -87px;
+}
+form #card_number.valid.diners_club_carte_blanche {
+  background-position:  260px -87px;
+}
+form #card_number.valid.diners_club_international {
+  background-position:  260px -87px;
+}
+form #card_number.valid.jcb {
+  background-position:  260px -87px;
+}
+
 .vertical {
   overflow: hidden;
 }
