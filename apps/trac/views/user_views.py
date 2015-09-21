@@ -156,13 +156,13 @@ class verifyLogin(views.APIView):
         try:
             token = AccessToken.objects.get(token=data['token'])
         except: #ObjectDoesNotExist:
-            return Response({}, status.HTTP_404_NOT_FOUND)
+            return Response(404, status.HTTP_404_NOT_FOUND)
 
         #Is the Token Valid?
         if token.expires < timezone.now():
-            return Response({}, status.HTTP_404_NOT_FOUND)
+            return Response(404, status.HTTP_404_NOT_FOUND)
         else:
-            return Response({}, status.HTTP_200_OK)
+            return Response(200, status.HTTP_200_OK)
 
 @api_view(['POST'])
 @authentication_classes((BasicAuthentication,))
