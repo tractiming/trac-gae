@@ -681,9 +681,9 @@ $(function() {
 
 			//*
 			$.ajax({
-				type: 'POST',
+				type: 'PUT',
 				dataType:'json',
-				url: '/api/sessions/'+id,
+				url: '/api/sessions/'+id+'/',
 				headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
 				data: {
 					name: title,
@@ -753,7 +753,7 @@ $(function() {
 				$.ajax({
 					type: 'DELETE',
 					dataType:'json',
-					url: '/api/sessions/'+id,
+					url: '/api/sessions/'+id+'/',
 					headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
 					success: function(data) {
 						// hide spinner
