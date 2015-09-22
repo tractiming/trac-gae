@@ -241,7 +241,12 @@ class TimingSession(models.Model):
                 dt = (times[i+1].time-times[i].time)/1000.0
                 interval.append(round(dt, 3))
 
-            results = (athlete_id, name, athlete.team, interval)    
+            try:
+                team = athlete.team
+            except:
+                team = athlete.user.groups.values_list('name',flat=True)
+
+            results = (athlete_id, name, team, interval)    
             
             # Save to the cache. Store the unfiltered results so that if the
             # filter choice is changed, we don't need to recalculate.
@@ -294,10 +299,18 @@ class TimingSession(models.Model):
         
         scores = {}
         for team in team_names:
+            try:
+                team_name = team.name
+                team_id = team.id
+
+            except:
+                team_name = Group.objects.get(name=team).id
+                team_id = team
+
             scores[team] = {'athletes': [],
                             'score': 0,
-                            'id': team.id,
-                            'name': team.name
+                            'id': team_id,
+                            'name': team_name
                            }
 
         place = 1
