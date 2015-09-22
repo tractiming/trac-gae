@@ -14,7 +14,7 @@ from trac.utils.user_util import is_athlete, is_coach, user_type
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from django.utils import timezone
-from oauth2_provider.models import Application
+from oauth2_provider.models import Application, AccessToken
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout as auth_logout
 import stripe
@@ -22,8 +22,11 @@ from djstripe.models import Customer
 from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import redirect
-
-
+import base64
+from django.utils.encoding import force_bytes
+from django.template import loader
+from django.core.mail import send_mail
+from oauthlib.common import generate_token
 
 class CoachViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAdminUser,)
@@ -236,9 +239,9 @@ def get_info(request):
         email = user.email
     except:
         email = ""
-    result = {'org': user.groups.get(id=1).name,
+    result = {'org': user.coach.team_set.all()[0].name,
               'name': user.username,
-              'email': email}
+              'email': user.email}
     return Response(result, status.HTTP_200_OK)
 
 # TODO: Move to AthleteViewSet
@@ -348,7 +351,7 @@ def change_password(request):
         return HttpResponse(status.HTTP_403_FORBIDDEN)
     return HttpResponse(status.HTTP_200_OK)
 
-@api_view(['POST'])
+@csrf_exempt
 @permission_classes((permissions.AllowAny,))
 def send_email(request):
     email = request.POST.get('email')
@@ -357,8 +360,8 @@ def send_email(request):
     user2 = User.objects.get(username = name)
     if u == user2:
         uidb64 = base64.urlsafe_b64encode(force_bytes(u.pk))
-        token = AccessToken(user=u, client=u.oauth2_client.get(user=u),
-                            expires=timezone.now()+timezone.timedelta(minutes=5))
+        token = AccessToken(user=u, application = Application.objects.get(user=u),
+                            expires=timezone.now()+timezone.timedelta(minutes=5),token=generate_token())
         token.save()
         c = {
             'email': email,
@@ -375,6 +378,51 @@ def send_email(request):
         return HttpResponse(status.HTTP_200_OK)
     else:
         return HttpResponse(status.HTTP_403_FORBIDDEN)
+
+@csrf_exempt
+@permission_classes((permissions.AllowAny,))
+def give_athlete_password(request):
+    atl = Athlete.objects.get(id=request.POST.get('id'))
+    atl.user.first_name = request.POST.get('first_name')
+    atl.user.last_name = request.POST.get('last_name')
+    atl.user.email = request.POST.get('email')
+    atl.user.save()
+    try:  #if tag exists update user. Or create tag.
+        tag = Tag.objects.get(id_str = request.POST.get('id_str'))
+        tag.athlete = atl
+        tag.save()
+    except ObjectDoesNotExist:
+        try:
+            tag = Tag.objects.get(athlete = atl)
+            tag.id_str = request.POST.get('id_str')
+            tag.save()
+        except ObjectDoesNotExist:
+            tag = Tag.objects.create(id_str=request.POST.get('id_str'), athlete=atl)
+    email = request.POST.get('email')
+    name = request.POST.get('username')
+    u = User.objects.get(email = email)
+    user2 = User.objects.get(username = name)
+    if u == user2:
+        uidb64 = base64.urlsafe_b64encode(force_bytes(u.pk))
+        token = AccessToken.objects.create(user = user2, application = Application.objects.get(user = user2), expires = timezone.now()+timezone.timedelta(minutes=2880), token=generate_token())
+        token.save()
+        c = {
+            'email': email,
+            'domain': request.META['HTTP_HOST'],
+            'site_name': 'TRAC',
+            'uid': uidb64,
+            'user': u,
+            'username':name,
+            'token': str(token),
+            'protocol': 'https://',
+        }
+        url = c['domain'] + '/UserSettings/' + c['uid'] + '/' + c['token'] + '/'
+        email_body = loader.render_to_string('../templates/athlete_password.html', c)
+        send_mail('Reset Password Request', email_body, 'tracchicago@gmail.com', [c['email'],], fail_silently=False)
+        return HttpResponse(status.HTTP_200_OK)
+    else:
+        return HttpResponse(status.HTTP_403_FORBIDDEN)
+
 
 @api_view(['GET'])
 @permission_classes((permissions.IsAuthenticated,))
