@@ -102,7 +102,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'djstripe.middleware.SubscriptionPaymentMiddleware',
+   # 'djstripe.middleware.SubscriptionPaymentMiddleware',
 )
 
 # If running on appengine, include appstats.
