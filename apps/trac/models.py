@@ -1,6 +1,6 @@
 from django.db import models, connection 
 from django.db.models.signals import pre_delete, post_save
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.utils import timezone
 from django.core.cache import cache
 from django.dispatch import receiver
@@ -244,8 +244,13 @@ class TimingSession(models.Model):
             try:
                 team = athlete.team
             except:
-                team = athlete.user.groups.values_list('name',flat=True)
-
+                team = athlete.user.groups.values_list('name',flat=True)[0]
+            finally:
+                unattached_group, created = Group.objects.get_or_create(name='Unattached')
+                athlete.user.groups.add(unattached_group.pk)
+                athlete.save()
+                team = athlete.user.groups.values_list('name',flat=True)[0]
+                
             results = (athlete_id, name, team, interval)    
             
             # Save to the cache. Store the unfiltered results so that if the
@@ -304,8 +309,8 @@ class TimingSession(models.Model):
                 team_id = team.id
 
             except:
-                team_name = Group.objects.get(name=team).id
-                team_id = team
+                team_name = team
+                team_id =  Group.objects.get(name=team).id
 
             scores[team] = {'athletes': [],
                             'score': 0,
