@@ -347,16 +347,21 @@ def create_race(request):
         # Create the user and athlete profile.
         first_name = athlete['first_name']
         last_name = athlete['last_name']
-        #create random alphanumeric for username
-        username = uuid.uuid4()
-        runner, created = User.objects.get_or_create(username=username,
-                defaults={'first_name':first_name, 'last_name':last_name})
-        #create group for user, add it to the new runner, TODO: something with TFFRS for group
-        g, created = Group.objects.get_or_create(name='%s' %(athlete['team']))
-        runner.groups.add(g.pk)
-
-        a, created = Athlete.objects.get_or_create(user=runner)
-
+        ##if user exists on coach's roster, find them, find their team, and add them. 
+        try:
+            username = first_name + last_name
+            runner = User.objects.get(username=username, defaults={'first_name':first_name, 'last_name':last_name, 'last_login': timezone.now()})
+            a, created = Athlete.objects.get_or_create(user=runner)
+            team, created = Team.objects.get(name=athlete['team'], coach=c, defaults={'tfrrs_code': athlete['team']})
+        #if user doesnt exist, create a random alphanumeric and assign them a group
+        except:
+            username = uuid.uuid4()
+            runner, created = User.objects.get_or_create(username=username,
+                defaults={'first_name':first_name, 'last_name':last_name, 'last_login': timezone.now()})
+            #create group for user, add it to the new runner, TODO: something with TFFRS for group
+            g, created = Group.objects.get_or_create(name='%s' %(athlete['team']))
+            runner.groups.add(g.pk)
+            a, created = Athlete.objects.get_or_create(user=runner)
         #Avoid using Team as it creates too many teams in a coach's roster
         #team, created = Team.objects.get_or_create(name=athlete['team'], coach=c, 
         #			defaults={'tfrrs_code': athlete['team']})
