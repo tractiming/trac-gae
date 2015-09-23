@@ -151,6 +151,8 @@ class RegistrationView(views.APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 # DEPRECATE
+@csrf_exempt
+@permission_classes((permissions.AllowAny,))
 class verifyLogin(views.APIView):
     permission_classes = ()
 
