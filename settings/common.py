@@ -306,7 +306,8 @@ DJSTRIPE_SUBSCRIPTION_REQUIRED_EXCEPTION_URLS = (
     'mile_demo',
     'cinci_demo',
     '(trac)',
-      # anything in the django-allauth URLConf
+    '(oauth2)',
+
 
 )
 
