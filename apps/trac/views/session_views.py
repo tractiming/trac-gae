@@ -351,8 +351,10 @@ def create_race(request):
         try:
             username = first_name + last_name
             runner = User.objects.get(username=username, defaults={'first_name':first_name, 'last_name':last_name, 'last_login': timezone.now()})
-            a, created = Athlete.objects.get_or_create(user=runner)
+            a, created = Athlete.objects.get(user=runner)
             team, created = Team.objects.get(name=athlete['team'], coach=c, defaults={'tfrrs_code': athlete['team']})
+            g, created = Group.objects.get_or_create(name='%s' %(athlete['team']))
+            runner.groups.add(g.pk)
         #if user doesnt exist, create a random alphanumeric and assign them a group
         except:
             username = uuid.uuid4()

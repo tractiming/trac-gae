@@ -242,14 +242,9 @@ class TimingSession(models.Model):
                 interval.append(round(dt, 3))
 
             try:
-                team = athlete.team
+                team = tag.user.groups.values_list('name', flat=True)[0]
             except:
-                team = athlete.user.groups.values_list('name',flat=True)[0]
-            finally:
-                unattached_group, created = Group.objects.get_or_create(name='Unattached')
-                athlete.user.groups.add(unattached_group.pk)
-                athlete.save()
-                team = athlete.user.groups.values_list('name',flat=True)[0]
+                team = None
                 
             results = (athlete_id, name, team, interval)    
             
@@ -304,18 +299,10 @@ class TimingSession(models.Model):
         
         scores = {}
         for team in team_names:
-            try:
-                team_name = team.name
-                team_id = team.id
-
-            except:
-                team_name = team
-                team_id =  Group.objects.get(name=team).id
-
             scores[team] = {'athletes': [],
                             'score': 0,
-                            'id': team_id,
-                            'name': team_name
+                            'id': Group.objects.get(name=team).id,
+                            'name': team
                            }
 
         place = 1
