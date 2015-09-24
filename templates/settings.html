@@ -535,8 +535,7 @@ $("body").on('click', '#open', function(e){
 
               type: 'POST',
               dataType: 'json',
-              url: '/api/open_session/',
-              data: {id: id_helper},
+              url: '/api/sessions/'+id_helper+'/open/',
               headers: {Authorization: "Bearer " + sessionStorage.access_token},
               success: function(data){
 
@@ -561,7 +560,7 @@ $("body").on('click', 'button#stop', function(e){
             $.ajax({
                     type: 'POST',
                     dataType: 'json',
-                    url: '/api/close_session/',
+                    url: '/api/sessions/'+id+'/close/',
                     data: {id: id},
                     headers: {Authorization: "Bearer " + sessionStorage.access_token},
                     success: function(data){
@@ -588,8 +587,7 @@ $("body").on('click', 'button#start', function(e){
             $.ajax({
                     type: 'POST',
                     dataType: 'json',
-                    url: '/api/start_timer/',
-                    data: {id: id},
+                    url: '/api/sessions/'+id+'/start_timer/',
                     headers:{Authorization: "Bearer " + sessionStorage.access_token},
                     success: function(data){
                      // alert ('session started');

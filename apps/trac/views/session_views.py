@@ -75,7 +75,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         return Response({}, status=status.HTTP_202_ACCEPTED)
 
     @detail_route(methods=['POST'])
-    def start_session(request):
+    def start_timer(self, request, *args, **kwargs):
         """
         Press the session's 'start button'. This sets the time that all the
         splits are calculated relative to. Effectively acts as the gun time.
