@@ -91,7 +91,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         session = self.get_object()
         session.start_button_time = timestamp
         session.save()
-        return Response({}, status.HTTP_202_ACCEPTED)
+        return Response(200, status.HTTP_202_ACCEPTED)
 
     @detail_route(methods=['get'])
     def individual_results(self, request, *args, **kwargs):
