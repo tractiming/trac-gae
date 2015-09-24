@@ -9,8 +9,9 @@ import json
 import datetime
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 import dateutil.parser
+import uuid
 
 
 EPOCH = timezone.datetime(1970, 1, 1)
@@ -346,19 +347,28 @@ def create_race(request):
         # Create the user and athlete profile.
         first_name = athlete['first_name']
         last_name = athlete['last_name']
-        username = first_name + last_name
-        runner, created = User.objects.get_or_create(username=username,
-                defaults={'first_name':first_name, 'last_name':last_name})
-
-        a, created = Athlete.objects.get_or_create(user=runner)
-
-        team, created = Team.objects.get_or_create(name=athlete['team'], coach=c, 
-        			defaults={'tfrrs_code': athlete['team']})
-        # add TFRRS team code here
+        ##if user exists on coach's roster, find them, find their team, and add them. 
+        try:
+            username = first_name + last_name
+            runner = User.objects.get(username=username, defaults={'first_name':first_name, 'last_name':last_name, 'last_login': timezone.now()})
+            a, created = Athlete.objects.get_or_create(user=runner)
+            team, created = Team.objects.get(name=athlete['team'], coach=c, defaults={'tfrrs_code': athlete['team']})
+        #if user doesnt exist, create a random alphanumeric and assign them a group
+        except:
+            username = uuid.uuid4()
+            runner, created = User.objects.get_or_create(username=username,
+                defaults={'first_name':first_name, 'last_name':last_name, 'last_login': timezone.now()})
+            #create group for user, add it to the new runner, TODO: something with TFFRS for group
+            g, created = Group.objects.get_or_create(name='%s' %(athlete['team']))
+            runner.groups.add(g.pk)
+            a, created = Athlete.objects.get_or_create(user=runner)
+        #Avoid using Team as it creates too many teams in a coach's roster
+        #team, created = Team.objects.get_or_create(name=athlete['team'], coach=c, 
+        #			defaults={'tfrrs_code': athlete['team']})
+        # TO DO: add TFRRS team code here
 
         today = datetime.date.today()
         a.birth_date = today.replace(year=today.year - int(athlete['age']))
-        a.team = team
         a.gender = athlete['gender']
         a.save()
 

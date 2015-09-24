@@ -12,7 +12,7 @@ from rest_framework.decorators import (
 from rest_framework.authentication import BasicAuthentication
 from trac.utils.user_util import is_athlete, is_coach, user_type
 from rest_framework.response import Response
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.utils import timezone
 from oauth2_provider.models import Application, AccessToken
 from django.contrib.auth import authenticate, login
