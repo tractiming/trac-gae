@@ -348,7 +348,7 @@ def create_race(request):
         last_name = athlete['last_name']
         username = first_name + last_name
         runner, created = User.objects.get_or_create(username=username,
-                defaults={'first_name':first_name, 'last_name':last_name})
+                defaults={'first_name':first_name, 'last_name':last_name, 'last_login': timezone.now()})
 
         a, created = Athlete.objects.get_or_create(user=runner)
 
