@@ -18,7 +18,7 @@ class TeamViewSet(viewsets.ModelViewSet):
             return Team.objects.filter(athlete__in=[user.athlete.pk])
 
         else:
-            return Team.objects.none()
+            return Team.objects.all()
 
     def pre_save(self, obj):
         obj.coach = self.request.user.coach
