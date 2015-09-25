@@ -10,6 +10,7 @@ import datetime
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
+from django.views.decorators.csrf import csrf_exempt
 import dateutil.parser
 
 
@@ -42,6 +43,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         else:
             return TimingSession.objects.filter(private=False)
     
+    @csrf_exempt
     @detail_route(methods=['post'])
     def reset(self, request, *args, **kwargs):
         """
@@ -51,6 +53,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         session.clear_results()
         return Response({}, status=status.HTTP_202_ACCEPTED)
     
+    @csrf_exempt
     @detail_route(methods=['post'])
     def open(self, request, *args, **kwargs):
         """
@@ -63,6 +66,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         session.save()
         return Response({}, status=status.HTTP_202_ACCEPTED)
 
+    @csrf_exempt
     @detail_route(methods=['post'],
                   permission_classes=[permissions.IsAuthenticated])
     def close(self, request, *args, **kwargs):
@@ -74,6 +78,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         session.save()
         return Response({}, status=status.HTTP_202_ACCEPTED)
 
+    @csrf_exempt
     @detail_route(methods=['POST'])
     def start_timer(self, request, *args, **kwargs):
         """
