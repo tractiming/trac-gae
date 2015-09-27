@@ -242,7 +242,7 @@ class TimingSession(models.Model):
                 interval.append(round(dt, 3))
 
             try:
-                team = tag.user.groups.values_list('name', flat=True)[0]
+                team = athlete.user.groups.values_list('name', flat=True)[0]
             except:
                 team = None
                 
