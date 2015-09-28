@@ -287,7 +287,7 @@ def edit_athletes(request):
             user, _ = User.objects.get_or_create(
                           username=request.POST.get('username'),
                           first_name=request.POST.get('first_name'),
-                          last_name=request.POST.get('last_name'))
+                          last_name=request.POST.get('last_name'),last_login=timezone.now())
             atl, created = Athlete.objects.get_or_create(user = user)
             atl.team = cp.team_set.all()[0]
 
