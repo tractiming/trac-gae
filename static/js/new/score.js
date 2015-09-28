@@ -84,7 +84,7 @@ $(function() {
 	function getSessions(team){
 		$('ul.menulist').empty();
 		$.ajax({
-			url: '/api/score/?org='+team,
+			url: '/api/score/?team='+team,
 			dataType: 'text',
 			success: function(data){
 				var json = $.parseJSON(data);

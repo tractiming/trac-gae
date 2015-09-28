@@ -39,7 +39,7 @@ $(function() {
 	function getTeams() {
 		$.ajax({
 			url: '/api/teams/',
-			data: { public: true },
+			//data: { public: true },
 			dataType: 'text',
 			success: function(data){
 				var data = $.parseJSON(data);
