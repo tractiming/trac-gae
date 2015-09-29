@@ -545,6 +545,7 @@ $("body").on('click', '#open', function(e){
               },
               error: function(xhr, errmsg, err){
                  // alert ("session couldn't open");
+                 $('.notification').hide();
                  $('.notification-critical').show();
               }
           });
@@ -561,7 +562,7 @@ $("body").on('click', 'button#stop', function(e){
                     type: 'POST',
                     dataType: 'json',
                     url: '/api/sessions/'+id+'/close/',
-                    data: {id: id},
+                    //data: {id: id},
                     headers: {Authorization: "Bearer " + sessionStorage.access_token},
                     success: function(data){
                      // alert ('session closed');
@@ -571,6 +572,7 @@ $("body").on('click', 'button#stop', function(e){
                     },
                     error: function(xhr, errmsg, err){
                      // alert ("couldn't close session");
+                     $('.notification').hide();
                      $('.notification-critical').show();
                     }
             });
@@ -597,6 +599,7 @@ $("body").on('click', 'button#start', function(e){
                     },
                     error: function(xhr, errmsg, err){
                     //  alert ("couldn't start session");
+                    $('.notification').hide();
                     $('.notification-critical').show();
                     }
             });
@@ -912,7 +915,7 @@ $("body").on('click', 'button#cl', function(e){
     <div id="content">  
         <div class="container-fluid content">
           <div  class="container"> 
-            <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
+            <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12">
             <div class="row">
         <div class="col-md-3 col-sm-4 col-xs-6" style="margin: 2%">
           <div id="menu-btn" class="menu-btn" style="display: inline-block;">
@@ -923,11 +926,18 @@ $("body").on('click', 'button#cl', function(e){
 
             <div class="row">
               <div class="col-lg-offset-10 col-md-offset-10 col-sm-offset-10 col-xs-offset-10">
-              <button type="button" class="btn btn-default" id="plus" data-toggle="modal" data-target="#csvModal">
+              <button type="button" class="btn btn-default hidden-xs" id="plus" data-toggle="modal" data-target="#csvModal">
                   <span class="glyphicon glyphicon-plus" aria-hidden="true"> </span> CSV Upload
               </button>
             </div>
             <h1 id="score-title">Registration</h1>
+            </div>
+            <div class="row">
+              <div class="col-sm-6 col-sm-offset-4 col-xs-offset-2 hidden-lg hidden-md">
+                <button type="button" class="btn btn-primary" id="open" style="margin: 2%;" data-target="#notificationModal" data-dismiss="modal" data-toggle="modal">Open</button>
+                <button type="button" class="btn btn-success" id="start" style="margin: 2%;" data-target="#notificationModal" data-dismiss="modal" data-toggle="modal">Start</button>
+                <button type="button" class="btn btn-warning" id="stop" style="margin: 2%;" data-target="#notificationModal" data-dismiss="modal" data-toggle="modal">Stop</button>
+              </div>
             </div>
             <div class="spinner-container" style="position:relative; top:100px;">
                 <div id="spinner"></div>
@@ -945,21 +955,21 @@ $("body").on('click', 'button#cl', function(e){
             </div>
             </div>
           </div>
-          <div  class=" col-lg-5 col-md-5 col-sm-5 col-xs-5" align="center">
+          <div  class=" col-lg-5 col-md-5 hidden-sm hidden-xs" align="center">
             <div class="row">
               <button type="button" class="btn btn-primary" id="open" style="margin: 2%;" data-target="#notificationModal" data-dismiss="modal" data-toggle="modal">Open</button>
               <button type="button" class="btn btn-success" id="start" style="margin: 2%;" data-target="#notificationModal" data-dismiss="modal" data-toggle="modal">Start</button>
               <button type="button" class="btn btn-warning" id="stop" style="margin: 2%;" data-target="#notificationModal" data-dismiss="modal" data-toggle="modal">Stop</button>
             </div>
-            <button type="button" class="btn btn-default pull-right" id="plus2" data-toggle="modal" data-target="#athleteModal" style="margin-bottom:2%">
+            <button type="button" class="btn btn-default pull-right hidden-sm hidden-xs" id="plus2" data-toggle="modal" data-target="#athleteModal" style="margin-bottom:2%">
                   <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Roster
             </button>
-            <div class="row">
+            <div class="row hidden-sm hidden-xs">
               <div id="roster" class="table">
               </div>
             </div>
             <div class="row">
-              <button type="button" class="btn btn-primary" id="register" align="center" style="margin: 2%;">Register Athletes</button>
+              <button type="button" class="btn btn-primary hidden-sm hidden-xs" id="register" align="center" style="margin: 2%;">Register Athletes</button>
           </div>
         </div>
       </div>
