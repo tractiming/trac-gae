@@ -369,6 +369,7 @@ def create_race(request):
         #			defaults={'tfrrs_code': athlete['team']})
         # TO DO: add TFRRS team code here
 
+        ts.registered_groups.add(g.pk)
         today = datetime.date.today()
         a.birth_date = today.replace(year=today.year - int(athlete['age']))
         a.gender = athlete['gender']

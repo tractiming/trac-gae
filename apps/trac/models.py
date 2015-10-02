@@ -130,6 +130,7 @@ class TimingSession(models.Model):
     start_button_time = models.BigIntegerField(null=True, blank=True)
     registered_tags = models.ManyToManyField(Tag)
     use_registered_tags_only = models.BooleanField(default=False)
+    registered_groups = models.ManyToManyField(Group)
     private = models.BooleanField(default=True)
 
     comment = models.CharField(max_length=2500, blank=True)
@@ -242,7 +243,7 @@ class TimingSession(models.Model):
                 interval.append(round(dt, 3))
 
             try:
-                team = athlete.user.groups.values_list('name', flat=True)[0]
+                team = athlete.user.groups.values_list('name', flat=True).filter(pk__in=self.registered_groups.all())[0]
             except:
                 team = None
                 
