@@ -49,6 +49,9 @@ def tags(request):
 def caramile(request):
     return render(request, 'caramile.html', {})
 
+def lakeforest(request):
+    return render(request, 'lakeforest.html', {})
+
 def score(request, org = None):
     if org == None:
         return render(request, 'teams.html', {})
