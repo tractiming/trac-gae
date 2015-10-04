@@ -130,7 +130,7 @@ google.setOnLoadCallback(function(){
 			}
 
 			ajaxRequest = $.ajax({
-				url: '/api/sessions/'+ idjson + '/individual_results',
+				url: '/api/sessions/78/individual_results',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				data: data,
 				dataType: 'text',
@@ -1342,7 +1342,7 @@ google.setOnLoadCallback(function(){
 			var gender = (g.trim() === 'Male') ? 'M' : 'F';
 
 			$.ajax({
-				url: '/api/sessions/'+currentID+'/filtered_results/?gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
+				url: '/api/sessions/78/filtered_results/?gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
@@ -1399,7 +1399,7 @@ google.setOnLoadCallback(function(){
 			$('#spinner').css('height', 150);
 			spinner.spin(target);
 			$.ajax({
-				url: 'api/sessions/'+currentID+'/team_results',
+				url: 'api/sessions/78/team_results',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
@@ -1543,13 +1543,10 @@ google.setOnLoadCallback(function(){
 			spinner.spin(target);
 
 			$.ajax({
-				url: '/api/score/?team=Lake%20Forest',
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				url: '/api/score/?team=Jones',
+				
 				dataType: 'json',
-				data: {
-					i1: sessionFirst,
-					i2: sessionLast,
-				},
+				
 				success: function(data){
 					var results = data.results,
 							numSessions = data.numSessions;
@@ -1581,7 +1578,95 @@ google.setOnLoadCallback(function(){
 			});
 		}
 
-		
+		function loadCalendar(){
+			$('#calendar-overlay').show();
+			$('#calendar').fullCalendar({
+				editable: true,
+				eventLimit: true, // allow "more" link when too many events
+				events: calendarEvents
+			});
+			cStart = $('#calendar').fullCalendar('getView').intervalStart;
+			cStop = $('#calendar').fullCalendar('getView').intervalEnd;
+			$('#calendar-overlay').hide();
+			calendarScores();
+		}
+
+		function calendarScores(){
+			cStart = localISOString(cStart._d);
+			cStop = localISOString(cStop._d);
+			$.ajax({
+				url:'/api/score/?team=Jones',
+				
+				dataType: 'json',
+				
+				success: function(data){
+					var results = data.results,
+							numSessions = data.numSessions;
+
+					calendarEvents = [];
+					for (var i=0; i<results.length; i++){
+						// add events to calendar event list
+						var url = results[i].id;
+						var str = results[i].start_time;
+						str = str.slice(0,10);
+						calendarEvents.push({title : results[i].name, url : url, start : str});
+					}
+					$('#calendar').fullCalendar('removeEvents');
+					$('#calendar').fullCalendar('addEventSource', calendarEvents);	
+
+					$('body').off('click', '#calendar-btn');
+					$('body').on('click', '#calendar-btn', function(e){
+						e.preventDefault();
+						$('#calendar-overlay').show();
+						$('#calendar').fullCalendar('removeEvents');
+						$('#calendar').fullCalendar('addEventSource', calendarEvents);
+					});
+
+					// attach handler for hiding calendar menu
+					$('body').off('click', '#calendar-overlay');
+					$('body').on('click', '#calendar-overlay', function(e){
+						//e.preventDefault();
+						var cal = $('.calendar-container');
+						if (!cal.is(e.target) && cal.has(e.target).length === 0)
+							$('#calendar-overlay').hide();
+					});
+
+					// unbind and rebind previous and next buttons on calendar
+					$('body').off('click', 'button.fc-next-button');
+					$('body').on('click','button.fc-next-button', function(e){
+						e.preventDefault();
+						cStart = $('#calendar').fullCalendar('getView').intervalStart;
+						cStop = $('#calendar').fullCalendar('getView').intervalEnd;
+						calendarScores();
+					});
+					$('body').off('click', 'button.fc-prev-button');
+					$('body').on('click','button.fc-prev-button',function(e){
+						e.preventDefault();
+						cStart = $('#calendar').fullCalendar('getView').intervalStart;
+						cStop = $('#calendar').fullCalendar('getView').intervalEnd;
+						calendarScores();
+					});
+
+					// rebind handler for calendar event click
+					$('.calendar-container').off('click','a.fc-day-grid-event');
+					$('.calendar-container').on('click','a.fc-day-grid-event', function(e) {
+						e.preventDefault();
+						$('#calendar-overlay').hide();
+
+						// reset canvases and set new session id
+						$('.notification').hide();
+						$('#results-table #table-canvas').empty();
+						$('.results-tab-content').hide();
+						$('#results-graph>#graph-canvas').empty();
+						$('#results-graph #graph-toggle-options').empty();
+						currentID = parseInt($(this).attr('href').split('#'));
+						$('#spinner').css('height', 150);
+						spinner.spin(target);
+						update(currentID, currentView);
+					});
+				}
+			});
+		}
 
 		// attach handler for heat menu item click
 		$('body').on('click', 'ul.menulist li a', function(){
@@ -1862,7 +1947,7 @@ google.setOnLoadCallback(function(){
 			var gender = (g.trim() === 'Male') ? 'M' : 'F';
 
 			$.ajax({
-				url: '/api/sessions/'+currentID+'/filtered_results/?gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
+				url: '/api/sessions/78/filtered_results/?gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
@@ -1906,7 +1991,7 @@ google.setOnLoadCallback(function(){
 
 		function createTeamCSV() {
 			$.ajax({
-				url: 'api/sessions/'+currentID+'/team_results',
+				url: 'api/sessions/78/team_results',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
