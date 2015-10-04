@@ -1543,7 +1543,7 @@ google.setOnLoadCallback(function(){
 			spinner.spin(target);
 
 			$.ajax({
-				url: '/api/score/?team=Jones',
+				url: '/api/score/?team=Lake%20Forest',
 				
 				dataType: 'json',
 				
@@ -1595,7 +1595,7 @@ google.setOnLoadCallback(function(){
 			cStart = localISOString(cStart._d);
 			cStop = localISOString(cStop._d);
 			$.ajax({
-				url:'/api/score/?team=Jones',
+				url:'/api/score/?team=Lake%20Forest',
 				
 				dataType: 'json',
 				
