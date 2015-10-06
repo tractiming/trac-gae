@@ -7,9 +7,11 @@ $(function() {
 			IDLE_TIMEOUT = 1200000,				// idle check after 20 minutes
 			RESULTS_PER_PAGE = 25;				// results pagination
 
+	var TABLE_VIEW = 0,
+			TEAM_FINAL_VIEW = 1;
 
 	var idArray = [],
-			currentID,
+			currentID, currentView,
 			updateHandler, idleHandler, 
 			sessionData, ajaxRequest,
 			resultOffset = 0, currentPage = 1,
@@ -43,11 +45,15 @@ $(function() {
 		target = document.getElementById('spinner');
 		spinner = new Spinner(opts).spin(target);
 
+		// default view to table
+		currentView = TABLE_VIEW;
+
 		// hide all notifications
 		$('.notification').hide();
 
 		// team is defined in score.html through django templating engine
-		getScores(team)
+		getScores(team);
+		startUpdates();
 	})();
 
 	//======================================== score functions ========================================
@@ -70,7 +76,7 @@ $(function() {
 
 	// update wrapper function
 	function lastSelected() {
-		update(currentID);
+		update(currentID,currentView);
 	}
 
 	function getScores(team){
@@ -84,7 +90,7 @@ $(function() {
 	function getSessions(team){
 		$('ul.menulist').empty();
 		$.ajax({
-			url: '/api/score/?team='+team,
+			url: '/api/score/?team='+team ,
 			dataType: 'text',
 			success: function(data){
 				var json = $.parseJSON(data);
@@ -115,17 +121,26 @@ $(function() {
 		});
 	}
 
-	function update(idjson){
+	function update(idjson, view){
 		//start ajax request
 		if (ajaxRequest)
 			ajaxRequest.abort();
 
+		if (view === TABLE_VIEW)
+				data = {'limit': resultOffset + RESULTS_PER_PAGE, 'offset': resultOffset};
+		else if (view === TEAM_FINAL_VIEW) {
+				//$('#results-table #table-canvas').empty();
+				spinner.stop();
+				$('#spinner').css('height', '');
+				$('.notification').hide();
+				$('#results-nav').show();
+				drawTeam();
+				return;
+			}
+
 		ajaxRequest = $.ajax({
-			url: '/api/sessions/'+ idjson +'/individual_results',
-			data: {
-				'offset': resultOffset,
-				'limit': resultOffset + RESULTS_PER_PAGE
-			},
+			url: '/api/sessions/'+ idjson +'/individual_results/',
+			data: data,
 			dataType: 'text',		//force to handle it as text
 			success: function(data) {
 				data = $.parseJSON(data);
@@ -154,8 +169,8 @@ $(function() {
 					$('#notifications .notification-default').hide();
 					$('.results-navigate-container').show();
 					//$('.button-container').show();
-					$('#results-table').empty().show();
-
+					$('#results-table').empty();
+					$('#results-individual').show();
 					$('#results-table').append(
 						'<thead>' + 
 							'<tr>' +
@@ -211,6 +226,118 @@ $(function() {
 		});
 	}
 
+	function drawTeam(){
+			$('.notification').hide();
+			//$('#team-table-canvas').empty();
+			$('#spinner').css('height', 150);
+			spinner.spin(target);
+			$.ajax({
+				url: '/api/sessions/'+currentID+'/team_results/',
+				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				dataType: 'text',
+				success: function(data) {
+					var results = $.parseJSON(data);
+
+					if (results.length === 0) {
+						spinner.stop();
+						$('#spinner').css('height', '');
+						$('.notification.no-team-data').show();
+						$('#results-team').show();
+						return;
+					}
+
+					//$('#team-table-canvas').empty().show();
+					$('#results-team').show();
+					// create table header
+					if (!$.trim($('#team-table-canvas').html())) {
+						$('#team-table-canvas').append(
+							'<thead>' +
+								'<tr>' +
+									'<th>Place</th>' +
+									'<th>Team</th>' +
+									'<th>Score</th>' +
+								'</tr>' +
+							'</thead>' +
+							'<tbody>' +
+							'</tbody>'
+						);
+					}
+
+					// create table rows
+					for (var i=0; i<results.length; i++) {
+						var team = results[i];
+						var id = team.id;
+
+					var row = $('#team-table-canvas>tbody>tr#team-'+id);
+					
+					if (row.length === 1) {
+						
+					var numDisplayedRunners = $('table#runners-team-'+id+'.table>tbody>tr').length;
+					// update splits table
+					alert(numDisplayedRunners);
+					//alert(team.athletes.length);
+					if (team.athletes.length > numDisplayedRunners) {
+						//otherwise add a single row?
+						//dont need this because score will only show up with 5 runners
+						//and faster runner wouldnt show up later.
+						
+						
+
+						}
+					}
+						else{
+							//  entire thing
+							$('#team-table-canvas>tbody').append(
+							'<tr id="team-'+id+'" class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#team-table-canvas" data-target="#collapse-team-'+id+'" aria-expanded="false" aria-controls="collapse-team-'+id+'">' +
+								'<td>' + team.place + '</td>' +
+								'<td>' + team.name + '</td>' +
+								'<td>' + team.score + '</td>' +
+							'</tr>' +
+							'<tr></tr>'	+
+							'<tr class="team-runners">' +
+								'<td colspan="4">' +
+									'<div id="collapse-team-'+id+'" class="accordion-body collapse" aria-labelledby="team-'+id+'">' +
+										'<table id="runners-team-'+id+'" class="table" style="text-align:center; background-color:transparent">' +
+											'<thead>' +
+												'<tr>' +
+													'<th style="text-align:center;">Place</th>' +
+													'<th style="text-align:center;">Name</th>' +
+													'<th style="text-align:center;">Final Time</th>' +
+												'</tr>' +
+											'</thead>' +
+											'<tbody>' +
+											'</tbody>' +
+										'</table>' +
+									'</div>' + 
+								'</td>' +
+							'</tr>'
+						);
+						//update team score 
+						for (var j=0; j<team.athletes.length; j++) {
+								var athlete = team.athletes[j];
+								$('table#runners-team-'+id+' tbody').append(
+									'<tr>' +
+										'<td>' + athlete.place + '</td>' +
+										'<td>' + athlete.name + '</td>' +
+										'<td>' + formatTime(Number(athlete.total)) + '</td>' +
+									'</tr>'
+								);
+							}
+
+						}
+					}
+
+					
+					// stop spinner and show results
+					spinner.stop();
+					$('#spinner').css('height', '');
+					$('#results-team').show();
+					$('#download-container').show();
+				}
+			});
+		}
+
+
 	// register handlers for paginating
 	$('body').on('click', 'button.prev', function(e){
 		e.preventDefault();
@@ -220,7 +347,7 @@ $(function() {
 			currentPage--;
 		}
 
-		update(currentID);
+		update(currentID, currentView);
 	});
 
 	$('body').on('click', 'button.next', function(e){
@@ -229,8 +356,42 @@ $(function() {
 		resultOffset += RESULTS_PER_PAGE;
 		currentPage++;
 
-		update(currentID);
+		update(currentID, currentView);
 	});
+
+	// register handler for tab navigation
+		$('body').on('click', '#results>ul>li', function(e){
+			e.preventDefault();
+			// update tab navbar
+			currentView = $(this).index();
+			$(this).parent().children().removeClass('active');
+			$(this).addClass('active');
+
+			$('.notification').hide();
+			$('.results-tab-content').hide();
+			$('#download-container').hide();
+			$('#spinner').css('height', 150);
+			spinner.spin(target);
+
+			// views 0 and 1 = live results updated every 5 secs
+			if (currentView < 1) {
+				// stop updates
+				stopUpdates();
+
+				// update view
+				lastSelected();
+
+				// restart updates
+				startUpdates();
+
+			} else {
+				// stop updates
+				stopUpdates();
+
+				// update view
+				lastSelected();
+			}
+		});
 		
 	// register handler for heat menu item click
 	$('body').on('click', 'ul.menulist li a', function(){
@@ -242,7 +403,7 @@ $(function() {
 
 		// request for new session data
 		$.ajax({
-			url: '/api/sessions/'+ currentID,
+			url: '/api/sessions/'+ currentID +'/',
 			dataType: 'text',
 			success: function(data) {
 				var json = $.parseJSON(data);
@@ -251,7 +412,7 @@ $(function() {
 				$('#score-title').html('Live Results: ' + json.name);
 
 				spinner.spin(target);
-				update(currentID);
+				update(currentID, currentView);
 
 				// update status
 				if (new Date() > new Date(json.stop_time)) {
@@ -273,7 +434,7 @@ $(function() {
 });
 
 function download(){
-	var url = '/api/score/'+ currentID;
+	var url = '/api/score/'+ currentID +'/';
 	$.ajax({
 		url: url,
 		dataType: 'text',		//force to handle it as text
@@ -363,3 +524,4 @@ function JSONToCSVConvertor(JSONData, ReportTitle, ShowLabel) {
     link.click();
     document.body.removeChild(link);
 }
+
