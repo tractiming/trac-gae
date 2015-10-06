@@ -274,7 +274,6 @@ $(function() {
 						
 					var numDisplayedRunners = $('table#runners-team-'+id+'.table>tbody>tr').length;
 					// update splits table
-					alert(numDisplayedRunners);
 					//alert(team.athletes.length);
 					if (team.athletes.length > numDisplayedRunners) {
 						//otherwise add a single row?
