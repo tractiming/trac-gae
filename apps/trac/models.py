@@ -350,7 +350,7 @@ class TimingSession(models.Model):
             assert ((age_range[0]<age_range[1])
                     and (age_range[0]>=0)), "Invalid age range"
             now = timezone.now()
-            birth_date_gte = now.replace(year=now.year-age_range[1])
+            birth_date_gte = now.replace(year=now.year-age_range[1]+1)
             birth_date_lte = now.replace(year=now.year-age_range[0])
 
             tt = tt.filter(athlete__birth_date__lte=birth_date_lte,
