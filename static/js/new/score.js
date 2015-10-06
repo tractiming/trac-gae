@@ -52,7 +52,8 @@ $(function() {
 		$('.notification').hide();
 
 		// team is defined in score.html through django templating engine
-		getScores(team)
+		getScores(team);
+		startUpdates();
 	})();
 
 	//======================================== score functions ========================================
@@ -89,7 +90,7 @@ $(function() {
 	function getSessions(team){
 		$('ul.menulist').empty();
 		$.ajax({
-			url: '/api/score/?team='+team +'/',
+			url: '/api/score/?team='+team ,
 			dataType: 'text',
 			success: function(data){
 				var json = $.parseJSON(data);
@@ -128,7 +129,7 @@ $(function() {
 		if (view === TABLE_VIEW)
 				data = {'limit': resultOffset + RESULTS_PER_PAGE, 'offset': resultOffset};
 		else if (view === TEAM_FINAL_VIEW) {
-				$('#results-table #table-canvas').empty();
+				//$('#results-table #table-canvas').empty();
 				spinner.stop();
 				$('#spinner').css('height', '');
 				$('.notification').hide();
@@ -168,7 +169,7 @@ $(function() {
 					$('#notifications .notification-default').hide();
 					$('.results-navigate-container').show();
 					//$('.button-container').show();
-					$('#results-table').empty().show();
+					$('#results-table').empty();
 					$('#results-individual').show();
 					$('#results-table').append(
 						'<thead>' + 
@@ -227,7 +228,7 @@ $(function() {
 
 	function drawTeam(){
 			$('.notification').hide();
-			$('#team-table-canvas').empty();
+			//$('#team-table-canvas').empty();
 			$('#spinner').css('height', 150);
 			spinner.spin(target);
 			$.ajax({
@@ -245,6 +246,8 @@ $(function() {
 						return;
 					}
 
+					$('#team-table-canvas').empty().show();
+					$('#results-team').show();
 					// create table header
 					$('#team-table-canvas').append(
 						'<thead>' +
