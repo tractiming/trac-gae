@@ -221,6 +221,22 @@ class TimingSessionViewSetTest(APITestCase):
         self.assertEqual(TimingSession.objects.get(pk=1).stop_time, now)
         self.assertEqual(resp.status_code, 202)
 
+    @mock.patch.object(trac.views.session_views, 'datetime')
+    def test_start_timer(self, mock_datetime):
+        """Test triggering the start button for a session."""
+        now = datetime.datetime.utcnow().replace(microsecond=0)
+        mock_datetime.datetime.utcnow.return_value = now
+        mock_datetime.timedelta.return_value = datetime.timedelta(seconds=8)
+        current_time = now-datetime.timedelta(seconds=8)
+        timestamp = int((current_time-
+            timezone.datetime(1970, 1, 1)).total_seconds()*1000)
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.post('/api/sessions/1/start_timer/')
+        self.assertEqual(TimingSession.objects.get(pk=1).start_button_time,
+            timestamp)
+        self.assertEqual(resp.status_code, 202)
+
 
 class PostSplitsTest(APITestCase):
 
