@@ -246,26 +246,48 @@ $(function() {
 						return;
 					}
 
-					$('#team-table-canvas').empty().show();
+					//$('#team-table-canvas').empty().show();
 					$('#results-team').show();
 					// create table header
-					$('#team-table-canvas').append(
-						'<thead>' +
-							'<tr>' +
-								'<th>Place</th>' +
-								'<th>Team</th>' +
-								'<th>Score</th>' +
-							'</tr>' +
-						'</thead>' +
-						'<tbody>' +
-						'</tbody>'
-					);
+					if (!$.trim($('#team-table-canvas').html())) {
+						$('#team-table-canvas').append(
+							'<thead>' +
+								'<tr>' +
+									'<th>Place</th>' +
+									'<th>Team</th>' +
+									'<th>Score</th>' +
+								'</tr>' +
+							'</thead>' +
+							'<tbody>' +
+							'</tbody>'
+						);
+					}
 
 					// create table rows
 					for (var i=0; i<results.length; i++) {
 						var team = results[i];
 						var id = team.id;
-						$('#team-table-canvas>tbody').append(
+
+					var row = $('#team-table-canvas>tbody>tr#team-'+id);
+					
+					if (row.length === 1) {
+						
+					var numDisplayedRunners = $('table#runners-team-'+id+'.table>tbody>tr').length;
+					// update splits table
+					alert(numDisplayedRunners);
+					//alert(team.athletes.length);
+					if (team.athletes.length > numDisplayedRunners) {
+						//otherwise add a single row?
+						//dont need this because score will only show up with 5 runners
+						//and faster runner wouldnt show up later.
+						
+						
+
+						}
+					}
+						else{
+							//  entire thing
+							$('#team-table-canvas>tbody').append(
 							'<tr id="team-'+id+'" class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#team-table-canvas" data-target="#collapse-team-'+id+'" aria-expanded="false" aria-controls="collapse-team-'+id+'">' +
 								'<td>' + team.place + '</td>' +
 								'<td>' + team.name + '</td>' +
@@ -290,16 +312,18 @@ $(function() {
 								'</td>' +
 							'</tr>'
 						);
-						
+						//update team score 
 						for (var j=0; j<team.athletes.length; j++) {
-							var athlete = team.athletes[j];
-							$('table#runners-team-'+id+' tbody').append(
-								'<tr>' +
-									'<td>' + athlete.place + '</td>' +
-									'<td>' + athlete.name + '</td>' +
-									'<td>' + formatTime(Number(athlete.total)) + '</td>' +
-								'</tr>'
-							);
+								var athlete = team.athletes[j];
+								$('table#runners-team-'+id+' tbody').append(
+									'<tr>' +
+										'<td>' + athlete.place + '</td>' +
+										'<td>' + athlete.name + '</td>' +
+										'<td>' + formatTime(Number(athlete.total)) + '</td>' +
+									'</tr>'
+								);
+							}
+
 						}
 					}
 
