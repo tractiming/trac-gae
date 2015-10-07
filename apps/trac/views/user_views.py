@@ -47,7 +47,7 @@ class AthleteViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if is_coach(user):
             coach = Coach.objects.get(user=user)
-            return Athlete.objects.filter(team__in=c.team_set.all(), team__primary_team=True)
+            return Athlete.objects.filter(team__in=coach.team_set.all())
 
         elif is_athlete(user):
             return Athlete.objects.filter(user=user)
@@ -135,7 +135,7 @@ class RegistrationView(views.APIView):
             team_name = data['organization']
             team, created = Team.objects.get_or_create(name=team_name,
                                                        coach=coach,
-                                                       tfrrs_code=team_name, primary_team=True)
+                                                       tfrrs_code=team_name)
             if created:
                 team.coach = coach 
                 team.save()

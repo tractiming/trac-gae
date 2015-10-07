@@ -26,13 +26,10 @@ class Team(models.Model):
     """
     A team has one coach and many athletes.
     """
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
     coach = models.ForeignKey(Coach)
     tfrrs_code = models.CharField(max_length=20, unique=True)
-    primary_team = models.BooleanField(default=False)
 
-    class Meta:
-        unique_together = ("name", "coach",)
 
     def __unicode__(self):
         return "team_name={}".format(self.name)
