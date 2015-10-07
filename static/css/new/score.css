@@ -35,3 +35,13 @@ ul.menulist {
 .results-page-number, .results-show-status {
 	padding: 0 10px;
 }
+
+tr.team-runners { 
+	color: #888;
+	font-weight: lighter; }
+	tr.team-runners:hover {
+		background-color: inherit !important; }
+	tr.team-runners>td {
+		padding: 0 !important; 
+		border-style: none !important;
+}

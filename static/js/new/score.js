@@ -130,8 +130,6 @@ $(function() {
 				data = {'limit': resultOffset + RESULTS_PER_PAGE, 'offset': resultOffset};
 		else if (view === TEAM_FINAL_VIEW) {
 				//$('#results-table #table-canvas').empty();
-				spinner.stop();
-				$('#spinner').css('height', '');
 				$('.notification').hide();
 				$('#results-nav').show();
 				drawTeam();
