@@ -68,6 +68,7 @@ $(function() {
         $('#register-form #password1').addClass('parsley-error')
         $('p.notification.notification-success').hide();
         $('p.notification.notification-critical').hide();
+        $('p.notification.notification-critical3').hide();
         $('p.notification.notification-critical2').show();
       }
       
@@ -97,6 +98,7 @@ $(function() {
               success: function(data) {
                 $('p.notification.notification-critical').hide();
                 $('p.notification.notification-critical2').hide();
+                $('p.notification.notification-critical3').hide();
                 $('p.notification.notification-success').show();
                 $('#register-form')[0].reset();
                 window.location.href = '/home';
@@ -108,11 +110,25 @@ $(function() {
                 spinner.stop();
                 $('#submit').show();
 
-                $('#register-form input').removeClass('parsley-success');
-                $('#register-form #username').addClass('parsley-error');
-                $('p.notification.notification-success').hide();
-                $('p.notification.notification-critical').show();
-                $('p.notification.notification-critical2').hide();
+                if(xhr.status==400){
+                  $('#register-form input').removeClass('parsley-success');
+                  $('#register-form #username').addClass('parsley-error');
+                  $('p.notification.notification-success').hide();
+                  $('p.notification.notification-critical').show();
+                  $('p.notification.notification-critical2').hide();
+                  $('p.notification.notification-critical3').hide();
+
+                }
+                else if(xhr.status==500){
+                  $('#register-form input').removeClass('parsley-success');
+                  $('#register-form').addClass('parsley-error');
+                  $('p.notification.notification-success').hide();
+                  $('p.notification.notification-critical3').show();
+                  $('p.notification.notification-critical2').hide();
+                  $('p.notification.notification-critical').hide();
+
+                }
+                
               }
             });
         }
