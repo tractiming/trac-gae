@@ -12,7 +12,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 import dateutil.parser
-
+import uuid
 
 EPOCH = timezone.datetime(1970, 1, 1)
 
@@ -351,16 +351,22 @@ def create_race(request):
         # Create the user and athlete profile.
         first_name = athlete['first_name']
         last_name = athlete['last_name']
-        username = first_name + last_name
-        runner, created = User.objects.get_or_create(username=username,
+        try:
+            #look for athletes in a coaches direct roster, and if they aren't found, create a random username
+            username = first_name + last_name
+            runner = User.objects.get(username=username)
+            a = Athlete.objects.get(user=runner)
+            team  = Team.objects.get(name=athlete['team'], coach=c)
+
+        except:
+            username = uuid.uuid4()
+            runner, created = User.objects.get_or_create(username=username,
                 defaults={'first_name':first_name, 'last_name':last_name, 'last_login': timezone.now()})
+            a, created = Athlete.objects.get_or_create(user=runner)
+            team, created  = Team.objects.get_or_create(name=athlete['team'], coach=c, defaults={'tfrrs_code': athlete['team']})
 
-        a, created = Athlete.objects.get_or_create(user=runner)
 
-        team, created = Team.objects.get_or_create(name=athlete['team'], coach=c, 
-        			defaults={'tfrrs_code': athlete['team']})
         # add TFRRS team code here
-
         today = datetime.date.today()
         a.birth_date = today.replace(year=today.year - int(athlete['age']))
         a.team = team
