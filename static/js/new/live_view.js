@@ -128,7 +128,9 @@ google.setOnLoadCallback(function(){
 				drawTeam();
 				return;
 			}
-
+			//if workoutid is undefined, break loop, prevent ajax call
+			if (jsonid == undefined || jsonid === null)
+				return;
 			ajaxRequest = $.ajax({
 				url: '/api/sessions/'+ idjson + '/individual_results',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},

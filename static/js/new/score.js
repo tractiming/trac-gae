@@ -136,6 +136,9 @@ $(function() {
 				return;
 			}
 
+		if (jsonid == undefined || jsonid === null)
+			return;
+		
 		ajaxRequest = $.ajax({
 			url: '/api/sessions/'+ idjson +'/individual_results/',
 			data: data,
