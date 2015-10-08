@@ -17,8 +17,6 @@ $(function() {
 			resultOffset = 0, currentPage = 1,
 			spinner, target;
 
-	(function init(){
-
 		// initialize spinner
 		var opts = {
 			lines: 13, 							// The number of lines to draw
@@ -54,7 +52,6 @@ $(function() {
 		// team is defined in score.html through django templating engine
 		getScores(team);
 		startUpdates();
-	})();
 
 	//======================================== score functions ========================================
 	function startUpdates() {
@@ -136,7 +133,7 @@ $(function() {
 				return;
 			}
 
-		if (jsonid == undefined || jsonid === null)
+		if (idjson == undefined || idjson === null)
 			return;
 		
 		ajaxRequest = $.ajax({

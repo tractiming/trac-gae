@@ -129,7 +129,7 @@ google.setOnLoadCallback(function(){
 				return;
 			}
 			//if workoutid is undefined, break loop, prevent ajax call
-			if (jsonid == undefined || jsonid === null)
+			if (idjson == undefined || idjson === null)
 				return;
 			ajaxRequest = $.ajax({
 				url: '/api/sessions/'+ idjson + '/individual_results',
