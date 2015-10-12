@@ -13,6 +13,7 @@ from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 import dateutil.parser
 from trac.utils.phone_split_util import create_phone_split
+import ast
 
 
 EPOCH = timezone.datetime(1970, 1, 1)
@@ -514,7 +515,7 @@ def edit_split(request):
 
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))
-def add_indiviual_splits(request):
+def add_individual_splits(request):
     """
     Add splits from phone for specific individuals. Post Athlete ID and datetime.
     """
@@ -524,7 +525,7 @@ def add_indiviual_splits(request):
         
         split_status = 0
         for split in split_list:
-            if phone_split_util(split[0], split[1]):
+            if create_phone_split(split[0], split[1]):
                 split_status = -1
 
         if split_status:

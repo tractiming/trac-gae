@@ -11,10 +11,13 @@ def create_phone_split(athlete_id, time):
     print 'Create split debug:', athlete_id, time
     
 
+
     try:
         athlete = Athlete.objects.get(id=athlete_id)
     except:
         return -1
+
+    reader = athlete.team.coach.reader_set.all()[0]
     # Create new TagTime.
     dtime = timezone.datetime.strptime(time, "%Y/%m/%d %H:%M:%S.%f") 
     timestamp = int((dtime-timezone.datetime(1970, 1, 1)).total_seconds()*1000)
