@@ -12,6 +12,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 import dateutil.parser
+from trac.utils.phone_split_util import create_phone_split
+import ast
 
 
 EPOCH = timezone.datetime(1970, 1, 1)
@@ -510,3 +512,23 @@ def edit_split(request):
 
     return Response({}, status=status.HTTP_202_ACCEPTED)
     
+
+@api_view(['POST'])
+@permission_classes((permissions.IsAuthenticated,))
+def add_individual_splits(request):
+    """
+    Add splits from phone for specific individuals. Post Athlete ID and datetime.
+    """
+    if request.method == 'POST':
+        data = request.POST
+        split_list = ast.literal_eval(data['s'])
+        
+        split_status = 0
+        for split in split_list:
+            if create_phone_split(split[0], split[1]):
+                split_status = -1
+
+        if split_status:
+            return Response({}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({}, status=status.HTTP_201_CREATED)
