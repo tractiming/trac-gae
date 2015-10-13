@@ -39,6 +39,6 @@ def create_phone_split(athlete_id, time):
 
         # Destroying the cache for this session will force the results to be
         # recalculated.
-        session.clear_cache(tag.athlete.id)
+        session.clear_cache(athlete.id)
     
     return 0
