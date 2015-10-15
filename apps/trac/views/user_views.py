@@ -150,9 +150,9 @@ class RegistrationView(views.APIView):
         
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))
+@csrf_exempt
 def verifyLogin(request):
     data = request.POST
     #Does the token exist?
