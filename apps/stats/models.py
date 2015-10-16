@@ -2,7 +2,7 @@ from django.db import models
 from trac.models import Athlete, Coach, TimingSession
 
 class PerformanceRecord(models.Model):
-    timingsession = models.ForeignKey(TimingSession)
+    timingsession = models.ForeignKey(TimingSession,null=True)
     distance = models.IntegerField()
     time = models.FloatField()
     interval = models.CharField(max_length=1)

@@ -17,7 +17,8 @@ from django.utils import timezone
 from oauth2_provider.models import Application
 
 from stats.models import PerformanceRecord
-
+DEFAULT_DISTANCES=[100, 200, 400, 800, 1000, 1500, 1609, 2000, 3000, 3200, 5000, 10000]
+DEFAULT_TIMES=[14.3, 27.4, 61.7, 144.2, 165, 257.5, 278.7, 356.3, 550.8, 598.3, 946.7, 1971.9, ]
 
 
 class CoachViewSet(viewsets.ModelViewSet):
@@ -153,12 +154,12 @@ class RegistrationView(views.APIView):
                 team.save()
 
             #Creates the Default table for coaches when they register.
-            #cp = Coach.objects.get(user=user)
+            cp = Coach.objects.get(user=user)
             # Not sure this is the best place for this.
-            #for i in range(0, len(DEFAULT_DISTANCES)):
-            #    r = PerformanceRecord.objects.create(
-            #            distance=DEFAULT_DISTANCES[i], time=DEFAULT_TIMES[i])
-            #    cp.performancerecord_set.add(r)
+            for i in range(0, len(DEFAULT_DISTANCES)):
+                r = PerformanceRecord.objects.create(
+                        distance=DEFAULT_DISTANCES[i], time=DEFAULT_TIMES[i])
+                cp.performancerecord_set.add(r)
         
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
