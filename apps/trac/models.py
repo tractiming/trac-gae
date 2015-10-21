@@ -231,6 +231,11 @@ class TimingSession(models.Model):
             # Filter times by tag id.
             times = self.splits.filter(athlete_id=athlete.id).order_by('time')
 
+            if len(times) > 1 and times[0].time == 0:
+                times[0].delete()
+                times = times[1:]
+
+
             # Offset for start time if needed.
             if self.start_button_time is not None:
                 s_tt = Split(time=self.start_button_time)
