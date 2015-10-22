@@ -256,7 +256,16 @@ class TimingSession(models.Model):
                     cache.set(('ts_%i_athlete_%i_results' %(self.id, athlete_id)),
                           results) 
                 return Results(results[0], results[1], results[2],
-                       interval, 0)"""
+                       interval, 0)
+            elif len(times) == 1:
+                interval = ['NT']
+                results = (athlete_id, name, athlete.team, interval)
+                if use_cache:
+                    cache.set(('ts_%i_athlete_%i_results' %(self.id, athlete_id)),
+                          results) 
+                return Results(results[0], results[1], results[2],
+                       interval, 0)
+            """
 
 
             results = (athlete_id, name, athlete.team, interval)    
