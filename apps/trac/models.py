@@ -106,7 +106,7 @@ class Split(models.Model):
     """
     tag = models.ForeignKey(Tag)
     athlete = models.ForeignKey(Athlete)
-    reader = models.ForeignKey(Reader)
+    reader = models.ForeignKey(Reader, null=True, blank=True)
     time = models.BigIntegerField()
 
     class Meta:
@@ -246,6 +246,27 @@ class TimingSession(models.Model):
             for i in range(len(times)-1):
                 dt = (times[i+1].time-times[i].time)/1000.0
                 interval.append(round(dt, 3))
+
+            #Give visual feedback that a split was recieved, show DNS
+            #Causes issue, as will not update til 2nd split put into array
+            """if times[0].time == 0:
+                interval = ['DNS']
+                results = (athlete_id, name, athlete.team, interval)
+                if use_cache:
+                    cache.set(('ts_%i_athlete_%i_results' %(self.id, athlete_id)),
+                          results) 
+                return Results(results[0], results[1], results[2],
+                       interval, 0)
+            elif len(times) == 1:
+                interval = ['NT']
+                results = (athlete_id, name, athlete.team, interval)
+                if use_cache:
+                    cache.set(('ts_%i_athlete_%i_results' %(self.id, athlete_id)),
+                          results) 
+                return Results(results[0], results[1], results[2],
+                       interval, 0)
+            """
+
 
             results = (athlete_id, name, athlete.team, interval)    
             

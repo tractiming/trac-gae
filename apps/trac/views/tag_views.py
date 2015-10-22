@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 import datetime
 import json
+from trac.utils.phone_split_util import create_phone_split
 
 
 class TagViewSet(viewsets.ModelViewSet):
@@ -147,3 +148,32 @@ def ManyDefaultTags(request):
             ts.registered_tags.add(tag.pk)
         ts.save()
         return Response({}, status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes((permissions.IsAuthenticated,))
+def RegisterDefaultRunners(request):
+    """
+    Put default runners from into a workout with a first split time of 0
+    """
+    if request.method == 'GET': #loadAthletes
+        data = request.GET
+        user = request.user
+
+        id_num = int(data.get('id'))
+        missed = data.get('missed', None) == 'true'
+        
+        array = []
+        if not is_coach(user):
+            return Response({}, status.HTTP_403_FORBIDDEN)
+        else:
+            table = TimingSession.objects.get(id=id_num)
+            result = table.registered_tags.all()
+            if missed:
+                result = result.exclude(id__in=table.splits.values_list(
+                                            'tag', flat=True).distinct())
+            for instance in result:
+                create_phone_split(instance.id, "1970/01/01 00:00:00.00")
+                
+            
+            return Response(200, status.HTTP_200_OK)
+
