@@ -175,5 +175,5 @@ def RegisterDefaultRunners(request):
                 create_phone_split(instance.id, "1970/01/01 00:00:00.00")
                 
             
-            return Response(array, status.HTTP_200_OK)
+            return Response(200, status.HTTP_200_OK)
 
