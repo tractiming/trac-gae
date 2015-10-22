@@ -249,23 +249,15 @@ class TimingSession(models.Model):
 
             #Give visual feedback that a split was recieved, show DNS
             #Causes issue, as will not update til 2nd split put into array
-            """if times[0].time == 0:
-                interval = ['DNS']
+            if times[0].time == 0:
                 results = (athlete_id, name, athlete.team, interval)
                 if use_cache:
                     cache.set(('ts_%i_athlete_%i_results' %(self.id, athlete_id)),
                           results) 
                 return Results(results[0], results[1], results[2],
-                       interval, 0)
-            elif len(times) == 1:
-                interval = ['NT']
-                results = (athlete_id, name, athlete.team, interval)
-                if use_cache:
-                    cache.set(('ts_%i_athlete_%i_results' %(self.id, athlete_id)),
-                          results) 
-                return Results(results[0], results[1], results[2],
-                       interval, 0)
-            """
+                       None, None)
+            
+            
 
 
             results = (athlete_id, name, athlete.team, interval)    
