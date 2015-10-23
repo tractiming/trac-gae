@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 import datetime
 import json
-from trac.utils.create_registered_util import create_registered
+from trac.utils.phone_split_util import create_phone_split
 
 
 class TagViewSet(viewsets.ModelViewSet):
@@ -172,9 +172,7 @@ def RegisterDefaultRunners(request):
                 result = result.exclude(id__in=table.splits.values_list(
                                             'tag', flat=True).distinct())
             for instance in result:
-                create_registered(instance.id, None)
-
-            
+                create_phone_split(instance.id, "1970/01/01 00:00:00.00")
                 
             
             return Response(200, status.HTTP_200_OK)
