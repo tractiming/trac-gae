@@ -107,7 +107,7 @@ class Split(models.Model):
     tag = models.ForeignKey(Tag)
     athlete = models.ForeignKey(Athlete)
     reader = models.ForeignKey(Reader, null=True, blank=True)
-    time = models.BigIntegerField()
+    time = models.BigIntegerField(null=True)
 
     class Meta:
         unique_together = ("tag", "time",)
@@ -231,7 +231,7 @@ class TimingSession(models.Model):
             # Filter times by tag id.
             times = self.splits.filter(athlete_id=athlete.id).order_by('time')
 
-            if len(times) > 1 and times[0].time == 0:
+            if len(times) > 1 and times[0].time == None:
                 times[0].delete()
                 times = times[1:]
 
@@ -249,7 +249,7 @@ class TimingSession(models.Model):
 
             #Give visual feedback that a split was recieved, show DNS
             #Causes issue, as will not update til 2nd split put into array
-            if times[0].time == 0:
+            if times[0].time == None:
                 results = (athlete_id, name, athlete.team, interval)
                 if use_cache:
                     cache.set(('ts_%i_athlete_%i_results' %(self.id, athlete_id)),
