@@ -17,8 +17,8 @@ def create_registered(athlete_id, time):
     except:
         return -1
 
-    reader = athlete.team.coach.reader_set.all()[0]
-    #reader = None
+    #reader = athlete.team.coach.reader_set.all()[0]
+    reader = None
     
     # Create new TagTime.
 
