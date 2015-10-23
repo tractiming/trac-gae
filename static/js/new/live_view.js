@@ -210,7 +210,7 @@ google.setOnLoadCallback(function(){
 				if (row.length === 1) {
 					var numDisplayedSplits = $('table#splits-'+id+'>tbody>tr').length;
 					// update splits table
-					if (splits.length > numDisplayedSplits) {
+					if (splits && splits.length > numDisplayedSplits) {
 						//var totalTime = $('#total-time-'+id).html().split(':');
 						//var total = Number(totalTime[0])*60 + Number(totalTime[1]);
 						
@@ -236,6 +236,10 @@ google.setOnLoadCallback(function(){
 
 						// then update latest split and total time
 						$('#latest-split-'+id).html(splits[splits.length-1][0]);
+						$('#total-time-'+id).html(formatTime(total));
+					}
+					else if (splits && splits.length == 0){
+						$('#latest-split-'+id).html('NT');
 						$('#total-time-'+id).html(formatTime(total));
 					}
 				} else {
@@ -277,7 +281,9 @@ google.setOnLoadCallback(function(){
 
 		function addNewRow(id, name, splits, total){
 			var split = 0;
-			if (splits.length > 0)
+			if (splits == null)
+				latestSplit = 'DNS'
+			else if (splits.length > 0)
 				latestSplit = splits[splits.length-1][0];
 			else
 				latestSplit = 'NT';
@@ -307,7 +313,7 @@ google.setOnLoadCallback(function(){
 			);
 
 			//var total = 0;
-			for (var j=0; j < splits.length; j++) {
+			for (var j=0; splits && j < splits.length; j++) {
 				var split = Number(splits[j][0]).toFixed(3);
 
 				// add splits to subtable
@@ -1245,8 +1251,13 @@ google.setOnLoadCallback(function(){
 
 				var id = runner.id,
 						name = runner.name,
-						splits = runner.splits,
-						numSplits = splits.length,
+						splits = runner.splits;
+						try{
+							numSplits = splits.length;
+						}
+						catch(err){
+							numSplits = 0;
+						};	
 						skip = false;
 
 				// create new checkbox if doesn't already exist
