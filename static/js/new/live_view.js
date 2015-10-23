@@ -1251,8 +1251,13 @@ google.setOnLoadCallback(function(){
 
 				var id = runner.id,
 						name = runner.name,
-						splits = runner.splits,
-						numSplits = splits.length,
+						splits = runner.splits;
+						try{
+							numSplits = splits.length;
+						}
+						catch(err){
+							numSplits = 0;
+						};	
 						skip = false;
 
 				// create new checkbox if doesn't already exist
