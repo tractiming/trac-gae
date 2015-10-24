@@ -26,13 +26,10 @@ class Team(models.Model):
     """
     A team has one coach and many athletes.
     """
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
     coach = models.ForeignKey(Coach)
     tfrrs_code = models.CharField(max_length=20, unique=True)
-    primary_team = models.BooleanField(default=False)
 
-    class Meta:
-        unique_together = ("name", "coach",)
 
     def __unicode__(self):
         return "team_name={}".format(self.name)
@@ -53,13 +50,16 @@ class Athlete(models.Model):
     def __unicode__(self):
         return "name={}".format(self.user.username)
 
-    @property
-    def age(self):
+    def age(self, as_of_date=None):
         """Athlete's current age (in years)."""
         if not self.birth_date:
             return None
 
-        today = datetime.date.today()
+        if as_of_date is None:
+            today = datetime.date.today()
+        else:
+            today = as_of_date
+
         try:
             birthday = self.birth_date.replace(year=today.year)
         except ValueError:
@@ -109,7 +109,7 @@ class Split(models.Model):
     """
     tag = models.ForeignKey(Tag)
     athlete = models.ForeignKey(Athlete)
-    reader = models.ForeignKey(Reader)
+    reader = models.ForeignKey(Reader, null=True, blank=True)
     time = models.BigIntegerField()
 
     class Meta:
@@ -234,6 +234,11 @@ class TimingSession(models.Model):
             # Filter times by tag id.
             times = self.splits.filter(athlete_id=athlete.id).order_by('time')
 
+            if len(times) > 1 and times[0].time == 0:
+                times[0].delete()
+                times = times[1:]
+
+
             # Offset for start time if needed.
             if self.start_button_time is not None:
                 s_tt = Split(time=self.start_button_time)
@@ -244,6 +249,27 @@ class TimingSession(models.Model):
             for i in range(len(times)-1):
                 dt = (times[i+1].time-times[i].time)/1000.0
                 interval.append(round(dt, 3))
+
+            #Give visual feedback that a split was recieved, show DNS
+            #Causes issue, as will not update til 2nd split put into array
+            """if times[0].time == 0:
+                interval = ['DNS']
+                results = (athlete_id, name, athlete.team, interval)
+                if use_cache:
+                    cache.set(('ts_%i_athlete_%i_results' %(self.id, athlete_id)),
+                          results) 
+                return Results(results[0], results[1], results[2],
+                       interval, 0)
+            elif len(times) == 1:
+                interval = ['NT']
+                results = (athlete_id, name, athlete.team, interval)
+                if use_cache:
+                    cache.set(('ts_%i_athlete_%i_results' %(self.id, athlete_id)),
+                          results) 
+                return Results(results[0], results[1], results[2],
+                       interval, 0)
+            """
+
 
             results = (athlete_id, name, athlete.team, interval)    
             
@@ -324,7 +350,7 @@ class TimingSession(models.Model):
 
         return sorted(teams_with_enough_runners, key=lambda x: x['score'])
 
-    def filtered_results(self, gender='', age_range=[], teams=[]):
+    def filtered_results(self, gender='', age_range=None, teams=None):
         """Filter results by gender, age, or team.
 
         Note: this method does not support pagination.
@@ -346,18 +372,19 @@ class TimingSession(models.Model):
             tt = tt.filter(athlete__gender=gender)
 
         # Filter by age.
-        if age_range:
+        if age_range is not None:
             assert ((age_range[0]<age_range[1])
                     and (age_range[0]>=0)), "Invalid age range"
-            now = timezone.now()
-            birth_date_gte = now.replace(year=now.year-age_range[1])
-            birth_date_lte = now.replace(year=now.year-age_range[0])
 
-            tt = tt.filter(athlete__birth_date__lte=birth_date_lte,
-                           athlete__birth_date__gte=birth_date_gte)
+            if self.start_time:
+                race_date = self.start_time.date()
+                splits_in_range = [split.id for split in tt if
+                    (split.athlete.age(as_of_date=race_date)>=age_range[0] and
+                    split.athlete.age(as_of_date=race_date)<age_range[1])]
+                tt = tt.filter(id__in=splits_in_range)
 
         # Filter by team.
-        if teams:
+        if teams is not None:
             tt = tt.filter(athlete__team__name__in=teams)
 
         all_athletes = tt.values_list('athlete_id', flat=True).distinct()

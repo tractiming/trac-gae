@@ -12,13 +12,13 @@ class TeamViewSet(viewsets.ModelViewSet):
         user = self.request.user
 
         if is_coach(user):
-            return user.coach.team_set.filter(primary_team=True)
+            return user.coach.team_set.all()
 
         elif is_athlete(user):
-            return Team.objects.filter(athlete__in=[user.athlete.pk], primary_team=True)
+            return Team.objects.filter(athlete__in=[user.athlete.pk])
 
         else:
-            return Team.objects.filter(primary_team=True)
+            return Team.objects.all()
 
     def pre_save(self, obj):
         obj.coach = self.request.user.coach

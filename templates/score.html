@@ -61,28 +61,17 @@
 			</div>
 
 			<div class="row results-navigate-container" style="display:none;">
-				<div class="results-navigate col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
-					<button type="button" class="prev btn btn-default">
-						<span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span>
-					</button>
-					<span class="results-page-number"></span>
-					<button type="button" class="next btn btn-default">
-						<span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
-					</button>
-					<span class="results-show-status"></span>
+				<div id="results" class="results-navigate col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+					<ul id="results-nav" class="nav nav-tabs" style="margin-bottom:2%">
+					  <li role="presentation" class="active"><a href="#">Individual Results</a></li>
+					  <li  id="team-final" role="presentation"><a href="#">Team Score</a></li>
+					</ul>
 				</div>
 			</div>
 
-			<div class="row">
-				<div id="results" class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
-					<table id="results-table" class="table table-striped table-hover">
-					</table>
-				</div>
-			</div>
-
-			<div class="row results-navigate-container" style="margin-bottom:30px; display:none;">
-				<div class="center">
-					<div id="results-navigate-footer" class="results-navigate">
+			<div id="results-individual" class="results-tab-content">
+				<div class="row results-navigate-container" style="display:none;">
+					<div class="results-navigate col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
 						<button type="button" class="prev btn btn-default">
 							<span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span>
 						</button>
@@ -90,27 +79,73 @@
 						<button type="button" class="next btn btn-default">
 							<span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
 						</button>
+						<span class="results-show-status"></span>
+					</div>
+				</div>
+
+				<div class="row">
+					<div id="results" class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+						<table id="results-table" class="table table-striped table-hover">
+						</table>
+					</div>
+				</div>
+
+				<div class="row results-navigate-container" style="margin-bottom:30px; display:none;">
+					<div class="center">
+						<div id="results-navigate-footer" class="results-navigate">
+							<button type="button" class="prev btn btn-default">
+								<span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span>
+							</button>
+							<span class="results-page-number"></span>
+							<button type="button" class="next btn btn-default">
+								<span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
+							</button>
+						</div>
+					</div>
+				</div>
+
+				
+				
+				<div id="notifications" class="row">
+					<div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-8 col-xs-offset-2">
+						<p class="notification notification-error notification-default" role="alert">
+							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> There is currently no data for this event.
+						</p>
+						<p class="notification notification-error notification-default2" role="alert">
+							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> No recent events to show.
+						</p>
+					</div>
+				</div>
+
+				<div style="display: table; margin: 0 auto; display: none;">
+				  <button id="download" class="btn btn-primary btn-md">Download</button>
+				</div>
+			</div>
+			<div id="results-team" class="results-tab-content">
+				<div class="row results-navigate-container" style="display:none;">
+					<div class="results-navigate col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+						<table id="team-table-canvas" class="table table-striped table-hover" style="margin-top:10px;">
+						</table>
 					</div>
 				</div>
 			</div>
-
 			<div class="spinner-container" style="position:relative; top:50px;">
 				<div id="spinner"></div>
 			</div>
+		</div>
+		<div class="container">
+			<div class="row">
+				<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+				<!-- minimalist -->
+				<ins class="adsbygoogle"
+				     style="display:block"
+				     data-ad-client="ca-pub-9179111896624698"
+				     data-ad-slot="9530937961"
+				     data-ad-format="auto"></ins>
+				<script>
+				(adsbygoogle = window.adsbygoogle || []).push({});
+				</script>
 			
-			<div id="notifications" class="row">
-				<div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-8 col-xs-offset-2">
-					<p class="notification notification-error notification-default" role="alert">
-						<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> There is currently no data for this event.
-					</p>
-					<p class="notification notification-error notification-default2" role="alert">
-						<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> No recent events to show.
-					</p>
-				</div>
-			</div>
-
-			<div style="display: table; margin: 0 auto; display: none;">
-			  <button id="download" class="btn btn-primary btn-md">Download</button>
 			</div>
 		</div>
 	</div>

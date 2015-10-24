@@ -206,6 +206,8 @@ $("li a.logout").click(function(){
                lname = json[ii].last;
                tag = json[ii].id_str;
                uname = json[ii].username;
+               age = json[ii].age;
+               gender = json[ii].gender;
                
                 $('#athletes tbody').append(
                   '<tr>'+
@@ -215,6 +217,8 @@ $("li a.logout").click(function(){
                     '<td style="display:none">'+lname+'</td>'+
                     '<td style="display:none">'+uname+'</td>'+
                     '<td>'+tag+'</td>' +
+                    '<td style="display:none">'+age+'</td>'+
+                    '<td style="display:none">'+gender+'</td>'+
                   '</tr>');
       }
             $('#inputheader').hide();
@@ -456,6 +460,16 @@ $("body").on('click', '#athletes tr' ,function(){
       var input =$('input#tag');
       input.val($(this).html() );
       }
+    else if (index ==6)
+    {
+      var input =$('input#age');
+      input.val($(this).html() );
+      }
+    else if (index ==7)
+    {
+      var input =$('input#gender');
+      input.val($(this).html() );
+      }
   });
 });
 
@@ -637,6 +651,8 @@ $("body").on('click', 'button#start', function(e){
             var fname=$('input[id=fname]').val();
             var lname=$('input[id=lname]').val();
             var ti=$('input[id=tag]').val();
+            var age=$('input[id=age]').val();
+            var gender=$('input[id=gender]').val();
             console.log(fname);
         $.ajax({
            type: "POST",
@@ -650,6 +666,8 @@ $("body").on('click', 'button#start', function(e){
                id_str: ti,
                firstname:fname,
                lastname:lname,
+               age:age,
+               gender:gender,
                submethod: 'Update'
            }, 
                       success: function(data) {
@@ -1088,6 +1106,14 @@ $("body").on('click', 'button#cl', function(e){
            <label for="">TagID:</label> 
            <input data-progression="" type="text" id="tag" value="" placeholder="" required data-parsley-group="block1" class="form-control"/>
        </div>
+       <div class="form-group">
+           <label for="">Age:</label> 
+           <input data-progression="" type="text" id="age" value="" placeholder="" required data-parsley-group="block1" class="form-control"/>
+       </div>
+       <div class="form-group">
+           <label for="">Gender:</label> 
+           <input data-progression="" type="text" id="gender" value="" placeholder="" required data-parsley-group="block1" class="form-control"/>
+       </div>
           <br>
          
               
@@ -1129,7 +1155,7 @@ $("body").on('click', 'button#cl', function(e){
        </div>
        <div class="form-group">
         <label for="" id="id_str">Tag ID:</label>
-        <input data-progression="" type="text" id="id_str" value="" placeholder="" required data-parsley-group="block1" class="form-control" />
+        <input data-progression="" type="text" id="id_str" value="" placeholder="" data-parsley-group="block1" class="form-control" />
       </div>
           <br>
          

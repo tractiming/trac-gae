@@ -30,8 +30,6 @@
 
   <!-- Vendor CSS -->
   <link href="{% static "css/pushy.css" %}" rel="stylesheet" type="text/css">
-  <link href="{% static "css/progression.min.css" %}" rel="stylesheet" type="text/css">
-  <link href="{% static "css/jquery.dropdown.css" %}" rel="stylesheet" type="text/css">
   <link href="{% static "css/parsley.css" %}" rel="stylesheet" type="text/css">
   <link href="{% static "css/switchery.min.css" %}" rel="stylesheet" type="text/css">
   <link href="{% static "css/new/blog.css" %}" rel="stylesheet" type="text/css">
@@ -41,20 +39,17 @@
 
   <!-- Vendor scripts -->
 
-  <script src="{% static "js/jquery.scrollorama.js" %}" type="text/javascript"></script>
   <script src="{% static "js/jquery.scrollTo.js" %}" type="text/javascript"></script>
   <script src="{% static "js/jquery.serializeJSON.min.js" %}" type="text/javascript"></script>
-  <script src="{% static "js/jquery.dropdown.js" %}" type="text/javascript"></script>
   <script src="{% static "js/jquery.tablesorter.min.js" %}" type="text/javascript"></script>
   <script src="{% static "js/papaparse.min.js" %}" type="text/javascript"></script>
   <script src="{% static "js/moment.min.js" %}" type="text/javascript"></script>
   
   <script src="{% static "js/parsley.min.js" %}" type="text/javascript"></script>
-  <script src="{% static "js/progression.min.js" %}" type="text/javascript"></script>
+
   <script src="{% static "js/spin.min.js" %}" type="text/javascript"></script>
   <script src="{% static "js/jspdf.debug.js" %}" type="text/javascript"></script>
   <script src="{% static "js/pushy.min.js" %}" type="text/javascript"></script>
-  <script src="{% static "js/switchery.min.js" %}" type="text/javascript"></script>
   <script src="{% static "js/switchery.min.js" %}" type="text/javascript"></script>
   <script src="{% static "js/new/jquery.colorbox.js" %}" type="text/javascript"></script>
   <script src="{% static "js/bowtruss.js" %}" type="text/javascript"></script>
@@ -141,7 +136,7 @@
       </div>
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-right">
-            <li><a href="/#top" class="scrollto" rel="top">Home</a></li>
+            <li class="hidden-sm hidden-xs"><a href="/#top" class="scrollto" rel="top">Home</a></li>
             <li><a href="/#bg2" class="scrollto" rel="bg2">Product</a></li>
             <li><a href="/#bg3" class="scrollto" rel="bg3">About</a></li>
             <li><a href="/#bg4" class="scrollto" rel="bg4">Blog</a></li>
@@ -236,24 +231,24 @@
 
 	<div id="bg3">
       <div class="text"><br>
-      <div class="content">
+      
         <div class="row">
-              <div class="col-lg-12 col-md-12 col-sm-7 col-xs-6">
+              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
       <br><br><br><h2>About</h2>
     </div>
   </div>
         <div class="row">
-              <div class="col-lg-12 col-md-12 hidden-sm hidden-xs">
+              <div class="col-lg-6 col-lg-offset-3 col-md-6 col-md-offset-3 hidden-sm hidden-xs">
                  <p>
-                  To the backdrop of Northwestern University, Elliot and Griffin met their freshman year running track & field. They have built a strong sense of collaboration, not only as teammates on the track, but through working on hours engineering homework together. 
+                  To the backdrop of Northwestern University, Elliot and Griffin met their freshman year running track & field. They have built a strong sense of collaboration, not only as teammates on the track, but through working on hours of engineering homework together. 
                 </p>
               </div>
           </div>
            <div class="row">
-            <div class="col-lg-12 col-md-12 col-sm-6 col-xs-5">
+            <div class="col-lg-6 col-lg-offset-3 col-md-6 col-md-offset-3 col-sm-12 col-xs-12">
               <br> <br> <br>
               <p>
-                After finishing their master's degrees in the winter of 2009, Elliot and Griffin thought it would be the end of their journey. However, after forgetting his watch multiple times on lonely winter runs, Griffin realized technology was missing from track and field and cross-country running. Needing a partner who could share the dream, and the burden of the startup life, Griffin reached out to Elliot.
+                After finishing their master's degrees in the winter of 2013, Elliot and Griffin thought it would be the end of their journey. However, after forgetting his watch multiple times on lonely winter runs, Griffin realized technology was missing from track and field and cross-country running. Needing a partner who could share the dream, and the burden of the startup life, Griffin reached out to Elliot.
               </p>
               <br>
             </div>
@@ -261,32 +256,32 @@
         <br>
           <br>
           <div class="row">
-            <div class="col-lg-12 col-md-12 col-sm-6 col-xs-6">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
       <p>        TRAC was born.
         
       </p>
             </div>
           </div>
-      </div>
+      
       </div>
         
     </div>
     <div id="bg4">
       <div class="text"><br>
-      <div class="content">
+
         <div class="row">
-            <div class="col-lg-12 col-md-12 col-sm-5 col-xs-5">
+            <div class="col-lg-12 col-md-12 col-sm-12  col-xs-12">
               <br><br>
             <h2>Trac on the track</h2><br>
           </div>
         </div>
 
-      <div class="container">
+        <div class="container">
         <div class="row">
             <div class="col-lg-5 col-md-5 col-sm-5 hidden-xs">
              <img src={% static "img/Tempo_Run2.jpg" %} style="width:100%">
             </div>
-            <div class="col-lg-7 col-md-7 col-sm-7 col-xs-6">
+            <div class="col-lg-7 col-md-7 col-sm-23 col-xs-23">
                <p style="text-align:left">
               <i>Team:</i> Northwestern Men XC<br>
               <i>Workout:</i> Montrose Tempo<br>
@@ -297,24 +292,25 @@
             </div>
         </div>
         <div class="row" style="padding-top:5%">
-          <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
+          <div class="col-lg-6 col-lg-offset-3 col-md-5 col-sm-8 col-xs-8 col-xs-offset-2">
              <a href="/demo" >Checkout other workouts in action</a>
           </div>
 
         </div>
       </div>
+      
 
          
 
       
       </div>
-      </div>
+
         
     </div>
     <div id="bg5">
       <div class="content">
         <h2>Meet T.R.A.C.</h2>
-       <div class="picture hidden-sm hidden-xs">
+       <div class="picture hidden-xs">
           <h3>Our Founders:</h3>
           <img src={% static "img/DSC0385.JPG" %} width="450px">
           <h4>Griffin Kelly &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp Elliot Hevel</h4>
@@ -322,8 +318,30 @@
           
         <div class="text"><p>
         <h3>Our Team:</h3>
-        
-          <h4 >
+        <div class="hidden-lg hidden-md">
+          <div class="col-sm-12 col-xs-12">
+            &#8226;<a href="https://www.linkedin.com/in/grifkelly/"> Griffin Kelly: Chief Executive Officer</a>
+          <br>
+             &#8226;<a href="https://www.linkedin.com/pub/elliot-hevel/90/3b0/43b"> Elliot Hevel: Chief Technology Officer</a>
+             <br>
+            &#8226; AJ Greenway: Business Development Analyst</a>
+            <br>
+            &#8226;<a href="https://www.linkedin.com/pub/nathanael-robinson/83/973/712"> Nate Robinson: Hardware Design Engineer</a> 
+            <br>
+            &#8226;<a href="https://www.linkedin.com/pub/jason-hoover/29/67a/6b5"> Jason Hoover: Front-End Developer</a>
+            <br>
+    &#8226;<a href="https://www.linkedin.com/pub/charles-hoffert/20/403/667"> Charlie Hoffert: Firmware Design Engineer</a>
+  <br>
+    &#8226;<a href="https://www.linkedin.com/pub/kanut-harichanwong/89/87/527"> Bew Harichanwong: Front-End Developer</a>
+  </h4>
+  <h4 class="hidden-sm hidden-xs">
+    &#8226; Jason Rhee: Backend-End Developer</a>
+    <br>
+    &#8226; Oscar Aguinaga: Business Development Analyst</a>
+    <br>
+          </div>
+        </div>
+          <h4 class="hidden-sm hidden-xs">
           &#8226;<a href="https://www.linkedin.com/in/grifkelly/"> Griffin Kelly: Chief Executive Officer</a>
           <br>
              &#8226;<a href="https://www.linkedin.com/pub/elliot-hevel/90/3b0/43b"> Elliot Hevel: Chief Technology Officer</a>

@@ -47,7 +47,8 @@ class AthleteViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if is_coach(user):
             coach = Coach.objects.get(user=user)
-            return Athlete.objects.filter(team__in=coach.team_set.all(), team__primary_team=True)
+            return Athlete.objects.filter(team__in=coach.team_set.all(),
+                                          team__primary_team=True)
 
         elif is_athlete(user):
             return Athlete.objects.filter(user=user)
@@ -135,7 +136,7 @@ class RegistrationView(views.APIView):
             team_name = data['organization']
             team, created = Team.objects.get_or_create(name=team_name,
                                                        coach=coach,
-                                                       tfrrs_code=team_name, primary_team=True)
+                                                       tfrrs_code=team_name)
             if created:
                 team.coach = coach 
                 team.save()
@@ -150,21 +151,22 @@ class RegistrationView(views.APIView):
         
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-@csrf_exempt
+@api_view(['POST'])
 @permission_classes((permissions.AllowAny,))
+@csrf_exempt
 def verifyLogin(request):
     data = request.POST
     #Does the token exist?
     try:
         token = AccessToken.objects.get(token=data['token'])
     except: #ObjectDoesNotExist:
-        return HttpResponse(status.HTTP_404_NOT_FOUND)
+        return Response(404, status.HTTP_404_NOT_FOUND)
 
     #Is the Token Valid?
     if token.expires < timezone.now():
-        return HttpResponse(status.HTTP_404_NOT_FOUND)
+        return Response(404, status.HTTP_404_NOT_FOUND)
     else:
-        return HttpResponse(status.HTTP_200_OK)
+        return Response(200, status.HTTP_200_OK)
 
 @api_view(['POST'])
 @authentication_classes((BasicAuthentication,))

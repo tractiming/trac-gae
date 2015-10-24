@@ -128,11 +128,9 @@ google.setOnLoadCallback(function(){
 				drawTeam();
 				return;
 			}
-			//if workoutid is undefined, break loop, prevent ajax call
-			if (idjson == undefined || idjson === null)
-				return;
+
 			ajaxRequest = $.ajax({
-				url: '/api/sessions/'+ idjson + '/individual_results',
+				url: '/api/sessions/78/individual_results',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				data: data,
 				dataType: 'text',
@@ -1344,7 +1342,7 @@ google.setOnLoadCallback(function(){
 			var gender = (g.trim() === 'Male') ? 'M' : 'F';
 
 			$.ajax({
-				url: '/api/sessions/'+currentID+'/filtered_results/?gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
+				url: '/api/sessions/78/filtered_results/?gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
@@ -1401,7 +1399,7 @@ google.setOnLoadCallback(function(){
 			$('#spinner').css('height', 150);
 			spinner.spin(target);
 			$.ajax({
-				url: 'api/sessions/'+currentID+'/team_results',
+				url: 'api/sessions/78/team_results',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
@@ -1545,13 +1543,10 @@ google.setOnLoadCallback(function(){
 			spinner.spin(target);
 
 			$.ajax({
-				url: '/api/session_Pag/',
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				url: '/api/score/?team=Lake%20Forest',
+				
 				dataType: 'json',
-				data: {
-					i1: sessionFirst,
-					i2: sessionLast,
-				},
+				
 				success: function(data){
 					var results = data.results,
 							numSessions = data.numSessions;
@@ -1600,12 +1595,10 @@ google.setOnLoadCallback(function(){
 			cStart = localISOString(cStart._d);
 			cStop = localISOString(cStop._d);
 			$.ajax({
-				url:'/api/session_Pag/',
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				url:'/api/score/?team=Lake%20Forest',
+				
 				dataType: 'json',
-				data: {
-					i1: 0, i2: 0, start_date: cStart, stop_date: cStop,
-				},
+				
 				success: function(data){
 					var results = data.results,
 							numSessions = data.numSessions;
@@ -1954,7 +1947,7 @@ google.setOnLoadCallback(function(){
 			var gender = (g.trim() === 'Male') ? 'M' : 'F';
 
 			$.ajax({
-				url: '/api/sessions/'+currentID+'/filtered_results/?gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
+				url: '/api/sessions/78/filtered_results/?gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
@@ -1998,7 +1991,7 @@ google.setOnLoadCallback(function(){
 
 		function createTeamCSV() {
 			$.ajax({
-				url: 'api/sessions/'+currentID+'/team_results',
+				url: 'api/sessions/78/team_results',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
