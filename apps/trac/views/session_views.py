@@ -108,14 +108,45 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         session = self.get_object()
         raw_results = session.individual_results(limit, offset)
 
+        temp_results = []
+        for r in raw_results:
+            if r.splits is not None:
+                splits = [[str(s)] for s in r.splits]
+                total = str(r.total)
+            else:
+                splits = None
+                total = None
+            temp_results.append({'name': r.name,
+                            'id': r.user_id,
+                            'splits': splits,
+                            'total': total
+                           })
+
         results = {'num_results': session.num_athletes, 
                    'num_returned': len(raw_results),
-                   'results': [{'name': r.name,
-                                'id': r.user_id,
-                                'splits': [[str(s)] for s in r.splits],
-                                'total': str(r.total)
-                               } for r in raw_results]
+                   'results': temp_results
                    }
+
+        """
+        try:
+            results = {'num_results': session.num_athletes, 
+                       'num_returned': len(raw_results),
+                       'results': [{'name': r.name,
+                                    'id': r.user_id,
+                                    'splits': [[str(s)] for s in r.splits],
+                                    'total': str(r.total)
+                                   } for r in raw_results]
+                       }
+        except:
+            results = {'num_results': session.num_athletes, 
+                       'num_returned': len(raw_results),
+                       'results': [{'name': r.name,
+                                    'id': r.user_id,
+                                    'splits': [[str(s)] for s in r.splits],
+                                    'total': str(r.total)
+                                   } for r in raw_results]
+                       }
+        """
     
         return Response(results)
 

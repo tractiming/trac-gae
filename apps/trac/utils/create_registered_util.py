@@ -2,7 +2,7 @@ from django.core.cache import cache
 from django.utils import timezone
 from trac.models import TimingSession, Split, Tag, Reader, Athlete
 
-def create_phone_split(athlete_id, time):
+def create_registered(athlete_id, time):
     """
     Create a new split based on an incoming time. This is a separate
     function since each post from a reader may contain multiple splits.
@@ -21,10 +21,9 @@ def create_phone_split(athlete_id, time):
     reader = None
     
     # Create new TagTime.
-    dtime = timezone.datetime.strptime(time, "%Y/%m/%d %H:%M:%S.%f") 
-    timestamp = int((dtime-timezone.datetime(1970, 1, 1)).total_seconds()*1000)
+
     new_split = Split(tag=athlete.tag, athlete=athlete, reader=reader,
-                      time=timestamp) 
+                      time=time) 
     
     try:
         new_split.save()
