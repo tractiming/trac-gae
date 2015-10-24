@@ -47,7 +47,8 @@ class AthleteViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if is_coach(user):
             coach = Coach.objects.get(user=user)
-            return Athlete.objects.filter(team__in=coach.team_set.all())
+            return Athlete.objects.filter(team__in=coach.team_set.all(),
+                                          team__primary_team=True)
 
         elif is_athlete(user):
             return Athlete.objects.filter(user=user)
