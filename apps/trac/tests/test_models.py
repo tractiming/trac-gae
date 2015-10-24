@@ -35,8 +35,14 @@ class AthleteTestCase(TestCase):
         galen = Athlete.objects.get(user__username='grupp')
         cam = Athlete.objects.get(user__username='clevins')
         mock_datetime.date.today.return_value = datetime.date(2000, 5, 27)
-        self.assertIsNone(galen.age)
-        self.assertEqual(cam.age, 10)
+        self.assertIsNone(galen.age())
+        self.assertEqual(cam.age(), 10)
+
+    def test_age_as_of_date(self):
+        """Test calculating age on a certain date."""
+        cam = Athlete.objects.get(user__username='clevins')
+        age = cam.age(as_of_date=datetime.date(2000, 5, 27))
+        self.assertEqual(age, 10)
 
 
 class TimingSessionTestCase(TestCase):

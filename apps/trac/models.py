@@ -50,13 +50,16 @@ class Athlete(models.Model):
     def __unicode__(self):
         return "name={}".format(self.user.username)
 
-    @property
-    def age(self):
+    def age(self, as_of_date=None):
         """Athlete's current age (in years)."""
         if not self.birth_date:
             return None
 
-        today = datetime.date.today()
+        if as_of_date is None:
+            today = datetime.date.today()
+        else:
+            today = as_of_date
+
         try:
             birthday = self.birth_date.replace(year=today.year)
         except ValueError:
@@ -347,7 +350,7 @@ class TimingSession(models.Model):
 
         return sorted(teams_with_enough_runners, key=lambda x: x['score'])
 
-    def filtered_results(self, gender='', age_range=[], teams=[]):
+    def filtered_results(self, gender='', age_range=None, teams=None):
         """Filter results by gender, age, or team.
 
         Note: this method does not support pagination.
@@ -369,18 +372,19 @@ class TimingSession(models.Model):
             tt = tt.filter(athlete__gender=gender)
 
         # Filter by age.
-        if age_range:
+        if age_range is not None:
             assert ((age_range[0]<age_range[1])
                     and (age_range[0]>=0)), "Invalid age range"
-            now = timezone.now()
-            birth_date_gte = now.replace(year=now.year-age_range[1]-1)
-            birth_date_lte = now.replace(year=now.year-age_range[0])
 
-            tt = tt.filter(athlete__birth_date__lte=birth_date_lte,
-                           athlete__birth_date__gte=birth_date_gte)
+            if self.start_time:
+                race_date = self.start_time.date()
+                splits_in_range = [split.id for split in tt if
+                    (split.athlete.age(as_of_date=race_date)>=age_range[0] and
+                    split.athlete.age(as_of_date=race_date)<age_range[1])]
+                tt = tt.filter(id__in=splits_in_range)
 
         # Filter by team.
-        if teams:
+        if teams is not None:
             tt = tt.filter(athlete__team__name__in=teams)
 
         all_athletes = tt.values_list('athlete_id', flat=True).distinct()

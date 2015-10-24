@@ -66,7 +66,7 @@ def WorkoutTags(request):
                 u_first = instance.athlete.user.first_name
                 u_last = instance.athlete.user.last_name
                 username = instance.athlete.user.username
-                age = instance.athlete.age
+                age = instance.athlete.age()
                 gender = instance.athlete.gender
                 array.append({'id': instance.id, 'first': u_first,
                               'last': u_last, 'username': username,
