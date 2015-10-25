@@ -164,30 +164,36 @@ class TimingSession(models.Model):
 
         """
         cursor = connection.cursor()
+        try:
+            if self.start_button_time is None:
+                cursor.execute(
+                    "SELECT trac_split.id, trac_split.athlete_id, "
+                    "trac_timingsession_splits.timingsession_id, "
+                    "Max(trac_split.time)-Min(trac_split.time) as diff "
+                    "FROM trac_split INNER JOIN trac_timingsession_splits "
+                    "ON trac_split.id=trac_timingsession_splits.split_id "
+                    "WHERE trac_timingsession_splits.timingsession_id=%s "
+                    "GROUP BY trac_split.athlete_id ORDER BY diff "
+                    "LIMIT %s,%s;",
+                    [self.id, offset, limit]
+                )
+            else:
+                cursor.execute(
+                    "SELECT trac_split.id, trac_split.athlete_id, "
+                    "trac_timingsession_splits.timingsession_id AS ts_id, "
+                    "Max(trac_split.time)-%s as diff "
+                    "FROM trac_split INNER JOIN trac_timingsession_splits "
+                    "ON trac_split.id=trac_timingsession_splits.split_id "
+                    "WHERE trac_timingsession_splits.timingsession_id=%s "
+                    "GROUP BY trac_split.athlete_id ORDER BY diff "
+                    "LIMIT %s,%s;",
+                    [self.start_button_time, self.id, offset, limit]
+                )
+            athlete_ids = [result[1] for result in cursor.fetchall()]
+            return athlete_ids
 
-        if self.start_button_time is None:
-            cursor.execute('''SELECT trac_split.id, trac_split.athlete_id,
-                           trac_timingsession_splits.timingsession_id,
-                           Max(trac_split.time)-Min(trac_split.time) as diff
-                           FROM trac_split INNER JOIN trac_timingsession_splits
-                           ON trac_split.id=trac_timingsession_splits.split_id
-                           WHERE trac_timingsession_splits.timingsession_id=%s
-                           GROUP BY trac_split.athlete_id ORDER BY diff
-                           LIMIT %s,%s;''',
-                           [self.id, offset, limit])
-        else:
-            cursor.execute('''SELECT trac_split.id, trac_split.athlete_id,
-                           trac_timingsession_splits.timingsession_id AS ts_id,
-                           Max(trac_split.time)-%s as diff
-                           FROM trac_split INNER JOIN trac_timingsession_splits
-                           ON trac_split.id=trac_timingsession_splits.split_id
-                           WHERE trac_timingsession_splits.timingsession_id=%s
-                           GROUP BY trac_split.athlete_id ORDER BY diff
-                           LIMIT %s,%s;''',
-                           [self.start_button_time, self.id, offset, limit])
-        athlete_ids = [result[1] for result in cursor.fetchall()]
-        cursor.close()
-        return athlete_ids
+        finally:
+            cursor.close()
 
     @property
     def active(self):
