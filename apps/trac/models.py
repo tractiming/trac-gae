@@ -110,10 +110,10 @@ class Split(models.Model):
     """
     A single split time from one tag.
     """
-    tag = models.ForeignKey(Tag)
+    tag = models.ForeignKey(Tag, null=True, blank=True)
     athlete = models.ForeignKey(Athlete)
-    reader = models.ForeignKey(Reader)
-    time = models.BigIntegerField()
+    reader = models.ForeignKey(Reader, null=True, blank=True)
+    time = models.BigIntegerField(null=True)
 
     class Meta:
         unique_together = ("tag", "time",)
@@ -237,9 +237,16 @@ class TimingSession(models.Model):
             # Filter times by tag id.
             times = self.splits.filter(athlete_id=athlete.id).order_by('time')
 
-            if len(times) > 1 and times[0].time == 0:
-                times[0].delete()
-                times = times[1:]
+            #If the time is none, break the loop and return early
+            #Subtraction will not work for splits otherwise
+            if times[0].time is None and len(times) == 1:
+                interval = None
+                results = (athlete_id, name, athlete.team, interval)
+                if use_cache:
+                    cache.set(('ts_%i_athlete_%i_results' %(self.id, athlete_id)),
+                          results) 
+                return Results(results[0], results[1], results[2],
+                       interval, 0)
 
 
             # Offset for start time if needed.
@@ -250,29 +257,10 @@ class TimingSession(models.Model):
             # Calculate splits.
             interval = []
             for i in range(len(times)-1):
+                if times[i].time is None:
+                    continue
                 dt = (times[i+1].time-times[i].time)/1000.0
                 interval.append(round(dt, 3))
-
-            #Give visual feedback that a split was recieved, show DNS
-            #Causes issue, as will not update til 2nd split put into array
-            """if times[0].time == 0:
-                interval = ['DNS']
-                results = (athlete_id, name, athlete.team, interval)
-                if use_cache:
-                    cache.set(('ts_%i_athlete_%i_results' %(self.id, athlete_id)),
-                          results) 
-                return Results(results[0], results[1], results[2],
-                       interval, 0)
-            elif len(times) == 1:
-                interval = ['NT']
-                results = (athlete_id, name, athlete.team, interval)
-                if use_cache:
-                    cache.set(('ts_%i_athlete_%i_results' %(self.id, athlete_id)),
-                          results) 
-                return Results(results[0], results[1], results[2],
-                       interval, 0)
-            """
-
 
             results = (athlete_id, name, athlete.team, interval)    
             

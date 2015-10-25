@@ -172,7 +172,7 @@ def RegisterDefaultRunners(request):
                 result = result.exclude(id__in=table.splits.values_list(
                                             'tag', flat=True).distinct())
             for instance in result:
-                create_phone_split(instance.id, "1970/01/01 00:00:00.00")
+                create_phone_split(instance.id, None)
                 
             
             return Response(200, status.HTTP_200_OK)
