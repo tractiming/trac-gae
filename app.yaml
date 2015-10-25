@@ -11,7 +11,7 @@ automatic_scaling:
   max_idle_instances: automatic
   min_pending_latency: 30ms
   max_pending_latency: automatic
-  max_concurrent_requests: 50
+  max_concurrent_requests: 10
 
 libraries:
 - name: MySQLdb
