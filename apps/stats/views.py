@@ -28,6 +28,9 @@ def analyze(request):
     dataList = []
     for r in run:
         times = r[3]
+        if times is None:
+            continue
+
         for index, item in enumerate(times):
             times[index] = float(item)
         name = r[0]
