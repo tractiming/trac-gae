@@ -151,22 +151,24 @@ class RegistrationView(views.APIView):
         
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-@api_view(['POST'])
-@permission_classes((permissions.AllowAny,))
-@csrf_exempt
-def verifyLogin(request):
-    data = request.POST
-    #Does the token exist?
-    try:
-        token = AccessToken.objects.get(token=data['token'])
-    except: #ObjectDoesNotExist:
-        return Response(404, status.HTTP_404_NOT_FOUND)
+class verifyLogin(views.APIView):
+    permission_classes = ()
 
-    #Is the Token Valid?
-    if token.expires < timezone.now():
-        return Response(404, status.HTTP_404_NOT_FOUND)
-    else:
-        return Response(200, status.HTTP_200_OK)
+    @csrf_exempt
+    def post(self,request):
+
+        data = request.POST
+        #Does the token exist?
+        try:
+            token = AccessToken.objects.get(token=data['token'])
+        except: #ObjectDoesNotExist:
+            return Response(404, status.HTTP_404_NOT_FOUND)
+
+        #Is the Token Valid?
+        if token.expires < timezone.now():
+            return Response(404, status.HTTP_404_NOT_FOUND)
+        else:
+            return Response(200, status.HTTP_200_OK)
 
 @api_view(['POST'])
 @authentication_classes((BasicAuthentication,))
