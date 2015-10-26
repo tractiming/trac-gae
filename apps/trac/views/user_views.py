@@ -155,12 +155,12 @@ class verifyLogin(views.APIView):
     permission_classes = ()
 
     @csrf_exempt
-    def post(self,request):
+    def get(self,request):
 
-        data = request.POST
+        data = request.GET.get('token')
         #Does the token exist?
         try:
-            token = AccessToken.objects.get(token=data['token'])
+            token = AccessToken.objects.get(token=data)
         except: #ObjectDoesNotExist:
             return Response(404, status.HTTP_404_NOT_FOUND)
 
