@@ -136,7 +136,7 @@ class RegistrationView(views.APIView):
             team_name = data['organization']
             team, created = Team.objects.get_or_create(name=team_name,
                                                        coach=coach,
-                                                       tfrrs_code=team_name)
+                                                       tfrrs_code=team_name, primary_team=True)
             if created:
                 team.coach = coach 
                 team.save()
