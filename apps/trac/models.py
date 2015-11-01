@@ -379,15 +379,14 @@ class TimingSession(models.Model):
             assert ((age_range[0]<age_range[1])
                     and (age_range[0]>=0)), "Invalid age range"
 
-            if self.start_time:
-                race_date = self.start_time.date()
-                splits_in_range = [split.id for split in tt if
-                    (split.athlete.age(as_of_date=race_date)>=age_range[0] and
-                    split.athlete.age(as_of_date=race_date)<age_range[1])]
-                tt = tt.filter(id__in=splits_in_range)
+            race_date = self.start_time.date()
+            splits_in_range = [split.id for split in tt if
+                (split.athlete.age(as_of_date=race_date)>=age_range[0] and
+                split.athlete.age(as_of_date=race_date)<age_range[1])]
+            tt = tt.filter(id__in=splits_in_range)
 
         # Filter by team.
-        if teams is not None:
+        if teams:
             tt = tt.filter(athlete__team__name__in=teams)
 
         all_athletes = tt.values_list('athlete_id', flat=True).distinct()
