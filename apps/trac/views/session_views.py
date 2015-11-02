@@ -110,8 +110,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         session = self.get_object()
         raw_results = session.individual_results(limit, offset)
 
+        extra_results = []
         if (len(raw_results) < limit) and all_athletes:
-            print('uh oh')
             # Want to append results set with results for runners who are
             # registered, but do not yet have a time. These results are added
             # to the end of the list, since they cannot be ordered. 
@@ -128,28 +128,24 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                 # If the athlete already has at least one split, they will
                 # already show up in the results.
                 if not has_split:
-                    additional_athletes.append(tag.athlete_id)
-        
-            extra_results = [
-                session.calc_athlete_splits(athlete_id) for athlete_id in
-                additional_athletes
-            ]
-
-        else:
-            extra_results = []
+                    extra_results.append(session.calc_athlete_splits(
+                        tag.athlete_id))
 
         results = {
             'num_results': session.num_athletes, 
             'num_returned': len(raw_results)+len(extra_results),
-            'results': [
-                {
-                    'name': result.name,
-                    'id': result.user_id,
-                    'splits': [[str(split)] for split in result.splits],
-                    'total': str(result.total)
-                }
-                for result in raw_results+extra_results]
+            'results': [] 
         }
+
+        for result in (raw_results + extra_results):
+            individual_result = {
+                'name': result.name,
+                'id': result.user_id,
+                'splits': [[str(split)] for split in result.splits],
+                'total': str(result.total),
+                'has_split': result in raw_results 
+            }
+            results['results'].append(individual_result)
 
         return Response(results)
 
