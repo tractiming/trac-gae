@@ -105,19 +105,52 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
     def individual_results(self, request, *args, **kwargs):
         limit = int(request.GET.get('limit', 1000))
         offset = int(request.GET.get('offset', 0))
+        all_athletes = bool(request.GET.get('all_athletes', False))
 
         session = self.get_object()
         raw_results = session.individual_results(limit, offset)
 
-        results = {'num_results': session.num_athletes, 
-                   'num_returned': len(raw_results),
-                   'results': [{'name': r.name,
-                                'id': r.user_id,
-                                'splits': [[str(s)] for s in r.splits],
-                                'total': str(r.total)
-                               } for r in raw_results]
-                   }
-    
+        if (len(raw_results) < limit) and all_athletes:
+            print('uh oh')
+            # Want to append results set with results for runners who are
+            # registered, but do not yet have a time. These results are added
+            # to the end of the list, since they cannot be ordered. 
+            if len(raw_results) == 0:
+                extra_offset = offset - session.num_athletes
+            else:
+                extra_offset = 0
+            extra_limit = limit - len(raw_results)
+            additional_athletes = []
+            for tag in session.registered_tags.all()[extra_offset:extra_limit]:
+                has_split = (session.id in  tag.athlete.split_set.values_list(
+                    "timingsession", flat=True).distinct())
+
+                # If the athlete already has at least one split, they will
+                # already show up in the results.
+                if not has_split:
+                    additional_athletes.append(tag.athlete_id)
+        
+            extra_results = [
+                session.calc_athlete_splits(athlete_id) for athlete_id in
+                additional_athletes
+            ]
+
+        else:
+            extra_results = []
+
+        results = {
+            'num_results': session.num_athletes, 
+            'num_returned': len(raw_results)+len(extra_results),
+            'results': [
+                {
+                    'name': result.name,
+                    'id': result.user_id,
+                    'splits': [[str(split)] for split in result.splits],
+                    'total': str(result.total)
+                }
+                for result in raw_results+extra_results]
+        }
+
         return Response(results)
 
     @detail_route(methods=['get'])
