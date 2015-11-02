@@ -131,8 +131,17 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                     extra_results.append(session.calc_athlete_splits(
                         tag.athlete_id))
 
+            distinct_ids = (
+                set(session.splits.values_list('athlete_id', flat=True).distinct())|
+                set(session.registered_tags.values_list('athlete_id',
+                    flat=True).distinct())
+            )
+        else:
+            distinct_ids = session.splits.values_list('athlete_id',
+                                                      flat=True).distinct()
+
         results = {
-            'num_results': session.num_athletes, 
+            'num_results': len(distinct_ids),
             'num_returned': len(raw_results)+len(extra_results),
             'results': [] 
         }
