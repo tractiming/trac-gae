@@ -111,6 +111,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         raw_results = session.individual_results(limit, offset)
 
         extra_results = []
+        distinct_ids = set(session.splits.values_list('athlete_id',
+                                                      flat=True).distinct())
         if (len(raw_results) < limit) and all_athletes:
             # Want to append results set with results for runners who are
             # registered, but do not yet have a time. These results are added
@@ -131,14 +133,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                     extra_results.append(session.calc_athlete_splits(
                         tag.athlete_id))
 
-            distinct_ids = (
-                set(session.splits.values_list('athlete_id', flat=True).distinct())|
-                set(session.registered_tags.values_list('athlete_id',
-                    flat=True).distinct())
-            )
-        else:
-            distinct_ids = session.splits.values_list('athlete_id',
-                                                      flat=True).distinct()
+                distinct_ids |= set(session.registered_tags.values_list(
+                    'athlete_id', flat=True).distinct())
 
         results = {
             'num_results': len(distinct_ids),
