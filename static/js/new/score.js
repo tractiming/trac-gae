@@ -227,8 +227,8 @@ $(function() {
 	function drawTeam(){
 			$('.notification').hide();
 			//$('#team-table-canvas').empty();
-			$('#spinner').css('height', 150);
-			spinner.spin(target);
+			//$('#spinner').css('height', 150);
+			//spinner.spin(target);
 			$.ajax({
 				url: '/api/sessions/'+currentID+'/team_results/',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
