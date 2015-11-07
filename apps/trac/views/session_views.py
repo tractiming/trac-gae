@@ -374,10 +374,10 @@ def create_race(request):
 
         except ObjectDoesNotExist:
             username = uuid.uuid4()
-            runner, created = User.objects.create(username=username,
+            runner, created = User.objects.get_or_create(username=username,
                 defaults={'first_name':first_name, 'last_name':last_name, 'last_login': timezone.now()})
-            a, created = Athlete.objects.create(user=runner)
-            team, created  = Team.objects.create(name=athlete['team'], coach=c, defaults={'tfrrs_code': athlete['team']})
+            a, created = Athlete.objects.get_or_create(user=runner)
+            team, created  = Team.objects.get_or_create(name=athlete['team'], coach=c, defaults={'tfrrs_code': athlete['team']})
 
 
         # add TFRRS team code here
