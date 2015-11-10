@@ -421,7 +421,7 @@ def create_race(request):
             tag = Tag.objects.create(id_str=tag_id, athlete=a)
         # FIXME: What does this do?
 
-        ts.registered_tags.add(tag.pk)
+        ts.registered_tags.add(a.pk)
 
     return Response({}, status.HTTP_201_CREATED)
 
@@ -495,7 +495,7 @@ def upload_workouts(request):
                 tag = Tag.objects.create(id_str=runner['username'], athlete=athlete)
 
             # register tag to the timing session
-            ts.registered_tags.add(tag.pk)
+            ts.registered_tags.add(athlete.pk)
 
             # init reference timestamp
             time = ts.start_button_time
