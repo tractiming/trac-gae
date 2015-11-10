@@ -20,12 +20,9 @@ def create_phone_split(athlete_id, time):
     #reader = athlete.team.coach.reader_set.all()[0]
     reader = None
     
-    if time is not None:
-        dtime = timezone.datetime.strptime(time, "%Y/%m/%d %H:%M:%S.%f") 
-        timestamp = int((dtime-timezone.datetime(1970, 1, 1)).total_seconds()*1000)
-    else:
-        timestamp = None
-        
+    # Create new TagTime.
+    dtime = timezone.datetime.strptime(time, "%Y/%m/%d %H:%M:%S.%f") 
+    timestamp = int((dtime-timezone.datetime(1970, 1, 1)).total_seconds()*1000)
     new_split = Split(tag=athlete.tag, athlete=athlete, reader=reader,
                       time=timestamp) 
     
