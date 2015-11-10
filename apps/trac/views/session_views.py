@@ -123,8 +123,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                 extra_offset = 0
             extra_limit = limit - len(raw_results)
             additional_athletes = []
-            for tag in session.registered_tags.all()[extra_offset:extra_limit]:
-                has_split = (session.id in  tag.athlete.split_set.values_list(
+            for athleteid in session.registered_tags.all()[extra_offset:extra_limit]:
+                has_split = (session.id in  athleteid.split_set.values_list(
                     "timingsession", flat=True).distinct())
 
                 # If the athlete already has at least one split, they will
@@ -134,7 +134,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                         tag.athlete_id))
 
                 distinct_ids |= set(session.registered_tags.values_list(
-                    'athlete_id', flat=True).distinct())
+                    'id', flat=True).distinct())
 
         results = {
             'num_results': len(distinct_ids),
