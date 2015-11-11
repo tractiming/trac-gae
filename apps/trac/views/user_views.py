@@ -93,8 +93,8 @@ class RegistrationView(views.APIView):
     """
     Registers a user and creates server-side client.
     """
-    permission_classes = ()
-    
+    permission_classes = (permissions.AllowAny,)
+
     @csrf_exempt
     def post(self, request):
         serializer = RegistrationSerializer(data=request.data)
