@@ -200,6 +200,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         ts = TimingSession.objects.get(pk=pk)
         reg_tags = ts.registered_tags.all()
 
+        #This needs to be updated, stuff below this comment.
         tag = Tag.objects.get(id=data['tag_id'], id__in=reg_tags)
 
         # get reader
@@ -366,14 +367,14 @@ def create_race(request):
     dateover = datestart + timezone.timedelta(days=1)
     # Create the timing session.
     name = data['race_name']
-    ts = TimingSession.objects.create(name=name, coach=c, start_time=datestart, stop_time=dateover)
+    ts = TimingSession.objects.get_or_create(name=name, coach=c, start_time=datestart, stop_time=dateover)
 
     # Create readers and add to the race.
     for r_id in data['readers']:
         try:
-            r = Reader.objects.get(id_str=r_id)
+            r = Reader.objects.get_or_create(id_str=r_id)
         except ObjectDoesNotExist:
-            r = Reader.objects.create(id_str=r_id, coach=c, name=r_id)
+            r = Reader.objects.get_or_create(id_str=r_id, coach=c, name=r_id)
         ts.readers.add(r.pk)
     ts.save()    
 

@@ -35,7 +35,7 @@ def create_phone_split(athlete_id, time):
     for session in [sessions for sessions in TimingSession.objects.all() if sessions.active]:
         # If the session has a set of registered tags, and the current tag is
         # not in that set, ignore the split.
-        if ((not session.use_registered_tags_only) or (tag in
+        if ((not session.use_registered_tags_only) or (athlete in
                 session.registered_tags.all())):
             session.splits.add(new_split.pk)
 
