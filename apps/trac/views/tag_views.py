@@ -139,13 +139,7 @@ def ManyDefaultTags(request):
         for athlete in data['athletes']:
             atl = User.objects.get(username=athlete['username'])
             ts = TimingSession.objects.get(id=data['id'])
-            try:
-                tag = Tag.objects.get(athlete=atl.athlete)
-            except:
-                tag = Tag.objects.create(athlete=atl.athlete)
-                tag.id_str = 'edit tag'
-            tag.save()
-            ts.registered_tags.add(atl.pk)
+            ts.registered_tags.add(atl.athlete.pk)
         ts.save()
         return Response({}, status.HTTP_200_OK)
 
