@@ -201,7 +201,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         reg_tags = ts.registered_tags.all()
 
         #This needs to be updated, stuff below this comment.
-        tag = Tag.objects.get(id=data['tag_id'], id__in=reg_tags)
+        tag = Tag.objects.get(id=data['tag_id'], athlete__in=reg_tags)
 
         # get reader
         reader = ts.readers.all()[0]
