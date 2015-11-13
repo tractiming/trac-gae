@@ -17,7 +17,7 @@ urlpatterns = [
         url(r'^', include(router.urls)),
 
         # General endpoints.
-        url(r'^register/$', user_views.RegistrationView.as_view()),
+        url(r'^register/$', user_views.RegistrationView),
         url(r'^verifyLogin/$', user_views.verifyLogin.as_view()),
         url(r'^login/$', user_views.auth_login),
         url(r'^logout/$', user_views.logout),
