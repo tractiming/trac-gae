@@ -109,14 +109,25 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         session = self.get_object()
         raw_results = session.individual_results(limit, offset)
 
+        temp_results = []
+        for r in raw_results:
+            if r.splits is not None:
+                splits = [[str(s)] for s in r.splits]
+                total = str(r.total)
+            else:
+                splits = None
+                total = None
+            temp_results.append({'name': r.name,
+                            'id': r.user_id,
+                            'splits': splits,
+                            'total': total
+                           })
+
         results = {'num_results': session.num_athletes, 
                    'num_returned': len(raw_results),
-                   'results': [{'name': r.name,
-                                'id': r.user_id,
-                                'splits': [[str(s)] for s in r.splits],
-                                'total': str(r.total)
-                               } for r in raw_results]
+                   'results': temp_results
                    }
+
     
         return Response(results)
 
@@ -387,7 +398,7 @@ def create_race(request):
             tag = Tag.objects.create(id_str=tag_id, athlete=a)
         # FIXME: What does this do?
 
-        ts.registered_tags.add(tag.pk)
+        ts.registered_tags.add(a.pk)
 
     return Response({}, status.HTTP_201_CREATED)
 
@@ -461,7 +472,7 @@ def upload_workouts(request):
                 tag = Tag.objects.create(id_str=runner['username'], athlete=athlete)
 
             # register tag to the timing session
-            ts.registered_tags.add(tag.pk)
+            ts.registered_tags.add(athlete.pk)
 
             # init reference timestamp
             time = ts.start_button_time
