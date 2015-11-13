@@ -88,69 +88,64 @@ class AthleteViewSet(viewsets.ModelViewSet):
         return Response(results)
 
 
-# FIXME: add to timingsession serializer.
-class RegistrationView(views.APIView):
-    """
-    Registers a user and creates server-side client.
-    """
-    permission_classes = (permissions.AllowAny,)
+@api_view(['POST'])
+@permission_classes((permissions.AllowAny,))
+@csrf_exempt
+def RegistrationView(request):
+    serializer = RegistrationSerializer(data=request.data)
 
-    @csrf_exempt
-    def post(self, request):
-        serializer = RegistrationSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST)
+    data = serializer.data
+    # Create the user in the database.
+    user = User.objects.create(username=data['username'],
+                               last_login=timezone.now())
+    user.set_password(data['password'])
+    user.email = request.data['email']
+    user.save()
 
-        if not serializer.is_valid():
-            return Response(serializer.errors,
-                    status=status.HTTP_400_BAD_REQUEST)
-        data = serializer.data
-        # Create the user in the database.
-        user = User.objects.create(username=data['username'],
-                                   last_login=timezone.now())
-        user.set_password(data['password'])
-        user.email = request.data['email']
-        user.save()
+    user_type = data['user_type']
+    if user_type == 'athlete':
+        # Register an athlete.
+        athlete = Athlete()
+        athlete.user = user
+        athlete.save()
 
-        user_type = data['user_type']
-        if user_type == 'athlete':
-            # Register an athlete.
-            athlete = Athlete()
-            athlete.user = user
+        try:
+            team = Team.objects.get(name=data['organization'])
+        except ObjectDoesNotExist:
+            team = None
+
+        if team:
+            athlete.team = team
             athlete.save()
 
-            try:
-                team = Team.objects.get(name=data['organization'])
-            except ObjectDoesNotExist:
-                team = None
+    elif user_type == 'coach':
+        # Register a coach.
+        coach = Coach()
+        coach.user = user
+        #coach.organization = data['organization']
+        coach.save()
 
-            if team:
-                athlete.team = team
-                athlete.save()
+        # Add user to group - TODO: should they be auto-added to group?
+        team_name = data['organization']
+        team, created = Team.objects.get_or_create(name=team_name,
+                                                   coach=coach,
+                                                   tfrrs_code=team_name, primary_team=True)
+        if created:
+            team.coach = coach 
+            team.save()
 
-        elif user_type == 'coach':
-            # Register a coach.
-            coach = Coach()
-            coach.user = user
-            #coach.organization = data['organization']
-            coach.save()
-
-            # Add user to group - TODO: should they be auto-added to group?
-            team_name = data['organization']
-            team, created = Team.objects.get_or_create(name=team_name,
-                                                       coach=coach,
-                                                       tfrrs_code=team_name, primary_team=True)
-            if created:
-                team.coach = coach 
-                team.save()
-
-            #Creates the Default table for coaches when they register.
-            #cp = Coach.objects.get(user=user)
-            # Not sure this is the best place for this.
-            #for i in range(0, len(DEFAULT_DISTANCES)):
-            #    r = PerformanceRecord.objects.create(
-            #            distance=DEFAULT_DISTANCES[i], time=DEFAULT_TIMES[i])
-            #    cp.performancerecord_set.add(r)
-        
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        #Creates the Default table for coaches when they register.
+        #cp = Coach.objects.get(user=user)
+        # Not sure this is the best place for this.
+        #for i in range(0, len(DEFAULT_DISTANCES)):
+        #    r = PerformanceRecord.objects.create(
+        #            distance=DEFAULT_DISTANCES[i], time=DEFAULT_TIMES[i])
+        #    cp.performancerecord_set.add(r)
+    
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class verifyLogin(views.APIView):
     permission_classes = ()
