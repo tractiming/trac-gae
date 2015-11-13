@@ -3,6 +3,7 @@ from rest_framework import routers
 from trac.views import (
     user_views, session_views, tag_views, reader_views, team_views
 )
+from django.views.decorators.csrf import csrf_exempt
 
 router = routers.DefaultRouter()
 router.register(r'sessions', session_views.TimingSessionViewSet, 'Session')
@@ -17,7 +18,7 @@ urlpatterns = [
         url(r'^', include(router.urls)),
 
         # General endpoints.
-        url(r'^register/$', user_views.RegistrationView),
+        url(r'^register/$', csrf_exempt(user_views.RegistrationView.as_view())),
         url(r'^verifyLogin/$', user_views.verifyLogin.as_view()),
         url(r'^login/$', user_views.auth_login),
         url(r'^logout/$', user_views.logout),
