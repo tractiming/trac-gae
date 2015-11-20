@@ -105,19 +105,53 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
     def individual_results(self, request, *args, **kwargs):
         limit = int(request.GET.get('limit', 1000))
         offset = int(request.GET.get('offset', 0))
+        all_athletes = bool(request.GET.get('all_athletes', False))
 
         session = self.get_object()
         raw_results = session.individual_results(limit, offset)
 
-        results = {'num_results': session.num_athletes, 
-                   'num_returned': len(raw_results),
-                   'results': [{'name': r.name,
-                                'id': r.user_id,
-                                'splits': [[str(s)] for s in r.splits],
-                                'total': str(r.total)
-                               } for r in raw_results]
-                   }
-    
+        extra_results = []
+        distinct_ids = set(session.splits.values_list('athlete_id',
+                                                      flat=True).distinct())
+        if (len(raw_results) < limit) and all_athletes:
+            # Want to append results set with results for runners who are
+            # registered, but do not yet have a time. These results are added
+            # to the end of the list, since they cannot be ordered. 
+            if len(raw_results) == 0:
+                extra_offset = offset - session.num_athletes
+            else:
+                extra_offset = 0
+            extra_limit = limit - len(raw_results)
+            additional_athletes = []
+            for tag in session.registered_tags.all()[extra_offset:extra_limit]:
+                has_split = (session.id in  tag.athlete.split_set.values_list(
+                    "timingsession", flat=True).distinct())
+
+                # If the athlete already has at least one split, they will
+                # already show up in the results.
+                if not has_split:
+                    extra_results.append(session.calc_athlete_splits(
+                        tag.athlete_id))
+
+                distinct_ids |= set(session.registered_tags.values_list(
+                    'athlete_id', flat=True).distinct())
+
+        results = {
+            'num_results': len(distinct_ids),
+            'num_returned': len(raw_results)+len(extra_results),
+            'results': [] 
+        }
+
+        for result in (raw_results + extra_results):
+            individual_result = {
+                'name': result.name,
+                'id': result.user_id,
+                'splits': [[str(split)] for split in result.splits],
+                'total': str(result.total),
+                'has_split': result in raw_results 
+            }
+            results['results'].append(individual_result)
+
         return Response(results)
 
     @detail_route(methods=['get'])
