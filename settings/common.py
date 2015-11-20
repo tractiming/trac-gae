@@ -62,6 +62,7 @@ DJANGO_APPS = (
 THIRD_PARTY_APPS = (
         'rest_framework',
         'oauth2_provider',
+        'rest_framework_swagger'
 )
 
 
@@ -124,6 +125,9 @@ REST_FRAMEWORK = {
         'DEFAULT_MODEL_SERIALIZER_CLASS': (
             'rest_framework.serializers.ModelSerializer',
         ),
+        'DEFAULT_RENDERER_CLASSES': (
+            'rest_framework.renderers.JSONRenderer',
+        )
 }
 OAUTH2_PROVIDER = {
     'SCOPES': {'read': 'Read scope', 'write': 'Write scope'}
