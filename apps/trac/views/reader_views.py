@@ -12,7 +12,7 @@ import ast
 
 class ReaderViewSet(viewsets.ModelViewSet):
     """
-    The set of readers the coach owns.
+    RFID reader resource.
     """
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = ReaderSerializer

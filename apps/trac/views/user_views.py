@@ -30,19 +30,24 @@ from oauthlib.common import generate_token
 import datetime
 
 class CoachViewSet(viewsets.ModelViewSet):
+    """
+    Coach resource.
+    """
     permission_classes = (permissions.IsAdminUser,)
     serializer_class = CoachSerializer
     queryset = Coach.objects.all()
 
 
 class AthleteViewSet(viewsets.ModelViewSet):
+    """
+    Athlete resource.
+    """
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = AthleteSerializer
 
     def get_queryset(self):
         """
-        Override the default method to return the users that are associated
-        with an athlete belonging to this coach.
+        Get athletes associated with a coach.
         """
         user = self.request.user
         if is_coach(user):

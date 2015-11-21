@@ -22,13 +22,15 @@ EPOCH = timezone.datetime(1970, 1, 1)
 
 class TimingSessionViewSet(viewsets.ModelViewSet):
     """
-    Return a list of all sessions associated with the user.
+    Timing session resource.
     """
     serializer_class = TimingSessionSerializer
     permission_classes = (permissions.AllowAny,)
 
     def get_queryset(self):
-        """Override default method to filter sessions by user."""
+        """
+        Filter sessions by user.
+        """
         user = self.request.user
 
         # If the user is an athlete, list all the workouts he has run.
@@ -51,6 +53,9 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
     def reset(self, request, *args, **kwargs):
         """
         Reset a timing session by clearing all of its tagtimes.
+        ---
+        omit_parameters:
+        - form
         """
         session = self.get_object()
         session.clear_results()
@@ -60,8 +65,10 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['post'])
     def open(self, request, *args, **kwargs):
         """
-        Open a session by setting its start time to now and its stop time
-        to one day from now.
+        Open a session for the next 24 hrs.
+        ---
+        omit_parameters:
+        - form
         """
         session = self.get_object()
         session.start_time = timezone.now()-timezone.timedelta(seconds=8)
@@ -75,6 +82,9 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
     def close(self, request, *args, **kwargs):
         """
         Close a session by setting its stop time to now.
+        ---
+        omit_parameters:
+        - form
         """
         session = self.get_object()
         session.stop_time = timezone.now()
@@ -85,8 +95,10 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['POST'])
     def start_timer(self, request, *args, **kwargs):
         """
-        Press the session's 'start button'. This sets the time that all the
-        splits are calculated relative to. Effectively acts as the gun time.
+        Start a session, i.e., calibrate the gun time.
+        ---
+        omit_parameters:
+        - form
         """
         # FIXME: This is a hack that offsets the delay the reader has in
         # setting its real time.  Also note that the start time is taken to be
@@ -103,6 +115,26 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'])
     def individual_results(self, request, *args, **kwargs):
+        """
+        Calculate individual-level results.
+        ---
+        parameters:
+        - name: limit
+          description: Maximum number of results to return
+          required: false
+          type: int
+          paramType: query
+        - name: offset
+          description: Start results set from this offset
+          required: false
+          type: int
+          paramType: query
+        - name: all_athletes
+          description: If True, return result for all registered athletes
+          required: false
+          type: bool
+          paramType: query
+        """
         limit = int(request.GET.get('limit', 1000))
         offset = int(request.GET.get('offset', 0))
         all_athletes = bool(request.GET.get('all_athletes', False))
@@ -156,6 +188,9 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'])
     def team_results(self, request, pk=None):
+        """
+        Calculate team-level results.
+        """
         session = self.get_object()
         raw_results = session.team_results()
 
@@ -169,6 +204,32 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'])
     def filtered_results(self, request, pk=None):
+        """
+        Calculate results over a filtered set of athletes.
+        ---
+        parameters:
+        - name: gender
+          description: Filter by gender
+          required: false
+          type: string
+          paramType: query
+        - name: age_lte
+          description: Maximum age (inclusive)
+          required: false
+          type: int
+          paramType: query
+        - name: age_gte
+          description: Minimum age (inclusive)
+          required: false
+          type: string
+          paramType: query
+        - name: teams
+          description: Get results for these teams only
+          required: false
+          type: string
+          paramType: query
+          allowMultiple: true
+        """
         gender = request.GET.get('gender', '')
         age_lte = int(request.GET.get('age_lte', 100))
         age_gte = int(request.GET.get('age_gte', 0))
@@ -194,6 +255,15 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
     def add_missed_runner(self, request, pk=None):
         """
         Add a split for a registered tag never picked up by the reader.
+        ---
+        omit_parameters:
+        - form
+        parameters:
+        - name: hour
+          description: Hour of time
+          required: true
+          type: int
+          paramType: body
         """
         data = request.POST
 
@@ -244,6 +314,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         tag_ids = ts.splits.values_list('tag_id', flat=True).distinct()
         raw_results = ts.individual_results()
 
+        # TODO: use defaultdict here.
         results = []
         for i, r in enumerate(raw_results):
             athlete = Athlete.objects.get(id=r.user_id)
