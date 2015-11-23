@@ -164,7 +164,11 @@ def RegisterDefaultRunners(request):
             table = TimingSession.objects.get(id=id_num)
             result = Athlete.objects.filter(team__in=coach.team_set.all(),team__primary_team=True)
 
+            if missed:
+                result = result.exclude(id__in=table.splits.values_list(
+                                            'tag', flat=True).distinct())
             for instance in result:
-                table.registered_tags.add(instance.id)
+                create_phone_split(instance.id, "1970/01/01 00:00:00.00")
+                
             
             return Response(200, status.HTTP_200_OK)
