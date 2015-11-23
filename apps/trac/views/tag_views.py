@@ -168,8 +168,8 @@ def RegisterDefaultRunners(request):
         else:
             coach = Coach.objects.get(user=user)
             table = TimingSession.objects.get(id=id_num)
-            a = Athlete.objects.filter(team__in=coach.team_set.all(),team__primary_team=True)
-            result = table.registered_tags.all()
+            result = Athlete.objects.filter(team__in=coach.team_set.all(),team__primary_team=True)
+
             if missed:
                 result = result.exclude(id__in=table.splits.values_list(
                                             'tag', flat=True).distinct())
