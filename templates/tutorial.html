@@ -102,8 +102,7 @@ $(document).ready(function(){
     );
     $('#paragraph2').append(
         '<p>Click on the plus button in the corner and fill out the desired information.</p>' +
-        '<p>For Chrome: <p class="col-lg-offset-1 col-md-offset-1 col-sm-offset-1 col-xs-offset-1">Date must be in the form: yyyy­mm­dd hh:mm:ss</p></p>' +
-        '<p>For other browsers: <p class="col-lg-offset-1 col-md-offset-1 col-sm-offset-1 col-xs-offset-1">Date must be in the form: yyyy/mm/dd hh:mm:ss</p></p>' + 
+         
         '<p>To make workouts publicly viewable: change the private toggle to “no”. This allows people without accounts to view the data. Toggle the filter to “Yes” to delete any times that are less than 30 seconds; otherwise it will default to “No." The track size and interval distance fields are not required, but help to create more powerful algorithms in fitness prediction. When finished click "Save" to add to your list of workouts. </p>' +
         '<br>' +
         '<br>'
@@ -133,9 +132,7 @@ $(document).ready(function(){
     );
 
     $('#paragraph1').append(
-        '<img src="../../static/img/Tutorial7.png" style="width: 80%;">' +
-        '<br>' +
-        '<br>'+'<p>Select a heat from the heat menu to the left hand side of the screen. The athletes registered to the selected workout will appear. If none appear, every tag that is registered in the entire system that crosses the reader will appear into your workout. </p><br>' + '<p>To add additional athletes into your workout, use the right column and checkboxes to select athletes you want added to the workout. After you have selected all the runners you want to add, click "Register Athletes." They will then be added to the workout. </p><br><br>'
+        '<br>'+'<p>Select a heat from the heat menu to the left hand side of the screen. The athletes registered to the selected workout will appear. If none appear, every tag that is registered in the entire system that crosses the reader will appear into your workout. </p><br>' + '<p>To add additional athletes into your workout, use the right column and checkboxes to select athletes you want added to the workout. After you have selected all the runners you want to add, click "Register Athletes." They will then be added to the workout. </p>'+'<p>Note: the Tag ID row can be left blank if using as a stopwatch.</p><br><br>'
     );
     $('#paragraph2').append(
       '<img src="../../static/img/Tutorial6.png" style="width: 80%;"><br><br>' +
@@ -300,18 +297,41 @@ if(page==7){
         '<div id="subheader2" class="pull-left"></div>'
     );
     $('#subheader').append(
-        '<h3 style="text-align: left;">iPhone</h3>' +
+        '<h3 style="text-align: left;">iPhone & Android</h3>' +
         '<div id="paragraph"></div>'
     );
     $('#paragraph').append(
         '<p>Login and navigate to your workout using the calendar view. Use the search icon at the top to find a specific workout. The "+" sign allows you to create workouts on the go using pre-set default settings. After you select a workout, the "Live" page updates every five seconds. The "Summary" page displays a summary of every split for every runner in the workout. Pull the screen down to refresh the data. Select the "Settings" page for race management type features: "Calibrate Workout," "Go!, "Stop Workout," and "Reset Workout." These same features are available on the website, except for the "Reset" Button which will delete all athletes in the workout.</p>'
++'<img src="../../static/img/android_screenshot.png" style="padding-right:2%" width="50%">' +
+        '<img src="../../static/img/ios_screenshot.png" width="48%">' 
+
+        +'<p>To use as a stopwatch, and add splits, click the "edit" button. A toolbar will appear displaying "Split" and "Reset" Buttons. Click the checkboxes next to runners names, then "split" to push splits. Long press a individual runner to get their running time. </p>'+'<p>Note: There is no "Stop" button unlike a traditional stopwatch. Therefore, all times will be saved, including rest times on our server. The reset button is only done locally on the phone and will not be reflected when viewed on the phones of others. </p>' 
+        
     );
-    $('#subheader2').append(
-        '<h3 style="text-align: left;">Android</h3>' +
-        '<div id="paragraph2"></div>'
+}
+  if(page==8){
+    $('#step1').append(
+        '<h1 >Quick Tutorial</h1>' +
+        '<div id="header" class="pull-left"></div>'
     );
-    $('#paragraph2').append(
-        '<p>Login and navigate to your workout using the calendar view. To create a workout on the go, click on the expand icon, and select "Create Workout." After you select a workout, the "Live" page updates every five seconds. The "Summary" page displays a summary of every split for every runner in the workout. Pull the screen down to refresh the data. Select the "Settings" page for race management type features: "Calibrate Workout," "Go!, "Stop Workout," and "Reset Workout." These same features are available on the website, except for the "Reset" Button which will delete all athletes in the workout. </p>'
+    $('#header').append(
+        '<h2 style="text-align: left;"></h2>' +
+        '<div id="subheader" class="pull-left"></div>'+
+        '<div id="subheader2" class="pull-left"></div>'
+    );
+    $('#subheader').append(
+        '<h3 style="text-align: left;"></h3>' +
+        '<div id="paragraph"></div>'
+    );
+    $('#paragraph').append(
+        '<p>1. Download the apps on <a href="https://play.google.com/store/apps/details?id=com.trac.trac">Google Playstore</a> or Apple App Store.</p>' +
+        '<p>2. Create username and <a href="/register/">register!</a></p>' +
+        '<p>3. <a href="/Tutorial/2/">Create a workout.</a></p>' +
+        '<p>4. <a href="/Tutorial/3/">Add your roster.</a></p>' +
+        '<p>5. <a href="/Tutorial/3/">Add runners to workout.</a></p>' +
+        '<p>6. Start Timing!</p>'
+
+        
     );
   }
     $('body').on('click', '.question', function(e) {
@@ -329,6 +349,7 @@ if(page==7){
           </div>
           <div id="articles" class="pull-right" style="border-left: 1px solid #eee; padding-left: 2%;">
             <h2 style="text-align: left;">Articles</h2>
+            <a id="h" href="/Tutorial/8">Quick Start</a></br>
             <a id="h" href="/Tutorial/6">Hardware Guide</a></br>
             <a id="r" href="/Tutorial/1">Reader Setup</a></br>
             <a id="c" href="/Tutorial/2">Create Workout</a></br>

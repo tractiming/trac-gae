@@ -74,6 +74,11 @@ else{
                     success: function(data){
                           var json = $.parseJSON(data);
                           json = json.reverse();
+                          if (json == ""){
+                            $('#athletes').append("<center><a href='/Tutorial/8/' style='center'>Click Here for Quick Setup</a></center>");
+
+                          }
+                            else{
                           $('#athletes').append(
                                   '<table id="workouts-table" class="table table-striped table-hover">' +
                                         '<thead>' +
@@ -103,6 +108,7 @@ else{
                                       '</tr>');
                           }
                     }
+                  }
               });
   }
 
@@ -133,6 +139,8 @@ function loadworkouts(){
             $('button#next').hide();
             $('button#prev').show();        
           $("div.notification.notification-default").show();
+          $('#workouts').append("<center><a href='/Tutorial/8/' style='center'>Click Here for Quick Setup</a></center>");
+
 
       }
       // show name and date, dont show message, but show button
