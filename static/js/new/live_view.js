@@ -1545,16 +1545,16 @@ google.setOnLoadCallback(function(){
 			spinner.spin(target);
 
 			$.ajax({
-				url: '/api/session_Pag/',
+				url: '/api/sessions/',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'json',
 				data: {
-					i1: sessionFirst,
-					i2: sessionLast,
+					offset: sessionFirst-1,
+					limit: 15,
 				},
 				success: function(data){
 					var results = data.results,
-							numSessions = data.numSessions;
+					numSessions = data.count;
 					
 					if ((results.length == 0) && (!$.trim($('ul.menulist').html()))) {
 						$('.notification.no-sessions').show();
@@ -1600,15 +1600,18 @@ google.setOnLoadCallback(function(){
 			cStart = localISOString(cStart._d);
 			cStop = localISOString(cStop._d);
 			$.ajax({
-				url:'/api/session_Pag/',
+				url:'/api/sessions/',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'json',
 				data: {
-					i1: 0, i2: 0, start_date: cStart, stop_date: cStop,
+					offset: sessionFirst-1,
+                    limit: 15,
+                    start_date: cStart,
+                    stop_date: cStop,
 				},
 				success: function(data){
 					var results = data.results,
-							numSessions = data.numSessions;
+					numSessions = data.count;
 
 					calendarEvents = [];
 					for (var i=0; i<results.length; i++){

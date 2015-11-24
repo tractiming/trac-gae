@@ -1,7 +1,7 @@
 from trac.models import TimingSession, Reader, Tag, Split, Team, Athlete
 from trac.serializers import TimingSessionSerializer
 from trac.utils.user_util import is_athlete, is_coach
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions, status, pagination
 from rest_framework.response import Response
 from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes, detail_route
@@ -26,12 +26,22 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
     """
     serializer_class = TimingSessionSerializer
     permission_classes = (permissions.AllowAny,)
+    pagination_class = pagination.LimitOffsetPagination
 
     def get_queryset(self):
         """
         Filter sessions by user.
         """
         user = self.request.user
+        start_date = self.request.GET.get('start_date')
+        stop_date = self.request.GET.get('stop_date')
+
+        if start_date is not None and stop_date is not None:
+            start_date = dateutil.parser.parse(start_date)
+            stop_date = dateutil.parser.parse(stop_date)        
+            date_filter = Q(start_time__range=(start_date, stop_date))
+        else:
+            date_filter = Q()
 
         # If the user is an athlete, list all the workouts he has run.
         if is_athlete(user):
@@ -42,11 +52,12 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         
         # If the user is a coach, list all sessions he manages.
         elif is_coach(user):
-            return TimingSession.objects.filter(coach=user.coach)
+            return TimingSession.objects.filter(
+                Q(coach=user.coach) & date_filter)
             
         # If not a user or coach, list all public sessions.
         else:
-            return TimingSession.objects.filter(private=False)
+            return TimingSession.objects.filter(Q(private=False) & date_filter)
     
     @csrf_exempt
     @detail_route(methods=['post'])
@@ -390,50 +401,6 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                         rnd +','+ points +','+ wind +','+ relay_squad)
 
         return Response(results, status.HTTP_200_OK)
-
-
-#pagination endpoint
-@api_view(['GET'])
-@permission_classes((permissions.AllowAny,))
-def sessions_paginate(request):
-    """
-    TODO: Deprecate
-    """
-    begin = int(request.GET.get('i1'))
-    stop = int(request.GET.get('i2'))
-    user = request.user
-    # get pagination beginning and next page value
-    start_date = request.GET.get('start_date')
-    stop_date = request.GET.get('stop_date')
-    if start_date == None or stop_date == None:   
-        if is_coach(user):
-            table = TimingSession.objects.filter(coach=user.coach).values()
-        else:
-            table = TimingSession.objects.filter(private='false').values()
-    else:
-        start_date = dateutil.parser.parse(start_date)
-        stop_date = dateutil.parser.parse(stop_date)        
-        if is_coach(user):
-            table = TimingSession.objects.filter(Q(coach=user.coach)
-                        & Q(start_time__range=(start_date, stop_date))).values()
-        else:
-            table = TimingSession.objects.filter(Q(private='false')
-                        & Q(start_time__range=(start_date, stop_date))).values()
-        #reset indices for pagination without changing id
-    if begin == 0 and stop == 0:
-        return Response({'results': table, 'num_sessions': len(table)},
-                        status.HTTP_200_OK)
-    else:
-        i = 1
-        result = []
-        for instance in table[::-1]:
-            if i >= begin and i <= stop:
-                #if indices are in the range of pagination, append to return list
-                result.append(instance)
-            i += 1
-        #result = list(reversed(result))
-        return Response({'results': result, 'num_sessions': len(table)},
-                        status.HTTP_200_OK)
 
 
 @api_view(['POST'])

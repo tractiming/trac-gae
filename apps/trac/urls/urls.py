@@ -25,7 +25,6 @@ urlpatterns = [
 
         # Timing session functionality.
         url(r'^raceregistration/$', session_views.create_race, name='racereg'),
-        url(r'^session_Pag/$', session_views.sessions_paginate),
         url(r'^reg_tag/$', tag_views.WorkoutTags),
         url(r'^reg_manytags/$', tag_views.ManyDefaultTags),
         url(r'^edit_athletes/$', user_views.edit_athletes),

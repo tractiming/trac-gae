@@ -115,7 +115,7 @@ else{
 function loadworkouts(){
        $('#workouts').empty();
        $.ajax({
-             url: "/api/session_Pag/",
+             url: "/api/sessions/",
          headers: {Authorization: "Bearer " + sessionStorage.access_token},
                     //force to handle it as text
                     data: {
