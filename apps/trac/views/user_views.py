@@ -97,6 +97,36 @@ class AthleteViewSet(viewsets.ModelViewSet):
 @permission_classes((permissions.AllowAny,))
 @csrf_exempt
 def RegistrationView(request):
+    """
+    Register a new coach or athlete.
+    ---
+    parameters:
+    - name: username
+      description: Unique username
+      required: true
+      type: string
+      paramType: form
+    - name: password
+      description: User's password
+      required: true
+      type: string
+      paramType: form
+    - name: email
+      description: User's email
+      required: true
+      type: string
+      paramType: form
+    - name: user_type
+      description: Athlete or coach
+      required: true
+      type: string
+      paramType: form
+    - name: organization
+      description: Name of the organization to which this user belongs
+      required: true
+      type: string
+      paramType: form
+    """
     serializer = RegistrationSerializer(data=request.data)
 
     if not serializer.is_valid():
@@ -153,10 +183,23 @@ def RegistrationView(request):
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class verifyLogin(views.APIView):
+    """
+    Verify that a user is currently logged into the site.
+    """
     permission_classes = ()
 
     @csrf_exempt
     def get(self,request):
+        """
+        Check login status.
+        ---
+        parameters:
+        - name: token
+          description: OAuth2 token
+          required: true
+          type: string
+          paramType: query
+        """
 
         data = request.GET.get('token')
         #Does the token exist?
@@ -176,6 +219,18 @@ class verifyLogin(views.APIView):
 def auth_login(request):
     """
     Log a user into the site. Create Django backend token.
+    ---
+    parameters:
+    - name: username
+      description: Username
+      required: true
+      type: string
+      paramType: form
+    - name: password
+      description: Password
+      required: true
+      type: string
+      paramType: form
     """
     application = Application.objects.get(user=request.user) 
     credentials = {'username': request.user.username,
@@ -220,6 +275,10 @@ class userType(views.APIView):
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))
 def edit_info(request):
+    """
+    TODO: Deprecate
+    Edit a user's personal info.
+    """
     data = request.POST
     user = request.user
     team, created = Team.objects.get_or_create(name = data['org'], 
@@ -238,6 +297,10 @@ def edit_info(request):
 @api_view(['GET'])
 @permission_classes((permissions.IsAuthenticated,))
 def get_info(request):
+    """
+    TODO: Deprecate
+    Get info about the current user.
+    """
     user = request.user
     try:
         email = user.email
@@ -313,12 +376,31 @@ def edit_athletes(request):
 @login_required()
 @permission_classes((permissions.IsAuthenticated,))
 def token_validation(request):
+    """
+    Validate a token.
+    """
     return HttpResponse(status.HTTP_200_OK)
 
+# TODO: move to /users
 @api_view(['POST'])
 @login_required()
 @permission_classes((permissions.IsAuthenticated,))
 def reset_password(request):
+    """
+    Reset a user's password.
+    ---
+    parameters:
+    - name: user
+      description: username
+      paramType: form
+      required: true
+      type: string
+    - name: password
+      description: New password
+      paramType: form
+      required: true
+      type: string
+    """
     name =  base64.urlsafe_b64decode(request.POST.get('user').encode('utf-8'))
     user = User.objects.get(pk = name)
     token = request.auth
@@ -338,6 +420,21 @@ def reset_password(request):
 @login_required()
 @permission_classes((permissions.IsAuthenticated,))
 def change_password(request):
+    """
+    Change an existing user's password.
+    ---
+    parameters:
+    - name: o_password
+      description: Old password
+      paramType: form
+      required: true
+      type: string
+    - name: password
+      description: New password
+      paramType: form
+      required: true
+      type: string
+    """
     user = request.user
     token = request.auth
     if token not in user.accesstoken_set.all():
@@ -358,6 +455,16 @@ def change_password(request):
 @csrf_exempt
 @permission_classes((permissions.AllowAny,))
 def send_email(request):
+    """
+    Send an email related to a user password reset.
+    TODO: move to /users; fix HttpResponse
+    ---
+    parameters:
+    - name: email
+      paramType: form
+    - name: user
+      paramType: form
+    """
     email = request.POST.get('email')
     name = request.POST.get('user')
     u = User.objects.get(email = email)
@@ -431,6 +538,10 @@ def give_athlete_password(request):
 @api_view(['GET'])
 @permission_classes((permissions.IsAuthenticated,))
 def tutorial_limiter(request):
+    """
+    Determine if the tutorial should be shown to the user.
+    TODO: Return response codes as status, not body.
+    """
     user = request.user
     if timezone.now()- user.date_joined < datetime.timedelta(60):
         return HttpResponse(status.HTTP_200_OK)

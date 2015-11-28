@@ -18,8 +18,14 @@ DEFAULT_TIMES = [14.3, 27.4, 61.7, 144.2, 165, 257.5,
 def analyze(request):
     """
     Returns auto_edit splits.
+    ---
+    parameters:
+    - name: id
+      description: Session ID
+      paramType: form
+      required: true
+      type: int
     """
-
     #SETUP and parse dataList
     user = request.user
     idx = request.POST.get('id')
@@ -40,6 +46,9 @@ def analyze(request):
 @api_view(['GET'])
 @permission_classes((permissions.AllowAny,))
 def VO2Max(request):
+    """
+    TODO: Fix
+    """
     user = request.user
     if is_coach(user):
         result = []
@@ -84,6 +93,7 @@ def VO2Max(request):
 @permission_classes((permissions.AllowAny,))
 def est_distance(request):
     """
+    TODO: Fix
     Updates user individual time tables using distance prediction.
     """
     #SETUP and parse dataList

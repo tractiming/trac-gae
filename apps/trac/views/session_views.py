@@ -95,7 +95,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['POST'])
     def start_timer(self, request, *args, **kwargs):
         """
-        Start a session, i.e., calibrate the gun time.
+        Start a session, ie, calibrate the gun time.
         ---
         omit_parameters:
         - form
@@ -130,9 +130,11 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
           type: int
           paramType: query
         - name: all_athletes
-          description: If True, return result for all registered athletes
+          description: >
+            If True, return result for all registered athletes,
+            regardless of whether or not they have recorded a time
           required: false
-          type: bool
+          type: boolean
           paramType: query
         """
         limit = int(request.GET.get('limit', 1000))
@@ -256,14 +258,33 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         """
         Add a split for a registered tag never picked up by the reader.
         ---
-        omit_parameters:
-        - form
+        parameters_strategy: replace
         parameters:
+        - name: tag_id
+          description: Tag ID
+          required: true
+          type: int
+          paramType: form
         - name: hour
           description: Hour of time
           required: true
           type: int
-          paramType: body
+          paramType: form
+        - name: min
+          description: Minute of time
+          required: true
+          type: int
+          paramType: form
+        - name: sec
+          description: Second of time
+          required: true
+          type: int
+          paramType: form
+        - name: mil
+          description: Millisecond of time
+          required: true
+          type: int
+          paramType: form
         """
         data = request.POST
 
@@ -375,6 +396,9 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 @api_view(['GET'])
 @permission_classes((permissions.AllowAny,))
 def sessions_paginate(request):
+    """
+    TODO: Deprecate
+    """
     begin = int(request.GET.get('i1'))
     stop = int(request.GET.get('i2'))
     user = request.user
@@ -496,23 +520,35 @@ def create_race(request):
 
     return Response({}, status.HTTP_201_CREATED)
 
+# TODO: Merge with POST /sessions
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))
 def upload_workouts(request):
     """ 
     Create a complete workout through CSV file upload.
-    Parameters:
-        - title: workout title
-        - start_time: start date of workout in ISO string format
-        - track_size: size of track
-        - interval_distance: distance for each split
-        - results: list of dictionary of workout results as follows
-            - username: athlete username
-            - first_name: athlete first name (used to create new athlete if doesn't exist)
-            - last_name: athlete last name (used to create new athlete if doesn't exist)
-            - splits: list of split times
-    Note: The created workout will be automatically set to filter splits and private.
+    ---
+    parameters:
+    - name: title
+      description: workout title
+      paramType: form
+    - name: start_time
+      description: start date of workout in ISO string format
+      paramType: form
+    - name: track_size
+      description: size of track
+      paramType: form
+    - name: interval_distance
+      description: distance for each split
+      paramType: form
+    - name: results
+      description: workout results object
+      paramType: body
     """
+    #- username: athlete username
+    #- first_name: athlete first name (used to create new athlete if doesn't exist)
+    #- last_name: athlete last name (used to create new athlete if doesn't exist)
+    #- splits: list of split times
+    #Note: The created workout will be automatically set to filter splits and private.
     data = json.loads(request.body)
     user = request.user
 
