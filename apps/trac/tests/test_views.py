@@ -380,3 +380,52 @@ class SplitViewSetTest(APITestCase):
         new_split = session.splits.filter(time=1234, athlete=1,
                                           reader__id_str='A1010')
         self.assertTrue(new_split.exists())
+
+
+class UserViewSetTest(APITestCase):
+
+    fixtures = ['trac_min.json']
+
+    def test_get_me(self):
+        """Test that /users/me is aliased to the current user."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.get('/api/users/me/', format='json')
+        self.assertEqual(resp.data['username'], 'alsal')
+        self.assertEqual(resp.data['first_name'], 'Alberto')
+        self.assertEqual(resp.data['last_name'], 'Salazar')
+        self.assertEqual(resp.status_code, 200)
+
+    def test_list_users(self):
+        """Test that listing users returns only the current user."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.get('/api/users/', format='json')
+        self.assertEqual(len(resp.data), 1)
+        self.assertEqual(resp.data[0]['username'], 'alsal')
+        self.assertEqual(resp.data[0]['first_name'], 'Alberto')
+        self.assertEqual(resp.data[0]['last_name'], 'Salazar')
+        self.assertEqual(resp.status_code, 200)
+
+    def test_change_password(self):
+        """Test changing a user's password."""
+        user = User.objects.get(username='alsal')
+        user.set_password('oldpassword')
+        user.save()
+        self.client.force_authenticate(user=user)
+        resp = self.client.post('/api/users/me/change_password/',
+                                format='json',
+                                data={'old_password': 'oldpassword',
+                                      'new_password': 'newpassword'})
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(user.check_password('newpassword'))
+
+    def test_tutorial_limiter(self):
+        """Test whether to display tutorial."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.get('/api/users/me/tutorial_limiter/',
+                               format='json')
+        # Database is created when test is run, so should return True.
+        self.assertTrue(resp.data['show_tutorial'])
+        self.assertEqual(resp.status_code, 200)

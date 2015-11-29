@@ -40,6 +40,7 @@ urlpatterns = [
         url(r'^give_athlete_password/$', user_views.give_athlete_password),
         url(r'^individual_splits/$', session_views.add_individual_splits),
         url(r'^RegisterDefaultRunners/$', tag_views.RegisterDefaultRunners),
+        url(r'^reset_password/$', user_views.reset_password),
 
         # Endpoint for readers.
         url(r'^updates/$', reader_views.post_splits, name='updates'),

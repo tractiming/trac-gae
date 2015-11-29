@@ -56,21 +56,13 @@ class UserViewSet(viewsets.ModelViewSet):
         Change a user's password.
         """
         user = self.get_object()
-        old_password = request.POST.get('old_password')
+        old_password = request.data.get('old_password')
         if not user.check_password(old_password):
             return Response(status=status.HTTP_403_FORBIDDEN)
-        user.set_password(request.POST.get('new_password'))
+        user.set_password(request.data.get('new_password'))
         user.save()
         return Response(status=status.HTTP_200_OK)
 
-    @detail_route(methods=['post'])
-    def reset_password(self, request, *args, **kwargs):
-        name =  base64.urlsafe_b64decode(request.POST.get('user').encode('utf-8'))
-        user = get_object_or_404(User, pk=name)
-        user.set_password(request.POST.get('password'))
-        user.save()
-        user.accesstoken_set.get(token=token).delete()
-        return Response(status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'])
     def tutorial_limiter(self, request, *args, **kwargs):
@@ -441,28 +433,32 @@ def send_email(request):
     """
     email = request.POST.get('email')
     name = request.POST.get('user')
-    u = User.objects.get(email = email)
-    user2 = User.objects.get(username = name)
-    if u == user2:
-        uidb64 = base64.urlsafe_b64encode(force_bytes(u.pk))
-        token = AccessToken(user=u, application = Application.objects.get(user=u),
-                            expires=timezone.now()+timezone.timedelta(minutes=5),token=generate_token())
-        token.save()
-        c = {
-            'email': email,
-            'domain': request.META['HTTP_HOST'],
-            'site_name': 'TRAC',
-            'uid': uidb64,
-            'user': u,
-            'token': str(token),
-            'protocol': 'https://',
-        }
-        url = c['domain'] + '/UserSettings/' + c['uid'] + '/' + c['token'] + '/'
-        email_body = loader.render_to_string('../templates/email_template.html', c)
-        send_mail('Reset Password Request', email_body, 'tracchicago@gmail.com', [c['email'],], fail_silently=False)
-        return HttpResponse(status.HTTP_200_OK)
-    else:
+    user = User.objects.get(username=name)
+    if user.email != email:
         return HttpResponse(status.HTTP_403_FORBIDDEN)
+
+    uidb64 = base64.urlsafe_b64encode(force_bytes(user.pk))
+    token = AccessToken(user=user,
+                        application=Application.objects.get(user=user),
+                        expires=timezone.now()+timezone.timedelta(minutes=5),
+                        token=generate_token())
+    token.save()
+    email_config = {
+        'email': email,
+        'domain': request.META['HTTP_HOST'],
+        'site_name': 'TRAC',
+        'uid': uidb64,
+        'user': user,
+        'token': str(token),
+        'protocol': 'https://',
+    }
+    url = "/".join((email_config['domain'], 'UserSettings',
+                    email_config['uid'], email_config['token'], ''))
+    email_body = loader.render_to_string('../templates/email_template.html',
+                                         email_config)
+    send_mail('Reset Password Request', email_body, 'tracchicago@gmail.com',
+              (email_config['email'],), fail_silently=False)
+    return HttpResponse(status.HTTP_200_OK)
 
 @csrf_exempt
 @permission_classes((permissions.AllowAny,))
@@ -507,6 +503,26 @@ def give_athlete_password(request):
         return HttpResponse(status.HTTP_200_OK)
     else:
         return HttpResponse(status.HTTP_403_FORBIDDEN)
+
+
+@api_view(['POST'])
+@login_required()
+@permission_classes((permissions.IsAuthenticated,))
+def reset_password(request):
+    name =  base64.urlsafe_b64decode(request.POST.get('user').encode('utf-8'))
+    user = get_object_or_404(User, pk=name)
+    token = request.auth
+    if token not in user.accesstoken_set.all():
+        return HttpResponse(status.HTTP_403_FORBIDDEN)
+    if token.expires < timezone.now():
+        return HttpResponse(status.HTTP_403_FORBIDDEN)
+    if user.is_authenticated():
+        user.set_password(request.POST.get('password'))
+        user.save()
+    else:
+        return HttpResponse(status.HTTP_403_FORBIDDEN)
+    user.accesstoken_set.get(token=token).delete()
+    return HttpResponse(status.HTTP_200_OK)
 
 
 def subscribe(request, **kwargs):
