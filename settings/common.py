@@ -316,3 +316,13 @@ DJSTRIPE_SUBSCRIPTION_REQUIRED_EXCEPTION_URLS = (
 )
 
 ###########################################
+
+SWAGGER_SETTINGS = {
+    'api_version': '0.1',
+    'is_authenticated': True,
+    'is_superuser': True,
+    'info': {
+        'contact': 'info@trac-us.com',
+        'title': 'TRAC API'
+    }
+}
