@@ -32,6 +32,55 @@ from trac.serializers import (
 )
 from trac.utils.user_util import is_athlete, is_coach, user_type
 
+
+class UserViewSet(viewsets.ModelViewSet):
+    """
+    User resource.
+    """
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = UserSerializer
+
+    def get_queryset(self):
+        return User.objects.filter(pk=self.request.user.pk) 
+
+    def get_object(self):
+        """Alias 'me' to the current user."""
+        if self.kwargs.get('pk', None) == 'me':
+            return self.request.user
+        else:
+            return User.objects.get(pk=int(self.kwargs['pk']))
+
+    @detail_route(methods=['post'])
+    def change_password(self, request, *args, **kwargs):
+        """
+        Change a user's password.
+        """
+        user = self.get_object()
+        old_password = request.POST.get('old_password')
+        if not user.check_password(old_password):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        user.set_password(request.POST.get('new_password'))
+        user.save()
+        return Response(status=status.HTTP_200_OK)
+
+    @detail_route(methods=['post'])
+    def reset_password(self, request, *args, **kwargs):
+        name =  base64.urlsafe_b64decode(request.POST.get('user').encode('utf-8'))
+        user = get_object_or_404(User, pk=name)
+        user.set_password(request.POST.get('password'))
+        user.save()
+        user.accesstoken_set.get(token=token).delete()
+        return Response(status=status.HTTP_200_OK)
+
+    @detail_route(methods=['get'])
+    def tutorial_limiter(self, request, *args, **kwargs):
+        user = request.user
+        show_tutorial = (timezone.now() - user.date_joined
+                            < datetime.timedelta(60))
+        return Response({'show_tutorial': show_tutorial},
+                        status=status.HTTP_200_OK)
+
+
 class CoachViewSet(viewsets.ModelViewSet):
     """
     Coach resource.
@@ -270,63 +319,6 @@ def logout(request):
     """
     auth_logout(request)
 
-''' I think we can remove this.
-class userType(views.APIView):
-    permission_classes = (permissions.IsAuthenticated,)
-    def get(self, request):
-        data = request.GET
-        #Is the user in the coaches table?
-        user = self.request.user
-        try:
-            cp = Coach.objects.get(user=user)
-        except: #NotCoach:
-            try:
-                ap = Athlete.objects.get(user=user)
-            except: #NotAthlete
-                return Response({}, status.HTTP_404_NOT_FOUND)
-            return Response("athlete")
-        return Response("coach")
-'''
-
-# TODO: Move to UserViewSet
-@api_view(['POST'])
-@permission_classes((permissions.IsAuthenticated,))
-def edit_info(request):
-    """
-    TODO: Deprecate
-    Edit a user's personal info.
-    """
-    data = request.POST
-    user = request.user
-    team, created = Team.objects.get_or_create(name = data['org'], 
-                                               coach=user.coach)
-
-    # Do not reassign the coach if the team already exists. 
-    if created:
-        team.coach = user.coach
-        team.save()
-
-    user.username = data['name']
-    user.email = data['email']
-    user.save()
-    return Response(status.HTTP_200_OK)
-
-@api_view(['GET'])
-@permission_classes((permissions.IsAuthenticated,))
-def get_info(request):
-    """
-    TODO: Deprecate
-    Get info about the current user.
-    """
-    user = request.user
-    try:
-        email = user.email
-    except:
-        email = ""
-    result = {'org': user.coach.team_set.all()[0].name,
-              'name': user.username,
-              'email': user.email}
-    return Response(result, status.HTTP_200_OK)
 
 # TODO: Move to AthleteViewSet
 @api_view(['POST'])
@@ -433,41 +425,6 @@ def reset_password(request):
     user.accesstoken_set.get(token = token).delete()
     return HttpResponse(status.HTTP_200_OK)
 
-@api_view(['POST'])
-@login_required()
-@permission_classes((permissions.IsAuthenticated,))
-def change_password(request):
-    """
-    Change an existing user's password.
-    ---
-    parameters:
-    - name: o_password
-      description: Old password
-      paramType: form
-      required: true
-      type: string
-    - name: password
-      description: New password
-      paramType: form
-      required: true
-      type: string
-    """
-    user = request.user
-    token = request.auth
-    if token not in user.accesstoken_set.all():
-            return HttpResponse(status.HTTP_403_FORBIDDEN)
-    if token.expires < timezone.now():
-            return HttpResponse(status.HTTP_403_FORBIDDEN)
-    if user.is_authenticated():
-        p_verify = request.POST.get('o_password')
-        if check_password(p_verify, user.password):
-            user.set_password(request.POST.get('password'))
-            user.save()
-        else:
-            return HttpResponse(status.HTTP_403_FORBIDDEN)
-    else:
-        return HttpResponse(status.HTTP_403_FORBIDDEN)
-    return HttpResponse(status.HTTP_200_OK)
 
 @csrf_exempt
 @permission_classes((permissions.AllowAny,))
@@ -551,19 +508,6 @@ def give_athlete_password(request):
     else:
         return HttpResponse(status.HTTP_403_FORBIDDEN)
 
-
-@api_view(['GET'])
-@permission_classes((permissions.IsAuthenticated,))
-def tutorial_limiter(request):
-    """
-    Determine if the tutorial should be shown to the user.
-    TODO: Return response codes as status, not body.
-    """
-    user = request.user
-    if timezone.now()- user.date_joined < datetime.timedelta(60):
-        return HttpResponse(status.HTTP_200_OK)
-    else:
-        return HttpResponse(status.HTTP_403_FORBIDDEN)
 
 def subscribe(request, **kwargs):
 	data = request.POST

@@ -15,6 +15,7 @@ router.register(r'tags', tag_views.TagViewSet, 'Tag')
 router.register(r'score', team_views.ScoringViewSet, 'Score')
 router.register(r'teams', team_views.TeamViewSet, 'Team')
 router.register(r'splits', split_views.SplitViewSet, 'Split')
+router.register(r'users', user_views.UserViewSet, 'User')
 
 urlpatterns = [
         url(r'^', include(router.urls)),
@@ -31,15 +32,10 @@ urlpatterns = [
         url(r'^reg_manytags/$', tag_views.ManyDefaultTags),
         url(r'^edit_athletes/$', user_views.edit_athletes),
         url(r'^edit_split/$', session_views.edit_split),
-        url(r'^edit_info/$', user_views.edit_info),
-        url(r'^get_info/$', user_views.get_info),
         url(r'^upload_workouts/$', session_views.upload_workouts),
 
         url(r'^token_validation/$', user_views.token_validation),
-        url(r'^reset_password/$', user_views.reset_password),
-        url(r'^change_password/$', user_views.change_password),
         url(r'^send_email/$', user_views.send_email),
-        url(r'^tutorial_limiter/$', user_views.tutorial_limiter),
         url(r'^stripe/$', user_views.subscribe),
         url(r'^give_athlete_password/$', user_views.give_athlete_password),
         url(r'^individual_splits/$', session_views.add_individual_splits),
