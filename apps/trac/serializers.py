@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.utils import timezone
 from rest_framework import serializers
-from models import TimingSession, Tag, Reader, Athlete, Coach, Team
+from models import TimingSession, Tag, Reader, Athlete, Coach, Team, Split
 from trac.utils.user_util import is_coach, is_athlete
 
 
@@ -143,3 +143,36 @@ class ScoringSerializer(serializers.ModelSerializer):
         fields = ('id', 'name')
 
 
+class SplitSerializer(serializers.ModelSerializer):
+    reader = serializers.SlugRelatedField(slug_field='id_str',
+                                          allow_null=True,
+                                          queryset=Reader.objects.all())
+    tag = serializers.SlugRelatedField(slug_field='id_str',
+                                       allow_null=True,
+                                       queryset=Tag.objects.all())
+    sessions = serializers.PrimaryKeyRelatedField(many=True, 
+        queryset=TimingSession.objects.all(), allow_null=True,
+        source='timingsession_set')
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs['context']['request'].user
+
+        sessions_f = self.fields['sessions']
+        sessions_f.child_relation.queryset = (
+                sessions_f.child_relation.queryset.filter(coach__user=user))
+
+        readers_f = self.fields['reader']
+        readers_f.queryset = readers_f.queryset.filter(coach__user=user)
+
+        super(SplitSerializer, self).__init__(*args, **kwargs)
+
+    class Meta:
+        model = Split
+        lookup_field = 'split'
+
+    #def create(self, validated_data):
+    #    print validated_data
+    #    session = TimingSession.objects.create(coach=coach, **validated_data)
+    #    session.readers.add(*readers)
+    #    split = Split.
+    #    return session
