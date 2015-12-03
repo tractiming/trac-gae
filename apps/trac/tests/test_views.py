@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.utils import timezone
 from django.contrib.auth.models import User
 from rest_framework.test import APITestCase, force_authenticate
-from trac.models import TimingSession, Reader
+from trac.models import TimingSession, Reader, Split
 import trac.views
 import mock
 import datetime
@@ -107,6 +107,7 @@ class AthleteViewSetTest(APITestCase):
             last_login=now)
         self.assertEqual(resp.status_code, 201)
 
+
 class ReaderViewSetTest(APITestCase):
 
     fixtures = ['trac_min.json']
@@ -134,8 +135,8 @@ class ReaderViewSetTest(APITestCase):
         self.client.force_authenticate(user=user)
         num_readers_before = Reader.objects.filter(coach=user.coach).count()
         resp = self.client.post('/api/readers/',
-                                data={'name': 'Alien 3',
-                                      'id_str': 'A1013'})
+                                data={'name': 'Alien 5',
+                                      'id_str': 'A1015'})
         num_readers_after = Reader.objects.filter(coach=user.coach).count()
         self.assertEqual(num_readers_before+1, num_readers_after)
         self.assertEqual(resp.status_code, 201)
@@ -261,3 +262,90 @@ class PostSplitsTest(APITestCase):
         mock_timezone.now.return_value = now
         resp = self.client.get('/api/updates/')
         self.assertEqual(list(resp.data)[0], str(now))
+
+
+class SplitViewSetTest(APITestCase):
+
+    fixtures = ['trac_min.json']
+
+    def test_filter_splits_session(self):
+        """Test filtering splits by session."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.get('/api/splits/?session=1', format='json')
+        self.assertEqual(resp.status_code, 200)
+        session = TimingSession.objects.get(id=1) 
+        self.assertEqual([split['id'] for split in resp.data],
+                         list(session.splits.values_list('id', flat=True)))
+
+    def test_filter_splits_reader(self):
+        """Test filtering splits by athlete."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.get('/api/splits/?reader=A1010', format='json')
+        splits = Split.objects.filter(reader__id_str="A1010").values_list(
+            'id', flat=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual([split['id'] for split in resp.data], list(splits))
+
+    def test_post_split(self):
+        """Test creating a single split."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.post('/api/splits/',
+            data=json.dumps({'reader': 'A1010',
+                             'athlete': 1,
+                             'time': 1234,
+                             'tag': None,
+                             'sessions': []}),
+            content_type='application/json')
+        self.assertEqual(resp.status_code, 201)
+        new_split = Split.objects.filter(time=1234, athlete=1,
+                                         reader__id_str='A1010')
+        self.assertTrue(new_split.exists())
+
+    def test_post_splits_bulk(self):
+        """Test creating many splits at once."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.post('/api/splits/',
+            data=json.dumps([
+                {'reader': 'A1010',
+                 'athlete': 1,
+                 'time': 1234,
+                 'tag': None,
+                 'sessions': []},
+                {'reader': 'A1010',
+                 'athlete': 2,
+                 'time': 1235,
+                 'tag': None,
+                 'sessions': []},
+            ]),
+            content_type='application/json')
+        self.assertEqual(resp.status_code, 201)
+        new_split_1 = Split.objects.filter(time=1234, athlete=1,
+                                         reader__id_str='A1010')
+        new_split_2 = Split.objects.filter(time=1235, athlete=2,
+                                         reader__id_str='A1010')
+        self.assertTrue(new_split_1.exists())
+        self.assertTrue(new_split_2.exists())
+
+    def test_post_split_active_readers(self):
+        """Test that new splits are added to active sessions."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        session = TimingSession.objects.get(pk=1)
+        session.start_time = timezone.now()
+        session.stop_time = timezone.now() + timezone.timedelta(days=1)
+        session.save()
+        resp = self.client.post('/api/splits/',
+            data=json.dumps({'reader': 'A1010',
+                             'athlete': 1,
+                             'time': 1234,
+                             'tag': None,
+                             'sessions': []}),
+            content_type='application/json')
+        self.assertEqual(resp.status_code, 201)
+        new_split = session.splits.filter(time=1234, athlete=1,
+                                          reader__id_str='A1010')
+        self.assertTrue(new_split.exists())

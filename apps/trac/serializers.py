@@ -148,7 +148,7 @@ class SplitSerializer(serializers.ModelSerializer):
                                           allow_null=True,
                                           queryset=Reader.objects.all())
     tag = serializers.SlugRelatedField(slug_field='id_str',
-                                       allow_null=True,
+                                       allow_null=True, required=False,
                                        queryset=Tag.objects.all())
     sessions = serializers.PrimaryKeyRelatedField(many=True, 
         queryset=TimingSession.objects.all(), allow_null=True,

@@ -119,8 +119,10 @@ class Split(models.Model):
         unique_together = ("tag", "time",)
 
     def __unicode__(self):
+        tag = '' if self.tag is None else self.tag.id_str
+        reader = '' if self.reader is None else self.reader.id_str
         return "time={}, tag={}, reader={}".format(
-                self.time, self.tag.id_str, self.reader.id_str)
+                self.time, tag, reader)
 
 
 class TimingSession(models.Model):

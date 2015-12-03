@@ -1,5 +1,6 @@
 from django.db.models import Q
 from rest_framework import viewsets, permissions, status, pagination
+from rest_framework.response import Response
 from trac.serializers import SplitSerializer
 from trac.models import Split
 
@@ -28,7 +29,7 @@ class SplitViewSet(viewsets.ModelViewSet):
             filters &= Q(timingsession=int(session))
         if reader is not None:
             filters &= Q(reader__id_str=reader)
-        if session is not None:
+        if tag is not None:
             filters &= Q(tag__id_str=tag)
         if athlete is not None:
             filters &= Q(athlete=int(athlete))
@@ -38,3 +39,17 @@ class SplitViewSet(viewsets.ModelViewSet):
             filters &= Q(time__gte=int(time_gte))
 
         return Split.objects.filter(filters)
+
+    def create(self, request, *args, **kwargs):
+        # https://stackoverflow.com/questions/22881067/
+        # django-rest-framework-post-array-of-objects
+        is_many = isinstance(request.data, list)
+        if not is_many:
+            return super(SplitViewSet, self).create(request, *args, **kwargs)
+        else:
+            serializer = self.get_serializer(data=request.data, many=True)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED,
+                            headers=headers)
