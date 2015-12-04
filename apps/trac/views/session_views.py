@@ -23,6 +23,19 @@ EPOCH = timezone.datetime(1970, 1, 1)
 class TimingSessionViewSet(viewsets.ModelViewSet):
     """
     Timing session resource.
+    ---
+    list:
+      parameters:
+      - name: start_date
+        description: Get sessions after this date
+        required: false
+        type: str
+        paramType: query
+      - name: stop_date
+        description: Get sessions before this date
+        required: false
+        type: str
+        paramType: query
     """
     serializer_class = TimingSessionSerializer
     permission_classes = (permissions.AllowAny,)
