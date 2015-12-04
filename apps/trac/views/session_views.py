@@ -36,12 +36,13 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         start_date = self.request.GET.get('start_date')
         stop_date = self.request.GET.get('stop_date')
 
-        if start_date is not None and stop_date is not None:
+        date_filter = Q()
+        if start_date is not None:
             start_date = dateutil.parser.parse(start_date)
+            date_filter &= Q(start_time__gte=start_date)
+        if stop_date is not None:
             stop_date = dateutil.parser.parse(stop_date)        
-            date_filter = Q(start_time__range=(start_date, stop_date))
-        else:
-            date_filter = Q()
+            date_filter &= Q(start_time__lte=stop_date)
 
         # If the user is an athlete, list all the workouts he has run.
         if is_athlete(user):

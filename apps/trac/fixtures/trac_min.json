@@ -185,5 +185,29 @@
             5
         ]
     }
+},
+{
+    "pk": 2,
+    "model": "trac.timingsession",
+    "fields": {
+        "comment": "",
+        "coach": 1,
+        "name": "Mile Repeats",
+        "readers": [
+            1
+        ],
+        "use_registered_tags_only": false,
+        "start_time": "2015-10-10T01:32:39Z",
+        "registered_tags": [],
+        "private": true,
+        "filter_choice": false,
+        "interval_distance": 1609,
+        "start_button_time": 1440647312000, 
+        "stop_time": "2015-10-11T01:32:39Z", 
+        "rest_time": 0, 
+        "track_size": 1609,
+        "interval_number": 0, 
+        "splits": []
+    }
 }
 ]
