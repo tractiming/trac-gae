@@ -62,6 +62,7 @@ DJANGO_APPS = (
 THIRD_PARTY_APPS = (
         'rest_framework',
         'oauth2_provider',
+        'rest_framework_swagger'
 )
 
 
@@ -124,6 +125,9 @@ REST_FRAMEWORK = {
         'DEFAULT_MODEL_SERIALIZER_CLASS': (
             'rest_framework.serializers.ModelSerializer',
         ),
+        'DEFAULT_RENDERER_CLASSES': (
+            'rest_framework.renderers.JSONRenderer',
+        )
 }
 OAUTH2_PROVIDER = {
     'SCOPES': {'read': 'Read scope', 'write': 'Write scope'}
@@ -312,3 +316,13 @@ DJSTRIPE_SUBSCRIPTION_REQUIRED_EXCEPTION_URLS = (
 )
 
 ###########################################
+
+SWAGGER_SETTINGS = {
+    'api_version': '0.1',
+    'is_authenticated': True,
+    'is_superuser': True,
+    'info': {
+        'contact': 'info@trac-us.com',
+        'title': 'TRAC API'
+    }
+}

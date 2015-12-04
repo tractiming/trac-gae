@@ -13,15 +13,14 @@ from trac.utils.phone_split_util import create_phone_split
 
 class TagViewSet(viewsets.ModelViewSet):
     """
-    Returns a list of tags associated with the current user.
+    RFID tag resource.
     """
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = TagSerializer
 
     def get_queryset(self):
         """
-        Overrides the default method to only return tags that belong to the
-        user making the request.
+        Filter tags by requesting user.
         """
         user = self.request.user
 

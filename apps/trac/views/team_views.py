@@ -5,6 +5,9 @@ from rest_framework import viewsets, permissions
 
 
 class TeamViewSet(viewsets.ModelViewSet):
+    """
+    Team resource.
+    """
     permission_classes = (permissions.AllowAny,)
     serializer_class = TeamSerializer
     
@@ -21,12 +24,14 @@ class TeamViewSet(viewsets.ModelViewSet):
             return Team.objects.filter(primary_team=True)
 
     def pre_save(self, obj):
+        # Associate team with current user.
         obj.coach = self.request.user.coach
 
 
+# TODO: Merge with GET /sessions
 class ScoringViewSet(viewsets.ModelViewSet):
     """
-    Returns list of scored sessions
+    Resource of publicly scored sessions.
     """
     serializer_class = ScoringSerializer
     permission_classes = (permissions.AllowAny,)
