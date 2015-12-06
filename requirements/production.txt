@@ -18,3 +18,4 @@ django-rest-swagger==0.3.4
 django-filter==0.11.0
 dj-stripe==0.8.0
 oauth2client==1.5.2
+gcloud==0.8.0
