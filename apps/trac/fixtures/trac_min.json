@@ -30,10 +30,28 @@
     }
 },
 {
+    "pk": 4,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Brad",
+        "last_name": "Hudson",
+        "username": "bhudson",
+        "password": "sha1$e2fd5$96edae9adc8870fd87a65c051e7fdace6226b5a9"
+    }
+},
+{
     "pk": 1, 
     "model": "trac.coach", 
     "fields": {
         "user": 1, 
+        "payment": null
+    }
+},
+{
+    "pk": 2, 
+    "model": "trac.coach", 
+    "fields": {
+        "user": 4, 
         "payment": null
     }
 },
@@ -103,6 +121,15 @@
         "coach": 1, 
         "name": "Alien 2", 
         "id_str": "A1011"
+    }
+},
+{
+    "pk": 3, 
+    "model": "trac.reader", 
+    "fields": {
+        "coach": 2, 
+        "name": "Alien 3", 
+        "id_str": "A1012"
     }
 },
 {

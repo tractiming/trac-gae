@@ -110,17 +110,19 @@ class Split(models.Model):
     """
     A single split time from one tag.
     """
-    tag = models.ForeignKey(Tag)
+    tag = models.ForeignKey(Tag, null=True, blank=True)
     athlete = models.ForeignKey(Athlete)
-    reader = models.ForeignKey(Reader)
+    reader = models.ForeignKey(Reader, null=True, blank=True)
     time = models.BigIntegerField()
 
     class Meta:
         unique_together = ("tag", "time",)
 
     def __unicode__(self):
+        tag = '' if self.tag is None else self.tag.id_str
+        reader = '' if self.reader is None else self.reader.id_str
         return "time={}, tag={}, reader={}".format(
-                self.time, self.tag.id_str, self.reader.id_str)
+                self.time, tag, reader)
 
 
 class TimingSession(models.Model):

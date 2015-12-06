@@ -1,7 +1,8 @@
 from django.conf.urls import url, include
 from rest_framework import routers
 from trac.views import (
-    user_views, session_views, tag_views, reader_views, team_views
+    user_views, session_views, tag_views, reader_views, team_views,
+    split_views
 )
 from django.views.decorators.csrf import csrf_exempt
 
@@ -13,6 +14,7 @@ router.register(r'athletes', user_views.AthleteViewSet, 'Athlete')
 router.register(r'tags', tag_views.TagViewSet, 'Tag')
 router.register(r'score', team_views.ScoringViewSet, 'Score')
 router.register(r'teams', team_views.TeamViewSet, 'Team')
+router.register(r'splits', split_views.SplitViewSet, 'Split')
 
 urlpatterns = [
         url(r'^', include(router.urls)),
