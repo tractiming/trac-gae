@@ -158,6 +158,17 @@ class TimingSessionViewSetTest(APITestCase):
         self.assertEqual(resp.data[0]['id'], 1)
         self.assertEqual(resp.status_code, 200)
 
+    def test_sessions_date_filter(self):
+        """Test filtering sessions by start date."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.get('/api/sessions/?'
+            'start_date=2015-10-09&stop_date=2015-10-11',
+            format='json')
+        self.assertEqual(resp.data[0]['id'], 2)
+        self.assertEqual(len(resp.data), 1)
+        self.assertEqual(resp.status_code, 200)
+
     def test_pre_save(self):
         """Test that default start and stop times are used."""
         user = User.objects.get(username='alsal')

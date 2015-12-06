@@ -235,7 +235,7 @@ $("li a.logout").click(function(){
       //spinner.spin(target);
 
       $.ajax({
-        url: '/api/session_Pag/',
+        url: '/api/sessions/',
         headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
         dataType: 'text',     //force to handle it as text
         data: {
@@ -246,7 +246,7 @@ $("li a.logout").click(function(){
           var json = $.parseJSON(data);
 
           var results = json.results,
-              numSessions = json.numSessions;
+          numSessions = json.count;
           
           if ((results.length == 0) && (!$.trim($('ul.menulist').html()))) {
             

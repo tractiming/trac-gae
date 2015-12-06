@@ -73,18 +73,18 @@ $(function() {
 		$('#results').empty();
 		spinner.spin(document.getElementById('spinner-main'));
 		$.ajax({
-			url: '/api/session_Pag/',
+			url: '/api/sessions/',
 			headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
 			data: {
-				i1: sessionFirst,
-				i2: sessionLast,
+				offset: sessionFirst-1,
+				limit: SESSIONS_PER_PAGE,
 			},
 			dataType: 'text',
 			success: function(data) {
 				var json = $.parseJSON(data);
 
 				var results = json.results
-				numSessions = json.num_sessions;
+				numSessions = json.count;
 
 				if (numSessions == 0) {
 					$('#results').empty();
