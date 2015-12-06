@@ -157,7 +157,10 @@ class SplitSerializer(serializers.ModelSerializer):
         queryset=Athlete.objects.all(), allow_null=True)
 
     def __init__(self, *args, **kwargs):
-        user = kwargs['context']['request'].user
+        try:
+            user = kwargs['context']['request'].user
+        except KeyError: # swagger
+            return super(SplitSerializer, self).__init__(*args, **kwargs)
 
         sessions_f = self.fields['sessions']
         sessions_f.child_relation.queryset = (
@@ -166,7 +169,7 @@ class SplitSerializer(serializers.ModelSerializer):
         readers_f = self.fields['reader']
         readers_f.queryset = readers_f.queryset.filter(coach__user=user)
 
-        super(SplitSerializer, self).__init__(*args, **kwargs)
+        return super(SplitSerializer, self).__init__(*args, **kwargs)
 
     class Meta:
         model = Split
