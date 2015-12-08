@@ -58,17 +58,23 @@ class TimingSessionTestCase(TestCase):
 
     def test_sorted_athletes(self):
         """Test sorting athletes by time."""
-        self.assertListEqual(self.session.sorted_athlete_list(10, 0), [2, 1])
-        self.assertListEqual(self.session.sorted_athlete_list(1, 0), [2])
-        self.assertListEqual(self.session.sorted_athlete_list(10, 1), [1])
+        self.assertListEqual(
+            list(self.session._sorted_athlete_list(10, 0)), [2, 1])
+        self.assertListEqual(
+            list(self.session._sorted_athlete_list(1, 0)), [2])
+        self.assertListEqual(
+            list(self.session._sorted_athlete_list(10, 1)), [1])
     
     def test_sorted_athletes_without_start_button(self):
         """Test sorting times with no start button."""
         self.session.start_button_time = None
         self.session.save()
-        self.assertListEqual(self.session.sorted_athlete_list(10, 0), [2, 1])
-        self.assertListEqual(self.session.sorted_athlete_list(1, 0), [2])
-        self.assertListEqual(self.session.sorted_athlete_list(10, 1), [1])
+        self.assertListEqual(
+            list(self.session._sorted_athlete_list(10, 0)), [2, 1])
+        self.assertListEqual(
+            list(self.session._sorted_athlete_list(1, 0)), [2])
+        self.assertListEqual(
+            list(self.session._sorted_athlete_list(10, 1)), [1])
     
     @mock.patch('trac.models.cache')
     def test_clear_results(self, mock_cache):
@@ -114,14 +120,14 @@ class TimingSessionTestCase(TestCase):
         # Mock calls to the cache.
         mock_cache.get.return_value = None
         
-        res_1 = self.session.calc_athlete_splits(1)
+        res_1 = self.session._calc_athlete_splits(1)
         mock_cache.get.assert_called_with('ts_1_athlete_1_results')
         mock_cache.set.assert_called_with('ts_1_athlete_1_results',
                 (res_1.user_id, res_1.name, res_1.team, res_1.splits))
         self.assertListEqual(res_1.splits, [122.003, 197.237, 69.805])
         self.assertEqual(sum(res_1.splits), res_1.total)
         
-        res_2 = self.session.calc_athlete_splits(2)
+        res_2 = self.session._calc_athlete_splits(2)
         mock_cache.get.assert_called_with('ts_1_athlete_2_results')
         mock_cache.set.assert_called_with('ts_1_athlete_2_results',
                 (res_2.user_id, res_2.name, res_2.team, res_2.splits))

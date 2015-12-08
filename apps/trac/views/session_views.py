@@ -1,20 +1,22 @@
-from trac.models import TimingSession, Reader, Tag, Split, Team, Athlete
-from trac.serializers import TimingSessionSerializer
-from trac.utils.user_util import is_athlete, is_coach
-from rest_framework import viewsets, permissions, status, pagination
-from rest_framework.response import Response
-from django.utils import timezone
-from rest_framework.decorators import api_view, permission_classes, detail_route
-import json
+import ast
 import datetime
-from django.db.models import Q
+import dateutil.parser
+import json
+import uuid
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
+from django.db.models import Q
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
-import dateutil.parser
-import uuid
+from rest_framework import viewsets, permissions, status, pagination
+from rest_framework.decorators import api_view, permission_classes, detail_route
+from rest_framework.response import Response
+
+from trac.models import TimingSession, Reader, Tag, Split, Team, Athlete
+from trac.serializers import TimingSessionSerializer
 from trac.utils.phone_split_util import create_phone_split
-import ast
+from trac.utils.user_util import is_athlete, is_coach
 
 
 EPOCH = timezone.datetime(1970, 1, 1)
@@ -166,14 +168,41 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
           required: false
           type: boolean
           paramType: query
+        - name: gender
+          description: Filter by gender
+          required: false
+          type: string
+          paramType: query
+        - name: age_lte
+          description: Maximum age (inclusive)
+          required: false
+          type: int
+          paramType: query
+        - name: age_gte
+          description: Minimum age (inclusive)
+          required: false
+          type: string
+          paramType: query
+        - name: teams
+          description: Get results for these teams only
+          required: false
+          type: string
+          paramType: query
+          allowMultiple: true
         """
-        limit = int(request.GET.get('limit', 1000))
-        offset = int(request.GET.get('offset', 0))
-        all_athletes = bool(request.GET.get('all_athletes', False))
+        to_int = lambda x: int(x) if x is not None else x
+        gender = request.query_params.get('gender', None)
+        age_lte = to_int(request.query_params.get('age_lte', None))
+        age_gte = to_int(request.query_params.get('age_gte', None))
+        teams = request.query_params.get('teams', None)
+        limit = int(request.query_params.get('limit', 25))
+        offset = int(request.query_params.get('offset', 0))
+        all_athletes = bool(request.query_params.get('all_athletes', False))
 
         session = self.get_object()
-        raw_results = session.individual_results(limit, offset)
-
+        raw_results = session.individual_results(limit, offset, gender=gender,
+                                                 age_lte=age_lte, age_gte=age_gte,
+                                                 teams=teams)
         extra_results = []
         distinct_ids = set(session.splits.values_list('athlete_id',
                                                       flat=True).distinct())
@@ -231,55 +260,6 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             team_result = result
             team_result['place'] = place+1
             results.append(team_result)
-
-        return Response(results)
-
-    @detail_route(methods=['get'])
-    def filtered_results(self, request, pk=None):
-        """
-        Calculate results over a filtered set of athletes.
-        ---
-        parameters:
-        - name: gender
-          description: Filter by gender
-          required: false
-          type: string
-          paramType: query
-        - name: age_lte
-          description: Maximum age (inclusive)
-          required: false
-          type: int
-          paramType: query
-        - name: age_gte
-          description: Minimum age (inclusive)
-          required: false
-          type: string
-          paramType: query
-        - name: teams
-          description: Get results for these teams only
-          required: false
-          type: string
-          paramType: query
-          allowMultiple: true
-        """
-        gender = request.GET.get('gender', '')
-        age_lte = int(request.GET.get('age_lte', 100))
-        age_gte = int(request.GET.get('age_gte', 0))
-        teams = request.GET.get('team', [])
-        
-        if teams and not isinstance(teams, list):
-            teams = [teams]
-
-        session = self.get_object()
-        raw_results = session.filtered_results(gender=gender,
-                age_range=[age_gte, age_lte], teams=teams)
-        
-        results = {'num_returned': len(raw_results),
-                   'results': [{'name': r.name,
-                                'splits': [[str(s) for s in r.splits]],
-                                'total': str(r.total)
-                               } for r in raw_results]
-                   }
 
         return Response(results)
 

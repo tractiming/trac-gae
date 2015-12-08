@@ -1,13 +1,15 @@
-from django.db import models, connection 
-from django.db.models.signals import pre_delete, post_save
-from django.contrib.auth.models import User
-from django.utils import timezone
-from django.core.cache import cache
-from django.dispatch import receiver
-from trac.utils.filter_util import filter_splits
 from collections import namedtuple
 import datetime
+
+from django.contrib.auth.models import User
+from django.core.cache import cache
+from django.db import models, connection
+from django.db.models.signals import pre_delete, post_save
+from django.dispatch import receiver
+from django.utils import timezone
 from oauth2_provider.models import Application
+
+from trac.utils.filter_util import filter_splits
 
 
 class Coach(models.Model):
@@ -30,7 +32,7 @@ class Team(models.Model):
     coach = models.ForeignKey(Coach)
     tfrrs_code = models.CharField(max_length=20, unique=True)
     primary_team = models.BooleanField(default=False)
-    
+
     class Meta:
         unique_together = ("name", "coach",)
 
@@ -49,7 +51,7 @@ class Athlete(models.Model):
     gender = models.CharField(max_length=1, null=True, blank=True)
     tfrrs_id = models.CharField(max_length=20, null=True, blank=True)
     year = models.CharField(max_length=10, null=True, blank=True)
-    
+
     def __unicode__(self):
         return "name={}".format(self.user.username)
 
@@ -133,7 +135,7 @@ class TimingSession(models.Model):
     coach = models.ForeignKey(Coach)
     readers = models.ManyToManyField(Reader)
     splits = models.ManyToManyField(Split)
-    
+
     start_time = models.DateTimeField(default=timezone.now, blank=True)
     stop_time = models.DateTimeField(default=timezone.now, blank=True)
     start_button_time = models.BigIntegerField(null=True, blank=True)
@@ -157,46 +159,6 @@ class TimingSession(models.Model):
         """Number of unique athletes seen in this workout."""
         return self.splits.values('athlete_id').distinct().count()
 
-    def sorted_athlete_list(self, limit, offset):
-        """Return IDs of all distinct athletes seen in this workout.
-
-        The athlete IDs are ordered according to cumulative time. Therefore,
-        results calculated by iterating over the list of returned IDs will
-        already be in order.
-
-        """
-        cursor = connection.cursor()
-        try:
-            if self.start_button_time is None:
-                cursor.execute(
-                    "SELECT trac_split.id, trac_split.athlete_id, "
-                    "trac_timingsession_splits.timingsession_id, "
-                    "Max(trac_split.time)-Min(trac_split.time) as diff "
-                    "FROM trac_split INNER JOIN trac_timingsession_splits "
-                    "ON trac_split.id=trac_timingsession_splits.split_id "
-                    "WHERE trac_timingsession_splits.timingsession_id=%s "
-                    "GROUP BY trac_split.athlete_id ORDER BY diff "
-                    "LIMIT %s,%s;",
-                    [self.id, offset, limit]
-                )
-            else:
-                cursor.execute(
-                    "SELECT trac_split.id, trac_split.athlete_id, "
-                    "trac_timingsession_splits.timingsession_id AS ts_id, "
-                    "Max(trac_split.time)-%s as diff "
-                    "FROM trac_split INNER JOIN trac_timingsession_splits "
-                    "ON trac_split.id=trac_timingsession_splits.split_id "
-                    "WHERE trac_timingsession_splits.timingsession_id=%s "
-                    "GROUP BY trac_split.athlete_id ORDER BY diff "
-                    "LIMIT %s,%s;",
-                    [self.start_button_time, self.id, offset, limit]
-                )
-            athlete_ids = [result[1] for result in cursor.fetchall()]
-            return athlete_ids
-
-        finally:
-            cursor.close()
-
     @property
     def active(self):
         """
@@ -205,7 +167,49 @@ class TimingSession(models.Model):
         now = timezone.now()
         return ((now > self.start_time) and (now < self.stop_time))
 
-    def calc_athlete_splits(self, athlete_id, filter_s=None, use_cache=True):
+    def _sorted_athlete_list(self, limit=None, offset=None, gender=None,
+                             age_lte=None, age_gte=None, teams=None):
+        """Return IDs of all distinct athletes seen in this workout.
+
+        The athlete IDs are ordered according to cumulative time. Therefore,
+        results calculated by iterating over the list of returned IDs will
+        already be in order.
+
+        An optional list of filters can be applied to the athletes in the
+        results set.
+        """
+        athlete_filter = models.Q()
+        race_date = self.start_time.date()
+        if gender is not None:
+            assert gender.upper() in ['M', 'F'], "Invalid gender."
+            athlete_filter &= models.Q(athlete__gender=gender.upper())
+        if age_lte is not None:
+            athlete_ids = [
+                split.athlete.id for split in self.splits.all()
+                if split.athlete.age(as_of_date=race_date) >= age_gte
+            ]
+            athlete_filter &= models.Q(athlete_id__in=athlete_ids)
+        if age_gte is not None:
+            athlete_ids = [
+                split.athlete.id for split in self.splits.all()
+                if split.athlete.age(as_of_date=race_date) <= age_lte
+            ]
+            athlete_filter &= models.Q(athlete_id__in=athlete_ids)
+        if teams:
+            athlete_filter &= models.Q(athlete__team__name__in=teams)
+
+        if self.start_button_time is None:
+            min_time = models.Min('time')
+        else:
+            min_time = self.start_button_time
+
+        results = self.splits.filter(athlete_filter).values(
+            'athlete_id').annotate(diff=models.Max('time')-min_time).order_by(
+            'diff')[offset:limit]
+
+        return (athlete['athlete_id'] for athlete in results)
+
+    def _calc_athlete_splits(self, athlete_id, filter_s=None, use_cache=True):
         """Calculate splits for a single athlete.
 
         First try to read results from the cache. If results are not found, get
@@ -213,17 +217,7 @@ class TimingSession(models.Model):
         Save new (raw) results to cache. Apply filter at end. Note that
         filtered results are not actually cached.
 
-        Args:
-            athlete_id (int): Unique athlete ID.
-            
-        Kwargs:
-            filter_s (bool|True): Whether or not to filter splits.
-            use_cache (bool|True): If True, will read/write results to/from
-                cache.
-
-        Returns:
-            Namedtuple of (user id, name, team, splits, total_time)
-
+        Returns namedtuple of (user id, name, team, splits, total_time)
         """
         # Try to read from the cache. Note that results are cached on a per tag
         # basis.
@@ -234,67 +228,41 @@ class TimingSession(models.Model):
             results = None
 
         Results = namedtuple('Results', 'user_id name team splits total')
-        if not results:    
+        if not results:
             athlete = Athlete.objects.get(id=athlete_id)
-            
+
             # Get the name of the tag's owner and their team.
             name = athlete.user.get_full_name()
             if not name:
                 name = athlete.user.username
-            
+
             # Filter times by tag id.
             times = self.splits.filter(athlete_id=athlete.id).order_by('time')
-
-            if len(times) > 1 and times[0].time == 0:
-                times[0].delete()
-                times = times[1:]
-
 
             # Offset for start time if needed.
             if self.start_button_time is not None:
                 s_tt = Split(time=self.start_button_time)
                 times = [s_tt]+list(times)
-            
+
             # Calculate splits.
             interval = []
             for i in range(len(times)-1):
                 dt = (times[i+1].time-times[i].time)/1000.0
                 interval.append(round(dt, 3))
 
-            #Give visual feedback that a split was recieved, show DNS
-            #Causes issue, as will not update til 2nd split put into array
-            """if times[0].time == 0:
-                interval = ['DNS']
-                results = (athlete_id, name, athlete.team, interval)
-                if use_cache:
-                    cache.set(('ts_%i_athlete_%i_results' %(self.id, athlete_id)),
-                          results) 
-                return Results(results[0], results[1], results[2],
-                       interval, 0)
-            elif len(times) == 1:
-                interval = ['NT']
-                results = (athlete_id, name, athlete.team, interval)
-                if use_cache:
-                    cache.set(('ts_%i_athlete_%i_results' %(self.id, athlete_id)),
-                          results) 
-                return Results(results[0], results[1], results[2],
-                       interval, 0)
-            """
+            results = (athlete_id, name, athlete.team, interval)
 
-
-            results = (athlete_id, name, athlete.team, interval)    
-            
             # Save to the cache. Store the unfiltered results so that if the
             # filter choice is changed, we don't need to recalculate.
             if use_cache:
                 cache.set(('ts_%i_athlete_%i_results' %(self.id, athlete_id)),
-                          results)   
+                          results)
 
         # Filtering algorithm.
         if filter_s is None:
             filter_s = self.filter_choice
         if filter_s:
-            interval = filter_splits(results[-1], self.interval_distance, 
+            interval = filter_splits(results[-1], self.interval_distance,
                                      self.track_size)
         else:
             interval = results[-1]
@@ -302,105 +270,61 @@ class TimingSession(models.Model):
         return Results(results[0], results[1], results[2],
                        interval, sum(interval))
 
-    def individual_results(self, limit=10000000, offset=0):
+    def individual_results(self, limit=None, offset=None, gender=None,
+                           age_lte=None, age_gte=None, teams=None):
         """Calculate individual results for a session.
 
-        First call `sorted_athlete_list` for a list of tag IDs that are presorted
-        by total time. Splice based on limit/offset and calc results one ID at
-        a time.
+        First call `_sorted_athlete_list` for a list of tag IDs that are
+        presorted by total time. Splice based on limit/offset and calc
+        results one ID at a time.
 
-        Args:
-            limit (int|None): Max number of tags to return results for.
-            offset (int|None): Offset when getting a subset of results.
-
-        Returns:
-            List of namedtuples of results.
-
+        Individual results can also be filtered by age, gender, etc.
         """
-        all_athletes = self.sorted_athlete_list(limit, offset)
-        results = [self.calc_athlete_splits(athlete_id) for athlete_id
-                   in all_athletes]
-        return results
+        athletes = self._sorted_athlete_list(limit=limit, offset=offset,
+                                             gender=gender, age_lte=age_lte,
+                                             age_gte=age_gte, teams=teams)
+        return [self._calc_athlete_splits(athlete) for athlete in athletes]
 
     def team_results(self, num_scorers=5):
         """Calculate team scores.
-        
+
         Compute the individual scores and compile a list of team names.
         Iterate through the runners and add their place to each team's score.
-
         """
         individual_results = self.individual_results()
         team_names = set([runner.team for runner in individual_results
                             if runner.team is not None])
-        
+
         scores = {}
         for team in team_names:
-            scores[team] = {'athletes': [],
-                            'score': 0,
-                            'id': team.id,
-                            'name': team.name
-                           }
+            scores[team] = {
+                'athletes': [],
+                'score': 0,
+                'id': team.id,
+                'name': team.name
+            }
 
         place = 1
         for athlete in individual_results:
-            
+
             # Runners not on a team do not score or affect other scores.
             if athlete.team in scores:
 
                 if len(scores[athlete.team]['athletes']) < num_scorers:
-                    scores[athlete.team]['athletes'].append(
-                            {'name': athlete.name,  'place': place, 
-                             'total': athlete.total})
+                    scores[athlete.team]['athletes'].append({
+                        'name': athlete.name,
+                        'place': place,
+                        'total': athlete.total
+                    })
                     scores[athlete.team]['score'] += place
 
                 place += 1
 
         teams_with_enough_runners = (
-                [scores[team] for team in scores if 
+                [scores[team] for team in scores if
                  len(scores[team]['athletes']) == num_scorers])
 
         return sorted(teams_with_enough_runners, key=lambda x: x['score'])
-
-    def filtered_results(self, gender='', age_range=None, teams=None):
-        """Filter results by gender, age, or team.
-
-        Note: this method does not support pagination.
-
-        Kwargs:
-            gender (str): Gender to filter by. (Should be 'M' or 'F'.)
-            age_range (list): Upper and lower age bounds.
-            teams (list): List of teams to give results for.
-
-        Returns:
-            List of namedtuples of results sorted by total time.
-        
-        """
-        tt = self.splits.all()
-
-        # Filter by gender.
-        if gender:
-            assert gender in ['M', 'F'], "Invalid gender."
-            tt = tt.filter(athlete__gender=gender)
-
-        # Filter by age.
-        if age_range is not None:
-            assert ((age_range[0]<age_range[1])
-                    and (age_range[0]>=0)), "Invalid age range"
-
-            race_date = self.start_time.date()
-            splits_in_range = [split.id for split in tt if
-                (split.athlete.age(as_of_date=race_date)>=age_range[0] and
-                split.athlete.age(as_of_date=race_date)<age_range[1])]
-            tt = tt.filter(id__in=splits_in_range)
-
-        # Filter by team.
-        if teams:
-            tt = tt.filter(athlete__team__name__in=teams)
-
-        all_athletes = tt.values_list('athlete_id', flat=True).distinct()
-        results = [self.calc_athlete_splits(athlete_id) for athlete_id in
-                   all_athletes]
-        return sorted(results, key=lambda x: x.total)
 
     def clear_results(self):
         """Remove all the splits that currently exist in the session."""
@@ -416,14 +340,16 @@ class TimingSession(models.Model):
 
     def clear_cache(self, athlete_id):
         """Clear the session's cached results for a single tag."""
-        cache.delete(('ts_%i_athlete_%i_results' %(self.id, athlete_id)))   
+        cache.delete(('ts_%i_athlete_%i_results' %(self.id, athlete_id)))
+
+
 
     # TODO: Move to utils.
     def _delete_split(self, tag_id, split_indx):
         """
         Delete a result from the array of splits. The runner is identified by
         tag id and the split to be deleted is identified by its position in the
-        array. The split index should refer to the position in the unfiltered 
+        array. The split index should refer to the position in the unfiltered
         results.
         """
         assert self.filter_choice is False, "Filter must be off to delete."
@@ -492,7 +418,7 @@ class TimingSession(models.Model):
     def _edit_split(self, tag_id, split_indx, val):
         """
         Change the value of a split in the list of results. The split index
-        should refer to the position in the unfiltered results. 
+        should refer to the position in the unfiltered results.
         """
         assert self.filter_choice is False, "Filter must be off to edit."
 
@@ -528,6 +454,7 @@ class TimingSession(models.Model):
         self.splits.add(tt.pk)
         self.save()
 
+
 @receiver(pre_delete, sender=TimingSession,
           dispatch_uid="timingsession_pre_delete")
 def delete_tag_times(sender, instance, using, **kwargs):
@@ -543,4 +470,3 @@ def create_auth_client(sender, instance, created=False, **kwargs):
         Application.objects.create(user=instance,
             client_type=Application.CLIENT_CONFIDENTIAL,
             authorization_grant_type=Application.GRANT_PASSWORD)
-
