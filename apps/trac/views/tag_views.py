@@ -137,7 +137,7 @@ def ManyDefaultTags(request):
     else:
         data = json.loads(request.body)
         for athlete in data['athletes']:
-            atl = User.objects.get(username=athlete['username'])
+            atl = User.objects.get(username=athlete['id'])
             ts = TimingSession.objects.get(id=data['id'])
             ts.registered_tags.add(atl.athlete.pk)
         ts.save()
