@@ -180,6 +180,10 @@ def RegistrationView(request):
         #            distance=DEFAULT_DISTANCES[i], time=DEFAULT_TIMES[i])
         #    cp.performancerecord_set.add(r)
     
+    email = user.email
+    context = {}
+    send_mail('TRAC Update', loader.render_to_string('../templates/noAppAlert.txt',context), 'tracchicago@gmail.com', [email], fail_silently=False)
+    return HttpResponse(status.HTTP_200_OK)
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class verifyLogin(views.APIView):
