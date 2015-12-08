@@ -72,6 +72,11 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         # If not a user or coach, list all public sessions.
         else:
             return TimingSession.objects.filter(Q(private=False) & date_filter)
+
+    def filter_queryset(self, queryset):
+        # Return sessions in reverse chronological order.
+        queryset = super(TimingSessionViewSet, self).filter_queryset(queryset)
+        return queryset.order_by('-start_time')
     
     @csrf_exempt
     @detail_route(methods=['post'])

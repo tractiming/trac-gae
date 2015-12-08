@@ -155,7 +155,7 @@ class TimingSessionViewSetTest(APITestCase):
         user = User.objects.get(username='alsal')
         self.client.force_authenticate(user=user)
         resp = self.client.get('/api/sessions/', format='json')
-        self.assertEqual(resp.data[0]['id'], 1)
+        self.assertEqual(len(resp.data), 2)
         self.assertEqual(resp.status_code, 200)
 
     def test_sessions_date_filter(self):
@@ -190,14 +190,13 @@ class TimingSessionViewSetTest(APITestCase):
         self.assertEqual(len(session.readers.all()), 2)
         self.assertEqual(resp.status_code, 201)
 
-    @mock.patch.object(trac.views.session_views, 'TimingSessionViewSet',
-                       autospec=True)
-    def test_reset(self, mock_session):
+    def test_reset(self):
         """Test resetting a workout."""
         user = User.objects.get(username='alsal')
         self.client.force_authenticate(user=user)
         resp = self.client.post('/api/sessions/1/reset/')
         self.assertEqual(resp.status_code, 202)
+        self.assertEqual(TimingSession.objects.get(pk=1).splits.count(), 0)
     
     @mock.patch('trac.models.TimingSession')
     def test_individual_results(self, mock_session):
@@ -248,6 +247,18 @@ class TimingSessionViewSetTest(APITestCase):
         self.assertEqual(TimingSession.objects.get(pk=1).start_button_time,
             timestamp)
         self.assertEqual(resp.status_code, 202)
+
+    def test_list_order(self):
+        """Test that sessions are listed in reverse chronological order."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.get('/api/sessions/')
+        session_ids = TimingSession.objects.all().order_by(
+            '-start_time').values_list('id', flat=True) 
+        self.assertEqual(
+            [session['id'] for session in resp.data],
+            list(session_ids))
+        self.assertEqual(resp.status_code, 200)
 
 
 class PostSplitsTest(APITestCase):
