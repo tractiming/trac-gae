@@ -183,6 +183,16 @@
     }
 },
 {
+    "pk": 6,
+    "model": "trac.split", 
+    "fields": {
+        "athlete": 2, 
+        "tag": 1, 
+        "time": 1440647701047,
+        "reader": 1
+    }
+},
+{
     "pk": 1, 
     "model": "trac.timingsession", 
     "fields": {
@@ -234,7 +244,9 @@
         "rest_time": 0, 
         "track_size": 1609,
         "interval_number": 0, 
-        "splits": []
+        "splits": [
+            6
+        ]
     }
 }
 ]

@@ -90,14 +90,14 @@ class TimingSessionTestCase(TestCase):
         session1.clear_results()
         self.assertEqual(session1.splits.all().count(), 0)
         self.assertEqual(session2.splits.all().count(), 1)
-        self.assertEqual(Split.objects.all().count(), 1)
+        self.assertEqual(Split.objects.all().count(), 2)
         mock_cache.delete.assert_any_call('ts_1_athlete_1_results')
         mock_cache.delete.assert_any_call('ts_1_athlete_2_results')
 
         # Clear the split from session two. It no longer belongs to any session
         # and should be deleted.
         session2.clear_results()
-        self.assertEqual(Split.objects.all().count(), 0)
+        self.assertEqual(Split.objects.all().count(), 1)
         mock_cache.delete.assert_called_with('ts_{}_athlete_1_results'.format(
             session2.id))
 
@@ -160,6 +160,6 @@ class TimingSessionTestCase(TestCase):
     def test_delete_session(self):
         """Test that splits are deleted with the session."""
         self.session.delete()
-        self.assertEqual(Split.objects.all().count(), 0)
+        self.assertEqual(Split.objects.all().count(), 1)
 
 

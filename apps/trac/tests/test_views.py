@@ -107,6 +107,15 @@ class AthleteViewSetTest(APITestCase):
             last_login=now)
         self.assertEqual(resp.status_code, 201)
 
+    def test_session_filter(self):
+        """Test filtering athletes by session."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.get('/api/athletes/?session=2')
+        self.assertEqual(len(resp.data), 1)
+        self.assertEqual(resp.data[0]['id'], 2)
+        self.assertEqual(resp.status_code, 200)
+
 
 class ReaderViewSetTest(APITestCase):
 
