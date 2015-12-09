@@ -239,8 +239,8 @@ $("li a.logout").click(function(){
         headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
         dataType: 'text',     //force to handle it as text
         data: {
-          i1: sessionFirst,
-          i2: sessionLast,
+          offset: sessionFirst-1,
+          limit: 15,
         },
         success: function(data){
           var json = $.parseJSON(data);
