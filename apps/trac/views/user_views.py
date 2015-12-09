@@ -1,33 +1,36 @@
+import base64
+import datetime
+
+from django.conf import settings
+from django.contrib.auth import authenticate, login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_exempt
-from trac.models import Coach, Athlete, Team, Tag, TimingSession
-from trac.serializers import (
-    AthleteSerializer, CoachSerializer, RegistrationSerializer
-)
-from rest_framework import viewsets, permissions, status, views
+from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.mail import send_mail
+from django.db.models import Q
+from django.http import HttpResponse
+from django.shortcuts import redirect, get_object_or_404
+from django.template import loader
+from django.utils import timezone
+from django.utils.encoding import force_bytes
+from django.views.decorators.csrf import csrf_exempt
+from djstripe.models import Customer
+from oauth2_provider.models import Application, AccessToken
+from oauthlib.common import generate_token
+import stripe
+
+from rest_framework import viewsets, permissions, status, views
+from rest_framework.authentication import BasicAuthentication
 from rest_framework.decorators import (
     api_view, permission_classes, authentication_classes, detail_route
 )
-from rest_framework.authentication import BasicAuthentication
-from trac.utils.user_util import is_athlete, is_coach, user_type
 from rest_framework.response import Response
-from django.contrib.auth.models import User
-from django.utils import timezone
-from oauth2_provider.models import Application, AccessToken
-from django.contrib.auth import authenticate, login
-from django.contrib.auth import logout as auth_logout
-import stripe
-from djstripe.models import Customer
-from django.conf import settings
-from django.http import HttpResponse
-from django.shortcuts import redirect
-import base64
-from django.utils.encoding import force_bytes
-from django.template import loader
-from django.core.mail import send_mail
-from oauthlib.common import generate_token
-import datetime
+
+from trac.models import Coach, Athlete, Team, Tag, TimingSession
+from trac.serializers import (
+    AthleteSerializer, CoachSerializer, RegistrationSerializer, UserSerializer
+)
+from trac.utils.user_util import is_athlete, is_coach, user_type
 
 class CoachViewSet(viewsets.ModelViewSet):
     """
@@ -50,13 +53,23 @@ class AthleteViewSet(viewsets.ModelViewSet):
         Get athletes associated with a coach.
         """
         user = self.request.user
+
+        session = self.request.query_params.get('session', None)
+        session_filter = Q()
+        if session is not None:
+            session = get_object_or_404(TimingSession, pk=int(session))
+            athletes = session.splits.values_list('athlete_id', flat=True)
+            session_filter &= Q(id__in=athletes)
+
         if is_coach(user):
             coach = Coach.objects.get(user=user)
-            return Athlete.objects.filter(team__in=coach.team_set.all(),
-                                          team__primary_team=True)
+            athlete_filter = (Q(team__in=coach.team_set.all(),
+                                team__primary_team=True) &
+                              session_filter)
+            return Athlete.objects.filter(athlete_filter)
 
         elif is_athlete(user):
-            return Athlete.objects.filter(user=user)
+            return Athlete.objects.filter(Q(user=user) & session_filter)
 
         else:
             return Athlete.objects.none()
