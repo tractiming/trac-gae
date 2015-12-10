@@ -1,10 +1,11 @@
 from django.conf.urls import url, include
 from rest_framework import routers
+
 from trac.views import (
     user_views, session_views, tag_views, reader_views, team_views,
-    split_views
+    split_views, auth_views
 )
-from django.views.decorators.csrf import csrf_exempt
+
 
 router = routers.DefaultRouter()
 router.register(r'sessions', session_views.TimingSessionViewSet, 'Session')
@@ -21,10 +22,7 @@ urlpatterns = [
         url(r'^', include(router.urls)),
 
         # General endpoints.
-        url(r'^register/$', csrf_exempt(user_views.RegistrationView)),
         url(r'^verifyLogin/$', user_views.verifyLogin.as_view()),
-        url(r'^login/$', user_views.auth_login),
-        url(r'^logout/$', user_views.logout),
 
         # Timing session functionality.
         url(r'^raceregistration/$', session_views.create_race, name='racereg'),
@@ -35,12 +33,16 @@ urlpatterns = [
         url(r'^upload_workouts/$', session_views.upload_workouts),
 
         url(r'^token_validation/$', user_views.token_validation),
+        url(r'^reset_password/$', auth_views.reset_password),
         url(r'^send_email/$', user_views.send_email),
         url(r'^stripe/$', user_views.subscribe),
         url(r'^give_athlete_password/$', user_views.give_athlete_password),
         url(r'^individual_splits/$', session_views.add_individual_splits),
         url(r'^RegisterDefaultRunners/$', tag_views.RegisterDefaultRunners),
-        url(r'^reset_password/$', user_views.reset_password),
+
+        url(r'^register/$', auth_views.register),
+        url(r'^login/$', auth_views.login),
+        url(r'^logout/$', auth_views.logout),
 
         # Endpoint for readers.
         url(r'^updates/$', reader_views.post_splits, name='updates'),

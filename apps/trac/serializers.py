@@ -1,8 +1,12 @@
 from django.contrib.auth.models import User
 from django.utils import timezone
+
 from rest_framework import serializers
-from models import TimingSession, Tag, Reader, Athlete, Coach, Team, Split
-from trac.utils.user_util import is_coach, is_athlete
+
+from trac.models import (
+    TimingSession, Tag, Reader, Athlete, Coach, Team, Split
+)
+from trac.utils.user_util import is_coach, is_athlete, user_type
 
 
 class FilterRelatedMixin(object):
@@ -37,7 +41,8 @@ class TagSerializer(FilterRelatedMixin, serializers.ModelSerializer):
             user = self.context['request'].user
 
             if is_coach(user):
-                athletes = Athlete.objects.filter(team__in=user.coach.team_set.all())
+                athletes = Athlete.objects.filter(
+                    team__in=user.coach.team_set.all())
                 return queryset.filter(pk__in=[athlete.pk for athlete in athletes])
             else:
                 return queryset.filter(pk=user.athlete.id)
@@ -46,10 +51,26 @@ class TagSerializer(FilterRelatedMixin, serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    user_type = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email')
+        fields = ('username', 'first_name', 'last_name', 'email', 'password',
+                  'user_type')
+        extra_kwargs = {'password': {'write_only': True, 'required': False}}
+
+    def get_user_type(self, obj):
+        return user_type(obj)
+
+    def create(self, validated_data):
+        user = User(username=validated_data['username'],
+                    last_login=timezone.now())
+        if 'email' in validated_data:
+            user.email = validated_data['email'],
+        if 'password' in validated_data:
+            user.set_password(validated_data['password'])
+        user.save()
+        return user
 
 
 class AthleteSerializer(FilterRelatedMixin, serializers.ModelSerializer):
@@ -58,6 +79,7 @@ class AthleteSerializer(FilterRelatedMixin, serializers.ModelSerializer):
 
     class Meta:
         model = Athlete
+        fields = ('user', 'tag', 'id')
     
     def filter_team(self, queryset):
         """Only show teams belonging to the current coach."""
@@ -75,9 +97,10 @@ class AthleteSerializer(FilterRelatedMixin, serializers.ModelSerializer):
 
     def create(self, validated_data):
         user_info = validated_data.pop('user')
-        user = User.objects.create(last_login=timezone.now(), **user_info)
-        athlete = Athlete.objects.create(user=user, **validated_data)
-        return athlete
+        user_serializer = UserSerializer(data=user_info)
+        user_serializer.is_valid(raise_exception=True)
+        user = user_serializer.create(user_serializer.validated_data)
+        return Athlete.objects.create(user=user, **validated_data)
     
 
 class TeamSerializer(serializers.ModelSerializer):
@@ -92,16 +115,14 @@ class CoachSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Coach
-        fields = ('user', )
+        fields = ('user', 'id')
 
-
-class RegistrationSerializer(serializers.ModelSerializer):
-    user_type = serializers.CharField(max_length=15)
-    organization = serializers.CharField(max_length=50)
-
-    class Meta:
-        model = User
-        fields = ('username', 'password', 'user_type', 'organization')
+    def create(self, validated_data):
+        user_info = validated_data.pop('user')
+        user_serializer = UserSerializer(data=user_info)
+        user_serializer.is_valid()
+        user = user_serializer.create(user_serializer.validated_data)
+        return Coach.objects.create(user=user, **validated_data)
 
 
 class ReaderSerializer(serializers.ModelSerializer):

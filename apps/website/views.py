@@ -1,6 +1,7 @@
 from django.shortcuts import render
-from django.template import RequestContext
+from django.template import RequestContext, loader
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
+
 
 def index(request):
     return render(request, 'index.html', {})

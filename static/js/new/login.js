@@ -107,7 +107,7 @@ $(function() {
 					// Get the access token and store client side.
 					var client_id = data.client_id;
                     var client_secret = data.client_secret;
-                    var usertype = data.user_type;
+                    var usertype = data.user.user_type;
 
 				    sessionStorage.setItem('usertype', usertype);
 					sessionStorage.setItem('username', username);
@@ -122,18 +122,18 @@ $(function() {
                             grant_type: 'password'
                         },
 						success: function(data) {
-								var access_token = data.access_token;
-                                var refresh_token = data.refresh_token;
-					            sessionStorage.setItem('access_token', access_token);
-					            sessionStorage.setItem('refresh_token', refresh_token);
-								location.href = '/home';
-							},
-							error: function(xhr, errmsg, err) {
-								$('.spinner-container').hide();
-								spinner.stop();
-								$('#submit').show();
-								$('p.notification.notification-critical').show();
-								$('#login-form input').removeClass('parsley-success').addClass('parsley-error');
+                            var access_token = data.access_token;
+                            var refresh_token = data.refresh_token;
+					        sessionStorage.setItem('access_token', access_token);
+					        sessionStorage.setItem('refresh_token', refresh_token);
+							location.href = '/home';
+						},
+						error: function(xhr, errmsg, err) {
+							$('.spinner-container').hide();
+							spinner.stop();
+							$('#submit').show();
+							$('p.notification.notification-critical').show();
+							$('#login-form input').removeClass('parsley-success').addClass('parsley-error');
 							}
 					});
 				},
