@@ -1,0 +1,231 @@
+{% extends "base_new.html" %}
+{% load static %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static "css/new/settings.css" %}">
+{% endblock %}
+
+{% block js_scripts %}
+
+<script type="text/javascript" src="{% static "js/timeConversion.js" %}" />
+<!--<script type="text/javascript" src="{% static "js/new/race_angular.js" %}"></script>-->
+{% endblock %}
+
+{% block content %}
+<style>
+    #coachform{
+      width:300px;
+      margin: 0 auto;
+    }
+    label{
+      display:block;
+    }
+    input,textarea{
+      width:75%;
+    }
+  </style>
+
+  <script>
+  var app = angular.module('raceRegistration', []);
+  app.controller('controllerOne', function($scope, $http) {
+    $http({method: 'GET', url: '/api/sessions/', headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:0, limit:15} })
+    .success(function (response) { 
+      console.log(response);
+      $scope.json = response.results;
+
+
+    });
+
+});
+
+  </script>
+
+
+{% verbatim angular %}
+
+
+<nav class="pushy pushy-left" ng-app="raceRegistration" ng-controller="controllerOne">
+    <ul class="menulist" ng-repeat='x in json' > 
+      <li><a href="#">{{x.name}}</a></li>
+    </ul>
+    <ul class="menulist" ng-repeat-end ng-if="json.length == 15">
+      <li><a href="#">See More</a></li>
+    </ul>
+</nav>
+  <div class="site-overlay"></div>
+    <div id="content">  
+        <div class="container-fluid content">
+          <div  class="container"> 
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="row" style="margin-bottom:2%">
+        <div class="col-md-6 col-sm-6 col-xs-6" style="">
+          <div id="menu-btn" class="menu-btn" style="display: inline-block;">
+            <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span> Heat Menu
+          </div>
+        </div>
+        <div class="col-md-6 col-sm-6 col-xs-6" style="">
+          <div id="" class="" data-toggle="modal" data-target="#csvModal" style="float:right">
+            <span class="glyphicon glyphicon-list" aria-hidden="true"></span> Roster
+          </div>
+        </div>
+      </div>
+
+            <div class="row">
+              <div class="col-lg-offset-10 col-md-offset-10 col-sm-offset-10 col-xs-offset-10">
+              <button type="button" class="btn btn-default hidden-xs" id="plus" data-toggle="modal" data-target="#csvModal">
+                  <span class="glyphicon glyphicon-plus" aria-hidden="true"> </span> CSV Upload
+              </button>
+            </div>
+            <h1 id="score-title">Registration</h1>
+            </div>
+
+            <div class="spinner-container" style="position:relative; top:100px;">
+                <div id="spinner"></div>
+            </div>
+            <div class="row">
+              <div id="athletes" class="table">
+              </div>
+              <div style="text-align: center;">
+              <p id="inputheader" class="notification-error notification-default" role="alert">
+              <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Please Select Workout to Manage from Heat Menu.
+              </p>
+              <p id="inputnoneheader" class="notification-error notification-none" role="alert" style="display:none">
+              <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Add Athletes from Roster to Workout.
+              </p>
+            </div>
+            </div>
+          </div>
+
+      </div>
+      <div id="create" class="container">
+
+  <div class="modal fade" id="notificationModal" role="dialog">
+    <div class="modal-dialog">
+      <div class ="modal-content">
+        <div class="modal-body">
+          <div id="notifications">
+              <div class="notification notification-critical" role="alert">Some information you entered isn't right.</div>
+              <div class="notification start-success" role="alert">You have started a workout!</div>
+              <div class="notification open-success" role="alert">You have opened a workout!</div>
+               <div class="notification close-success" role="alert">You have closed a workout!</div>
+            <div class="notification notification-success" role="alert">You have successfully added tag(s) to a workout!</div>
+            <div class="notification delete-success" role="alert">You have successfully delinked a tag from the workout!</div>
+            <div class="notification update-success" role="alert">You have successfully updated a tag!</div>
+            <div class="notification notification-warning" role="alert" style="display:table; margin:0 auto;">Are you sure? <div id="screen-selector"><button href="#" type="button" id="warning-yes" class="btn btn-danger" >Yes</button><button href="#" type="button" id="warning-yes2" class="btn btn-danger" >Yes</button><button id="warning-no" href="#" type="button" style="margin-left:2px;" data-dismiss="modal" data-toggle="modal" data-target="#myModal" class="btn btn-primary">Cancel</button></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="container">
+  <div class="modal fade" id="csvModal" role="dialog">
+    <div class="modal-dialog">
+      <div class ="modal-content">
+        <div class="modal-header">
+          CSV Upload <button id="cl" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button>
+        </div>
+        <div class="modal-body">
+          <form name="csvform" id="csvform" data-parsley-validate>
+          <div class="form-group">
+            <label for="">Workout Name:</label> 
+            <input data-progression="" type="text" data-helper="" id="name" value="" placeholder="" class="form-control" required/>
+          </div>
+          <div class="form-group">
+            <label for="">Workout Date:</label> 
+            <input data-progression="" type="text" data-helper="" id="date" value="" placeholder="" class="form-control" required/>
+          </div>
+          <div class="form-group">
+            <label for="">Confirm Username:</label> 
+            <input data-progression="" type="text" data-helper="" id="coach_username" value="" placeholder="" class="form-control" required/>
+          </div>
+          <div class="form-group">
+            <label for="">Readers:</label> 
+            <input data-progression="" type="text" data-helper="" id="readers" value="" placeholder="" class="form-control" required/>
+          </div>
+          <div class="spinner-container">
+                <div id="spinner_modal"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="file">Select file:</label>
+              <div class="input-group">
+                <span class="input-group-btn">
+                  <span class="btn btn-warning btn-file">
+                    Browse&hellip; <input type="file" id="file" name="myfile" data-parsley-errors-container="#csv-parsley-errors">
+                  </span>
+                </span>
+                <input type="text" class="form-control" readonly required data-parsley-errors-container="#csv-parsley-errors">
+              </div>
+              <div id="csv-parsley-errors"></div>
+            </div>
+
+             <div class="button-container" id="csv_buttons"style="display:table;margin:0 auto;">
+                <!--<input type="file" id="file" name="myfile" class="btn btn-warning form-control" required>-->
+                <input type="submit" class="gen_btn btn btn-primary form-control" id="upload" name ="upload" value="Upload">
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+      <div class="container">
+        <div class="modal fade" id="myModal" role="dialog">
+          <div class="modal-dialog">
+            <div class="modal-content">
+               <div class="modal-header">
+                Edit Registered Athlete <button id="cl" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button>
+              </div>
+              <div class="modal-body">
+                <form name="tracform" id="coachform" method="POST" data-parsley-validate>
+                  <div class="button-container-two">
+                  </div>
+                    <p id="idnumber">
+                     
+                      <input type="hidden" id="idnumber" value="" placeholder="" required data-parsley-group="block1" readonly/>
+                  </p>
+                 <div class="form-group">
+                     <label for="">First Name:</label> 
+                     <input data-progression="" type="text" id="fname" value="" placeholder="" required data-parsley-group="block1" class="form-control"/>
+                 </div>
+                 <div class="form-group">
+                     <label for="">Last Name:</label> 
+                     <input data-progression="" type="text" id="lname" value="" placeholder="" required data-parsley-group="block1" class="form-control"/>
+                 </div>
+                 <input type="hidden" id="uname" value="" placeholder="" required data-parsley-group="block1" readonly/>
+                  <div class="form-group">
+                     <label for="">TagID:</label> 
+                     <input data-progression="" type="text" id="tag" value="" placeholder="" required data-parsley-group="block1" class="form-control"/>
+                 </div>
+                 <div class="form-group">
+                     <label for="">Age:</label> 
+                     <input data-progression="" type="text" id="age" value="" placeholder="" required data-parsley-group="block1" class="form-control"/>
+                 </div>
+                 <div class="form-group">
+                     <label for="">Gender:</label> 
+                     <input data-progression="" type="text" id="gender" value="" placeholder="" required data-parsley-group="block1" class="form-control"/>
+                 </div>
+                    <br>
+                    </form>   
+                     </div> 
+                        <div class="modal-footer">
+                          <div class="button-container" style="display:table; margin:0 auto;">
+                            <button name="" class="btn btn-primary" id="save2">Save</button>
+                            <button name="" class="btn btn-primary" id="update2"  data-dismiss="modal" data-toggle="modal" data-target="#notificationModal">Update</button>
+                            <button name="" class="btn btn-danger" id="delete2" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal">Delete</button>
+                           </div>
+                     </div> 
+                 </div>
+              </div>
+          </div> 
+      </div>
+    </div>
+
+   {% endverbatim angular %}
+   {% endblock %} 
+    
+    
+    
+</html>

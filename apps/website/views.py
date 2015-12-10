@@ -72,3 +72,6 @@ def account_settings(request):
 
 def ipntest(request):
     return render(request, 'ipnTest.html')
+
+def race(request):
+    return render(request, 'race.html')
