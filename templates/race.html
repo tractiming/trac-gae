@@ -23,33 +23,52 @@
     input,textarea{
       width:75%;
     }
+    #rosterModal .modal-body {
+    max-height: 450px;
+    overflow-y: auto;
+}
   </style>
 
   <script>
-  var app = angular.module('raceRegistration', []);
+  var app = angular.module('raceRegistration', ['xeditable']);
+  app.run(function(editableOptions) {
+    editableOptions.theme = 'bs3';
+  });
+
   app.controller('controllerOne', function($scope, $http) {
     $http({method: 'GET', url: '/api/sessions/', headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:0, limit:15} })
     .success(function (response) { 
-      console.log(response);
+      //console.log(response);
       $scope.json = response.results;
-
+      $scope.idArray = response.results.id;
+      $scope.select = function(workout) {
+        $scope.selected = workout.id;
+        alert(workout.id);
+      };
 
     });
+  });
+   app.controller('registeredCtrl', function($scope, $http) {
+    $http({method: 'GET', url: '/api/athletes/', headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
+    .success(function (response) { 
+      $scope.athletes = response;
 
-});
+    });
+  });
+
 
   </script>
 
 
 {% verbatim angular %}
 
-
-<nav class="pushy pushy-left" ng-app="raceRegistration" ng-controller="controllerOne">
+<div ng-app="raceRegistration" id="containerDiv">
+<nav class="pushy pushy-left" ng-controller="controllerOne">
     <ul class="menulist" ng-repeat='x in json' > 
-      <li><a href="#">{{x.name}}</a></li>
+      <li id="$index"><a href="#" ng-click="select(x)">{{x.name}}</a></li>
     </ul>
     <ul class="menulist" ng-repeat-end ng-if="json.length == 15">
-      <li><a href="#">See More</a></li>
+      <li><a href="#" >See More</a></li>
     </ul>
 </nav>
   <div class="site-overlay"></div>
@@ -64,7 +83,7 @@
           </div>
         </div>
         <div class="col-md-6 col-sm-6 col-xs-6" style="">
-          <div id="" class="" data-toggle="modal" data-target="#csvModal" style="float:right">
+          <div id="" class="" data-toggle="modal" data-target="#rosterModal" style="float:right">
             <span class="glyphicon glyphicon-list" aria-hidden="true"></span> Roster
           </div>
         </div>
@@ -83,7 +102,45 @@
                 <div id="spinner"></div>
             </div>
             <div class="row">
-              <div id="athletes" class="table">
+              <div ng-controller="registeredCtrl" id="athletes" class="table">
+                <table id="results-table" class="table table-striped table-hover">
+                  <thead>
+                    <tr>
+                      <th class="hidden-xs hidden-sm hidden-md hidden-lg">id</th>
+                      <th>First Name</th>
+                      <th>Last Name</th>
+                      <th style="display:none">Username</th>
+                      <th>Tag ID</th>
+                    </tr>
+                  </thead>
+                <tbody>
+                  <tr ng-repeat="x in athletes">
+                    <td class="hidden-xs hidden-sm hidden-md hidden-lg">{{x.id}}</td>
+                    <td editable-text="x.user.first_name" e-form="rowform">{{x.user.first_name}}</td>
+                    <td editable-text="x.user.last_name" e-form="rowform">{{x.user.last_name}}</td>
+                    <td style="display:none">{{x.user.username}}</td>
+                    <td editable-text="x.tag" e-form="rowform">{{x.tag}}</td>
+                    <td style="display:none">{{x.year}}</td>
+                    <td style="display:none">{{x.gender}}</td>
+                    <td>
+                    <!-- form -->
+                      <form editable-form name="rowform" onbeforesave="saveUser($data, x.id)" ng-show="rowform.$visible" class="form-buttons form-inline" shown="inserted == x">
+                        <button type="submit" ng-disabled="rowform.$waiting" class="btn btn-primary">
+                          Save
+                        </button>
+                        <button type="button" ng-disabled="rowform.$waiting" ng-click="rowform.$cancel()" class="btn btn-default">
+                          Cancel
+                        </button>
+                      </form>
+                      <div class="buttons" ng-show="!rowform.$visible">
+                        <span class="glyphicon glyphicon-pencil" aria-hidden="true" ng-click="rowform.$show()">
+                        <span class="glyphicon glyphicon-remove" aria-hidden="true" ng-click="">
+                      </div>  
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
               </div>
               <div style="text-align: center;">
               <p id="inputheader" class="notification-error notification-default" role="alert">
@@ -98,7 +155,55 @@
 
       </div>
       <div id="create" class="container">
+<!--Roster Modal -->
+<div class="container">
+  <div class="modal fade" id="rosterModal" role="dialog">
+    <div class="modal-dialog">
+      <div class ="modal-content">
+        <div class="modal-header">
+          Roster Upload <button id="cl" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button>
+          </div>
+          <div class="modal-body" ng-controller="registeredCtrl">
+          <table id="results-table" class="table table-striped table-hover">
+              <thead>
+                <tr>
+                  <th>Register?</th>
+                  <th class="hidden-xs hidden-sm hidden-md hidden-lg">id</th>
+                  <th>First Name</th>
+                  <th>Last Name</th>
+                  <th style="display:none">Username</th>
+                  <th>Tag ID</th>
+                </tr>
+              </thead>
+            <tbody>
+              <tr ng-repeat="x in athletes">
+                <td><input type="checkbox"></td>
+                <td class="hidden-xs hidden-sm hidden-md hidden-lg">{{x.id}}</td>
+                <td>{{x.user.first_name}}</td>
+                <td>{{x.user.last_name}}</td>
+                <td style="display:none">{{x.user.username}}</td>
+                <td>{{x.tag}}</td>
+                <td style="display:none">{{x.year}}</td>
+                <td style="display:none">{{x.gender}}</td>
+                <td><span class="glyphicon glyphicon-pencil" aria-hidden="true"></td>
+                <td><span class="glyphicon glyphicon-remove" aria-hidden="true"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <div class="button-container" style="display:table; margin:0 auto;">
+            <button name="" class="btn btn-primary" id="registerRunners">Register Runners</button>
 
+           </div>
+       </div> 
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!--End Modal -->
   <div class="modal fade" id="notificationModal" role="dialog">
     <div class="modal-dialog">
       <div class ="modal-content">
@@ -222,7 +327,7 @@
           </div> 
       </div>
     </div>
-
+</div>
    {% endverbatim angular %}
    {% endblock %} 
     
