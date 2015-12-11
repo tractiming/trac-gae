@@ -142,7 +142,6 @@
                       <th style="display:none">Username</th>
                       <th>Tag ID</th>
                       <th>Team</th>
-                      <th>Gender</th>
                     </tr>
                   </thead>
                 <tbody>
@@ -170,15 +169,11 @@
                     <td>
                       <div class="form-group">
                         <div ng-bind="'Northwestern'" ng-hide="editing_{{$index}}"></div> 
-                        <input name="{{ name }}" type="text" ng-model="x.team" ng-show="editing_{{$index}}" placeholder="{{ placeholder }}" class="form-control">
+                        <input name="{{ name }}" type="text" ng-model="'Northwestern'" ng-show="editing_{{$index}}" placeholder="{{ placeholder }}" class="form-control">
                       </div>
                     </td>
-                    <td>
-                      <div class="form-group">
-                        <div ng-bind="x.gender" ng-hide="editing_{{$index}}"></div> 
-                        <input name="{{ name }}" type="text" ng-model="x.gender" ng-show="editing_{{$index}}" placeholder="{{ placeholder }}" class="form-control">
-                      </div>
-                    </td>
+                    <td style="display:none">{{x.year}}</td>
+                    <td style="display:none">{{x.gender}}</td>
                     <td>
                         <div class="buttons" editing="editing" ng-hide="editing_{{$index}}">
                           <span class="glyphicon glyphicon-pencil" aria-hidden="true" ng-click="edit($event);" style="margin-right:5%"></span>
