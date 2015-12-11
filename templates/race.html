@@ -27,13 +27,25 @@
     max-height: 450px;
     overflow-y: auto;
 }
+  .glyphicon{
+    cursor: pointer;
+  }
+  .glyphicon-pencil{
+    color: #ccc;
+  }
+  .glyphicon-remove, .glyphicon-eject, .glyphicon-save{
+
+    color: #ccc;
+  }
+    .glyphicon-pencil:hover { color: #337ab7; }
+    .glyphicon-remove:hover { color: #d9534f; }
+    .glyphicon-eject:hover { color: #ffad33; }
+    .glyphicon-save:hover { color: #337ab7;}
+  
   </style>
 
   <script>
-  var app = angular.module('raceRegistration', ['xeditable']);
-  app.run(function(editableOptions) {
-    editableOptions.theme = 'bs3';
-  });
+  var app = angular.module('raceRegistration', []);
 
   app.controller('controllerOne', function($scope, $http) {
     $http({method: 'GET', url: '/api/sessions/', headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:0, limit:15} })
@@ -54,7 +66,26 @@
       $scope.athletes = response;
 
     });
+    $scope.dynamicVariable = function(id) {
+      //get scope and create variable
+      $scope['editing' + id];
+    }
+    // editing contact info
+    $scope.editing = false;
+    $scope.edit = function(obj) {
+      var selectedID = angular.element(obj.target).parent().parent().parent().attr('id');
+      var dynamicString = 'editing_' + selectedID;
+      $scope[dynamicString] = true;
+      
+      //$scope.editing = true;
+    };
+    $scope.cancel = function(obj) {
+      var selectedID = angular.element(obj.target).parent().parent().parent().attr('id');
+      var dynamicString = 'editing_' + selectedID;
+      $scope[dynamicString] = false;
+    };
   });
+   
 
 
   </script>
@@ -97,7 +128,6 @@
             </div>
             <h1 id="score-title">Registration</h1>
             </div>
-
             <div class="spinner-container" style="position:relative; top:100px;">
                 <div id="spinner"></div>
             </div>
@@ -111,31 +141,53 @@
                       <th>Last Name</th>
                       <th style="display:none">Username</th>
                       <th>Tag ID</th>
+                      <th>Team</th>
+                      <th>Gender</th>
                     </tr>
                   </thead>
                 <tbody>
-                  <tr ng-repeat="x in athletes">
+                  <tr ng-repeat="x in athletes" id="{{$index}}">
                     <td class="hidden-xs hidden-sm hidden-md hidden-lg">{{x.id}}</td>
-                    <td editable-text="x.user.first_name" e-form="rowform">{{x.user.first_name}}</td>
-                    <td editable-text="x.user.last_name" e-form="rowform">{{x.user.last_name}}</td>
-                    <td style="display:none">{{x.user.username}}</td>
-                    <td editable-text="x.tag" e-form="rowform">{{x.tag}}</td>
-                    <td style="display:none">{{x.year}}</td>
-                    <td style="display:none">{{x.gender}}</td>
                     <td>
-                    <!-- form -->
-                      <form editable-form name="rowform" onbeforesave="saveUser($data, x.id)" ng-show="rowform.$visible" class="form-buttons form-inline" shown="inserted == x">
-                        <button type="submit" ng-disabled="rowform.$waiting" class="btn btn-primary">
-                          Save
-                        </button>
-                        <button type="button" ng-disabled="rowform.$waiting" ng-click="rowform.$cancel()" class="btn btn-default">
-                          Cancel
-                        </button>
-                      </form>
-                      <div class="buttons" ng-show="!rowform.$visible">
-                        <span class="glyphicon glyphicon-pencil" aria-hidden="true" ng-click="rowform.$show()">
-                        <span class="glyphicon glyphicon-remove" aria-hidden="true" ng-click="">
-                      </div>  
+                      <div class="form-group">
+                        <div ng-bind="x.user.first_name" ng-hide="editing_{{$index}}"></div> 
+                        <input name="{{ name }}" type="text" ng-model="x.user.first_name" ng-show="editing_{{$index}}" placeholder="{{ placeholder }}" class="form-control">
+                      </div>
+                    </td>
+                    <td>
+                        <div class="form-group">
+                          <div ng-bind="x.user.last_name" ng-hide="editing_{{$index}}"></div> 
+                          <input name="{{ name }}" type="text" ng-model="x.user.last_name" ng-show="editing_{{$index}}" placeholder="{{ placeholder }}" class="form-control">
+                        </div>
+                    </td>
+                    <td style="display:none">{{x.user.username}}</td>
+                    <td>
+                      <div class="form-group">
+                        <div ng-bind="x.tag" ng-hide="editing_{{$index}}"></div> 
+                        <input name="{{ name }}" type="text" ng-model="x.tag" ng-show="editing_{{$index}}" placeholder="{{ placeholder }}" class="form-control">
+                      </div>
+                    </td>
+                    <td>
+                      <div class="form-group">
+                        <div ng-bind="'Northwestern'" ng-hide="editing_{{$index}}"></div> 
+                        <input name="{{ name }}" type="text" ng-model="x.team" ng-show="editing_{{$index}}" placeholder="{{ placeholder }}" class="form-control">
+                      </div>
+                    </td>
+                    <td>
+                      <div class="form-group">
+                        <div ng-bind="x.gender" ng-hide="editing_{{$index}}"></div> 
+                        <input name="{{ name }}" type="text" ng-model="x.gender" ng-show="editing_{{$index}}" placeholder="{{ placeholder }}" class="form-control">
+                      </div>
+                    </td>
+                    <td>
+                        <div class="buttons" editing="editing" ng-hide="editing_{{$index}}">
+                          <span class="glyphicon glyphicon-pencil" aria-hidden="true" ng-click="edit($event);" style="margin-right:5%"></span>
+                          <span class="glyphicon glyphicon-remove" aria-hidden="true" ng-click=""></span>
+                        </div>
+                        <div class="buttons" ng-show="editing_{{$index}}">
+                          <button name="" class="btn btn-primary" id="">Save</button>
+                          <button name="" class="btn" ng-click="cancel($event)">Cancel</button>
+                        </div>
                     </td>
                   </tr>
                 </tbody>
@@ -165,36 +217,58 @@
           </div>
           <div class="modal-body" ng-controller="registeredCtrl">
           <table id="results-table" class="table table-striped table-hover">
-              <thead>
-                <tr>
-                  <th>Register?</th>
-                  <th class="hidden-xs hidden-sm hidden-md hidden-lg">id</th>
-                  <th>First Name</th>
-                  <th>Last Name</th>
-                  <th style="display:none">Username</th>
-                  <th>Tag ID</th>
-                </tr>
-              </thead>
-            <tbody>
-              <tr ng-repeat="x in athletes">
-                <td><input type="checkbox"></td>
-                <td class="hidden-xs hidden-sm hidden-md hidden-lg">{{x.id}}</td>
-                <td>{{x.user.first_name}}</td>
-                <td>{{x.user.last_name}}</td>
-                <td style="display:none">{{x.user.username}}</td>
-                <td>{{x.tag}}</td>
-                <td style="display:none">{{x.year}}</td>
-                <td style="display:none">{{x.gender}}</td>
-                <td><span class="glyphicon glyphicon-pencil" aria-hidden="true"></td>
-                <td><span class="glyphicon glyphicon-remove" aria-hidden="true"></td>
-              </tr>
-            </tbody>
-          </table>
+                  <thead>
+                    <tr>
+                      <th class="hidden-xs hidden-sm hidden-md hidden-lg">id</th>
+                      <th>Register</th>
+                      <th>First Name</th>
+                      <th>Last Name</th>
+                      <th style="display:none">Username</th>
+                      <th>Tag ID</th>
+                    </tr>
+                  </thead>
+                <tbody>
+                  <tr ng-repeat="x in athletes" id="{{$index}}">
+                    <td><input type="checkbox" ng-hide="editing_{{$index}}"></td>
+                    <td class="hidden-xs hidden-sm hidden-md hidden-lg">{{x.id}}</td>
+                    <td>
+                      <div class="form-group">
+                        <div ng-bind="x.user.first_name" ng-hide="editing_{{$index}}"></div> 
+                        <input name="{{ name }}" type="text" ng-model="x.user.first_name" ng-show="editing_{{$index}}" placeholder="{{ placeholder }}" class="form-control">
+                      </div>
+                    </td>
+                    <td>
+                        <div class="form-group">
+                          <div ng-bind="x.user.last_name" ng-hide="editing_{{$index}}"></div> 
+                          <input name="{{ name }}" type="text" ng-model="x.user.last_name" ng-show="editing_{{$index}}" placeholder="{{ placeholder }}" class="form-control">
+                        </div>
+                    </td>
+                    <td style="display:none">{{x.user.username}}</td>
+                    <td>
+                      <div class="form-group">
+                        <div ng-bind="x.tag" ng-hide="editing_{{$index}}"></div> 
+                        <input name="{{ name }}" type="text" ng-model="x.tag" ng-show="editing_{{$index}}" placeholder="{{ placeholder }}" class="form-control">
+                      </div>
+                    </td>
+                    <td style="display:none">{{x.year}}</td>
+                    <td style="display:none">{{x.gender}}</td>
+                    <td>
+                        <div class="buttons" editing="editing" ng-hide="editing_{{$index}}">
+                          <span class="glyphicon glyphicon-pencil" aria-hidden="true" ng-click="edit($event);" style="margin-right:5%"></span>
+                          <span class="glyphicon glyphicon-remove" aria-hidden="true" ng-click=""></span>
+                        </div>
+                        <div class="buttons" ng-show="editing_{{$index}}">
+                          <span class="glyphicon glyphicon-save" aria-hidden="true" ng-click="" style="margin-right:5%"></span>
+                          <span class="glyphicon glyphicon-eject" aria-hidden="true" ng-click="cancel($event);"></span>
+                        </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
         </div>
         <div class="modal-footer">
           <div class="button-container" style="display:table; margin:0 auto;">
             <button name="" class="btn btn-primary" id="registerRunners">Register Runners</button>
-
            </div>
        </div> 
       </div>
