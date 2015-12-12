@@ -58,12 +58,13 @@
 
     $http({method: 'GET', url: '/api/sessions/', headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:0, limit:15} })
     .success(function (response) { 
-      //console.log(response);
+      console.log(response);
       $scope.json = response.results;
       $scope.idArray = response.results.id;
 
     });
 
+    //onClick event of session, have it change; TODO: Fix when JSON starts outputting correctly
     $scope.select = function(workout) {
         $scope.selected = workout.id;
         $http({method: 'GET', url: '/api/athletes/?session=1', headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
@@ -73,6 +74,19 @@
           });
 
       };
+    $scope.seeMore = function(){
+      $scope.loadingMore = true;
+
+      $http({method: 'GET', url: '/api/sessions/', headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:15, limit:15} })
+        .success(function (response) { 
+        //console.log(response);
+        alert('hello there');
+        $scope.json.push(response);
+        console.log($scope.json);
+
+      });
+
+    }
 
     $scope.dynamicVariable = function(id) {
       //get scope and create variable
@@ -106,8 +120,8 @@
     <ul class="menulist" ng-repeat='x in json' > 
       <li id="$index"><a href="#" ng-click="select(x)">{{x.name}}</a></li>
     </ul>
-    <ul class="menulist" ng-repeat-end ng-if="json.length == 15">
-      <li><a href="#" >See More</a></li>
+    <ul class="menulist" ng-repeat-end ng-if="json.length == 15" ng-hide="loadingMore">
+      <li><a href="#" ng-click="seeMore();">See More</a></li>
     </ul>
 </nav>
   <div class="site-overlay"></div>
@@ -177,7 +191,7 @@
                     <td>
                       <div class="form-group">
                         <div ng-bind="'Northwestern'" ng-hide="editing_{{$index}}"></div> 
-                        <input name="{{ name }}" type="text" ng-model="'Northwestern'" ng-show="editing_{{$index}}" placeholder="{{ placeholder }}" class="form-control">
+                        <input name="{{ name }}" type="text" ng-model="Northwestern" ng-show="editing_{{$index}}" placeholder="{{ placeholder }}" class="form-control">
                       </div>
                     </td>
                     <td style="display:none">{{x.year}}</td>
