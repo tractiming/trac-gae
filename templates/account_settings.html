@@ -51,11 +51,11 @@ $(document).ready(function(){
           $('#edit-information').fadeIn(500);
           $.ajax({
                   type: "GET",
-                  url: "/api/get_info/",
+                  url: "/api/users/me/",
                   headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
                   success: function(data){
-                    $('#edit-information #organization').val(data['org']);
-                    $('#edit-information #username').val(data['name']);
+                    $('#edit-information #organization').val('org');
+                    $('#edit-information #username').val(data['username']);
                     $('#edit-information #email').val(data['email']);
                   },
                   error: function(xhr, errmsg, err){
@@ -132,12 +132,12 @@ $(document).ready(function(){
           var username = escapeString($('input#username').val());
           var email = escapeString($('input#email').val());
           $.ajax({
-                  type: "POST",
-                  url: "/api/edit_info/",
+                  type: "PATCH",
+                  url: "/api/users/me/",
                   headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
                   data: {
-                    org: organization,
-                    name: username,
+                    //org: organization,
+                    username: username,
                     email: email,
                   },
                   success: function(data){
@@ -191,11 +191,11 @@ $(document).ready(function(){
           if(password === c_password){
           $.ajax({
                   type: "POST",
-                  url: "/api/change_password/",
+                  url: "/api/users/me/change_password/",
                   headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
                   data: {
-                    o_password: o_password,
-                    password: password,
+                    old_password: o_password,
+                    new_password: password,
                   },
                   success: function(data){
                     if (data != 403){
