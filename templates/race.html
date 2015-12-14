@@ -23,6 +23,13 @@
     input,textarea{
       width:75%;
     }
+    @media (min-width: 768px) {
+      .modal-xl {
+        width: 90%;
+       max-width:1200px;
+      }
+    }
+
     #rosterModal .modal-body {
     max-height: 450px;
     overflow-y: auto;
@@ -67,14 +74,15 @@
       
       $scope.json = response.results;
       $scope.idArray = response.results.id;
+      $scope.temporaryEnd = 15;
 
     });
 
-    //onClick event of session, have it change; TODO: Fix when JSON starts outputting correctly
+    //onClick event of session, dynamically route athletes. 
     $scope.select = function(workout) {
-        $scope.selected = workout.id;
-        alert(workout.id);
-        $http({method: 'GET', url: '/api/athletes/?session=1', headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
+        var selected = workout.id;
+        var url = '/api/athletes/?session='+ selected;
+        $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
           .success(function (response) { 
             $scope.athletes = response;
             if (response.length == 0){
@@ -85,13 +93,12 @@
 
       };
     $scope.seeMore = function(){
-      $scope.loadingMore = true;
 
-      $http({method: 'GET', url: '/api/sessions/', headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:15, limit:15} })
+      $http({method: 'GET', url: '/api/sessions/', headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.temporaryEnd, limit:15} })
         .success(function (response) { 
           //merge arrays
+        $scope.temporaryEnd += 15;
         $scope.json.push.apply($scope.json, response.results);
-
       });
 
     }
@@ -101,11 +108,29 @@
       //TODO: Do an ajax call, to actually delete
     }
 
+    $scope.save = function(runner){
+      var url = '/api/athletes/'+runner.id +'/';
+      $http({method: 'PUT', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{
+        tag: runner.tag,
+        team: runner.team,
+        first_name: runner.user.first_name,
+        last_name: runner.user.last_name,
+       } 
+      })
+        .success(function (response) { 
+         alert('successfully changed');
+      });
+      //TODO: Do an ajax call, to actually save
+    }
+
     // editing contact info
     $scope.editing = false;
     $scope.edit = function(obj) {
+      console.log(obj);
       var selectedID = angular.element(obj.target).parent().parent().parent().attr('id');
+      console.log(selectedID);
       var dynamicString = 'editing_' + selectedID;
+      console.log(dynamicString);
       $scope[dynamicString] = true;
     };
     $scope.cancel = function(obj) {
@@ -113,6 +138,7 @@
       var dynamicString = 'editing_' + selectedID;
       $scope[dynamicString] = false;
     };
+
   });
    
 
@@ -127,7 +153,7 @@
     <ul class="menulist" ng-repeat='x in json' > 
       <li id="$index"><a href="#" ng-click="select(x)">{{x.name}}</a></li>
     </ul>
-    <ul class="menulist" ng-repeat-end ng-if="json.length == 15" ng-hide="loadingMore">
+    <ul class="menulist" ng-repeat-end ng-if="json.length == temporaryEnd">
       <li><a href="#" ng-click="seeMore();">See More</a></li>
     </ul>
 </nav>
@@ -175,7 +201,8 @@
                   </thead>
                 <tbody>
                   <tr ng-repeat="x in athletes" id="{{$index}}">
-                    <td class="hidden-xs hidden-sm hidden-md hidden-lg">{{x.id}}</td>
+                    <td class="hidden-xs hidden-sm hidden-md hidden-lg" >{{x.id}}</td>
+                    <input name="{{ name }}" type="text" ng-model="x.id" ng-show="editing_{{$index}}" placeholder="{{ placeholder }}" class="form-control">
                     <td>
                       <div class="form-group">
                         <div ng-bind="x.user.first_name" ng-hide="editing_{{$index}}"></div> 
@@ -198,18 +225,18 @@
                     <td>
                       <div class="form-group">
                         <div ng-bind="'Northwestern'" ng-hide="editing_{{$index}}"></div> 
-                        <input name="{{ name }}" type="text" ng-model="Northwestern" ng-show="editing_{{$index}}" placeholder="{{ placeholder }}" class="form-control">
+                        <input name="{{ name }}" type="text" ng-model="x.team" ng-show="editing_{{$index}}" placeholder="{{ placeholder }}" class="form-control">
                       </div>
                     </td>
                     <td style="display:none">{{x.year}}</td>
                     <td style="display:none">{{x.gender}}</td>
                     <td>
                         <div class="buttons" editing="editing" ng-hide="editing_{{$index}}">
-                          <span class="glyphicon glyphicon-pencil" aria-hidden="true" ng-click="edit($event);" style="margin-right:5%"></span>
+                          <span class="glyphicon glyphicon-pencil" aria-hidden="true" data-ng-click="edit($event);" style="margin-right:5%"></span>
                           <span class="glyphicon glyphicon-remove" aria-hidden="true" ng-click="delete(athletes,$index)"></span>
                         </div>
                         <div class="buttons" ng-show="editing_{{$index}}">
-                          <button name="" class="btn btn-primary" id="">Save</button>
+                          <button name="" class="btn btn-primary" ng-click="save(x)">Save</button>
                           <button name="" class="btn" ng-click="cancel($event)">Cancel</button>
                         </div>
                     </td>
@@ -234,7 +261,7 @@
 <!--Roster Modal -->
 <div class="container">
   <div class="modal fade" id="rosterModal" role="dialog">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-xl">
       <div class ="modal-content">
         <div class="modal-header">
           Roster Upload <button id="cl" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button>
