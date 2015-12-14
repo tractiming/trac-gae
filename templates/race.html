@@ -110,11 +110,15 @@
 
     $scope.save = function(runner){
       var url = '/api/athletes/'+runner.id +'/';
-      $http({method: 'PUT', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{
-        tag: runner.tag,
-        team: runner.team,
+      $http({method: 'PUT', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{
+        user:{
         first_name: runner.user.first_name,
         last_name: runner.user.last_name,
+        username: runner.user.username,
+        },
+        tag: runner.tag,
+        team: runner.team,
+
        } 
       })
         .success(function (response) { 
@@ -139,6 +143,19 @@
       $scope[dynamicString] = false;
     };
 
+
+    $scope.showSelected = function(){
+      var atlList = [];
+      $('#rosterModal tr.ath').each(function(){
+        var atlObj = {};
+        if ($(this).find('td #check').is(":checked")){
+          atlObj.id = $(this).children('#id').text();
+          atlList.push(atlObj);
+        }
+      });
+      //TODO: Ajax Call to api/sessions with data.
+      $('#rosterModal').modal('hide');
+    }
   });
    
 
@@ -279,9 +296,9 @@
                     </tr>
                   </thead>
                 <tbody>
-                  <tr ng-repeat="x in athletes" id="{{$index}}">
-                    <td><input type="checkbox" ng-hide="editing_{{$index}}"></td>
-                    <td class="hidden-xs hidden-sm hidden-md hidden-lg">{{x.id}}</td>
+                  <tr ng-repeat="x in athletes" id="{{$index}}" class="ath">
+                    <td><input type="checkbox" id="check" ng-model="selected[x.id]" ng-hide="editing_{{$index}}"></td>
+                    <td class="hidden-xs hidden-sm hidden-md hidden-lg" id="id">{{x.id}}</td>
                     <td>
                       <div class="form-group">
                         <div ng-bind="x.user.first_name" ng-hide="editing_{{$index}}"></div> 
@@ -309,7 +326,7 @@
                           <span class="glyphicon glyphicon-remove" aria-hidden="true" ng-click="delete(athletes,$index);"></span>
                         </div>
                         <div class="buttons" ng-show="editing_{{$index}}">
-                          <span class="glyphicon glyphicon-save" aria-hidden="true" ng-click="" style="margin-right:5%"></span>
+                          <span class="glyphicon glyphicon-save" aria-hidden="true" ng-click="save(x);" style="margin-right:5%"></span>
                           <span class="glyphicon glyphicon-eject" aria-hidden="true" ng-click="cancel($event);"></span>
                         </div>
                     </td>
@@ -319,7 +336,7 @@
         </div>
         <div class="modal-footer">
           <div class="button-container" style="display:table; margin:0 auto;">
-            <button name="" class="btn btn-primary" id="registerRunners">Register Runners</button>
+            <button name="" class="btn btn-primary" id="registerRunners" ng-click="showSelected();">Register Runners</button>
            </div>
        </div> 
       </div>
