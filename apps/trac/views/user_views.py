@@ -48,7 +48,7 @@ class UserViewSet(viewsets.ModelViewSet):
         if self.kwargs.get('pk', None) == 'me':
             return self.request.user
         else:
-            return User.objects.get(pk=int(self.kwargs['pk']))
+            return super(UserViewSet, self).get_object()
 
     @detail_route(methods=['post'])
     def change_password(self, request, *args, **kwargs):
@@ -62,7 +62,6 @@ class UserViewSet(viewsets.ModelViewSet):
         user.set_password(request.data.get('new_password'))
         user.save()
         return Response(status=status.HTTP_200_OK)
-
 
     @detail_route(methods=['get'])
     def tutorial_limiter(self, request, *args, **kwargs):
