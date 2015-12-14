@@ -269,6 +269,19 @@ class TimingSessionViewSetTest(APITestCase):
             list(session_ids))
         self.assertEqual(resp.status_code, 200)
 
+    def test_get_by_athlete(self):
+        """Test that an athlete gets all sessions he has completed."""
+        user = User.objects.get(username='clevins')
+        self.client.force_authenticate(user=user)
+        resp = self.client.get('/api/sessions/')
+        completed_sessions = TimingSession.objects.filter(
+            splits__athlete__user=user).distinct().order_by(
+            '-start_time').values_list('id', flat=True)
+        self.assertEqual(
+            [session['id'] for session in resp.data],
+            list(completed_sessions))
+        self.assertEqual(resp.status_code, 200)
+
 
 class PostSplitsTest(APITestCase):
 

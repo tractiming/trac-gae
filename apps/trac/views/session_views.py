@@ -61,10 +61,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
         # If the user is an athlete, list all the workouts he has run.
         if is_athlete(user):
-            # FIXME: this is no longer implemented.
-            return TimingSession.objects.none()
-            #ap = Athlete.objects.get(user=user)
-            #sessions = ap.get_completed_sessions()
+            return TimingSession.objects.filter(
+                Q(splits__athlete=user.athlete) & date_filter).distinct()
         
         # If the user is a coach, list all sessions he manages.
         elif is_coach(user):
