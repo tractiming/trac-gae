@@ -2,6 +2,7 @@ from django.conf.urls import url, include, patterns, handler404, handler500
 from django.views.generic import TemplateView
 
 import views
+from django.conf.urls import handler404, handler500
 
 urlpatterns = patterns('',
     url(r'^$', views.index, name='index'),
