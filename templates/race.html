@@ -47,6 +47,9 @@
     .glyphicon-remove:hover { color: #d9534f; }
     .glyphicon-eject:hover { color: #ffad33; }
     .glyphicon-save:hover { color: #337ab7;}
+    .form-group{
+      margin-bottom: 0px !important;
+    }
   nav ul{
     margin-bottom:0px !important;
   }
@@ -103,9 +106,15 @@
 
     }
 
-    $scope.delete = function(array,index){
+    $scope.delete = function(array,index,runner){
       $scope.athletes.splice(index, 1);
+      console.log($scope.athletes);
       //TODO: Do an ajax call, to actually delete
+       var url = '/api/athletes/'+runner.id +'/';
+       $http({method: 'DELETE', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}})
+         .success(function (response) { 
+           console.log('Successfully Deleted');
+       });
     }
 
     $scope.save = function(runner){
@@ -129,11 +138,11 @@
 
     // editing contact info
     $scope.editing = false;
-    $scope.edit = function(obj) {
-      console.log(obj);
-      var selectedID = angular.element(obj.target).parent().parent().parent().attr('id');
-      console.log(selectedID);
-      var dynamicString = 'editing_' + selectedID;
+    $scope.edit = function(x) {
+      console.log(x);
+     // var selectedID = angular.element(obj.target).parent().parent().parent().attr('id');
+     // console.log(selectedID);
+      var dynamicString = 'editing_' + x;
       console.log(dynamicString);
       $scope[dynamicString] = true;
     };
@@ -217,42 +226,42 @@
                     </tr>
                   </thead>
                 <tbody>
-                  <tr ng-repeat="x in athletes" id="{{$index}}">
+                  <tr ng-repeat="x in athletes" id="{{x.id}}">
                     <td class="hidden-xs hidden-sm hidden-md hidden-lg" >{{x.id}}</td>
-                    <input name="{{ name }}" type="text" ng-model="x.id" ng-show="editing_{{$index}}" placeholder="{{ placeholder }}" class="form-control">
+                    <input name="{{ name }}" type="text" ng-model="x.id" ng-show="editing_{{x.id}}" placeholder="{{ placeholder }}" class="form-control">
                     <td>
                       <div class="form-group">
-                        <div ng-bind="x.user.first_name" ng-hide="editing_{{$index}}"></div> 
-                        <input name="{{ name }}" type="text" ng-model="x.user.first_name" ng-show="editing_{{$index}}" placeholder="{{ placeholder }}" class="form-control">
+                        <div ng-bind="x.user.first_name" ng-hide="editing_{{x.id}}"></div> 
+                        <input name="{{ name }}" type="text" ng-model="x.user.first_name" ng-show="editing_{{x.id}}" placeholder="{{ placeholder }}" class="form-control">
                       </div>
                     </td>
                     <td>
                         <div class="form-group">
-                          <div ng-bind="x.user.last_name" ng-hide="editing_{{$index}}"></div> 
-                          <input name="{{ name }}" type="text" ng-model="x.user.last_name" ng-show="editing_{{$index}}" placeholder="{{ placeholder }}" class="form-control">
+                          <div ng-bind="x.user.last_name" ng-hide="editing_{{x.id}}"></div> 
+                          <input name="{{ name }}" type="text" ng-model="x.user.last_name" ng-show="editing_{{x.id}}" placeholder="{{ placeholder }}" class="form-control">
                         </div>
                     </td>
                     <td style="display:none">{{x.user.username}}</td>
                     <td>
                       <div class="form-group">
-                        <div ng-bind="x.tag" ng-hide="editing_{{$index}}"></div> 
-                        <input name="{{ name }}" type="text" ng-model="x.tag" ng-show="editing_{{$index}}" placeholder="{{ placeholder }}" class="form-control">
+                        <div ng-bind="x.tag" ng-hide="editing_{{x.id}}"></div> 
+                        <input name="{{ name }}" type="text" ng-model="x.tag" ng-show="editing_{{x.id}}" placeholder="{{ placeholder }}" class="form-control">
                       </div>
                     </td>
                     <td>
                       <div class="form-group">
-                        <div ng-bind="'Northwestern'" ng-hide="editing_{{$index}}"></div> 
-                        <input name="{{ name }}" type="text" ng-model="x.team" ng-show="editing_{{$index}}" placeholder="{{ placeholder }}" class="form-control">
+                        <div ng-bind="'Northwestern'" ng-hide="editing_{{x.id}}"></div> 
+                        <input name="{{ name }}" type="text" ng-model="x.team" ng-show="editing_{{x.id}}" placeholder="{{ placeholder }}" class="form-control">
                       </div>
                     </td>
                     <td style="display:none">{{x.year}}</td>
                     <td style="display:none">{{x.gender}}</td>
                     <td>
-                        <div class="buttons" editing="editing" ng-hide="editing_{{$index}}">
-                          <span class="glyphicon glyphicon-pencil" aria-hidden="true" data-ng-click="edit($event);" style="margin-right:5%"></span>
-                          <span class="glyphicon glyphicon-remove" aria-hidden="true" ng-click="delete(athletes,$index)"></span>
+                        <div class="buttons" editing="editing" ng-hide="editing_{{x.id}}">
+                          <span class="glyphicon glyphicon-pencil" aria-hidden="true" data-ng-click="edit(x.id);" style="margin-right:5%"></span>
+                          <span class="glyphicon glyphicon-remove" aria-hidden="true" ng-click="delete(athletes,$index,x)"></span>
                         </div>
-                        <div class="buttons" ng-show="editing_{{$index}}">
+                        <div class="buttons" ng-show="editing_{{x.id}}">
                           <button name="" class="btn btn-primary" ng-click="save(x)">Save</button>
                           <button name="" class="btn" ng-click="cancel($event)">Cancel</button>
                         </div>
@@ -296,36 +305,36 @@
                     </tr>
                   </thead>
                 <tbody>
-                  <tr ng-repeat="x in athletes" id="{{$index}}" class="ath">
-                    <td><input type="checkbox" id="check" ng-model="selected[x.id]" ng-hide="editing_{{$index}}"></td>
+                  <tr ng-repeat="x in athletes" id="{{x.id}}" class="ath">
+                    <td><input type="checkbox" id="check" ng-model="selected[x.id]" ng-hide="editing_{{x.id}}"></td>
                     <td class="hidden-xs hidden-sm hidden-md hidden-lg" id="id">{{x.id}}</td>
                     <td>
                       <div class="form-group">
-                        <div ng-bind="x.user.first_name" ng-hide="editing_{{$index}}"></div> 
-                        <input name="{{ name }}" type="text" ng-model="x.user.first_name" ng-show="editing_{{$index}}" placeholder="{{ placeholder }}" class="form-control">
+                        <div ng-bind="x.user.first_name" ng-hide="editing_{{x.id}}"></div> 
+                        <input name="{{ name }}" type="text" ng-model="x.user.first_name" ng-show="editing_{{x.id}}" placeholder="{{ placeholder }}" class="form-control">
                       </div>
                     </td>
                     <td>
                         <div class="form-group">
-                          <div ng-bind="x.user.last_name" ng-hide="editing_{{$index}}"></div> 
-                          <input name="{{ name }}" type="text" ng-model="x.user.last_name" ng-show="editing_{{$index}}" placeholder="{{ placeholder }}" class="form-control">
+                          <div ng-bind="x.user.last_name" ng-hide="editing_{{x.id}}"></div> 
+                          <input name="{{ name }}" type="text" ng-model="x.user.last_name" ng-show="editing_{{x.id}}" placeholder="{{ placeholder }}" class="form-control">
                         </div>
                     </td>
                     <td style="display:none">{{x.user.username}}</td>
                     <td>
                       <div class="form-group">
-                        <div ng-bind="x.tag" ng-hide="editing_{{$index}}"></div> 
-                        <input name="{{ name }}" type="text" ng-model="x.tag" ng-show="editing_{{$index}}" placeholder="{{ placeholder }}" class="form-control">
+                        <div ng-bind="x.tag" ng-hide="editing_{{x.id}}"></div> 
+                        <input name="{{ name }}" type="text" ng-model="x.tag" ng-show="editing_{{x.id}}" placeholder="{{ placeholder }}" class="form-control">
                       </div>
                     </td>
                     <td style="display:none">{{x.year}}</td>
                     <td style="display:none">{{x.gender}}</td>
                     <td>
-                        <div class="buttons" editing="editing" ng-hide="editing_{{$index}}">
-                          <span class="glyphicon glyphicon-pencil" aria-hidden="true" ng-click="edit($event);" style="margin-right:5%"></span>
+                        <div class="buttons" editing="editing" ng-hide="editing_{{x.id}}">
+                          <span class="glyphicon glyphicon-pencil" aria-hidden="true" ng-click="edit(x.id);" style="margin-right:5%"></span>
                           <span class="glyphicon glyphicon-remove" aria-hidden="true" ng-click="delete(athletes,$index);"></span>
                         </div>
-                        <div class="buttons" ng-show="editing_{{$index}}">
+                        <div class="buttons" ng-show="editing_{{x.id}}">
                           <span class="glyphicon glyphicon-save" aria-hidden="true" ng-click="save(x);" style="margin-right:5%"></span>
                           <span class="glyphicon glyphicon-eject" aria-hidden="true" ng-click="cancel($event);"></span>
                         </div>
