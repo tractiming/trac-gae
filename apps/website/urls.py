@@ -1,5 +1,6 @@
-from django.conf.urls import url, include, patterns
+from django.conf.urls import url, include, patterns, handler404, handler500
 from django.views.generic import TemplateView
+
 import views
 
 urlpatterns = patterns('',
@@ -27,3 +28,6 @@ urlpatterns = patterns('',
     url(r'^account_settings/$', views.account_settings, name='account_settings'),
     url(r'^ipntest/$', views.ipntest, name='ipnTest'),
     )
+
+handler404 = views.error404
+handler500 = views.error500
