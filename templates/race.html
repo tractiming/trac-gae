@@ -61,6 +61,7 @@
 
    app.controller('registeredCtrl', function($scope, $http) {
     $scope.regNull = false;
+    $scope.editing_header = true;
 
     $http({method: 'GET', url: '/api/athletes/', headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
     .success(function (response) { 
@@ -139,13 +140,30 @@
     // editing contact info
     $scope.editing = false;
     $scope.edit = function(x) {
-      console.log(x);
+
+      if ($(window).width() < 768) {
+        $scope.val = x;
+        // do something for small screens
+        $('#editAthlete').modal('show');
+
+      }
+      else if ($(window).width() >= 768 &&  $(window).width() <= 992) {
+          // do something for medium screens
+          $('#editAthlete').modal('show');
+          $scope.val = x;
+      }
+      else  {
+        var dynamicString = 'editing_' + x.id;
+        console.log(dynamicString);
+        $scope[dynamicString] = true;
+          // do something for huge screens
+      }
      // var selectedID = angular.element(obj.target).parent().parent().parent().attr('id');
-     // console.log(selectedID);
-      var dynamicString = 'editing_' + x;
-      console.log(dynamicString);
-      $scope[dynamicString] = true;
+     console.log($scope.val);
+      
     };
+
+
     $scope.cancel = function(obj) {
       var selectedID = angular.element(obj.target).parent().parent().parent().attr('id');
       var dynamicString = 'editing_' + selectedID;
@@ -165,6 +183,31 @@
       //TODO: Ajax Call to api/sessions with data.
       $('#rosterModal').modal('hide');
     }
+    $scope.header = function(){
+      $scope.editing_header = false;
+    }
+    $scope.cancelHeader = function(){
+      $scope.editing_header = true;
+    }
+    $scope.saveHeader = function(runner){
+      $http({method: 'POST', url: '/api/athletes/', headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{
+        user:{
+        first_name: runner.user.first_name,
+        last_name: runner.user.last_name,
+        username: runner.user.username,
+        },
+        tag: runner.tag,
+        team: runner.team,
+
+       } 
+      })
+        .success(function (response) { 
+         alert('successfully changed');
+      });
+
+    }
+
+
   });
    
 
@@ -223,6 +266,8 @@
                       <th style="display:none">Username</th>
                       <th>Tag ID</th>
                       <th>Team</th>
+                      <th class="hidden-xs hidden-sm">Year</th>
+                      <th class="hidden-xs hidden-sm">Gender</th>
                     </tr>
                   </thead>
                 <tbody>
@@ -254,16 +299,29 @@
                         <input name="{{ name }}" type="text" ng-model="x.team" ng-show="editing_{{x.id}}" placeholder="{{ placeholder }}" class="form-control">
                       </div>
                     </td>
-                    <td style="display:none">{{x.year}}</td>
-                    <td style="display:none">{{x.gender}}</td>
+                    <td class="hidden-xs hidden-sm">
+                      <div class="form-group">
+                        <div ng-bind="x.year" ng-hide="editing_{{x.id}}"></div> 
+                        <input name="{{ name }}" type="text" ng-model="x.year" ng-show="editing_{{x.id}}" placeholder="{{ placeholder }}" class="form-control" style="width:70px;">
+                      </div>
+                    </td>
+                    <td class="hidden-xs hidden-sm">
+                      <div class="form-group">
+                        <div ng-bind="x.gender" ng-hide="editing_{{x.id}}"></div> 
+                        <input name="{{ name }}" type="text" ng-model="x.gender" ng-show="editing_{{x.id}}" placeholder="{{ placeholder }}" class="form-control" style="width:40px;">
+                      </div></td>
                     <td>
                         <div class="buttons" editing="editing" ng-hide="editing_{{x.id}}">
-                          <span class="glyphicon glyphicon-pencil" aria-hidden="true" data-ng-click="edit(x.id);" style="margin-right:5%"></span>
+                          <span class="glyphicon glyphicon-pencil" aria-hidden="true" data-ng-click="edit(x);" style="margin-right:5%"></span>
                           <span class="glyphicon glyphicon-remove" aria-hidden="true" ng-click="delete(athletes,$index,x)"></span>
                         </div>
-                        <div class="buttons" ng-show="editing_{{x.id}}">
+                        <div class="buttons hidden-xs hidden-sm" ng-show="editing_{{x.id}}">
                           <button name="" class="btn btn-primary" ng-click="save(x)">Save</button>
                           <button name="" class="btn" ng-click="cancel($event)">Cancel</button>
+                        </div>
+                        <div class="buttons hidden-lg hidden-xl" ng-show="editing_{{x.id}}" >
+                          <span class="glyphicon glyphicon-save" aria-hidden="true" ng-click="save(x);" style="margin-right:5%"></span>
+                          <span class="glyphicon glyphicon-eject" aria-hidden="true" ng-click="cancel($event);"></span>
                         </div>
                     </td>
                   </tr>
@@ -297,11 +355,51 @@
                   <thead>
                     <tr>
                       <th class="hidden-xs hidden-sm hidden-md hidden-lg">id</th>
-                      <th>Register</th>
-                      <th>First Name</th>
-                      <th>Last Name</th>
+                      <th>
+                        <div class="form-group">
+                          <div ng-bind="'Register'"></div> 
+                        </div>
+                      </th>
+                      <th>
+                        <div class="form-group">
+                          <div ng-bind="'First Name'" ng-show="editing_header"></div> 
+                          <input id="check" placeholder="First Name" ng-model="selected[x.id]" ng-hide="editing_header" class="form-control">
+                        </div>
+                      </th>
+                      <th>
+                        <div class="form-group">
+                          <div ng-bind="'Last Name'" ng-show="editing_header"></div> 
+                          <input id="check" placeholder="Last Name" ng-model="selected[x.id]" ng-hide="editing_header" class="form-control">
+                        </div>
+                      </th>
                       <th style="display:none">Username</th>
-                      <th>Tag ID</th>
+                      <th>
+                        <div class="form-group">
+                          <div ng-bind="'Tag ID'" ng-show="editing_header"></div> 
+                          <input id="check" placeholder="Tag ID" ng-model="selected[x.id]" ng-hide="editing_header" class="form-control">
+                        </div>
+                      </th>
+                      <th>
+                        <div class="form-group">
+                          <div ng-bind="'Year'" ng-show="editing_header"></div> 
+                          <input id="check" placeholder="Year" ng-model="selected[x.id]" ng-hide="editing_header" class="form-control" style="width:70px;">
+                        </div>
+                      </th>
+                      <th>
+                        <div class="form-group">
+                          <div ng-bind="'Gender'" ng-show="editing_header"></div> 
+                          <input id="check" placeholder="M/F" ng-model="selected[x.id]" ng-hide="editing_header" class="form-control" style="width:60px;">
+                        </div>
+                      </th>
+                      <th style="width:50px;">
+                        <button type="button" class="btn btn-default hidden-xs" ng-click="header();" ng-show="editing_header" style="margin-left:50%">
+                          <span class="glyphicon glyphicon-plus" aria-hidden="true"> </span> Runner
+                       </button>
+                       <div class="buttons" ng-hide="editing_header">
+                          <span class="glyphicon glyphicon-save" aria-hidden="true" ng-click="saveHeader(x);" style="margin-right:5%"></span>
+                          <span class="glyphicon glyphicon-eject" aria-hidden="true" ng-click="cancelHeader();"></span>
+                        </div>
+                     </th>
                     </tr>
                   </thead>
                 <tbody>
@@ -327,11 +425,21 @@
                         <input name="{{ name }}" type="text" ng-model="x.tag" ng-show="editing_{{x.id}}" placeholder="{{ placeholder }}" class="form-control">
                       </div>
                     </td>
-                    <td style="display:none">{{x.year}}</td>
-                    <td style="display:none">{{x.gender}}</td>
+                    <td class="hidden-xs hidden-sm">
+                      <div class="form-group">
+                        <div ng-bind="x.year" ng-hide="editing_{{x.id}}"></div> 
+                        <input name="{{ name }}" type="text" ng-model="x.year" ng-show="editing_{{x.id}}" placeholder="{{ placeholder }}" class="form-control" style="width:70px;">
+                      </div>
+                    </td>
+                    <td class="hidden-xs hidden-sm">
+                      <div class="form-group">
+                        <div ng-bind="x.gender" ng-hide="editing_{{x.id}}"></div> 
+                        <input name="{{ name }}" type="text" ng-model="x.gender" ng-show="editing_{{x.id}}" placeholder="{{ placeholder }}" class="form-control" style="width:40px;">
+                      </div></td>
+                    <td>
                     <td>
                         <div class="buttons" editing="editing" ng-hide="editing_{{x.id}}">
-                          <span class="glyphicon glyphicon-pencil" aria-hidden="true" ng-click="edit(x.id);" style="margin-right:5%"></span>
+                          <span class="glyphicon glyphicon-pencil" aria-hidden="true" ng-click="edit(x);" style="margin-right:5%"></span>
                           <span class="glyphicon glyphicon-remove" aria-hidden="true" ng-click="delete(athletes,$index);"></span>
                         </div>
                         <div class="buttons" ng-show="editing_{{x.id}}">
@@ -428,7 +536,7 @@
 </div>
 
       <div class="container">
-        <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal fade" id="editAthlete" role="dialog">
           <div class="modal-dialog">
             <div class="modal-content">
                <div class="modal-header">
@@ -440,37 +548,35 @@
                   </div>
                     <p id="idnumber">
                      
-                      <input type="hidden" id="idnumber" value="" placeholder="" required data-parsley-group="block1" readonly/>
+                      <input type="hidden" id="idnumber" value="" placeholder="" ng-model="val.id" required data-parsley-group="block1" readonly/>
                   </p>
                  <div class="form-group">
                      <label for="">First Name:</label> 
-                     <input data-progression="" type="text" id="fname" value="" placeholder="" required data-parsley-group="block1" class="form-control"/>
+                     <input data-progression="" type="text" id="fname" value="" ng-model="val.user.first_name" required data-parsley-group="block1" class="form-control"/>
                  </div>
                  <div class="form-group">
                      <label for="">Last Name:</label> 
-                     <input data-progression="" type="text" id="lname" value="" placeholder="" required data-parsley-group="block1" class="form-control"/>
+                     <input data-progression="" type="text" id="lname" value="" placeholder="" ng-model="val.user.last_name" required data-parsley-group="block1" class="form-control"/>
                  </div>
-                 <input type="hidden" id="uname" value="" placeholder="" required data-parsley-group="block1" readonly/>
+                 <input type="hidden" id="uname" value="" placeholder="" required data-parsley-group="block1" ng-model="val.user.username" readonly/>
                   <div class="form-group">
                      <label for="">TagID:</label> 
-                     <input data-progression="" type="text" id="tag" value="" placeholder="" required data-parsley-group="block1" class="form-control"/>
+                     <input data-progression="" type="text" id="tag" value="" placeholder="" required data-parsley-group="block1" ng-model="val.tag" class="form-control"/>
                  </div>
                  <div class="form-group">
                      <label for="">Age:</label> 
-                     <input data-progression="" type="text" id="age" value="" placeholder="" required data-parsley-group="block1" class="form-control"/>
+                     <input data-progression="" type="text" id="age" value="" placeholder="" required data-parsley-group="block1" ng-model="val.year" class="form-control"/>
                  </div>
                  <div class="form-group">
                      <label for="">Gender:</label> 
-                     <input data-progression="" type="text" id="gender" value="" placeholder="" required data-parsley-group="block1" class="form-control"/>
+                     <input data-progression="" type="text" id="gender" value="" placeholder="" required data-parsley-group="block1" ng-model="val.gender" class="form-control"/>
                  </div>
                     <br>
                     </form>   
                      </div> 
                         <div class="modal-footer">
                           <div class="button-container" style="display:table; margin:0 auto;">
-                            <button name="" class="btn btn-primary" id="save2">Save</button>
-                            <button name="" class="btn btn-primary" id="update2"  data-dismiss="modal" data-toggle="modal" data-target="#notificationModal">Update</button>
-                            <button name="" class="btn btn-danger" id="delete2" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal">Delete</button>
+                            <button name="" class="btn btn-primary" id="update"  data-dismiss="modal" data-toggle="modal" data-target="#notificationModal">Update</button>
                            </div>
                      </div> 
                  </div>
