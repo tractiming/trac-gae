@@ -72,3 +72,9 @@ def account_settings(request):
 
 def ipntest(request):
     return render(request, 'ipnTest.html')
+
+def error404(request):
+    return render(request, '404.html')
+
+def error500(request):
+    return render(request, '500.html')

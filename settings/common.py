@@ -38,7 +38,7 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'www.trac-us.appspot.com',
 ##########################################
 
 ########## DEBUG CONFIGURATION ##########
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 #########################################
 
