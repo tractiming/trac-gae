@@ -230,26 +230,17 @@ class TimingSession(models.Model):
         Results = namedtuple('Results', 'user_id name team splits total')
         if not results:
             athlete = Athlete.objects.get(id=athlete_id)
+            name = athlete.user.get_full_name() or athlete.user.username
 
-            # Get the name of the tag's owner and their team.
-            name = athlete.user.get_full_name()
-            if not name:
-                name = athlete.user.username
-
-            # Filter times by tag id.
-            times = self.splits.filter(athlete_id=athlete.id).order_by('time')
+            times = list(self.splits.filter(athlete_id=athlete.id).order_by(
+                'time').values_list('time', flat=True))
 
             # Offset for start time if needed.
             if self.start_button_time is not None:
-                s_tt = Split(time=self.start_button_time)
-                times = [s_tt]+list(times)
+                times.insert(0, self.start_button_time)
 
-            # Calculate splits.
-            interval = []
-            for i in range(len(times)-1):
-                dt = (times[i+1].time-times[i].time)/1000.0
-                interval.append(round(dt, 3))
-
+            interval = [round((t2 - t1)/1000.0, 3)
+                        for t1, t2 in zip(times, times[1:])]
             results = (athlete_id, name, athlete.team, interval)
 
             # Save to the cache. Store the unfiltered results so that if the
