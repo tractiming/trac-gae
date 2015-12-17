@@ -9,7 +9,7 @@ from django.dispatch import receiver
 from django.utils import timezone
 from oauth2_provider.models import Application
 
-from trac.utils.filter_util import filter_splits
+from trac.utils.filter_util import get_filter_constant
 
 
 class Coach(models.Model):
@@ -209,7 +209,8 @@ class TimingSession(models.Model):
 
         return (athlete['athlete_id'] for athlete in results)
 
-    def _calc_athlete_splits(self, athlete_id, filter_s=None, use_cache=True):
+    def _calc_athlete_splits(self, athlete_id, filter_s=None, use_cache=True,
+                             min_split=None):
         """Calculate splits for a single athlete.
 
         First try to read results from the cache. If results are not found, get
@@ -249,12 +250,8 @@ class TimingSession(models.Model):
                 cache.set(('ts_%i_athlete_%i_results' %(self.id, athlete_id)),
                           results)
 
-        # Filtering algorithm.
-        if filter_s is None:
-            filter_s = self.filter_choice
-        if filter_s:
-            interval = filter_splits(results[-1], self.interval_distance,
-                                     self.track_size)
+        if min_split is not None:
+            interval = filter(lambda x: x >= min_split, results[-1])
         else:
             interval = results[-1]
 
@@ -262,7 +259,8 @@ class TimingSession(models.Model):
                        interval, sum(interval))
 
     def individual_results(self, limit=None, offset=None, gender=None,
-                           age_lte=None, age_gte=None, teams=None):
+                           age_lte=None, age_gte=None, teams=None,
+                           apply_filter=None):
         """Calculate individual results for a session.
 
         First call `_sorted_athlete_list` for a list of tag IDs that are
@@ -274,7 +272,17 @@ class TimingSession(models.Model):
         athletes = self._sorted_athlete_list(limit=limit, offset=offset,
                                              gender=gender, age_lte=age_lte,
                                              age_gte=age_gte, teams=teams)
-        return [self._calc_athlete_splits(athlete) for athlete in athletes]
+
+        if apply_filter is None:
+            apply_filter = self.filter_choice
+        if apply_filter:
+            min_split = get_filter_constant(self.interval_distance,
+                                            self.track_size)
+        else:
+            min_split = None
+
+        return [self._calc_athlete_splits(athlete, min_split=min_split)
+                for athlete in athletes]
 
     def team_results(self, num_scorers=5):
         """Calculate team scores.
