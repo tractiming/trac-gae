@@ -90,14 +90,16 @@ class TimingSessionTestCase(TestCase):
         session1.clear_results()
         self.assertEqual(session1.splits.all().count(), 0)
         self.assertEqual(session2.splits.all().count(), 1)
-        self.assertEqual(Split.objects.all().count(), 2)
+        self.assertEqual(
+            Split.objects.all().count(),
+            Split.objects.exclude(timingsession=1).count())
         mock_cache.delete.assert_any_call('ts_1_athlete_1_results')
         mock_cache.delete.assert_any_call('ts_1_athlete_2_results')
 
         # Clear the split from session two. It no longer belongs to any session
         # and should be deleted.
         session2.clear_results()
-        self.assertEqual(Split.objects.all().count(), 1)
+        self.assertEqual(Split.objects.all().count(), 2)
         mock_cache.delete.assert_called_with('ts_{}_athlete_1_results'.format(
             session2.id))
 
@@ -134,6 +136,14 @@ class TimingSessionTestCase(TestCase):
         self.assertListEqual(res_2.splits, [123.021, 195.58])
         self.assertEqual(sum(res_2.splits), res_2.total)
 
+    def test_splits_with_filter(self):
+        """Test calculating splits while ignoring some."""
+        session = TimingSession.objects.get(pk=2)
+        results = session.individual_results(apply_filter=True)
+        # Check that last split gets filtered out.
+        self.assertEqual(len(results[0].splits), 1)
+        self.assertEqual(results[0].total, 389.047)
+
     def test_individual_results(self):
         """Test calculating individual results."""
         pass
@@ -142,10 +152,6 @@ class TimingSessionTestCase(TestCase):
         """Test calculating team results."""
         pass
 
-    def test_filtered_results(self):
-        """Test calculating filtered results."""
-        pass
-    
     def test_archive(self):
         """Test results remain after tag is reassigned."""
         tag = Tag.objects.get(pk=1)
@@ -160,6 +166,7 @@ class TimingSessionTestCase(TestCase):
     def test_delete_session(self):
         """Test that splits are deleted with the session."""
         self.session.delete()
-        self.assertEqual(Split.objects.all().count(), 1)
+        self.assertEqual(Split.objects.all().count(),
+                         Split.objects.exclude(timingsession=1).count())
 
 

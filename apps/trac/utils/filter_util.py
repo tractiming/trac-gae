@@ -1,8 +1,6 @@
-from django.utils import timezone
-
-def filter_splits(unfiltered_splits, interval_distance, track_size):    
-    """
-    Filters splits based on interval type and track size.
+def get_filter_constant(interval_distance, track_size):
+    """Given a track size and distance, determine the minimum allowable
+    split duration.
     """
     # Determine constant of impossible time for 400m off of distance.
     if interval_distance <= 200:
@@ -22,16 +20,10 @@ def filter_splits(unfiltered_splits, interval_distance, track_size):
 
     # Modify constant if on different sized track like 300m or 200m.
     # (Don't modify if 200s on 200m track.)
-    if interval_distance >200:
-        modified_constant = constant * (track_size/400.0)
-    else:
-        modified_constant = constant
+    if interval_distance > 200:
+        constant = constant * (track_size/400.0)
 
-    dt_sec = timezone.timedelta(seconds=modified_constant).total_seconds()
-    filtered_interval = [dt for dt in unfiltered_splits if dt>dt_sec]    
-    #filtered_counter = range(1,len(filtered_interval)+1)    
-    
-    return filtered_interval#, filtered_counter
+    return constant
 
 def get_ms(num):
     s = str(num).split('.')
