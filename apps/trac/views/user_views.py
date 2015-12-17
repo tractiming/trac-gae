@@ -120,27 +120,25 @@ class AthleteViewSet(viewsets.ModelViewSet):
         Get all the sessions an athlete has participated in.
         """
         athlete = self.get_object()
+        name = athlete.user.get_full_name() or athlete.user.username
 
-        # Get the user's name.
-        name = athlete.user.get_full_name()
-        if not name:
-            name = athlete.user.username
+        sessions = TimingSession.objects.filter(
+            splits__athlete_id=athlete.id).distinct()
+        results = {
+            'name': name,
+            'sessions': []
+        } 
 
-        sessions = [session for session in TimingSession.objects.all()
-                    if athlete.id in session.splits.values_list('athlete_id',
-                        flat=True).distinct()]
-        results = {'name': name,
-                   'sessions': []} 
-
-        #Iterate through each session to get all of a single users workouts
+        # Iterate through each session to get all of a single users workouts
         for session in sessions:
-            session_results = session.calc_athlete_splits(athlete.id)
-            session_info = {'id': session.id,
-                            'name': session.name,
-                            'date': session.start_time,
-                            'splits': session_results[3],
-                            'total': session_results[4]
-                            }
+            session_results = session._calc_athlete_splits(athlete.id)
+            session_info = {
+                'id': session.id,
+                'name': session.name,
+                'date': session.start_time,
+                'splits': session_results.splits,
+                'total': session_results.total
+            }
             results['sessions'].append(session_info)
 
         return Response(results)
