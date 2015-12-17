@@ -9,5 +9,7 @@ find $SITE_DIR/ -maxdepth 1 -mindepth 1 \
     -not -name "*.egg*" -type d -exec cp -r {} libs \;
 cp $SITE_DIR/six.py libs
 
+cp -r libs/django/contrib/admin/static/admin static/
+
 $GAE_DIR/google_appengine/appcfg.py --oauth2_refresh_token=$REFRESH_TOKEN update .
 rm -rf libs
