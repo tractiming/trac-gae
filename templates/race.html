@@ -53,6 +53,11 @@
   nav ul{
     margin-bottom:0px !important;
   }
+  .red {
+    color: rgb(217, 83, 79) !important;
+    background-color: rgb(242, 222, 222) !important;
+}
+
   </style>
 
   <script>
@@ -168,9 +173,15 @@
       var selectedID = angular.element(obj.target).parent().parent().parent().attr('id');
       var dynamicString = 'editing_' + selectedID;
       $scope[dynamicString] = false;
+      var dynamicString = 'showDelete_' + selectedID;
+      $scope[dynamicString] = false;
+      var dynamicString = 'showSave_' + selectedID;
+      $scope[dynamicString] = false;
+
+
     };
 
-
+    //This is pretty jQuery heavy....
     $scope.showSelected = function(){
       var atlList = [];
       $('#rosterModal tr.ath').each(function(){
@@ -206,7 +217,16 @@
       });
 
     }
+    $scope.deleteButtons = function(x){
+        var dynamicString = 'showDelete_' + x.id;
+        $scope[dynamicString] = true;
 
+    }
+    $scope.saveButtons = function(x){
+        var dynamicString = 'showSave_' + x.id;
+        $scope[dynamicString] = true;
+
+    }
 
   });
    
@@ -271,58 +291,62 @@
                     </tr>
                   </thead>
                 <tbody>
-                  <tr ng-repeat="x in athletes" id="{{x.id}}">
+                  <tr ng-repeat="x in athletes" id="{{x.id}}" ng-class="{danger:showDelete_{{x.id}}, info: showSave_{{x.id}}}">
                     <td class="hidden-xs hidden-sm hidden-md hidden-lg" >{{x.id}}</td>
                     <input name="{{ name }}" type="text" ng-model="x.id" ng-show="editing_{{x.id}}" placeholder="{{ placeholder }}" class="form-control">
                     <td>
                       <div class="form-group">
                         <div ng-bind="x.user.first_name" ng-hide="editing_{{x.id}}"></div> 
-                        <input name="{{ name }}" type="text" ng-model="x.user.first_name" ng-show="editing_{{x.id}}" placeholder="{{ placeholder }}" class="form-control">
+                        <input name="{{ name }}" type="text" ng-model="x.user.first_name" ng-show="editing_{{x.id}}" placeholder="First Name" class="form-control">
                       </div>
                     </td>
                     <td>
                         <div class="form-group">
                           <div ng-bind="x.user.last_name" ng-hide="editing_{{x.id}}"></div> 
-                          <input name="{{ name }}" type="text" ng-model="x.user.last_name" ng-show="editing_{{x.id}}" placeholder="{{ placeholder }}" class="form-control">
+                          <input name="{{ name }}" type="text" ng-model="x.user.last_name" ng-show="editing_{{x.id}}" placeholder="Last Name" class="form-control">
                         </div>
                     </td>
                     <td style="display:none">{{x.user.username}}</td>
                     <td>
                       <div class="form-group">
                         <div ng-bind="x.tag" ng-hide="editing_{{x.id}}"></div> 
-                        <input name="{{ name }}" type="text" ng-model="x.tag" ng-show="editing_{{x.id}}" placeholder="{{ placeholder }}" class="form-control">
+                        <input name="{{ name }}" type="text" ng-model="x.tag" ng-show="editing_{{x.id}}" placeholder="Tag ID" class="form-control">
                       </div>
                     </td>
                     <td>
                       <div class="form-group">
                         <div ng-bind="'Northwestern'" ng-hide="editing_{{x.id}}"></div> 
-                        <input name="{{ name }}" type="text" ng-model="x.team" ng-show="editing_{{x.id}}" placeholder="{{ placeholder }}" class="form-control">
+                        <input name="{{ name }}" type="text" ng-model="x.team" ng-show="editing_{{x.id}}" placeholder="Team" class="form-control">
                       </div>
                     </td>
                     <td class="hidden-xs hidden-sm">
                       <div class="form-group">
                         <div ng-bind="x.year" ng-hide="editing_{{x.id}}"></div> 
-                        <input name="{{ name }}" type="text" ng-model="x.year" ng-show="editing_{{x.id}}" placeholder="{{ placeholder }}" class="form-control" style="width:70px;">
+                        <input name="{{ name }}" type="text" ng-model="x.year" ng-show="editing_{{x.id}}" placeholder="Year" class="form-control" style="width:70px;">
                       </div>
                     </td>
                     <td class="hidden-xs hidden-sm">
                       <div class="form-group">
                         <div ng-bind="x.gender" ng-hide="editing_{{x.id}}"></div> 
-                        <input name="{{ name }}" type="text" ng-model="x.gender" ng-show="editing_{{x.id}}" placeholder="{{ placeholder }}" class="form-control" style="width:40px;">
+                        <input name="{{ name }}" type="text" ng-model="x.gender" ng-show="editing_{{x.id}}" placeholder="M/F" class="form-control" style="width:60px;">
                       </div></td>
                     <td>
-                        <div class="buttons" editing="editing" ng-hide="editing_{{x.id}}">
-                          <span class="glyphicon glyphicon-pencil" aria-hidden="true" data-ng-click="edit(x);" style="margin-right:5%"></span>
-                          <span class="glyphicon glyphicon-remove" aria-hidden="true" ng-click="delete(athletes,$index,x)"></span>
+                        <div class="buttons" editing="editing" ng-hide="editing_{{x.id}};">
+                          <span class="glyphicon glyphicon-pencil" aria-hidden="true" data-ng-click="edit(x);saveButtons(x)" style="margin-right:5%"></span>
+                          <span class="glyphicon glyphicon-remove" aria-hidden="true" ng-click="edit(x);deleteButtons(x);"></span>
                         </div>
-                        <div class="buttons hidden-xs hidden-sm" ng-show="editing_{{x.id}}">
+                        <div class="buttons hidden-xs hidden-sm" ng-show="showSave_{{x.id}}">
                           <button name="" class="btn btn-primary" ng-click="save(x)">Save</button>
-                          <button name="" class="btn" ng-click="cancel($event)">Cancel</button>
+                          <button name="" class="btn btn-default" ng-click="cancel($event)">Cancel</button>
                         </div>
-                        <div class="buttons hidden-lg hidden-xl" ng-show="editing_{{x.id}}" >
+                        <div class="buttons hidden-xs hidden-sm" ng-show="showDelete_{{x.id}}">
+                          <button name="" class="btn btn-danger" ng-click="delete(athletes,$index,x)">Delete</button>
+                          <button name="" class="btn btn-default" ng-click="cancel($event)">Cancel</button>
+                        </div>
+                        <!--<div class="buttons hidden-lg hidden-xl" ng-show="editing_{{x.id}}" >
                           <span class="glyphicon glyphicon-save" aria-hidden="true" ng-click="save(x);" style="margin-right:5%"></span>
                           <span class="glyphicon glyphicon-eject" aria-hidden="true" ng-click="cancel($event);"></span>
-                        </div>
+                        </div>-->
                     </td>
                   </tr>
                 </tbody>
@@ -353,7 +377,7 @@
           <div class="modal-body" ng-controller="registeredCtrl">
           <table id="results-table" class="table table-striped table-hover">
                   <thead>
-                    <tr>
+                    <tr ng-class="{info: !editing_header}">
                       <th class="hidden-xs hidden-sm hidden-md hidden-lg">id</th>
                       <th>
                         <div class="form-group">
@@ -403,48 +427,52 @@
                     </tr>
                   </thead>
                 <tbody>
-                  <tr ng-repeat="x in athletes" id="{{x.id}}" class="ath">
+                  <tr ng-repeat="x in athletes" id="{{x.id}}" class="ath" ng-class="{danger:showDelete_{{x.id}}, info: showSave_{{x.id}}}">
                     <td><input type="checkbox" id="check" ng-model="selected[x.id]" ng-hide="editing_{{x.id}}"></td>
                     <td class="hidden-xs hidden-sm hidden-md hidden-lg" id="id">{{x.id}}</td>
                     <td>
                       <div class="form-group">
                         <div ng-bind="x.user.first_name" ng-hide="editing_{{x.id}}"></div> 
-                        <input name="{{ name }}" type="text" ng-model="x.user.first_name" ng-show="editing_{{x.id}}" placeholder="{{ placeholder }}" class="form-control">
+                        <input name="{{ name }}" type="text" ng-model="x.user.first_name" ng-show="editing_{{x.id}}" placeholder="First Name" class="form-control">
                       </div>
                     </td>
                     <td>
                         <div class="form-group">
                           <div ng-bind="x.user.last_name" ng-hide="editing_{{x.id}}"></div> 
-                          <input name="{{ name }}" type="text" ng-model="x.user.last_name" ng-show="editing_{{x.id}}" placeholder="{{ placeholder }}" class="form-control">
+                          <input name="{{ name }}" type="text" ng-model="x.user.last_name" ng-show="editing_{{x.id}}" placeholder="Last Name" class="form-control">
                         </div>
                     </td>
                     <td style="display:none">{{x.user.username}}</td>
                     <td>
                       <div class="form-group">
                         <div ng-bind="x.tag" ng-hide="editing_{{x.id}}"></div> 
-                        <input name="{{ name }}" type="text" ng-model="x.tag" ng-show="editing_{{x.id}}" placeholder="{{ placeholder }}" class="form-control">
+                        <input name="{{ name }}" type="text" ng-model="x.tag" ng-show="editing_{{x.id}}" placeholder="Tag ID" class="form-control">
                       </div>
                     </td>
                     <td class="hidden-xs hidden-sm">
                       <div class="form-group">
                         <div ng-bind="x.year" ng-hide="editing_{{x.id}}"></div> 
-                        <input name="{{ name }}" type="text" ng-model="x.year" ng-show="editing_{{x.id}}" placeholder="{{ placeholder }}" class="form-control" style="width:70px;">
+                        <input name="{{ name }}" type="text" ng-model="x.year" ng-show="editing_{{x.id}}" placeholder="Year" class="form-control" style="width:70px;">
                       </div>
                     </td>
                     <td class="hidden-xs hidden-sm">
                       <div class="form-group">
                         <div ng-bind="x.gender" ng-hide="editing_{{x.id}}"></div> 
-                        <input name="{{ name }}" type="text" ng-model="x.gender" ng-show="editing_{{x.id}}" placeholder="{{ placeholder }}" class="form-control" style="width:40px;">
+                        <input name="{{ name }}" type="text" ng-model="x.gender" ng-show="editing_{{x.id}}" placeholder="M/F" class="form-control" style="width:60px;">
                       </div></td>
                     <td>
                     <td>
                         <div class="buttons" editing="editing" ng-hide="editing_{{x.id}}">
-                          <span class="glyphicon glyphicon-pencil" aria-hidden="true" ng-click="edit(x);" style="margin-right:5%"></span>
-                          <span class="glyphicon glyphicon-remove" aria-hidden="true" ng-click="delete(athletes,$index);"></span>
+                          <span class="glyphicon glyphicon-pencil" aria-hidden="true" ng-click="edit(x);saveButtons(x)" style="margin-right:5%"></span>
+                          <span class="glyphicon glyphicon-remove" aria-hidden="true" ng-click="edit(x);deleteButtons(x);"></span>
                         </div>
-                        <div class="buttons" ng-show="editing_{{x.id}}">
-                          <span class="glyphicon glyphicon-save" aria-hidden="true" ng-click="save(x);" style="margin-right:5%"></span>
-                          <span class="glyphicon glyphicon-eject" aria-hidden="true" ng-click="cancel($event);"></span>
+                        <div class="buttons" ng-show="showSave_{{x.id}}">
+                          <button name="" class="btn btn-primary" ng-click="save(x)">Save</button>
+                          <button name="" class="btn btn-default" ng-click="cancel($event)">Cancel</button>
+                        </div>
+                        <div class="buttons hidden-xs hidden-sm" ng-show="showDelete_{{x.id}}">
+                          <button name="" class="btn btn-danger" ng-click="delete(athletes,$index,x)">Delete</button>
+                          <button name="" class="btn btn-default" ng-click="cancel($event)">Cancel</button>
                         </div>
                     </td>
                   </tr>
@@ -552,24 +580,24 @@
                   </p>
                  <div class="form-group">
                      <label for="">First Name:</label> 
-                     <input data-progression="" type="text" id="fname" value="" ng-model="val.user.first_name" required data-parsley-group="block1" class="form-control"/>
+                     <input data-progression="" type="text" id="fname" value="" placeholder="First Name" ng-model="val.user.first_name" required data-parsley-group="block1" class="form-control"/>
                  </div>
                  <div class="form-group">
                      <label for="">Last Name:</label> 
-                     <input data-progression="" type="text" id="lname" value="" placeholder="" ng-model="val.user.last_name" required data-parsley-group="block1" class="form-control"/>
+                     <input data-progression="" type="text" id="lname" value="" placeholder="Last Name" ng-model="val.user.last_name" required data-parsley-group="block1" class="form-control"/>
                  </div>
                  <input type="hidden" id="uname" value="" placeholder="" required data-parsley-group="block1" ng-model="val.user.username" readonly/>
                   <div class="form-group">
                      <label for="">TagID:</label> 
-                     <input data-progression="" type="text" id="tag" value="" placeholder="" required data-parsley-group="block1" ng-model="val.tag" class="form-control"/>
+                     <input data-progression="" type="text" id="tag" value="" placeholder="Tag ID" required data-parsley-group="block1" ng-model="val.tag" class="form-control"/>
                  </div>
                  <div class="form-group">
                      <label for="">Age:</label> 
-                     <input data-progression="" type="text" id="age" value="" placeholder="" required data-parsley-group="block1" ng-model="val.year" class="form-control"/>
+                     <input data-progression="" type="text" id="age" value="" placeholder="Year" required data-parsley-group="block1" ng-model="val.year" class="form-control"/>
                  </div>
                  <div class="form-group">
                      <label for="">Gender:</label> 
-                     <input data-progression="" type="text" id="gender" value="" placeholder="" required data-parsley-group="block1" ng-model="val.gender" class="form-control"/>
+                     <input data-progression="" type="text" id="gender" value="" placeholder="M/F" required data-parsley-group="block1" ng-model="val.gender" class="form-control"/>
                  </div>
                     <br>
                     </form>   
