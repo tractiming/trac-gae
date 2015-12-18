@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.utils import timezone
 from django.contrib.auth.models import User
 from rest_framework.test import APITestCase, force_authenticate
-from trac.models import TimingSession, Reader, Split
+from trac.models import TimingSession, Reader, Split, Athlete, Coach
 import trac.views
 import mock
 import datetime
@@ -86,25 +86,26 @@ class AthleteViewSetTest(APITestCase):
         self.assertEqual(resp.status_code, 200)
 
     @mock.patch.object(trac.serializers, 'timezone')
-    @mock.patch.object(trac.serializers, 'User')
+    @mock.patch.object(trac.serializers, 'UserSerializer')
     def test_pre_save(self, mock_user, mock_tz):
         """Test that a user is created before the athlete is."""
         now = timezone.now().replace(microsecond=0)
         mock_tz.now.return_value = now
         user = User.objects.get(username='alsal')
         self.client.force_authenticate(user=user)
-        mock_user.objects.create.return_value = (
+        mock_user().create.return_value = (
             User.objects.create(username='mock'))
         resp = self.client.post('/api/athletes/',
-                data=json.dumps(
-                    {'user': {
+                data=json.dumps({
+                    'user': {
                         'username': 'kennyb',
                         'first_name': 'Kenenisa',
-                        'last_name': 'Bekele'}
-                        }), content_type='application/json')
-        mock_user.objects.create.assert_called_with(
-            username='kennyb', first_name='Kenenisa', last_name='Bekele',
-            last_login=now)
+                        'last_name': 'Bekele'
+                    },
+                    'gender': 'M'
+                }), content_type='application/json')
+        mock_user().create.assert_called_with(
+            mock_user().validated_data)
         self.assertEqual(resp.status_code, 201)
 
     def test_session_filter(self):
@@ -442,3 +443,33 @@ class UserViewSetTest(APITestCase):
         # Database is created when test is run, so should return True.
         self.assertTrue(resp.data['show_tutorial'])
         self.assertEqual(resp.status_code, 200)
+
+class AuthTestCase(TestCase):
+
+    def setUp(self):
+        self.user_data = {
+            'user': {
+                'username': 'newuser',
+                'password': 'password',
+                'email': 'email@gmail.com'
+            },
+            'user_type': None
+        }
+
+    def test_register_athlete(self):
+        """Test registering an athlete."""
+        self.user_data['user_type'] = 'athlete'
+        resp = self.client.post('/api/register/',
+                                data=json.dumps(self.user_data),
+                                content_type='application/json')
+        self.assertTrue(Athlete.objects.get(user__username="newuser"))
+        self.assertEqual(resp.status_code, 201)
+
+    def test_register_coach(self):
+        """Test registering a coach."""
+        self.user_data['user_type'] = 'coach'
+        resp = self.client.post('/api/register/',
+                                data=json.dumps(self.user_data),
+                                content_type='application/json')
+        self.assertTrue(Coach.objects.get(user__username="newuser"))
+        self.assertEqual(resp.status_code, 201)

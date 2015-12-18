@@ -83,6 +83,7 @@
                 <p class="notification notification-success" role="alert">You have successfully created a username</p>
               </div>
               <form method="POST" id="register-form" name="register-form" data-parsley-validate>
+                  {% csrf_token %}
                 <div class="form-group">
 
                   <label for="organization" class="sr-only">Organization</label>
