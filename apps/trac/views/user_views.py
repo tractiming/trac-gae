@@ -17,7 +17,7 @@ from django.views.decorators.csrf import csrf_exempt
 from djstripe.models import Customer
 from oauth2_provider.models import Application, AccessToken
 from oauthlib.common import generate_token
-from rest_framework import viewsets, permissions, status, views
+from rest_framework import viewsets, permissions, status, views, pagination
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.decorators import (
     api_view, permission_classes, authentication_classes, detail_route
@@ -86,6 +86,7 @@ class AthleteViewSet(viewsets.ModelViewSet):
     """
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = AthleteSerializer
+    pagination_class = pagination.LimitOffsetPagination
 
     def get_queryset(self):
         """
