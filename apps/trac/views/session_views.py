@@ -254,6 +254,41 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
         return Response(results)
 
+    @detail_route(methods=['post'])
+    def upload_results(self, request, pk=None):
+        """
+        Upload results to an existing workout. Request body should
+        be a list of dicts containing athlete id and list of splits.
+        If athlete already has results in a workout, overwrite those
+        splits. If not, simply append results to existing results.
+
+        TODO: validate coach can save times for the given
+        athlete ids.
+        """
+        data = json.loads(request.body)
+        session = self.get_object()
+
+        for athlete_data in data:
+            try:
+                athlete = Athlete.objects.get(pk=int(athlete_data['id']))
+            except (ValueError, ObjectDoesNotExist):
+                # May fail to convert to int or find athlete.
+                continue
+
+            Split.objects.filter(timingsession=session,
+                                 athlete=athlete).delete()
+
+            splits = athlete_data['splits']
+            time = session.start_button_time or 0
+
+            for split in splits:
+                time += split*1000
+                new_split = Split.objects.create(athlete=athlete, time=time)
+                session.splits.add(new_split.pk)
+
+        session.save()
+        return Response(status=status.HTTP_201_CREATED)
+
     @detail_route(methods=['post'], permission_classes=[])
     def add_missed_runner(self, request, pk=None):
         """
@@ -413,106 +448,106 @@ def create_race(request):
     return Response({}, status.HTTP_201_CREATED)
 
 # TODO: Merge with POST /sessions
-@api_view(['POST'])
-@permission_classes((permissions.IsAuthenticated,))
-def upload_workouts(request):
-    """ 
-    Create a complete workout through CSV file upload.
-    ---
-    parameters:
-    - name: title
-      description: workout title
-      paramType: form
-    - name: start_time
-      description: start date of workout in ISO string format
-      paramType: form
-    - name: track_size
-      description: size of track
-      paramType: form
-    - name: interval_distance
-      description: distance for each split
-      paramType: form
-    - name: results
-      description: workout results object
-      paramType: body
-    """
-    #- username: athlete username
-    #- first_name: athlete first name (used to create new athlete if doesn't exist)
-    #- last_name: athlete last name (used to create new athlete if doesn't exist)
-    #- splits: list of split times
-    #Note: The created workout will be automatically set to filter splits and private.
-    data = json.loads(request.body)
-    user = request.user
-
-    if not is_coach(user):
-        return Response({}, status.HTTP_403_FORBIDDEN)
-
-    coach = user.coach
-    start_time = dateutil.parser.parse(data['start_time'])
-    #stop_time = dateutil.parser.parse(data['start_time'])
-
-    ts = TimingSession(name=data['title'], coach=coach, 
-                        start_time=start_time, stop_time=start_time, 
-                        track_size=data['track_size'], 
-                        interval_distance=data['interval_distance'], 
-                        filter_choice=False, private=True)
-    
-    # set start button time in milliseconds since epoch
-    timestamp = (start_time.replace(tzinfo=None)-EPOCH).total_seconds()
-    ts.start_button_time = int(round(timestamp * 10**3))
-    ts.save()
-
-    results = data['results']
-    if results:
-        
-        reader, created = Reader.objects.get_or_create(id_str='ArchivedReader', 
-                defaults={ 'name': 'Archived Reader', 'coach': coach })
-        ts.readers.add(reader.pk)
-
-        for runner in results:
-            new_user, created = User.objects.get_or_create(
-                                    username=runner['username'], defaults={
-                                        'first_name': runner['first_name'],
-                                        'last_name': runner['last_name'],
-                                        'last_login': timezone.now()})
-            if created:
-                # Register new athlete.
-                athlete = Athlete()
-                athlete.user = new_user
-                athlete.save()
-
-                # add coach's team to new athlete's team
-                if coach.team_set.all():
-                    team = coach.team_set.all()[0]
-                    athlete.team = team
-                    athlete.save()
-
-            tags = Tag.objects.filter(athlete=new_user.athlete)
-            if tags:
-                tag = tags[0]
-            else:
-                tag = Tag.objects.create(id_str=runner['username'], athlete=athlete)
-
-            # register tag to the timing session
-            ts.registered_tags.add(tag.pk)
-
-            # init reference timestamp
-            time = ts.start_button_time
-
-            for split in runner['splits']:
-                try:
-                    #x = timezone.datetime.strptime(split, "%M:%S.%f")
-                    mins, secs = split.split(':')
-                    diff = int(round((int(mins) * 60 + float(secs)) * 10**3))
-                except:
-                    diff = int(round(float(secs) * 10**3))
-
-                time += diff
-
-                tt = Split.objects.create(tag_id=tag.id, athlete_id=new_user.athlete.id, time=time, reader_id=reader.id)
-                ts.splits.add(tt.pk)
-
-    return Response({}, status=status.HTTP_201_CREATED)
+#@api_view(['POST'])
+#@permission_classes((permissions.IsAuthenticated,))
+#def upload_workouts(request):
+#    """ 
+#    Create a complete workout through CSV file upload.
+#    ---
+#    parameters:
+#    - name: title
+#      description: workout title
+#      paramType: form
+#    - name: start_time
+#      description: start date of workout in ISO string format
+#      paramType: form
+#    - name: track_size
+#      description: size of track
+#      paramType: form
+#    - name: interval_distance
+#      description: distance for each split
+#      paramType: form
+#    - name: results
+#      description: workout results object
+#      paramType: body
+#    """
+#    #- username: athlete username
+#    #- first_name: athlete first name (used to create new athlete if doesn't exist)
+#    #- last_name: athlete last name (used to create new athlete if doesn't exist)
+#    #- splits: list of split times
+#    #Note: The created workout will be automatically set to filter splits and private.
+#    data = json.loads(request.body)
+#    user = request.user
+#
+#    if not is_coach(user):
+#        return Response({}, status.HTTP_403_FORBIDDEN)
+#
+#    coach = user.coach
+#    start_time = dateutil.parser.parse(data['start_time'])
+#    #stop_time = dateutil.parser.parse(data['start_time'])
+#
+#    ts = TimingSession(name=data['title'], coach=coach, 
+#                        start_time=start_time, stop_time=start_time, 
+#                        track_size=data['track_size'], 
+#                        interval_distance=data['interval_distance'], 
+#                        filter_choice=False, private=True)
+#    
+#    # set start button time in milliseconds since epoch
+#    timestamp = (start_time.replace(tzinfo=None)-EPOCH).total_seconds()
+#    ts.start_button_time = int(round(timestamp * 10**3))
+#    ts.save()
+#
+#    results = data['results']
+#    if results:
+#        
+#        reader, created = Reader.objects.get_or_create(id_str='ArchivedReader', 
+#                defaults={ 'name': 'Archived Reader', 'coach': coach })
+#        ts.readers.add(reader.pk)
+#
+#        for runner in results:
+#            new_user, created = User.objects.get_or_create(
+#                                    username=runner['username'], defaults={
+#                                        'first_name': runner['first_name'],
+#                                        'last_name': runner['last_name'],
+#                                        'last_login': timezone.now()})
+#            if created:
+#                # Register new athlete.
+#                athlete = Athlete()
+#                athlete.user = new_user
+#                athlete.save()
+#
+#                # add coach's team to new athlete's team
+#                if coach.team_set.all():
+#                    team = coach.team_set.all()[0]
+#                    athlete.team = team
+#                    athlete.save()
+#
+#            tags = Tag.objects.filter(athlete=new_user.athlete)
+#            if tags:
+#                tag = tags[0]
+#            else:
+#                tag = Tag.objects.create(id_str=runner['username'], athlete=athlete)
+#
+#            # register tag to the timing session
+#            ts.registered_tags.add(tag.pk)
+#
+#            # init reference timestamp
+#            time = ts.start_button_time
+#
+#            for split in runner['splits']:
+#                try:
+#                    #x = timezone.datetime.strptime(split, "%M:%S.%f")
+#                    mins, secs = split.split(':')
+#                    diff = int(round((int(mins) * 60 + float(secs)) * 10**3))
+#                except:
+#                    diff = int(round(float(secs) * 10**3))
+#
+#                time += diff
+#
+#                tt = Split.objects.create(tag_id=tag.id, athlete_id=new_user.athlete.id, time=time, reader_id=reader.id)
+#                ts.splits.add(tt.pk)
+#
+#    return Response({}, status=status.HTTP_201_CREATED)
 
 # TODO: Move to TimingSessionViewSet
 @api_view(['POST'])
