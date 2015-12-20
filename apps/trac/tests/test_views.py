@@ -72,8 +72,8 @@ class AthleteViewSetTest(APITestCase):
         self.client.force_authenticate(user=user)
         resp = self.client.get('/api/athletes/', format='json')
         self.assertEqual(len(resp.data), 2)
-        self.assertEqual(resp.data[0]['user']['username'], 'grupp')
-        self.assertEqual(resp.data[1]['user']['username'], 'clevins')
+        self.assertEqual(resp.data[0]['username'], 'grupp')
+        self.assertEqual(resp.data[1]['username'], 'clevins')
         self.assertEqual(resp.status_code, 200)
 
     def test_get_athletes_athlete(self):
@@ -97,11 +97,9 @@ class AthleteViewSetTest(APITestCase):
             User.objects.create(username='mock'))
         resp = self.client.post('/api/athletes/',
                 data=json.dumps({
-                    'user': {
-                        'username': 'kennyb',
-                        'first_name': 'Kenenisa',
-                        'last_name': 'Bekele'
-                    },
+                    'username': 'kennyb',
+                    'first_name': 'Kenenisa',
+                    'last_name': 'Bekele',
                     'gender': 'M'
                 }), content_type='application/json')
         mock_user().create.assert_called_with(
@@ -448,15 +446,14 @@ class AuthTestCase(TestCase):
 
     def setUp(self):
         self.user_data = {
-            'user': {
-                'username': 'newuser',
-                'password': 'password',
-                'email': 'email@gmail.com'
-            },
+            'username': 'newuser',
+            'password': 'password',
+            'email': 'email@gmail.com',
             'user_type': None
         }
 
-    def test_register_athlete(self):
+    @mock.patch.object(trac.views.auth_views, 'send_mail')
+    def test_register_athlete(self, mock_mail):
         """Test registering an athlete."""
         self.user_data['user_type'] = 'athlete'
         resp = self.client.post('/api/register/',
@@ -465,7 +462,8 @@ class AuthTestCase(TestCase):
         self.assertTrue(Athlete.objects.get(user__username="newuser"))
         self.assertEqual(resp.status_code, 201)
 
-    def test_register_coach(self):
+    @mock.patch.object(trac.views.auth_views, 'send_mail')
+    def test_register_coach(self, mock_mail):
         """Test registering a coach."""
         self.user_data['user_type'] = 'coach'
         resp = self.client.post('/api/register/',

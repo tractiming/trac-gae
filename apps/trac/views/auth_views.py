@@ -18,7 +18,6 @@ from trac.utils.user_util import user_type
 def register(request):
     """Register a new coach or athlete."""
     utype = request.data.get('user_type')
-    print request.data
 
     if utype == 'athlete':
         serializer_class = AthleteSerializer
@@ -37,7 +36,7 @@ def register(request):
         'TRAC Update',
         loader.render_to_string('../templates/noAppAlert.txt', context),
         'tracchicago@gmail.com',
-        [request.data['user']['email']],
+        [request.data['email']],
         fail_silently=False)
 
     return Response(serializer_class(new_user).data,

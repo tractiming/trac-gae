@@ -49,6 +49,7 @@ class UserViewSet(viewsets.ModelViewSet):
         else:
             return super(UserViewSet, self).get_object()
 
+
     @detail_route(methods=['post'])
     def change_password(self, request, *args, **kwargs):
         """
@@ -75,7 +76,7 @@ class CoachViewSet(viewsets.ModelViewSet):
     """
     Coach resource.
     """
-    permission_classes = (permissions.IsAdminUser,)
+    permission_classes = (permissions.IsAuthenticated,)
     serializer_class = CoachSerializer
     queryset = Coach.objects.all()
 
@@ -113,7 +114,7 @@ class AthleteViewSet(viewsets.ModelViewSet):
 
         else:
             return Athlete.objects.none()
-    
+
     @detail_route(methods=['get'])
     def completed_sessions(self, request, *args, **kwargs):
         """
