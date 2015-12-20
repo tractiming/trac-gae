@@ -40,7 +40,7 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
     def get_queryset(self):
-        return User.objects.filter(pk=self.request.user.pk) 
+        return User.objects.filter(pk=self.request.user.pk)
 
     def get_object(self):
         """Alias 'me' to the current user."""
@@ -78,7 +78,9 @@ class CoachViewSet(viewsets.ModelViewSet):
     """
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = CoachSerializer
-    queryset = Coach.objects.all()
+
+    def get_queryset(self):
+        return Coach.objects.filter(user__id=self.request.user.pk)
 
 
 class AthleteViewSet(viewsets.ModelViewSet):
@@ -128,7 +130,7 @@ class AthleteViewSet(viewsets.ModelViewSet):
         results = {
             'name': name,
             'sessions': []
-        } 
+        }
 
         # Iterate through each session to get all of a single users workouts
         for session in sessions:
@@ -197,7 +199,7 @@ def edit_athletes(request):
             #cp = Coach.objects.get(user = i_user) #deletes entire user
             atl = Athlete.objects.get(id=request.POST.get('id'))
             atl.delete()
-        
+
         #Change user's first and last names. Not change username.
         elif request.POST.get('submethod') == 'Update':
             cp = Coach.objects.get(user = i_user)
@@ -371,8 +373,8 @@ def subscribe(request, **kwargs):
 	print request.POST.get('stripe_token')
 	customer.update_card(request.POST.get('stripe_token'))
 	customer.subscribe('monthly')
-	
+
 	stripe.api_key = settings.STRIPE_SECRET_KEY
-	
+
 	return redirect('/payments')
 
