@@ -86,11 +86,9 @@ $(function() {
       $('#terms-modal').modal('hide');
 
       var user_data = {
-        "user": {
-            "username": username,
-            "password": password,
-            "email": email
-        },
+        "username": username,
+        "password": password,
+        "email": email,
         "user_type": user_type,
         "organization": organization
       };
