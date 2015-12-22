@@ -291,6 +291,29 @@ class TimingSessionViewSetTest(APITestCase):
         resp = self.client.get('/api/sessions/1/tfrrs/')
         self.assertEqual(resp.status_code, 200)
 
+    def test_upload_results(self):
+        """Test uploading pre-recorded splits."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        session = TimingSession.objects.create(coach=user.coach,
+                                               filter_choice=False)
+
+        athlete1 = Athlete.objects.get(user__username='clevins')
+        athlete2 = Athlete.objects.get(user__username='grupp')
+        split_data = [
+            {'id': athlete1.id, 'splits': [20.1, 30.6, 7.6]},
+            {'id': athlete2.id, 'splits': [12.4, 20.5, 31.45]}
+        ]
+        url = '/api/sessions/{}/upload_results/'.format(session.id)
+        resp = self.client.post(url, json.dumps(split_data),
+                                content_type='application/json')
+        self.assertEqual(resp.status_code, 201)
+        results = session.individual_results()
+        self.assertEqual(results[0].user_id, athlete1.id)
+        self.assertEqual(results[0].splits, [20.1, 30.6, 7.6])
+        self.assertEqual(results[1].user_id, athlete2.id)
+        self.assertEqual(results[1].splits, [12.4, 20.5, 31.45])
+
 
 class PostSplitsTest(APITestCase):
 
