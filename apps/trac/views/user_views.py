@@ -17,7 +17,9 @@ from django.views.decorators.csrf import csrf_exempt
 from djstripe.models import Customer
 from oauth2_provider.models import Application, AccessToken
 from oauthlib.common import generate_token
-from rest_framework import viewsets, permissions, status, views, pagination
+from rest_framework import (
+    viewsets, permissions, status, views, pagination, filters
+)
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.decorators import (
     api_view, permission_classes, authentication_classes, detail_route
@@ -25,6 +27,7 @@ from rest_framework.decorators import (
 from rest_framework.response import Response
 import stripe
 
+from trac.filters import AthleteFilter, CoachFilter
 from trac.models import Coach, Athlete, Team, Tag, TimingSession
 from trac.serializers import (
     AthleteSerializer, CoachSerializer, UserSerializer
@@ -78,6 +81,8 @@ class CoachViewSet(viewsets.ModelViewSet):
     """
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = CoachSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_class = CoachFilter
 
     def get_queryset(self):
         return Coach.objects.filter(user__id=self.request.user.pk)
@@ -90,6 +95,8 @@ class AthleteViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = AthleteSerializer
     pagination_class = pagination.LimitOffsetPagination
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_class = AthleteFilter
 
     def get_queryset(self):
         """
@@ -97,22 +104,12 @@ class AthleteViewSet(viewsets.ModelViewSet):
         """
         user = self.request.user
 
-        session = self.request.query_params.get('session', None)
-        session_filter = Q()
-        if session is not None:
-            session = get_object_or_404(TimingSession, pk=int(session))
-            athletes = session.splits.values_list('athlete_id', flat=True)
-            session_filter &= Q(id__in=athletes)
-
         if is_coach(user):
             coach = Coach.objects.get(user=user)
-            athlete_filter = (Q(team__in=coach.team_set.all(),
-                                team__primary_team=True) &
-                              session_filter)
-            return Athlete.objects.filter(athlete_filter)
+            return Athlete.objects.filter(team__in=coach.team_set.all())
 
         elif is_athlete(user):
-            return Athlete.objects.filter(Q(user=user) & session_filter)
+            return Athlete.objects.filter(user=user)
 
         else:
             return Athlete.objects.none()
