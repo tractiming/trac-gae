@@ -9,10 +9,11 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework import viewsets, permissions, status, pagination
+from rest_framework import viewsets, permissions, status, pagination, filters
 from rest_framework.decorators import api_view, permission_classes, detail_route
 from rest_framework.response import Response
 
+from trac.filters import TimingSessionFilter
 from trac.models import TimingSession, Reader, Tag, Split, Team, Athlete
 from trac.serializers import TimingSessionSerializer
 from trac.utils.phone_split_util import create_phone_split
@@ -42,36 +43,27 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
     serializer_class = TimingSessionSerializer
     permission_classes = (permissions.AllowAny,)
     pagination_class = pagination.LimitOffsetPagination
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_class = TimingSessionFilter
 
     def get_queryset(self):
         """
         Filter sessions by user.
         """
         user = self.request.user
-        start_date = self.request.GET.get('start_date')
-        stop_date = self.request.GET.get('stop_date')
-
-        date_filter = Q()
-        if start_date is not None:
-            start_date = dateutil.parser.parse(start_date)
-            date_filter &= Q(start_time__gte=start_date)
-        if stop_date is not None:
-            stop_date = dateutil.parser.parse(stop_date)        
-            date_filter &= Q(start_time__lte=stop_date)
 
         # If the user is an athlete, list all the workouts he has run.
         if is_athlete(user):
             return TimingSession.objects.filter(
-                Q(splits__athlete=user.athlete) & date_filter).distinct()
+                splits__athlete=user.athlete).distinct()
         
         # If the user is a coach, list all sessions he manages.
         elif is_coach(user):
-            return TimingSession.objects.filter(
-                Q(coach=user.coach) & date_filter)
+            return TimingSession.objects.filter(coach=user.coach)
             
         # If not a user or coach, list all public sessions.
         else:
-            return TimingSession.objects.filter(Q(private=False) & date_filter)
+            return TimingSession.objects.filter(private=False)
 
     def filter_queryset(self, queryset):
         # Return sessions in reverse chronological order.
