@@ -62,20 +62,20 @@ def WorkoutTags(request):
                 result = result.exclude(id__in=table.splits.values_list(
                                             'tag', flat=True).distinct())
             for instance in result:
-                u_first = instance.athlete.user.first_name
-                u_last = instance.athlete.user.last_name
-                username = instance.athlete.user.username
-                age = instance.athlete.age()
-                gender = instance.athlete.gender
+                u_first = instance.user.first_name
+                u_last = instance.user.last_name
+                username = instance.user.username
+                age = instance.age()
+                gender = instance.gender
                 array.append({'id': instance.id, 'first': u_first,
                               'last': u_last, 'username': username,
-                              'id_str': instance.id_str, 'age': age, 'gender': gender})
+                              'id_str': instance.tag.id_str, 'age': age, 'gender': gender})
             
             return Response(array, status.HTTP_200_OK)
     
     elif request.method == 'POST':
         id_num = request.POST.get('id')
-        tag_id = request.POST.get('id2')
+        ath_id = request.POST.get('id2')
         fname = request.POST.get('firstname')
         lname = request.POST.get('lastname')
         age = request.POST.get('age')
@@ -86,8 +86,8 @@ def WorkoutTags(request):
         else:
             if request.POST.get('submethod') == 'Delete': #Delete
                 ts = TimingSession.objects.get(id=id_num)
-                tag = ts.registered_tags.get(id=tag_id)
-                ts.registered_tags.remove(tag)
+                ath = ts.registered_tags.get(id=ath_id)
+                ts.registered_tags.remove(ath)
                 return Response({}, status.HTTP_200_OK)
             
             elif request.POST.get('submethod') == 'Update': #Update and Create
@@ -119,7 +119,7 @@ def WorkoutTags(request):
                         tag = Tag.objects.create(
                                 id_str=request.POST.get('id_str'), user=user)
                 
-                ts.registered_tags.add(tag.pk)
+                ts.registered_tags.add(user.athlete.pk)
                 ts.save()
                 return Response({}, status.HTTP_200_OK)
 
@@ -138,13 +138,7 @@ def ManyDefaultTags(request):
         for athlete in data['athletes']:
             atl = User.objects.get(username=athlete['username'])
             ts = TimingSession.objects.get(id=data['id'])
-            try:
-                tag = Tag.objects.get(athlete=atl.athlete)
-            except:
-                tag = Tag.objects.create(athlete=atl.athlete)
-                tag.id_str = 'edit tag'
-            tag.save()
-            ts.registered_tags.add(tag.pk)
+            ts.registered_tags.add(atl.athlete.pk)
         ts.save()
         return Response({}, status.HTTP_200_OK)
 
@@ -165,14 +159,12 @@ def RegisterDefaultRunners(request):
         if not is_coach(user):
             return Response({}, status.HTTP_403_FORBIDDEN)
         else:
+            coach = Coach.objects.get(user=user)
             table = TimingSession.objects.get(id=id_num)
-            result = table.registered_tags.all()
-            if missed:
-                result = result.exclude(id__in=table.splits.values_list(
-                                            'tag', flat=True).distinct())
+            result = Athlete.objects.filter(team__in=coach.team_set.all(),team__primary_team=True)
+
             for instance in result:
-                create_phone_split(instance.id, "1970/01/01 00:00:00.00")
-                
+                table.registered_tags.add(instance.id)
             
             return Response(200, status.HTTP_200_OK)
 
