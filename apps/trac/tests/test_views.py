@@ -1,12 +1,15 @@
+import datetime
+import json
+
+import mock
+
 from django.test import TestCase
 from django.utils import timezone
 from django.contrib.auth.models import User
 from rest_framework.test import APITestCase, force_authenticate
+
 from trac.models import TimingSession, Reader, Split, Athlete, Coach
 import trac.views
-import mock
-import datetime
-import json
 
 
 class TagViewSetTest(APITestCase):
@@ -279,6 +282,13 @@ class TimingSessionViewSetTest(APITestCase):
         self.assertEqual(
             [session['id'] for session in resp.data],
             list(completed_sessions))
+        self.assertEqual(resp.status_code, 200)
+
+    def test_get_tfrrs_results(self):
+        """Test getting tfrrs-formatted results."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.get('/api/sessions/1/tfrrs/')
         self.assertEqual(resp.status_code, 200)
 
 
