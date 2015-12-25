@@ -254,6 +254,45 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
         return Response(results)
 
+    @detail_route(methods=['post'])
+    def upload_results(self, request, pk=None):
+        """
+        Upload results to an existing workout. Request body should
+        be a list of dicts containing athlete id and list of splits.
+        If athlete already has results in a workout, overwrite those
+        splits. If not, simply append results to existing results.
+
+        TODO: validate coach can save times for the given
+        athlete ids.
+        """
+        data = json.loads(request.body)
+        session = self.get_object()
+
+        for athlete_data in data:
+            try:
+                athlete = Athlete.objects.get(pk=int(athlete_data['id']))
+            except (ValueError, ObjectDoesNotExist):
+                # May fail to convert to int or find athlete.
+                return Response('Could not find athlete matching id '
+                                '{}'.format(athlete_data['id']),
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            Split.objects.filter(timingsession=session,
+                                 athlete=athlete).delete()
+
+            splits = athlete_data['splits']
+            time = session.start_button_time or 0
+            if session.start_button_time is None:
+                splits.insert(0, 0)
+
+            for split in splits:
+                time += split*1000
+                new_split = Split.objects.create(athlete=athlete, time=time)
+                session.splits.add(new_split.pk)
+
+        session.save()
+        return Response(status=status.HTTP_201_CREATED)
+
     @detail_route(methods=['post'], permission_classes=[])
     def add_missed_runner(self, request, pk=None):
         """
@@ -509,7 +548,10 @@ def upload_workouts(request):
 
                 time += diff
 
-                tt = Split.objects.create(tag_id=tag.id, athlete_id=new_user.athlete.id, time=time, reader_id=reader.id)
+                tt = Split.objects.create(tag_id=tag.id,
+                                          athlete_id=new_user.athlete.id,
+                                          time=time,
+                                          reader_id=reader.id)
                 ts.splits.add(tt.pk)
 
     return Response({}, status=status.HTTP_201_CREATED)

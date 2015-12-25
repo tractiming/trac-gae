@@ -1,6 +1,12 @@
+import datetime
+
 from django.core.cache import cache
 from django.utils import timezone
 from trac.models import TimingSession, Split, Tag, Reader
+
+
+_EPOCH = datetime.datetime.utcfromtimestamp(0)
+
 
 def create_split(reader_str, tag_str, time):
     """
@@ -43,3 +49,23 @@ def create_split(reader_str, tag_str, time):
         session.clear_cache(tag.athlete.id)
     
     return 0
+
+def convert_time(raw_time):
+    """Detect the format of the time (int, timestamp, datetime, etc.)
+    and convert to the big integer format used internally.
+    """
+    if isinstance(raw_time, int):
+        return raw_time
+    if isinstance(raw_time, datetime.datetime):
+        pass
+    else:
+        try:
+            # Integer formatted in a string.
+            int_time = int(raw_time)
+            return int_time
+        except ValueError:
+            pass
+
+
+
+
