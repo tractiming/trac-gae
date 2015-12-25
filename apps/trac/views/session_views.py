@@ -207,18 +207,18 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                 extra_offset = 0
             extra_limit = limit - len(raw_results)
             additional_athletes = []
-            for tag in session.registered_tags.all()[extra_offset:extra_limit]:
-                has_split = (session.id in  tag.athlete.split_set.values_list(
+            for athlete in session.registered_tags.all()[extra_offset:extra_limit]:
+                has_split = (session.id in athlete.split_set.values_list(
                     "timingsession", flat=True).distinct())
 
                 # If the athlete already has at least one split, they will
                 # already show up in the results.
                 if not has_split:
                     extra_results.append(session.calc_athlete_splits(
-                        tag.athlete_id))
+                        athlete.id))
 
                 distinct_ids |= set(session.registered_tags.values_list(
-                    'athlete_id', flat=True).distinct())
+                    'id', flat=True).distinct())
 
         results = {
             'num_results': len(distinct_ids),
@@ -331,7 +331,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         ts = TimingSession.objects.get(pk=pk)
         reg_tags = ts.registered_tags.all()
 
-        tag = Tag.objects.get(id=data['tag_id'], id__in=reg_tags)
+        #This needs to be updated, stuff below this comment.
+        tag = Tag.objects.get(id=data['tag_id'], athlete__in=reg_tags)
 
         # get reader
         reader = ts.readers.all()[0]
@@ -392,14 +393,14 @@ def create_race(request):
     dateover = datestart + timezone.timedelta(days=1)
     # Create the timing session.
     name = data['race_name']
-    ts = TimingSession.objects.create(name=name, coach=c, start_time=datestart, stop_time=dateover)
+    ts = TimingSession.objects.get_or_create(name=name, coach=c, start_time=datestart, stop_time=dateover)
 
     # Create readers and add to the race.
     for r_id in data['readers']:
         try:
-            r = Reader.objects.get(id_str=r_id)
+            r = Reader.objects.get_or_create(id_str=r_id)
         except ObjectDoesNotExist:
-            r = Reader.objects.create(id_str=r_id, coach=c, name=r_id)
+            r = Reader.objects.get_or_create(id_str=r_id, coach=c, name=r_id)
         ts.readers.add(r.pk)
     ts.save()    
 
@@ -423,10 +424,10 @@ def create_race(request):
 
         except ObjectDoesNotExist:
             username = uuid.uuid4()
-            runner, created = User.objects.get_or_create(username=username,
+            runner, created = User.objects.create(username=username,
                 defaults={'first_name':first_name, 'last_name':last_name, 'last_login': timezone.now()})
-            a, created = Athlete.objects.get_or_create(user=runner)
-            team, created  = Team.objects.get_or_create(name=athlete['team'], coach=c, defaults={'tfrrs_code': athlete['team']})
+            a, created = Athlete.objects.create(user=runner)
+            team, created  = Team.objects.create(name=athlete['team'], coach=c, defaults={'tfrrs_code': athlete['team']})
 
 
         # add TFRRS team code here
@@ -447,7 +448,7 @@ def create_race(request):
             tag = Tag.objects.create(id_str=tag_id, athlete=a)
         # FIXME: What does this do?
 
-        ts.registered_tags.add(tag.pk)
+        ts.registered_tags.add(a.pk)
 
     return Response({}, status.HTTP_201_CREATED)
 
@@ -533,7 +534,7 @@ def upload_workouts(request):
                 tag = Tag.objects.create(id_str=runner['username'], athlete=athlete)
 
             # register tag to the timing session
-            ts.registered_tags.add(tag.pk)
+            ts.registered_tags.add(athlete.pk)
 
             # init reference timestamp
             time = ts.start_button_time
