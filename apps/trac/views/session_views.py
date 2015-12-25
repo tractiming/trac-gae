@@ -324,8 +324,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         Create a TFRRS formatted CSV text string for the specified workout ID.
         """
         session = self.get_object()
-        tfrrs_results = tfrss.format_tfrrs_results(session)
-        return Response(tfrss_results)
+        tfrrs_results = tfrrs.format_tfrrs_results(session)
+        return Response(tfrrs_results)
 
 
 @api_view(['POST'])
