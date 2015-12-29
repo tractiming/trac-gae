@@ -213,9 +213,9 @@
             1,
             2
         ], 
-        "use_registered_tags_only": false, 
+        "use_registered_athletes_only": false, 
         "start_time": "2015-08-27T03:47:28Z", 
-        "registered_tags": [], 
+        "registered_athletes": [], 
         "private": false, 
         "filter_choice": false, 
         "interval_distance": 400, 
@@ -243,9 +243,9 @@
         "readers": [
             1
         ],
-        "use_registered_tags_only": false,
+        "use_registered_athletes_only": false,
         "start_time": "2015-10-10T01:32:39Z",
-        "registered_tags": [],
+        "registered_athletes": [],
         "private": true,
         "filter_choice": false,
         "interval_distance": 1609,
