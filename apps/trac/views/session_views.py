@@ -207,18 +207,19 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                 extra_offset = 0
             extra_limit = limit - len(raw_results)
             additional_athletes = []
-            for tag in session.registered_tags.all()[extra_offset:extra_limit]:
-                has_split = (session.id in  tag.athlete.split_set.values_list(
+            for athlete in session.registered_athletes.all(
+                    )[extra_offset:extra_limit]:
+                has_split = (session.id in athlete.split_set.values_list(
                     "timingsession", flat=True).distinct())
 
                 # If the athlete already has at least one split, they will
                 # already show up in the results.
                 if not has_split:
                     extra_results.append(session.calc_athlete_splits(
-                        tag.athlete_id))
+                        athlete.id))
 
-                distinct_ids |= set(session.registered_tags.values_list(
-                    'athlete_id', flat=True).distinct())
+                distinct_ids |= set(session.registered_athletes.values_list(
+                    'id', flat=True).distinct())
 
         results = {
             'num_results': len(distinct_ids),
@@ -329,7 +330,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         data = request.POST
 
         ts = TimingSession.objects.get(pk=pk)
-        reg_tags = ts.registered_tags.all()
+        reg_tags = ts.registered_athletes.all()
 
         tag = Tag.objects.get(id=data['tag_id'], id__in=reg_tags)
 
@@ -447,7 +448,7 @@ def create_race(request):
             tag = Tag.objects.create(id_str=tag_id, athlete=a)
         # FIXME: What does this do?
 
-        ts.registered_tags.add(tag.pk)
+        ts.registered_athletes.add(tag.athlete.pk)
 
     return Response({}, status.HTTP_201_CREATED)
 
@@ -533,7 +534,7 @@ def upload_workouts(request):
                 tag = Tag.objects.create(id_str=runner['username'], athlete=athlete)
 
             # register tag to the timing session
-            ts.registered_tags.add(tag.pk)
+            ts.registered_athletes.add(tag.athlete.pk)
 
             # init reference timestamp
             time = ts.start_button_time
