@@ -150,7 +150,7 @@ OAUTH2_PROVIDER = {
 }
 
 ########## URL CONFIGURATION ##########
-ROOT_URLCONF = 'trac.urls.trac_urls'
+ROOT_URLCONF = 'urls'
 #######################################
 
 ########## DATABASE CONFIGURATION ##########
