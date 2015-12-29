@@ -332,7 +332,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         ts = TimingSession.objects.get(pk=pk)
         reg_tags = ts.registered_athletes.all()
 
-        tag = Tag.objects.get(id=data['tag_id'], id__in=reg_tags)
+        tag = Tag.objects.get(id=data['tag_id'], athlete_id__in=reg_tags)
 
         # get reader
         reader = ts.readers.all()[0]
