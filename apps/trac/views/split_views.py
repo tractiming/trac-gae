@@ -3,6 +3,7 @@ from rest_framework import (
     viewsets, permissions, status, pagination, filters
 )
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 
 from trac.filters import SplitFilter
 from trac.models import Split
@@ -18,6 +19,9 @@ class SplitViewSet(viewsets.ModelViewSet):
     pagination_class = pagination.LimitOffsetPagination
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = SplitFilter
+
+    throttle_classes = (ScopedRateThrottle,)
+    throttle_scope = 'splits'
 
     def get_queryset(self):
         """Filter splits by athlete, session, tag or time."""
