@@ -28,9 +28,5 @@ urlpatterns = [
         url(r'^token_validation/$', user_views.token_validation),
         url(r'^verifyLogin/$', user_views.verifyLogin.as_view()),
 
-        url(r'^register/$', auth_views.register),
-        url(r'^login/$', auth_views.login),
-        url(r'^logout/$', auth_views.logout),
-
         url(r'^updates/$', reader_views.post_splits, name='updates'),
 ]
