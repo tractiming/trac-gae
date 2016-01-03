@@ -76,40 +76,45 @@ function BowTrussParallax() {
  * Initializes scrollTo listeners for header links.
  */
 function bowtrussHeader() {
+  var button      = $('#bowtruss-header button'); 
   $('div#bowtruss-header ul li a.scrollto').click(function(e) {
     e.preventDefault();
 
     if ($(this).hasClass('logo')) {
-      $.scrollTo(0, 500)
+      $.scrollTo(0, 500);
+
     } else {
-      $.scrollTo('#' + $(this).attr('rel'), 500)
+      $.scrollTo('#' + $(this).attr('rel'), 500);
+       $('.navbar-toggle').click();
     }
   });
 }
 
 $(function() {  
     var pull        = $('#pull');  
-        menu        = $('#bowtruss-header ul');  
+        menu        = $('#bowtruss-header ul'); 
+        button      = $('#bowtruss-header button');  
         menuHeight  = menu.height();  
   
-    $(pull).on('click', function(e) {  
+    $(button).on('click', function(e) {  
         e.preventDefault();  
-        menu.slideToggle(function(){
-          if(jQuery('.video-background video').is(':hidden')){ 
-            $('.video-background').children().show();
-          } else {
-            $('.video-background').children().hide();
-          }
-        });  
+        //alert('button pressed');
+        if(menu.is(':hidden')){ 
+           menu.show();
+
+        } else {
+          
+            
+        }
     });
     $('.scrollto').on('click', function(e) {  
         var w = $(window).width();
         if(w < 719) {
           menu.slideToggle(function(){
-            if(jQuery('.video-background video').is(':hidden')){ 
-              $('.video-background').children().show();
+            if(menu.is(':hidden')){ 
+              menu.show();
             } else {
-              $('.video-background').children().hide();
+              //$('.video-background').children().hide();
             }
           
           });
@@ -119,7 +124,8 @@ $(function() {
 
 $(window).resize(function(){  
     var windowsize = $(window).width();  
-    if(windowsize > 719 && menu.is(':hidden')) {  
+    if(windowsize > 719 && menu.is(':hidden')) { 
+        alert('hello there');
         menu.removeAttr('style');  
     }
     if (windowsize < 1600) {

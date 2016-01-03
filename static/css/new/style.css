@@ -428,7 +428,7 @@ div.parallax {
     text-align: center; }
     @media only screen and (min-width: 960px) {
       div.parallax div#bg5 {
-        min-height: 800px; } }
+        } }
     div.parallax div#bg5 div.content {
       padding-top: 135px;
       padding-bottom: 135px; }
