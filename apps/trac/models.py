@@ -139,8 +139,8 @@ class TimingSession(models.Model):
     start_time = models.DateTimeField(default=timezone.now, blank=True)
     stop_time = models.DateTimeField(default=timezone.now, blank=True)
     start_button_time = models.BigIntegerField(null=True, blank=True)
-    registered_tags = models.ManyToManyField(Tag)
-    use_registered_tags_only = models.BooleanField(default=False)
+    registered_athletes = models.ManyToManyField(Athlete)
+    use_registered_athletes_only = models.BooleanField(default=False)
     private = models.BooleanField(default=True)
 
     comment = models.CharField(max_length=2500, blank=True)

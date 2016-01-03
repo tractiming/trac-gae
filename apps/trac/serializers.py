@@ -209,7 +209,7 @@ class TimingSessionSerializer(serializers.ModelSerializer):
         model = TimingSession
         lookup_field = 'session'
         exclude = ('splits',)
-        read_only_fields = ('registered_tags', )
+        read_only_fields = ('registered_athletes', )
 
     def create(self, validated_data):
         coach = Coach.objects.get(user=self.context['request'].user)
@@ -283,11 +283,11 @@ class SplitSerializer(FilterRelatedMixin, serializers.ModelSerializer):
         # based on the reader's active sessions.
         if not split.timingsession_set.exists() and split.reader is not None:
             for session in split.reader.active_sessions:
-                # If the session has a set of registered tags, and the current
-                # tag is not in that set, ignore the split.
-                if (session.use_registered_tags_only and
-                        (split.tag is None or
-                            split.tag not in session.registered_tags.all())):
+                # If the session has a set of registered athletes, and the
+                # current tag is not in that set, ignore the split.
+                if (session.use_registered_athletes_only and
+                        split.athlete not in
+                        session.registered_athletes.all()):
                     continue
                 session.splits.add(split.pk)
 
