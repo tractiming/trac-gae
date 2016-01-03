@@ -277,7 +277,7 @@
             </div>
             <div class="row">
               <div id="athletes" class="table">
-                <table id="results-table" class="table table-striped table-hover">
+                <table id="results-table" class="table table-striped table-hover" ng-cloak>
                   <thead ng-hide="regNull">
                     <tr>
                       <th class="hidden-xs hidden-sm hidden-md hidden-lg">id</th>
@@ -416,7 +416,7 @@
                         </div>
                       </th>
                       <th style="width:50px;">
-                        <button type="button" class="btn btn-default hidden-xs" ng-click="header();" ng-show="editing_header" style="margin-left:50%">
+                        <button type="button" class="btn btn-default hidden-xs" ng-click="header();" ng-show="editing_header" style="margin-left:100%">
                           <span class="glyphicon glyphicon-plus" aria-hidden="true"> </span> Runner
                        </button>
                        <div class="buttons" ng-hide="editing_header">
