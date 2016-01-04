@@ -1,3 +1,5 @@
+import logging
+
 from trac.models import Reader
 from trac.serializers import ReaderSerializer
 from trac.utils.user_util import is_coach
@@ -8,6 +10,9 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
 import ast
+
+
+log = logging.getLogger(__name__)
 
 
 class ReaderViewSet(viewsets.ModelViewSet):
@@ -38,6 +43,9 @@ def post_splits(request):
     current time. Readers don't handle permissions or csrf.
     """
     if request.method == 'POST':
+        log.debug("Split scheme: %s", request.scheme)
+        log.debug("Split data: %s", request.data)
+        log.debug("Split meta: %s", request.META)
         data = request.POST
         reader_name = data['r']
         split_list = ast.literal_eval(data['s'])
