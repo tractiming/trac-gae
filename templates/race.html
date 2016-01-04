@@ -58,10 +58,37 @@
     background-color: rgb(242, 222, 222) !important;
 }
 
+#searchclear {
+    position: absolute;
+    right: 5px;
+    top: 0;
+    bottom: 0;
+    height: 14px;
+    margin: auto;
+    font-size: 14px;
+    cursor: pointer;
+    color: #ccc;
+}
+.animate-hide {
+  -webkit-transition: all linear 0.75s;
+  -o-transition: all linear 0.75s;
+  transition: all linear 0.75s;
+}
+
+.animate-hide.ng-hide {
+  width:0;
+}
+.fade.ng-hide {
+  transition:0.25s linear all;
+  opacity:0;
+}
+.fade{
+  opacity:1;
+}
   </style>
 
   <script>
-  var app = angular.module('raceRegistration', []);
+  var app = angular.module('raceRegistration', ['ngAnimate']);
 
 
    app.controller('registeredCtrl', function($scope, $http) {
@@ -90,6 +117,8 @@
     //onClick event of session, dynamically route athletes. 
     $scope.select = function(workout) {
         var selected = workout.id;
+        $scope.selectedID = selected;
+        $scope.workoutName = workout.name;
         var url = '/api/athletes/?session='+ selected;
         $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
           .success(function (response) { 
@@ -187,11 +216,22 @@
       $('#rosterModal tr.ath').each(function(){
         var atlObj = {};
         if ($(this).find('td #check').is(":checked")){
-          atlObj.id = $(this).children('#id').text();
+          atlObj = $(this).children('#id').text();
           atlList.push(atlObj);
         }
       });
-      //TODO: Ajax Call to api/sessions with data.
+      //Get the pk and data from row and send to server
+      alert(atlList);
+      var url = '/api/sessions/'+ $scope.selectedID +'/';
+      alert(url);
+      $http({method: 'PATCH', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{
+        registered_athletes: [atlList],
+       } 
+      })
+        .success(function (response) { 
+         alert('successfully changed');
+      });
+
       $('#rosterModal').modal('hide');
     }
     $scope.header = function(){
@@ -227,7 +267,16 @@
         $scope[dynamicString] = true;
 
     }
-
+    $scope.changeStyle = function(toggle){
+      var buttonStyle = 'border-bottom-right-radius: 4px !important; border-top-right-radius : 4px !important; border-right:1px solid #ccc !important;';
+      var buttonStyle2 = 'border-bottom-right-radius: 0px !important; border-top-right-radius : 0px !important; border-right:0 !important;';
+      if (toggle == true) {
+        return buttonStyle;
+      }
+      else{
+        return buttonStyle2;
+      }
+    }
   });
    
 
@@ -270,7 +319,15 @@
                   <span class="glyphicon glyphicon-plus" aria-hidden="true"> </span> CSV Upload
               </button>
             </div>
-            <h1 id="score-title">Registration</h1>
+              <h1 id="score-title">Registration: {{workoutName}}</h1>
+              <div class="input-group">
+                <span class="btn btn-default input-group-addon" ng-click="hideInput = !hideInput;" style="{{changeStyle(hideInput)}}">
+                  <span class="glyphicon glyphicon-search"></span>
+                </span>
+                <input class="form-control animate-hide" ng-hide="hideInput" style="border-top-right-radius:4px !important; border-bottom-right-radius:4px !important; position:static !important;" type="search" id="searchinput">
+                <span id="searchclear" class="glyphicon glyphicon-remove fade" ng-hide="hideInput"></span>
+                <span></span>
+              </div>
             </div>
             <div class="spinner-container" style="position:relative; top:100px;">
                 <div id="spinner"></div>
@@ -296,17 +353,17 @@
                     <input name="{{ name }}" type="text" ng-model="x.id" ng-show="editing_{{x.id}}" placeholder="{{ placeholder }}" class="form-control">
                     <td>
                       <div class="form-group">
-                        <div ng-bind="x.user.first_name" ng-hide="editing_{{x.id}}"></div> 
-                        <input name="{{ name }}" type="text" ng-model="x.user.first_name" ng-show="editing_{{x.id}}" placeholder="First Name" class="form-control">
+                        <div ng-bind="x.first_name" ng-hide="editing_{{x.id}}"></div> 
+                        <input name="{{ name }}" type="text" ng-model="x.first_name" ng-show="editing_{{x.id}}" placeholder="First Name" class="form-control">
                       </div>
                     </td>
                     <td>
                         <div class="form-group">
-                          <div ng-bind="x.user.last_name" ng-hide="editing_{{x.id}}"></div> 
-                          <input name="{{ name }}" type="text" ng-model="x.user.last_name" ng-show="editing_{{x.id}}" placeholder="Last Name" class="form-control">
+                          <div ng-bind="x.last_name" ng-hide="editing_{{x.id}}"></div> 
+                          <input name="{{ name }}" type="text" ng-model="x.last_name" ng-show="editing_{{x.id}}" placeholder="Last Name" class="form-control">
                         </div>
                     </td>
-                    <td style="display:none">{{x.user.username}}</td>
+                    <td style="display:none">{{x.username}}</td>
                     <td>
                       <div class="form-group">
                         <div ng-bind="x.tag" ng-hide="editing_{{x.id}}"></div> 
@@ -315,7 +372,7 @@
                     </td>
                     <td>
                       <div class="form-group">
-                        <div ng-bind="'Northwestern'" ng-hide="editing_{{x.id}}"></div> 
+                        <div ng-bind="x.team" ng-hide="editing_{{x.id}}"></div> 
                         <input name="{{ name }}" type="text" ng-model="x.team" ng-show="editing_{{x.id}}" placeholder="Team" class="form-control">
                       </div>
                     </td>
@@ -432,17 +489,17 @@
                     <td class="hidden-xs hidden-sm hidden-md hidden-lg" id="id">{{x.id}}</td>
                     <td>
                       <div class="form-group">
-                        <div ng-bind="x.user.first_name" ng-hide="editing_{{x.id}}"></div> 
-                        <input name="{{ name }}" type="text" ng-model="x.user.first_name" ng-show="editing_{{x.id}}" placeholder="First Name" class="form-control">
+                        <div ng-bind="x.first_name" ng-hide="editing_{{x.id}}"></div> 
+                        <input name="{{ name }}" type="text" ng-model="x.first_name" ng-show="editing_{{x.id}}" placeholder="First Name" class="form-control">
                       </div>
                     </td>
                     <td>
                         <div class="form-group">
-                          <div ng-bind="x.user.last_name" ng-hide="editing_{{x.id}}"></div> 
-                          <input name="{{ name }}" type="text" ng-model="x.user.last_name" ng-show="editing_{{x.id}}" placeholder="Last Name" class="form-control">
+                          <div ng-bind="x.last_name" ng-hide="editing_{{x.id}}"></div> 
+                          <input name="{{ name }}" type="text" ng-model="x.last_name" ng-show="editing_{{x.id}}" placeholder="Last Name" class="form-control">
                         </div>
                     </td>
-                    <td style="display:none">{{x.user.username}}</td>
+                    <td style="display:none">{{x.username}}</td>
                     <td>
                       <div class="form-group">
                         <div ng-bind="x.tag" ng-hide="editing_{{x.id}}"></div> 
