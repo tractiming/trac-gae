@@ -246,14 +246,16 @@ class SplitSerializer(FilterRelatedMixin, serializers.ModelSerializer):
 
     def filter_sessions(self, queryset):
         if 'request' in self.context:
-            queryset = queryset.filter(
-                coach__user=self.context['request'].user)
+            user = self.context['request'].user
+            if not user.is_superuser:
+                queryset = queryset.filter(coach__user=user)
         return queryset
 
     def filter_reader(self, queryset):
         if 'request' in self.context:
-            queryset = queryset.filter(
-                coach__user=self.context['request'].user)
+            user = self.context['request'].user
+            if not user.is_superuser:
+                queryset = queryset.filter(coach__user=user)
         return queryset
 
     def validate(self, data):

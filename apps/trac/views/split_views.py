@@ -15,7 +15,7 @@ class SplitViewSet(viewsets.ModelViewSet):
     Split resource.
     """
     serializer_class = SplitSerializer
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (permissions.IsAuthenticated,)
     pagination_class = pagination.LimitOffsetPagination
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = SplitFilter
