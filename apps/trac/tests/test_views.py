@@ -426,6 +426,34 @@ class SplitViewSetTest(APITestCase):
                                           reader__id_str='A1010')
         self.assertTrue(new_split.exists())
 
+    def test_post_splits_bulk_single_failure(self):
+        """Test that a single bad split does not prevent other
+        splits from being saved.
+        """
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+
+        # The second split is bad because it contains a
+        # non-registered tag.
+        resp = self.client.post('/api/splits/',
+            data=json.dumps([
+                {'reader': 'A1010',
+                 'athlete': None,
+                 'time': 1234,
+                 'tag': 'AAAA 0001',
+                 'sessions': []},
+                {'reader': 'A1010',
+                 'athlete': None,
+                 'time': 1235,
+                 'tag': 'notatag123',
+                 'sessions': []},
+            ]),
+            content_type='application/json')
+        self.assertEqual(resp.status_code, 201)
+        new_split_1 = Split.objects.filter(time=1234, athlete=1,
+                                           reader__id_str='A1010')
+        self.assertTrue(new_split_1.exists())
+
 
 class UserViewSetTest(APITestCase):
 
