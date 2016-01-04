@@ -33,12 +33,18 @@ path.insert(0, join(DJANGO_ROOT, 'apps'))
 ########## SECRET CONFIGURATION ##########
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'gi8u=tes8q2*@@1lkfu69j^1&syc+p)l0%i0ut4$a3@5c&9b4z'
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'www.trac-us.appspot.com',
-                 'trac-us.appspot.com']
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'www.trac-us.appspot.com',
+    'trac-us.appspot.com',
+    'www.tracchicago.com',
+    '1.trac-us.appspot.com'
+]
 ##########################################
 
 ########## DEBUG CONFIGURATION ##########
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 #########################################
 
@@ -127,14 +133,24 @@ REST_FRAMEWORK = {
         ),
         'DEFAULT_RENDERER_CLASSES': (
             'rest_framework.renderers.JSONRenderer',
-        )
+        ),
+        'DEFAULT_THROTTLE_CLASSES': (
+            'rest_framework.throttling.AnonRateThrottle',
+            'rest_framework.throttling.UserRateThrottle',
+            'rest_framework.throttling.ScopedRateThrottle'
+        ),
+        'DEFAULT_THROTTLE_RATES': {
+            'anon': '1000/hour',
+            'user': '3600/hour',
+            'splits': '100/minute'
+        }
 }
 OAUTH2_PROVIDER = {
     'SCOPES': {'read': 'Read scope', 'write': 'Write scope'}
 }
 
 ########## URL CONFIGURATION ##########
-ROOT_URLCONF = 'trac.urls.trac_urls'
+ROOT_URLCONF = 'urls'
 #######################################
 
 ########## DATABASE CONFIGURATION ##########

@@ -193,6 +193,16 @@
     }
 },
 {
+    "pk": 7,
+    "model": "trac.split", 
+    "fields": {
+        "athlete": 2, 
+        "tag": 1, 
+        "time": 1440647703047,
+        "reader": 1
+    }
+},
+{
     "pk": 1, 
     "model": "trac.timingsession", 
     "fields": {
@@ -203,9 +213,9 @@
             1,
             2
         ], 
-        "use_registered_tags_only": false, 
+        "use_registered_athletes_only": false, 
         "start_time": "2015-08-27T03:47:28Z", 
-        "registered_tags": [], 
+        "registered_athletes": [], 
         "private": false, 
         "filter_choice": false, 
         "interval_distance": 400, 
@@ -233,9 +243,9 @@
         "readers": [
             1
         ],
-        "use_registered_tags_only": false,
+        "use_registered_athletes_only": false,
         "start_time": "2015-10-10T01:32:39Z",
-        "registered_tags": [],
+        "registered_athletes": [],
         "private": true,
         "filter_choice": false,
         "interval_distance": 1609,
@@ -245,7 +255,8 @@
         "track_size": 1609,
         "interval_number": 0, 
         "splits": [
-            6
+            6,
+            7
         ]
     }
 }

@@ -1,7 +1,9 @@
+from rest_framework import viewsets, permissions, filters
+
+from trac.filters import TeamFilter
 from trac.models import Team, TimingSession, Coach
 from trac.serializers import TeamSerializer, ScoringSerializer
 from trac.utils.user_util import is_athlete, is_coach
-from rest_framework import viewsets, permissions
 
 
 class TeamViewSet(viewsets.ModelViewSet):
@@ -10,6 +12,8 @@ class TeamViewSet(viewsets.ModelViewSet):
     """
     permission_classes = (permissions.AllowAny,)
     serializer_class = TeamSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_class = TeamFilter
     
     def get_queryset(self):
         user = self.request.user
@@ -18,7 +22,8 @@ class TeamViewSet(viewsets.ModelViewSet):
             return user.coach.team_set.all()
 
         elif is_athlete(user):
-            return Team.objects.filter(athlete__in=[user.athlete.pk], primary_team=True)
+            return Team.objects.filter(athlete__in=[user.athlete.pk],
+                                       primary_team=True)
 
         else:
             return Team.objects.filter(primary_team=True)

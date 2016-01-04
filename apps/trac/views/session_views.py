@@ -9,12 +9,14 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework import viewsets, permissions, status, pagination
+from rest_framework import viewsets, permissions, status, pagination, filters
 from rest_framework.decorators import api_view, permission_classes, detail_route
 from rest_framework.response import Response
 
+from trac.filters import TimingSessionFilter
 from trac.models import TimingSession, Reader, Tag, Split, Team, Athlete
 from trac.serializers import TimingSessionSerializer
+from trac.utils.integrations import tfrrs
 from trac.utils.phone_split_util import create_phone_split
 from trac.utils.user_util import is_athlete, is_coach
 
@@ -42,38 +44,27 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
     serializer_class = TimingSessionSerializer
     permission_classes = (permissions.AllowAny,)
     pagination_class = pagination.LimitOffsetPagination
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_class = TimingSessionFilter
 
     def get_queryset(self):
         """
         Filter sessions by user.
         """
         user = self.request.user
-        start_date = self.request.GET.get('start_date')
-        stop_date = self.request.GET.get('stop_date')
-
-        date_filter = Q()
-        if start_date is not None:
-            start_date = dateutil.parser.parse(start_date)
-            date_filter &= Q(start_time__gte=start_date)
-        if stop_date is not None:
-            stop_date = dateutil.parser.parse(stop_date)        
-            date_filter &= Q(start_time__lte=stop_date)
 
         # If the user is an athlete, list all the workouts he has run.
         if is_athlete(user):
-            # FIXME: this is no longer implemented.
-            return TimingSession.objects.none()
-            #ap = Athlete.objects.get(user=user)
-            #sessions = ap.get_completed_sessions()
+            return TimingSession.objects.filter(
+                splits__athlete=user.athlete).distinct()
         
         # If the user is a coach, list all sessions he manages.
         elif is_coach(user):
-            return TimingSession.objects.filter(
-                Q(coach=user.coach) & date_filter)
+            return TimingSession.objects.filter(coach=user.coach)
             
         # If not a user or coach, list all public sessions.
         else:
-            return TimingSession.objects.filter(Q(private=False) & date_filter)
+            return TimingSession.objects.filter(private=False)
 
     def filter_queryset(self, queryset):
         # Return sessions in reverse chronological order.
@@ -216,18 +207,19 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                 extra_offset = 0
             extra_limit = limit - len(raw_results)
             additional_athletes = []
-            for tag in session.registered_tags.all()[extra_offset:extra_limit]:
-                has_split = (session.id in  tag.athlete.split_set.values_list(
+            for athlete in session.registered_athletes.all(
+                    )[extra_offset:extra_limit]:
+                has_split = (session.id in athlete.split_set.values_list(
                     "timingsession", flat=True).distinct())
 
                 # If the athlete already has at least one split, they will
                 # already show up in the results.
                 if not has_split:
                     extra_results.append(session.calc_athlete_splits(
-                        tag.athlete_id))
+                        athlete.id))
 
-                distinct_ids |= set(session.registered_tags.values_list(
-                    'athlete_id', flat=True).distinct())
+                distinct_ids |= set(session.registered_athletes.values_list(
+                    'id', flat=True).distinct())
 
         results = {
             'num_results': len(distinct_ids),
@@ -262,6 +254,45 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             results.append(team_result)
 
         return Response(results)
+
+    @detail_route(methods=['post'])
+    def upload_results(self, request, pk=None):
+        """
+        Upload results to an existing workout. Request body should
+        be a list of dicts containing athlete id and list of splits.
+        If athlete already has results in a workout, overwrite those
+        splits. If not, simply append results to existing results.
+
+        TODO: validate coach can save times for the given
+        athlete ids.
+        """
+        data = json.loads(request.body)
+        session = self.get_object()
+
+        for athlete_data in data:
+            try:
+                athlete = Athlete.objects.get(pk=int(athlete_data['id']))
+            except (ValueError, ObjectDoesNotExist):
+                # May fail to convert to int or find athlete.
+                return Response('Could not find athlete matching id '
+                                '{}'.format(athlete_data['id']),
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            Split.objects.filter(timingsession=session,
+                                 athlete=athlete).delete()
+
+            splits = athlete_data['splits']
+            time = session.start_button_time or 0
+            if session.start_button_time is None:
+                splits.insert(0, 0)
+
+            for split in splits:
+                time += split*1000
+                new_split = Split.objects.create(athlete=athlete, time=time)
+                session.splits.add(new_split.pk)
+
+        session.save()
+        return Response(status=status.HTTP_201_CREATED)
 
     @detail_route(methods=['post'], permission_classes=[])
     def add_missed_runner(self, request, pk=None):
@@ -299,9 +330,9 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         data = request.POST
 
         ts = TimingSession.objects.get(pk=pk)
-        reg_tags = ts.registered_tags.all()
+        reg_tags = ts.registered_athletes.all()
 
-        tag = Tag.objects.get(id=data['tag_id'], id__in=reg_tags)
+        tag = Tag.objects.get(id=data['tag_id'], athlete_id__in=reg_tags)
 
         # get reader
         reader = ts.readers.all()[0]
@@ -327,79 +358,14 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
         return Response({}, status=status.HTTP_202_ACCEPTED)
 
-
     @detail_route(methods=['get'], permission_classes=[])
     def tfrrs(self, request, pk=None):
         """
         Create a TFRRS formatted CSV text string for the specified workout ID.
         """
-        data = request.GET
-        user = request.user
-        coach = user.coach
-
-        if not is_coach(user):
-            return Response({}, status.HTTP_403_FORBIDDEN)
-
-        ts = TimingSession.objects.get(pk=pk, coach=coach)
-
-        tag_ids = ts.splits.values_list('tag_id', flat=True).distinct()
-        raw_results = ts.individual_results()
-
-        # TODO: use defaultdict here.
-        results = []
-        for i, r in enumerate(raw_results):
-            athlete = Athlete.objects.get(id=r.user_id)
-            runner = athlete.user
-            team = athlete.team
-            birth_date = athlete.birth_date
-            tag = Tag.objects.get(id__in=tag_ids, athlete=athlete)
-
-            bib = tag.id_str
-            TFFRS_ID = athlete.tfrrs_id or ''
-            team_name = team.name or ''
-            team_code = team.tfrrs_code or ''
-            first_name = runner.first_name or ''
-            last_name = runner.last_name or ''
-            gender = athlete.gender or ''
-            year = ''
-            date_of_birth = str(birth_date.year)+'-'+ \
-                            str(birth_date.month)+'-'+ \
-                            str(birth_date.day) if birth_date else ''
-            event_code = str(ts.interval_distance) or ''
-            event_name = ts.name or ''
-            event_division = ''
-            event_min_age = ''
-            event_max_age = ''
-            sub_event_code = ''
-            mark = str(r.total)
-            metric = '1'
-            fat = '0'
-            place = str(i+1)
-            score = place
-            heat = ''
-            heat_place = ''
-            rnd = ''
-            points = ''
-            wind = ''
-            relay_squad = ''
-
-            # Untested, but should be the way to go.
-            #results.append(','.join([bib, TFFRS_ID, team_name, team_code,
-            #               first_name, last_name, gender, year, date_of_birth,
-            #               event_code, event_name, event_division,
-            #               event_min_age, event_max_age, sub_event_code, mark,
-            #               metric, fat, place, score, heat, heat_place, rnd,
-            #               points, wind, relay_squad]))
-            
-            results.append(bib +','+ TFFRS_ID +','+ team_name +','+ team_code +','+ \
-                        first_name +','+ last_name +','+ gender +','+ year +','+ \
-                        date_of_birth +','+ event_code +','+ event_name +','+ \
-                        event_division +','+ event_min_age +','+ event_max_age +','+ \
-                        sub_event_code +','+ mark +','+ metric +','+ fat +','+ \
-                        place +','+ score +','+ heat +','+ heat_place +','+ \
-                        rnd +','+ points +','+ wind +','+ relay_squad)
-
-        return Response(results, status.HTTP_200_OK)
+        session = self.get_object()
+        tfrrs_results = tfrrs.format_tfrrs_results(session)
+        return Response(tfrrs_results)
 
 
 @api_view(['POST'])
@@ -482,7 +448,7 @@ def create_race(request):
             tag = Tag.objects.create(id_str=tag_id, athlete=a)
         # FIXME: What does this do?
 
-        ts.registered_tags.add(tag.pk)
+        ts.registered_athletes.add(tag.athlete.pk)
 
     return Response({}, status.HTTP_201_CREATED)
 
@@ -568,7 +534,7 @@ def upload_workouts(request):
                 tag = Tag.objects.create(id_str=runner['username'], athlete=athlete)
 
             # register tag to the timing session
-            ts.registered_tags.add(tag.pk)
+            ts.registered_athletes.add(tag.athlete.pk)
 
             # init reference timestamp
             time = ts.start_button_time
@@ -583,7 +549,10 @@ def upload_workouts(request):
 
                 time += diff
 
-                tt = Split.objects.create(tag_id=tag.id, athlete_id=new_user.athlete.id, time=time, reader_id=reader.id)
+                tt = Split.objects.create(tag_id=tag.id,
+                                          athlete_id=new_user.athlete.id,
+                                          time=time,
+                                          reader_id=reader.id)
                 ts.splits.add(tt.pk)
 
     return Response({}, status=status.HTTP_201_CREATED)

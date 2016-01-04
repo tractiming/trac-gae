@@ -28,11 +28,12 @@ else{
 
 
        $.ajax({
-          url: "api/tutorial_limiter/",
+          url: "api/users/me/tutorial_limiter/",
           headers: {Authorization: "Bearer " + sessionStorage.access_token},
           dataType: 'text',
           success: function(data){
-            if (data == 200){
+            var resp = $.parseJSON(data);
+            if (resp.show_tutorial){
               $('div#tutorial').show();
             }
 

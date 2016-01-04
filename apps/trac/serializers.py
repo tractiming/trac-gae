@@ -1,8 +1,13 @@
 from django.contrib.auth.models import User
 from django.utils import timezone
+
 from rest_framework import serializers
-from models import TimingSession, Tag, Reader, Athlete, Coach, Team, Split
-from trac.utils.user_util import is_coach, is_athlete
+from rest_framework.exceptions import ValidationError
+
+from trac.models import (
+    TimingSession, Tag, Reader, Athlete, Coach, Team, Split
+)
+from trac.utils.user_util import is_coach, is_athlete, user_type
 
 
 class FilterRelatedMixin(object):
@@ -11,14 +16,19 @@ class FilterRelatedMixin(object):
         super(FilterRelatedMixin, self).__init__(*args, **kwargs)
 
         for name, field in self.fields.iteritems():
-            if isinstance(field, serializers.RelatedField):
+            if isinstance(field, (serializers.RelatedField,
+                                  serializers.ManyRelatedField)):
                 method_name = 'filter_%s' % name
                 try:
                     func = getattr(self, method_name)
                 except AttributeError:
                     pass
                 else:
-                    field.queryset = func(field.queryset)
+                    if hasattr(field, 'child_relation'):
+                        field.child_relation.queryset = func(
+                            field.child_relation.queryset)
+                    else:
+                        field.queryset = func(field.queryset)
 
 
 class TagSerializer(FilterRelatedMixin, serializers.ModelSerializer):
@@ -37,71 +47,145 @@ class TagSerializer(FilterRelatedMixin, serializers.ModelSerializer):
             user = self.context['request'].user
 
             if is_coach(user):
-                athletes = Athlete.objects.filter(team__in=user.coach.team_set.all())
-                return queryset.filter(pk__in=[athlete.pk for athlete in athletes])
+                athletes = Athlete.objects.filter(
+                    team__in=user.coach.team_set.all())
+                queryset = queryset.filter(
+                    pk__in=[athlete.pk for athlete in athletes])
+            elif is_athlete(user):
+                queryset = queryset.filter(pk=user.athlete.id)
             else:
-                return queryset.filter(pk=user.athlete.id)
-        
+                queryset = queryset.none()
+
         return queryset
 
 
 class UserSerializer(serializers.ModelSerializer):
+    user_type = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email')
+        fields = (
+            'username', 'first_name', 'last_name', 'email', 'password',
+            'user_type', 'last_login'
+        )
+        read_only_fields = ('last_login',)
+        extra_kwargs = {'password': {'write_only': True, 'required': False}}
+
+    def get_user_type(self, obj):
+        return user_type(obj)
+
+    def create(self, validated_data):
+        # Override to ensure we call `set_password`.
+        password = validated_data.pop('password', None)
+        user = User.objects.create(last_login=timezone.now(),
+                                   **validated_data)
+        user.set_password(password)
+        user.save()
+        return user
 
 
-class AthleteSerializer(FilterRelatedMixin, serializers.ModelSerializer):
-    user = UserSerializer()
+class SaveUserMixin(object):
+    """Convenience mixin that provides `create` and `update` methods
+    for model serializers with a nested `user` attribute, e.g.
+    `AthleteSerializer` and `CoachSerializer`.
+    """
+    def create(self, validated_data):
+        """Extract user data, create the user, and use to create the
+        higher-level object.
+        """
+        user_data = validated_data.pop('user')
+        user_serializer = UserSerializer(data=user_data)
+        user_serializer.is_valid(raise_exception=True)
+        user = user_serializer.create(user_serializer.validated_data)
+        validated_data.update({'user_id': user.id})
+
+        return super(SaveUserMixin, self).create(validated_data)
+
+    def update(self, instance, validated_data):
+        """Update all of the user fields making sure to call
+        `set_password`.
+        """
+        user_data = validated_data.pop('user', None)
+        if user_data is not None:
+            for attr, value in user_data.items():
+                if attr == 'password':
+                    instance.user.set_password(value)
+                else:
+                    setattr(instance.user, attr, value)
+
+            # If username is not unique, the save will fail.
+            try:
+                instance.user.save()
+            except Exception:
+                raise ValidationError('Invalid username')
+
+        return super(SaveUserMixin, self).update(instance, validated_data)
+
+
+class AthleteSerializer(SaveUserMixin,
+                        FilterRelatedMixin,
+                        serializers.ModelSerializer):
     tag = serializers.SlugRelatedField(read_only=True, slug_field='id_str')
+    username = serializers.CharField(source='user.username')
+    first_name = serializers.CharField(source='user.first_name',
+                                       required=False)
+    last_name = serializers.CharField(source='user.last_name', required=False)
+    email = serializers.EmailField(source='user.email', required=False)
+    password = serializers.SlugField(source='user.password', write_only=True,
+                                     required=False)
+    team = serializers.PrimaryKeyRelatedField(
+        queryset=Team.objects.all(), allow_null=True, required=False)
 
     class Meta:
         model = Athlete
-    
+        fields = (
+            'id', 'username', 'first_name', 'last_name', 'email',
+            'team', 'age', 'birth_date', 'gender', 'tfrrs_id', 'tag',
+            'password'
+        )
+        read_only_fields = ('age',)
+
     def filter_team(self, queryset):
-        """Only show teams belonging to the current coach."""
+        # Only allow teams owned by the current user. Note that this
+        # is for validation only.
         if 'request' in self.context:
             user = self.context['request'].user
-        
-            if is_coach(user):
-                teams = Team.objects.filter(coach=user.coach)
-                return queryset.filter(pk__in=[team.pk for team in teams])
 
+            if is_coach(user):
+                queryset = queryset.filter(coach__user=user)
+            elif is_athlete(user):
+                queryset = queryset.filter(athlete__user=user)
             else:
-                return queryset.filter(pk=user.athlete.team.pk)
+                queryset = queryset.none()
 
         return queryset
 
-    def create(self, validated_data):
-        user_info = validated_data.pop('user')
-        user = User.objects.create(last_login=timezone.now(), **user_info)
-        athlete = Athlete.objects.create(user=user, **validated_data)
-        return athlete
-    
+
+class CoachSerializer(SaveUserMixin, serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username')
+    first_name = serializers.CharField(source='user.first_name',
+                                       required=False)
+    last_name = serializers.CharField(source='user.last_name', required=False)
+    email = serializers.EmailField(source='user.email', required=False)
+    password = serializers.SlugField(source='user.password', write_only=True,
+                                     required=False)
+    teams = serializers.PrimaryKeyRelatedField(
+        many=True, read_only=True, source='timingsession_set')
+
+    class Meta:
+        model = Coach
+        fields = (
+            'id', 'username', 'first_name', 'last_name', 'email',
+            'password', 'teams'
+        )
+        read_only_fields = ('teams',)
+
 
 class TeamSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Team
         read_only_fields = ('coach',)
-
-
-class CoachSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
-    
-    class Meta:
-        model = Coach
-        fields = ('user', )
-
-
-class RegistrationSerializer(serializers.ModelSerializer):
-    user_type = serializers.CharField(max_length=15)
-    organization = serializers.CharField(max_length=50)
-
-    class Meta:
-        model = User
-        fields = ('username', 'password', 'user_type', 'organization')
 
 
 class ReaderSerializer(serializers.ModelSerializer):
@@ -125,7 +209,7 @@ class TimingSessionSerializer(serializers.ModelSerializer):
         model = TimingSession
         lookup_field = 'session'
         exclude = ('splits',)
-        read_only_fields = ('registered_tags', )
+        read_only_fields = ('registered_athletes', )
 
     def create(self, validated_data):
         coach = Coach.objects.get(user=self.context['request'].user)
@@ -143,37 +227,34 @@ class ScoringSerializer(serializers.ModelSerializer):
         fields = ('id', 'name')
 
 
-class SplitSerializer(serializers.ModelSerializer):
+class SplitSerializer(FilterRelatedMixin, serializers.ModelSerializer):
     reader = serializers.SlugRelatedField(slug_field='id_str',
                                           allow_null=True,
                                           queryset=Reader.objects.all())
     tag = serializers.SlugRelatedField(slug_field='id_str',
                                        allow_null=True, required=False,
                                        queryset=Tag.objects.all())
-    sessions = serializers.PrimaryKeyRelatedField(many=True, 
-        queryset=TimingSession.objects.all(), allow_null=True,
+    sessions = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=TimingSession.objects.all(), allow_null=True,
         source='timingsession_set')
-    athlete = serializers.PrimaryKeyRelatedField(many=False,
-        queryset=Athlete.objects.all(), allow_null=True)
-
-    def __init__(self, *args, **kwargs):
-        try:
-            user = kwargs['context']['request'].user
-        except KeyError: # swagger
-            return super(SplitSerializer, self).__init__(*args, **kwargs)
-
-        sessions_f = self.fields['sessions']
-        sessions_f.child_relation.queryset = (
-                sessions_f.child_relation.queryset.filter(coach__user=user))
-
-        readers_f = self.fields['reader']
-        readers_f.queryset = readers_f.queryset.filter(coach__user=user)
-
-        return super(SplitSerializer, self).__init__(*args, **kwargs)
+    athlete = serializers.PrimaryKeyRelatedField(
+        many=False, queryset=Athlete.objects.all(), allow_null=True)
 
     class Meta:
         model = Split
         lookup_field = 'split'
+
+    def filter_sessions(self, queryset):
+        if 'request' in self.context:
+            queryset = queryset.filter(
+                coach__user=self.context['request'].user)
+        return queryset
+
+    def filter_reader(self, queryset):
+        if 'request' in self.context:
+            queryset = queryset.filter(
+                coach__user=self.context['request'].user)
+        return queryset
 
     def validate(self, data):
         # Must specify either an athlete or a tag.
@@ -197,16 +278,16 @@ class SplitSerializer(serializers.ModelSerializer):
             validated_data['athlete'] = validated_data['tag'].athlete
 
         split = super(SplitSerializer, self).create(validated_data)
-        
+
         # If the session(s) is not given explicitly, add splits to sessions
         # based on the reader's active sessions.
         if not split.timingsession_set.exists() and split.reader is not None:
             for session in split.reader.active_sessions:
-                # If the session has a set of registered tags, and the current
-                # tag is not in that set, ignore the split.
-                if (session.use_registered_tags_only and
-                        (split.tag is None or
-                            split.tag not in session.registered_tags.all())):
+                # If the session has a set of registered athletes, and the
+                # current tag is not in that set, ignore the split.
+                if (session.use_registered_athletes_only and
+                        split.athlete not in
+                        session.registered_athletes.all()):
                     continue
                 session.splits.add(split.pk)
 

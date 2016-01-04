@@ -1,12 +1,15 @@
+import datetime
+import json
+
+import mock
+
 from django.test import TestCase
 from django.utils import timezone
 from django.contrib.auth.models import User
 from rest_framework.test import APITestCase, force_authenticate
-from trac.models import TimingSession, Reader, Split
+
+from trac.models import TimingSession, Reader, Split, Athlete, Coach
 import trac.views
-import mock
-import datetime
-import json
 
 
 class TagViewSetTest(APITestCase):
@@ -72,8 +75,8 @@ class AthleteViewSetTest(APITestCase):
         self.client.force_authenticate(user=user)
         resp = self.client.get('/api/athletes/', format='json')
         self.assertEqual(len(resp.data), 2)
-        self.assertEqual(resp.data[0]['user']['username'], 'grupp')
-        self.assertEqual(resp.data[1]['user']['username'], 'clevins')
+        self.assertEqual(resp.data[0]['username'], 'grupp')
+        self.assertEqual(resp.data[1]['username'], 'clevins')
         self.assertEqual(resp.status_code, 200)
 
     def test_get_athletes_athlete(self):
@@ -86,25 +89,24 @@ class AthleteViewSetTest(APITestCase):
         self.assertEqual(resp.status_code, 200)
 
     @mock.patch.object(trac.serializers, 'timezone')
-    @mock.patch.object(trac.serializers, 'User')
+    @mock.patch.object(trac.serializers, 'UserSerializer')
     def test_pre_save(self, mock_user, mock_tz):
         """Test that a user is created before the athlete is."""
         now = timezone.now().replace(microsecond=0)
         mock_tz.now.return_value = now
         user = User.objects.get(username='alsal')
         self.client.force_authenticate(user=user)
-        mock_user.objects.create.return_value = (
+        mock_user().create.return_value = (
             User.objects.create(username='mock'))
         resp = self.client.post('/api/athletes/',
-                data=json.dumps(
-                    {'user': {
-                        'username': 'kennyb',
-                        'first_name': 'Kenenisa',
-                        'last_name': 'Bekele'}
-                        }), content_type='application/json')
-        mock_user.objects.create.assert_called_with(
-            username='kennyb', first_name='Kenenisa', last_name='Bekele',
-            last_login=now)
+                data=json.dumps({
+                    'username': 'kennyb',
+                    'first_name': 'Kenenisa',
+                    'last_name': 'Bekele',
+                    'gender': 'M'
+                }), content_type='application/json')
+        mock_user().create.assert_called_with(
+            mock_user().validated_data)
         self.assertEqual(resp.status_code, 201)
 
     def test_session_filter(self):
@@ -269,6 +271,49 @@ class TimingSessionViewSetTest(APITestCase):
             list(session_ids))
         self.assertEqual(resp.status_code, 200)
 
+    def test_get_by_athlete(self):
+        """Test that an athlete gets all sessions he has completed."""
+        user = User.objects.get(username='clevins')
+        self.client.force_authenticate(user=user)
+        resp = self.client.get('/api/sessions/')
+        completed_sessions = TimingSession.objects.filter(
+            splits__athlete__user=user).distinct().order_by(
+            '-start_time').values_list('id', flat=True)
+        self.assertEqual(
+            [session['id'] for session in resp.data],
+            list(completed_sessions))
+        self.assertEqual(resp.status_code, 200)
+
+    def test_get_tfrrs_results(self):
+        """Test getting tfrrs-formatted results."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.get('/api/sessions/1/tfrrs/')
+        self.assertEqual(resp.status_code, 200)
+
+    def test_upload_results(self):
+        """Test uploading pre-recorded splits."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        session = TimingSession.objects.create(coach=user.coach,
+                                               filter_choice=False)
+
+        athlete1 = Athlete.objects.get(user__username='clevins')
+        athlete2 = Athlete.objects.get(user__username='grupp')
+        split_data = [
+            {'id': athlete1.id, 'splits': [20.1, 30.6, 7.6]},
+            {'id': athlete2.id, 'splits': [12.4, 20.5, 31.45]}
+        ]
+        url = '/api/sessions/{}/upload_results/'.format(session.id)
+        resp = self.client.post(url, json.dumps(split_data),
+                                content_type='application/json')
+        self.assertEqual(resp.status_code, 201)
+        results = session.individual_results()
+        self.assertEqual(results[0].user_id, athlete1.id)
+        self.assertEqual(results[0].splits, [20.1, 30.6, 7.6])
+        self.assertEqual(results[1].user_id, athlete2.id)
+        self.assertEqual(results[1].splits, [12.4, 20.5, 31.45])
+
 
 class PostSplitsTest(APITestCase):
 
@@ -380,3 +425,82 @@ class SplitViewSetTest(APITestCase):
         new_split = session.splits.filter(time=1234, athlete=1,
                                           reader__id_str='A1010')
         self.assertTrue(new_split.exists())
+
+
+class UserViewSetTest(APITestCase):
+
+    fixtures = ['trac_min.json']
+
+    def test_get_me(self):
+        """Test that /users/me is aliased to the current user."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.get('/api/users/me/', format='json')
+        self.assertEqual(resp.data['username'], 'alsal')
+        self.assertEqual(resp.data['first_name'], 'Alberto')
+        self.assertEqual(resp.data['last_name'], 'Salazar')
+        self.assertEqual(resp.status_code, 200)
+
+    def test_list_users(self):
+        """Test that listing users returns only the current user."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.get('/api/users/', format='json')
+        self.assertEqual(len(resp.data), 1)
+        self.assertEqual(resp.data[0]['username'], 'alsal')
+        self.assertEqual(resp.data[0]['first_name'], 'Alberto')
+        self.assertEqual(resp.data[0]['last_name'], 'Salazar')
+        self.assertEqual(resp.status_code, 200)
+
+    def test_change_password(self):
+        """Test changing a user's password."""
+        user = User.objects.get(username='alsal')
+        user.set_password('oldpassword')
+        user.save()
+        self.client.force_authenticate(user=user)
+        resp = self.client.post('/api/users/me/change_password/',
+                                format='json',
+                                data={'old_password': 'oldpassword',
+                                      'new_password': 'newpassword'})
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(user.check_password('newpassword'))
+
+    def test_tutorial_limiter(self):
+        """Test whether to display tutorial."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.get('/api/users/me/tutorial_limiter/',
+                               format='json')
+        # Database is created when test is run, so should return True.
+        self.assertTrue(resp.data['show_tutorial'])
+        self.assertEqual(resp.status_code, 200)
+
+class AuthTestCase(TestCase):
+
+    def setUp(self):
+        self.user_data = {
+            'username': 'newuser',
+            'password': 'password',
+            'email': 'email@gmail.com',
+            'user_type': None
+        }
+
+    @mock.patch.object(trac.views.auth_views, 'send_mail')
+    def test_register_athlete(self, mock_mail):
+        """Test registering an athlete."""
+        self.user_data['user_type'] = 'athlete'
+        resp = self.client.post('/api/register/',
+                                data=json.dumps(self.user_data),
+                                content_type='application/json')
+        self.assertTrue(Athlete.objects.get(user__username="newuser"))
+        self.assertEqual(resp.status_code, 201)
+
+    @mock.patch.object(trac.views.auth_views, 'send_mail')
+    def test_register_coach(self, mock_mail):
+        """Test registering a coach."""
+        self.user_data['user_type'] = 'coach'
+        resp = self.client.post('/api/register/',
+                                data=json.dumps(self.user_data),
+                                content_type='application/json')
+        self.assertTrue(Coach.objects.get(user__username="newuser"))
+        self.assertEqual(resp.status_code, 201)

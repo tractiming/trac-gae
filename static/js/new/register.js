@@ -84,16 +84,20 @@ $(function() {
     form.parsley().validate();
     if (form.parsley().isValid()){
       $('#terms-modal').modal('hide');
+
+      var user_data = {
+        "username": username,
+        "password": password,
+        "email": email,
+        "user_type": user_type,
+        "organization": organization
+      };
+
       $.ajax({
               type: 'POST',
               url: '/api/register/',
-              data: {
-                username: username,
-                password: password,
-                organization: organization,
-                user_type: user_type,
-                email: email,
-              },
+              data: JSON.stringify(user_data),
+              contentType: 'application/json; charset=utf-8',
               // Registration was successful.
               success: function(data) {
                 $('p.notification.notification-critical').hide();

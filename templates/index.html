@@ -84,42 +84,6 @@
 </head>
 
 <body>
-<!--   <div id="bowtruss-header" class="container">
-    <a href="#" id="pull"></a>
-    <ul>
-      <li>
-        <a href="/" class="scrollto logo" title="TRAC">TRAC</a>
-      </li>
-      
-         
-      <li>
-        <a href="/#top" class="scrollto" rel="top">Home</a>
-      </li>
-      <li>
-        <a href="/#bg2" class="scrollto" rel="bg2">Product</a>
-      </li>
-	<li>
-        <a href="/#bg3" class="scrollto" rel="bg3">About</a>
-      </li>
-      <li>
-        <a href="/#bg5" class="scrollto" rel="bg5">Team</a>
-      </li>
-     <li>
-        <a href="/#bg4" class="scrollto" rel="bg4">Blog</a>
-      </li>
-      <li>
-        <a href="/#bg6" class="scrollto" rel="bg6">Contact</a>
-      </li>
-     
-    <li class="button">
-	<form action="https://trac-us.appspot.com">
-        <input type="submit" value="Log In"></input>
-        </form>
-      </li>
-      
-     
-    </ul>
-  </div> -->
 
   <nav class="navbar navbar-default navbar-fixed-top">
     <div class="container" id="bowtruss-header">
@@ -309,71 +273,36 @@
     </div>
     <div id="bg5">
       <div class="content">
-        <h2>Meet T.R.A.C.</h2>
-       <div class="picture hidden-xs">
-          <h3>Our Founders:</h3>
-          <img src={% static "img/DSC0385.JPG" %} width="450px">
-          <h4>Griffin Kelly &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp Elliot Hevel</h4>
-        </div>
-          
-        <div class="text"><p>
-        <h3>Our Team:</h3>
-        <div class="hidden-lg hidden-md">
-          <div class="col-sm-12 col-xs-12">
-            &#8226;<a href="https://www.linkedin.com/in/grifkelly/"> Griffin Kelly: Chief Executive Officer</a>
-          <br>
-             &#8226;<a href="https://www.linkedin.com/pub/elliot-hevel/90/3b0/43b"> Elliot Hevel: Chief Technology Officer</a>
-             <br>
-            &#8226; AJ Greenway: Business Development Analyst</a>
-            <br>
-            &#8226;<a href="https://www.linkedin.com/pub/nathanael-robinson/83/973/712"> Nate Robinson: Hardware Design Engineer</a> 
-            <br>
-            &#8226;<a href="https://www.linkedin.com/pub/jason-hoover/29/67a/6b5"> Jason Hoover: Front-End Developer</a>
-            <br>
-    &#8226;<a href="https://www.linkedin.com/pub/charles-hoffert/20/403/667"> Charlie Hoffert: Firmware Design Engineer</a>
-  <br>
-    &#8226;<a href="https://www.linkedin.com/pub/kanut-harichanwong/89/87/527"> Bew Harichanwong: Front-End Developer</a>
-  </h4>
-  <h4 class="hidden-sm hidden-xs">
-    &#8226; Jason Rhee: Backend-End Developer</a>
-    <br>
-    &#8226; Oscar Aguinaga: Business Development Analyst</a>
-    <br>
+        <h2>Our Team</h2>
+        <div class="row">
+          <div class="col-lg-3">
+            <img src={% static "img/grif_headshot.jpg" %} alt="Photo of Grif"  height="150px" width="150px" style=" border-radius: 50%; border: 2px solid #FFF;">
+            <address>
+              <strong>Griffin Kelly</strong>
+              <p>Founder & CEO</p>
+            </address>
           </div>
-        </div>
-          <h4 class="hidden-sm hidden-xs">
-          &#8226;<a href="https://www.linkedin.com/in/grifkelly/"> Griffin Kelly: Chief Executive Officer</a>
-          <br>
-             &#8226;<a href="https://www.linkedin.com/pub/elliot-hevel/90/3b0/43b"> Elliot Hevel: Chief Technology Officer</a>
-             <br>
-            &#8226; AJ Greenway: Business Development Analyst</a>
-            <br>
-            &#8226;<a href="https://www.linkedin.com/pub/nathanael-robinson/83/973/712"> Nate Robinson: Hardware Design Engineer</a> 
-            <br>
-            &#8226;<a href="https://www.linkedin.com/pub/jason-hoover/29/67a/6b5"> Jason Hoover: Front-End Developer</a>
-            <br>
-		&#8226;<a href="https://www.linkedin.com/pub/charles-hoffert/20/403/667"> Charlie Hoffert: Firmware Design Engineer</a>
-	<br>
-		&#8226;<a href="https://www.linkedin.com/pub/kanut-harichanwong/89/87/527"> Bew Harichanwong: Front-End Developer</a>
-  </h4>
-  <h4 class="hidden-sm hidden-xs">
-    &#8226; Jason Rhee: Backend-End Developer</a>
-    <br>
-    &#8226; Oscar Aguinaga: Business Development Analyst</a>
-    <br>
-
-    <br>
-	
-          </h4>
-              <h3 class="hidden-sm hidden-xs">Our Board:</h3>
-              <h4 class="hidden-sm hidden-xs">
-            &#8226;<a href="https://www.linkedin.com/pub/howard-kelly/5/66a/b02"> Howard Kelly: Chairman, President of Vancive Medical Technologies</a>
-            <br>
-            &#8226;<a href="https://www.linkedin.com/pub/vinny-finneran/1b/358/973"> Vincent Finneran: Boardmember, Former Program Director of CARA</a>
-          </h4>
-            
-           
-            
+          <div class="col-lg-3">
+            <img src={% static "img/elliotheadshot.JPG" %} alt="Photo of Elliot"  height="150px" width="150px" style=" border-radius: 50%; border: 2px solid #FFF;">
+            <address>
+              <strong>Elliot Hevel</strong>
+              <p>Founder & CTO</p>
+            </address>
+          </div>
+          <div class="col-lg-3">
+            <img src={% static "img/oscar_headshot.jpg" %} alt="Photo of Oscar"  height="150px" width="150px" style=" border-radius: 50%; border: 2px solid #FFF;">
+            <address>
+              <strong>Oscar Aguiñaga</strong>
+              <p>Business Development</p>
+            </address>
+          </div>
+          <div class="col-lg-3">
+            <img src={% static "img/bew_headshot.jpg" %} alt="Photo of Bew"  height="150px" width="150px" style=" border-radius: 50%; border: 2px solid #FFF;">
+            <address>
+              <strong>Bew Harichanwong</strong>
+              <p>Development Engineer</p>
+            </address>
+          </div>
         </div>
       </div>
     </div>
