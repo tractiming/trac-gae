@@ -1,3 +1,5 @@
+import logging
+
 from django.db.models import Q
 from rest_framework import (
     viewsets, permissions, status, pagination, filters
@@ -8,6 +10,9 @@ from rest_framework.throttling import ScopedRateThrottle
 from trac.filters import SplitFilter
 from trac.models import Split
 from trac.serializers import SplitSerializer
+
+
+log = logging.getLogger(__name__)
 
 
 class SplitViewSet(viewsets.ModelViewSet):
@@ -30,6 +35,8 @@ class SplitViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         # https://stackoverflow.com/questions/22881067/
         # django-rest-framework-post-array-of-objects
+        log.debug("Creating split(s): %s", request.data)
+        log.debug("Create split meta: %s", request.META)
         is_many = isinstance(request.data, list)
         if not is_many:
             return super(SplitViewSet, self).create(request, *args, **kwargs)
