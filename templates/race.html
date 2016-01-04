@@ -92,12 +92,51 @@
 
 
    app.controller('registeredCtrl', function($scope, $http) {
+    var  SESSIONS_PER_PAGE  = 5;
+    $scope.hideInput = true;
     $scope.regNull = false;
     $scope.editing_header = true;
+    $scope.currentPage = 1;
+    $scope.sessionFirst = 1;
+    $scope.sessionLast = SESSIONS_PER_PAGE;
 
-    $http({method: 'GET', url: '/api/athletes/', headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
+    //pagination buttons
+
+    $scope.pageForward = function(){
+      $scope.sessionFirst += SESSIONS_PER_PAGE;
+      $scope.sessionLast += SESSIONS_PER_PAGE;
+      $scope.currentPage++;
+
+      $http({method: 'GET', url: '/api/athletes/', headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
+        .success(function (response) { 
+          $scope.athletes = response.results;
+          $scope.count = response.count;
+          
+      });
+
+    }
+    $scope.pageBackward = function(){
+      if ($scope.sessionFirst != 1) {
+        $scope.sessionFirst -= SESSIONS_PER_PAGE;
+        $scope.sessionLast -= SESSIONS_PER_PAGE;
+        $scope.currentPage--;
+      }
+
+      $http({method: 'GET', url: '/api/athletes/', headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
+        .success(function (response) {
+          $scope.athletes = response.results;
+          $scope.count = response.count;
+          
+      });
+
+
+    }
+
+    //load the roster for test data
+    $http({method: 'GET', url: '/api/athletes/?limit=5', headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
     .success(function (response) { 
-      $scope.athletes = response;
+      $scope.athletes = response.results;
+      $scope.count = response.count;
       if (response.length == 0){
         $scope.regNull = true;
       }
@@ -119,7 +158,7 @@
         var selected = workout.id;
         $scope.selectedID = selected;
         $scope.workoutName = workout.name;
-        var url = '/api/athletes/?session='+ selected;
+        var url = '/api/athletes/?session='+ selected+'limit=50';
         $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
           .success(function (response) { 
             $scope.athletes = response;
@@ -319,16 +358,31 @@
                   <span class="glyphicon glyphicon-plus" aria-hidden="true"> </span> CSV Upload
               </button>
             </div>
-              <h1 id="score-title">Registration: {{workoutName}}</h1>
-              <div class="input-group">
-                <span class="btn btn-default input-group-addon" ng-click="hideInput = !hideInput;" style="{{changeStyle(hideInput)}}">
-                  <span class="glyphicon glyphicon-search"></span>
-                </span>
-                <input class="form-control animate-hide" ng-hide="hideInput" style="border-top-right-radius:4px !important; border-bottom-right-radius:4px !important; position:static !important;" type="search" id="searchinput">
-                <span id="searchclear" class="glyphicon glyphicon-remove fade" ng-hide="hideInput"></span>
-                <span></span>
-              </div>
             </div>
+              <h1 id="score-title">Registration: {{workoutName}}</h1>
+              <div class="row">
+                <div class= "col-lg-5" style="padding-left:0px !important;">
+                  <div class="input-group">
+                    <span class="btn btn-default input-group-addon" ng-click="hideInput = !hideInput;" style="{{changeStyle(hideInput)}}">
+                      <span class="glyphicon glyphicon-search"></span>
+                    </span>
+                    <input class="form-control animate-hide" ng-hide="hideInput" style="border-top-right-radius:4px !important; border-bottom-right-radius:4px !important; position:static !important;" type="search" id="searchinput">
+                    <span id="searchclear" class="glyphicon glyphicon-remove fade" ng-hide="hideInput"></span>
+                    <span></span>
+                  </div>
+                </div>
+                <div class=" pull-right">
+                  <span class="sessions-show-status">Showing {{sessionFirst}} - {{(sessionLast > count ? count : sessionLast)}} of {{count}} results</span>
+                  <button type="button" class="prev btn btn-default" ng-click="pageBackward();" ng-disabled="currentPage == 1">
+                    <span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span>
+                  </button>
+                  <span class="sessions-page-number">{{currentPage}}</span>
+                  <button type="button" class="next btn btn-default" ng-click="pageForward();" ng-disabled="count < sessionLast">
+                    <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
+                  </button>
+               </div>
+              </div>
+            
             <div class="spinner-container" style="position:relative; top:100px;">
                 <div id="spinner"></div>
             </div>
@@ -409,6 +463,19 @@
                 </tbody>
               </table>
 
+              </div>
+              <div class="row" style="margin-bottom:30px;">
+                <div class="center">
+                  <div id="sessions-navigate-footer" class="sessions-navigate">
+                    <button type="button" class="prev btn btn-default" ng-click="pageBackward();" ng-disabled="currentPage == 1">
+                      <span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span>
+                    </button>
+                    <span class="sessions-page-number">{{currentPage}}</span>
+                    <button type="button" class="next btn btn-default" ng-click="pageForward();" ng-disabled="count < sessionLast">
+                      <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
+                    </button>
+                  </div>
+                </div>
               </div>
               <div style="text-align: center;">
               <p id="inputheader" class="notification-error notification-default" role="alert" ng-show="regNull">
