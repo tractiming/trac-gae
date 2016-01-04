@@ -105,7 +105,6 @@
     $scope.sessionLast = SESSIONS_PER_PAGE;
 
     //pagination buttons
-
     $scope.pageForward = function(){
       $scope.sessionFirst += SESSIONS_PER_PAGE;
       $scope.sessionLast += SESSIONS_PER_PAGE;
@@ -136,7 +135,7 @@
 
     }
 
-    //load the roster for test data
+    //load the roster for the most recent workout
     $http({method: 'GET', url: '/api/athletes/?limit=5', headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
     .success(function (response) { 
       $scope.athletes = response.results;
@@ -147,7 +146,7 @@
 
     });
 
-
+    //Load the heat menu bar on the left hand side of page
     $http({method: 'GET', url: '/api/sessions/', headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:0, limit:15} })
     .success(function (response) { 
       
@@ -157,7 +156,7 @@
 
     });
 
-    //onClick event of session, dynamically route athletes. 
+    //onClick event of session in heat menu, dynamically route athletes. 
     $scope.select = function(workout) {
         var selected = workout.id;
         $scope.selectedID = selected;
@@ -173,6 +172,7 @@
           });
 
       };
+    //For See More button on Heat Menu
     $scope.seeMore = function(){
 
       $http({method: 'GET', url: '/api/sessions/', headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.temporaryEnd, limit:15} })
@@ -183,18 +183,21 @@
       });
 
     }
-
+    //Deleting an athlete off a workout
     $scope.delete = function(array,index,runner){
       $scope.athletes.splice(index, 1);
       console.log($scope.athletes);
       //TODO: Do an ajax call, to actually delete
        var url = '/api/athletes/'+runner.id +'/';
        $http({method: 'DELETE', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}})
-         .success(function (response) { 
-           console.log('Successfully Deleted');
+         .success(function (response) {
+          //Update the Count
+           $scope.count -= 1;
+
+
        });
     }
-
+    //Editing an athletes info for a workout
     $scope.save = function(runner){
       var url = '/api/athletes/'+runner.id +'/';
       $http({method: 'PATCH', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{
@@ -216,6 +219,8 @@
           $scope[dynamicString] = false;
           var dynamicString = 'showSave_' + runner.id;
           $scope[dynamicString] = false;
+          var dynamicString = 'editing_icons_' + runner.id;
+          $scope[dynamicString] = false;
       });
       //TODO: Do an ajax call, to actually save
     }
@@ -223,6 +228,8 @@
     // editing contact info
     $scope.editing = false;
     $scope.edit = function(x) {
+       var dynamicIndex = x.id;
+       $scope.newField = angular.copy(x);
 
       if ($(window).width() < 768) {
         $scope.val = x;
@@ -247,15 +254,19 @@
     };
 
 
-    $scope.cancel = function(obj) {
-      var selectedID = angular.element(obj.target).parent().parent().parent().attr('id');
+    $scope.cancel = function(x) { 
+
+      var selectedID = x.id;
+      var tempIndex = $scope.athletes.indexOf(x);
       var dynamicString = 'editing_' + selectedID;
       $scope[dynamicString] = false;
       var dynamicString = 'showDelete_' + selectedID;
       $scope[dynamicString] = false;
       var dynamicString = 'showSave_' + selectedID;
       $scope[dynamicString] = false;
-
+      var dynamicString = 'editing_icons_' + selectedID;
+        $scope[dynamicString] = false;
+      $scope.athletes[tempIndex] = $scope.newField;
 
     };
 
@@ -307,15 +318,20 @@
 
     }
     $scope.deleteButtons = function(x){
+        var dynamicString = 'editing_icons_' + x.id;
+        $scope[dynamicString] = true;
         var dynamicString = 'showDelete_' + x.id;
         $scope[dynamicString] = true;
 
     }
     $scope.saveButtons = function(x){
+        var dynamicString = 'editing_icons_' + x.id;
+        $scope[dynamicString] = true;
         var dynamicString = 'showSave_' + x.id;
         $scope[dynamicString] = true;
 
     }
+    //Keep style consistent during animations of search bar
     $scope.changeStyle = function(toggle){
       var buttonStyle = 'border-bottom-right-radius: 4px !important; border-top-right-radius : 4px !important; border-right:1px solid #ccc !important;';
       var buttonStyle2 = 'border-bottom-right-radius: 0px !important; border-top-right-radius : 0px !important; border-right:0 !important;';
@@ -452,17 +468,17 @@
                         <input name="{{ name }}" type="text" ng-model="x.gender" ng-show="editing_{{x.id}}" placeholder="M/F" class="form-control no-animate" style="width:60px;">
                       </div></td>
                     <td>
-                        <div class="buttons no-animate" editing="editing" ng-hide="editing_{{x.id}};">
+                        <div class="buttons no-animate" editing="editing" ng-hide="editing_icons_{{x.id}};">
                           <span class="glyphicon glyphicon-pencil" aria-hidden="true" data-ng-click="edit(x);saveButtons(x)" style="margin-right:5%"></span>
-                          <span class="glyphicon glyphicon-remove" aria-hidden="true" ng-click="edit(x);deleteButtons(x);"></span>
+                          <span class="glyphicon glyphicon-remove" aria-hidden="true" ng-click="deleteButtons(x);"></span>
                         </div>
                         <div class="buttons hidden-xs hidden-sm no-animate" ng-show="showSave_{{x.id}}">
                           <button name="" class="btn btn-primary" ng-click="save(x)">Save</button>
-                          <button name="" class="btn btn-default" ng-click="cancel($event)">Cancel</button>
+                          <button name="" class="btn btn-default" ng-click="cancel(x)">Cancel</button>
                         </div>
                         <div class="buttons hidden-xs hidden-sm no-animate" ng-show="showDelete_{{x.id}}">
                           <button name="" class="btn btn-danger" ng-click="delete(athletes,$index,x)">Delete</button>
-                          <button name="" class="btn btn-default" ng-click="cancel($event)">Cancel</button>
+                          <button name="" class="btn btn-default" ng-click="cancel(x)">Cancel</button>
                         </div>
                         <!--<div class="buttons hidden-lg hidden-xl" ng-show="editing_{{x.id}}" >
                           <span class="glyphicon glyphicon-save" aria-hidden="true" ng-click="save(x);" style="margin-right:5%"></span>
