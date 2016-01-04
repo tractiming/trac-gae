@@ -125,7 +125,6 @@ $(function() {
 $(window).resize(function(){  
     var windowsize = $(window).width();  
     if(windowsize > 719 && menu.is(':hidden')) { 
-        alert('hello there');
         menu.removeAttr('style');  
     }
     if (windowsize < 1600) {
