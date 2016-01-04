@@ -186,7 +186,7 @@
     //Deleting an athlete off a workout
     $scope.delete = function(array,index,runner){
       $scope.athletes.splice(index, 1);
-      console.log($scope.athletes);
+      
       //TODO: Do an ajax call, to actually delete
        var url = '/api/athletes/'+runner.id +'/';
        $http({method: 'DELETE', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}})
@@ -244,12 +244,10 @@
       }
       else  {
         var dynamicString = 'editing_' + x.id;
-        console.log(dynamicString);
         $scope[dynamicString] = true;
           // do something for huge screens
       }
      // var selectedID = angular.element(obj.target).parent().parent().parent().attr('id');
-     console.log($scope.val);
       
     };
 
@@ -258,15 +256,20 @@
 
       var selectedID = x.id;
       var tempIndex = $scope.athletes.indexOf(x);
+      //Resore old data as necessary, only if editing
       var dynamicString = 'editing_' + selectedID;
-      $scope[dynamicString] = false;
+      if ($scope[dynamicString] == true){
+        $scope.athletes[tempIndex] = $scope.newField;
+        $scope[dynamicString] = false;
+      }
+      
       var dynamicString = 'showDelete_' + selectedID;
       $scope[dynamicString] = false;
       var dynamicString = 'showSave_' + selectedID;
       $scope[dynamicString] = false;
       var dynamicString = 'editing_icons_' + selectedID;
         $scope[dynamicString] = false;
-      $scope.athletes[tempIndex] = $scope.newField;
+
 
     };
 
@@ -468,15 +471,15 @@
                         <input name="{{ name }}" type="text" ng-model="x.gender" ng-show="editing_{{x.id}}" placeholder="M/F" class="form-control no-animate" style="width:60px;">
                       </div></td>
                     <td>
-                        <div class="buttons no-animate" editing="editing" ng-hide="editing_icons_{{x.id}};">
-                          <span class="glyphicon glyphicon-pencil" aria-hidden="true" data-ng-click="edit(x);saveButtons(x)" style="margin-right:5%"></span>
-                          <span class="glyphicon glyphicon-remove" aria-hidden="true" ng-click="deleteButtons(x);"></span>
+                        <div class="buttons no-animate pull-right" editing="editing" ng-hide="editing_icons_{{x.id}};">
+                          <span class="glyphicon glyphicon-pencil" aria-hidden="true" data-ng-click="edit(x);saveButtons(x)" style="margin-right:10px"></span>
+                          <span class="glyphicon glyphicon-remove" aria-hidden="true" ng-click="deleteButtons(x);" style="margin-right:10px"></span>
                         </div>
-                        <div class="buttons hidden-xs hidden-sm no-animate" ng-show="showSave_{{x.id}}">
+                        <div class="buttons hidden-xs hidden-sm no-animate pull-right" ng-show="showSave_{{x.id}}">
                           <button name="" class="btn btn-primary" ng-click="save(x)">Save</button>
                           <button name="" class="btn btn-default" ng-click="cancel(x)">Cancel</button>
                         </div>
-                        <div class="buttons hidden-xs hidden-sm no-animate" ng-show="showDelete_{{x.id}}">
+                        <div class="buttons hidden-xs hidden-sm no-animate pull-right" ng-show="showDelete_{{x.id}}">
                           <button name="" class="btn btn-danger" ng-click="delete(athletes,$index,x)">Delete</button>
                           <button name="" class="btn btn-default" ng-click="cancel(x)">Cancel</button>
                         </div>
