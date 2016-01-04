@@ -1710,7 +1710,7 @@ google.setOnLoadCallback(function(){
 						var json = $.parseJSON(data);
 
 						// add heat name
-						$('#results-title').html('Live Results: ' + json.name);
+						$('#results-title').html('Results: ' + json.name);
 
 						// hide auto-correction options
 						$('#correction-options').hide();
