@@ -62,6 +62,11 @@
 
           $scope.athletes = response.results;
           $scope.count = response.count;
+
+          if ($scope.count == 0)
+            $scope.queryNull = true;
+          else
+            $scope.queryNull = false;
           
       });
 
@@ -81,16 +86,20 @@
 
     }
 
-    //load the roster for the most recent workout
-    $http({method: 'GET', url: '/api/athletes/?limit=5', headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
-    .success(function (response) { 
-      $scope.athletes = response.results;
-      $scope.count = response.count;
-      if (response.length == 0){
-        $scope.regNull = true;
-      }
+    var url = '/api/athletes/?limit=5';
+      $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
+      .success(function (response) { 
+        $scope.rosterAthletes = response.results;
 
-    });
+        if (response.length == 0){
+          $scope.regNull = true;
+        }
+        else{
+          $scope.regNull = false;
+        }
+
+      });
+
 
     //Load the heat menu bar on the left hand side of page
     $http({method: 'GET', url: '/api/sessions/', headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:0, limit:15} })
@@ -99,6 +108,24 @@
       $scope.json = response.results;
       $scope.idArray = response.results.id;
       $scope.temporaryEnd = 15;
+      var mostRecentWorkout = response.results[0].id;
+      $scope.workoutName = response.results[0].name;
+      $scope.selectedID = response.results[0].id;
+
+      //load the roster for the most recent workout\
+      var url = '/api/athletes/?registered_to_session='+ mostRecentWorkout+'&limit=5';
+      $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
+      .success(function (response) { 
+        $scope.athletes = response.results;
+        $scope.count = response.count;
+        if (response.length == 0){
+          $scope.regNull = true;
+        }
+        else{
+          $scope.regNull = false;
+        }
+
+      });
 
     });
 
@@ -107,12 +134,20 @@
         var selected = workout.id;
         $scope.selectedID = selected;
         $scope.workoutName = workout.name;
-        var url = '/api/athletes/?session='+ selected+'&limit=50';
+        var url = '/api/athletes/?registered_to_session='+ selected+'&limit=5';
         $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
           .success(function (response) { 
-            $scope.athletes = response;
-            if (response.length == 0){
+            $scope.athletes = response.results;
+            //Reset the page counter
+            $scope.count = response.count;
+            $scope.currentPage = 1;
+            $scope.sessionFirst = 1;
+
+            if (response.results.length == 0){
                $scope.regNull = true;
+            }
+            else{
+              $scope.regNull = false;
             }
 
           });
@@ -162,7 +197,6 @@
        } 
       })
         .success(function (response) { 
-         alert('successfully changed');
           var dynamicString = 'editing_' + runner.id;
           $scope[dynamicString] = false;
           var dynamicString = 'showDelete_' + runner.id;
@@ -236,16 +270,14 @@
         }
       });
       //Get the pk and data from row and send to server
-      alert(atlList);
       var url = '/api/sessions/'+ $scope.selectedID +'/register_athletes/';
-      alert(url);
       $http({method: 'POST', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{
         athletes: atlList,
        } 
       })
-        .success(function (response) { 
-         alert('successfully changed');
-      });
+        .success(function (response) {
+          console.log(response);
+        });
 
       $('#rosterModal').modal('hide');
     }
