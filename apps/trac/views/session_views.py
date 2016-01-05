@@ -44,8 +44,9 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
     serializer_class = TimingSessionSerializer
     permission_classes = (permissions.AllowAny,)
     pagination_class = pagination.LimitOffsetPagination
-    filter_backends = (filters.DjangoFilterBackend,)
+    filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter,)
     filter_class = TimingSessionFilter
+    search_fields = ('name',)
 
     def get_queryset(self):
         """
