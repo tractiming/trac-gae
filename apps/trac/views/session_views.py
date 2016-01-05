@@ -215,7 +215,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                 # If the athlete already has at least one split, they will
                 # already show up in the results.
                 if not has_split:
-                    extra_results.append(session.calc_athlete_splits(
+                    extra_results.append(session._calc_athlete_splits(
                         athlete.id))
 
                 distinct_ids |= set(session.registered_athletes.values_list(
