@@ -107,7 +107,7 @@
         var selected = workout.id;
         $scope.selectedID = selected;
         $scope.workoutName = workout.name;
-        var url = '/api/athletes/?session='+ selected+'limit=50';
+        var url = '/api/athletes/?session='+ selected+'&limit=50';
         $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
           .success(function (response) { 
             $scope.athletes = response;
@@ -237,10 +237,10 @@
       });
       //Get the pk and data from row and send to server
       alert(atlList);
-      var url = '/api/sessions/'+ $scope.selectedID +'/';
+      var url = '/api/sessions/'+ $scope.selectedID +'/register_athletes/';
       alert(url);
-      $http({method: 'PATCH', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{
-        registered_athletes: [atlList],
+      $http({method: 'POST', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{
+        athletes: atlList,
        } 
       })
         .success(function (response) { 
