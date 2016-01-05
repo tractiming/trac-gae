@@ -284,7 +284,8 @@ class SplitSerializer(FilterRelatedMixin, serializers.ModelSerializer):
         # If the session(s) is not given explicitly, add splits to sessions
         # based on the reader's active sessions.
         if not split.timingsession_set.exists() and split.reader is not None:
-            for session in split.reader.active_sessions:
+            sessions = split.reader.active_sessions
+            for session in sessions:
                 # If the session has a set of registered athletes, and the
                 # current tag is not in that set, ignore the split.
                 if (session.use_registered_athletes_only and
@@ -292,10 +293,13 @@ class SplitSerializer(FilterRelatedMixin, serializers.ModelSerializer):
                         session.registered_athletes.all()):
                     continue
                 session.splits.add(split.pk)
+        else:
+            sessions = split.timingsession_set.all()
 
-                # Destroying the cache for this session will force the results
-                # to be recalculated. Athlete is a required field on split, so
-                # the id will always exist.
-                session.clear_cache(split.athlete.id)
+        for session in sessions:
+            # Destroying the cache for this session will force the results
+            # to be recalculated. Athlete is a required field on split, so
+            # the id will always exist.
+            session.clear_cache(split.athlete.id)
 
         return split

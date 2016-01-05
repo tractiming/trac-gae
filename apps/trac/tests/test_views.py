@@ -469,6 +469,29 @@ class SplitViewSetTest(APITestCase):
         self.assertEqual(resp.status_code, 201)
         self.assertEqual(resp.data['time'], 1420074061123)
 
+    def test_split_add_session(self):
+        """Test that a split is added to the given session(s)."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        with mock.patch.object(TimingSession, 'clear_cache') as mock_clear:
+            resp = self.client.post('/api/splits/',
+                data=json.dumps({
+                    'reader': None,
+                    'athlete': 1,
+                    'time': '2015/01/01 01:01:01.123',
+                    'tag': None,
+                    'sessions': [1, 2]}),
+                content_type='application/json')
+        self.assertEqual(resp.status_code, 201)
+        split = Split.objects.get(pk=resp.data['id'])
+        self.assertEqual(
+            list(split.timingsession_set.values_list('id', flat=True)),
+            [1, 2])
+
+        # Make sure the cache was cleared for both sessions for this
+        # athlete.
+        mock_clear.assert_has_calls([mock.call(1), mock.call(1)])
+
 
 class UserViewSetTest(APITestCase):
 
