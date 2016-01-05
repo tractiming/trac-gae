@@ -135,13 +135,14 @@ class AthleteSerializer(SaveUserMixin,
                                      required=False)
     team = serializers.PrimaryKeyRelatedField(
         queryset=Team.objects.all(), allow_null=True, required=False)
+    team_name = serializers.CharField(source='team.name', read_only=True)
 
     class Meta:
         model = Athlete
         fields = (
             'id', 'username', 'first_name', 'last_name', 'email',
             'team', 'age', 'birth_date', 'gender', 'tfrrs_id', 'tag',
-            'password'
+            'password', 'team_name'
         )
         read_only_fields = ('age',)
 
