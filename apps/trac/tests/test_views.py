@@ -454,6 +454,21 @@ class SplitViewSetTest(APITestCase):
                                            reader__id_str='A1010')
         self.assertTrue(new_split_1.exists())
 
+    def test_timestamp_conversion(self):
+        """Test that datetimes are converted to timestamps."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.post('/api/splits/',
+            data=json.dumps({
+                'reader': 'A1010',
+                'athlete': 1,
+                'time': '2015/01/01 01:01:01.123',
+                'tag': None,
+                'sessions': []}),
+            content_type='application/json')
+        self.assertEqual(resp.status_code, 201)
+        self.assertEqual(resp.data['time'], 1420074061123)
+
 
 class UserViewSetTest(APITestCase):
 

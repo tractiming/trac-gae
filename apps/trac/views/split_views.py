@@ -1,6 +1,8 @@
 import logging
 
+from dateutil import parser
 from django.db.models import Q
+from django.utils import timezone
 from rest_framework import (
     viewsets, permissions, status, pagination, filters
 )
@@ -14,6 +16,31 @@ from trac.serializers import SplitSerializer
 
 
 log = logging.getLogger(__name__)
+
+
+_EPOCH = timezone.datetime(1970, 1, 1)
+
+
+def _parse_split_time(split):
+    """Convert a split's time into a timestamp."""
+    try:
+        time = split['time']
+    except KeyError:
+        return None
+
+    if isinstance(time, (str, unicode)):
+        parsed_time = parser.parse(time)
+        timestamp = int((parsed_time - _EPOCH).total_seconds() * 1000)
+        split['time'] = timestamp
+
+
+def _convert_times(data):
+    """Parse times for every split in an incoming request."""
+    if not isinstance(data, list):
+        _parse_split_time(data)
+    else:
+        for split in data:
+            _parse_split_time(split)
 
 
 class SplitViewSet(viewsets.ModelViewSet):
@@ -38,6 +65,7 @@ class SplitViewSet(viewsets.ModelViewSet):
         # django-rest-framework-post-array-of-objects
         log.debug("Creating split(s): %s", request.data)
         log.debug("Create split meta: %s", request.META)
+        _convert_times(request.data)
         is_many = isinstance(request.data, list)
         if not is_many:
             return super(SplitViewSet, self).create(request, *args, **kwargs)
