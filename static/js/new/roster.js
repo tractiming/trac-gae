@@ -9,6 +9,7 @@
     $scope.currentPage = 1;
     $scope.sessionFirst = 1;
     $scope.sessionLast = SESSIONS_PER_PAGE;
+    $scope.universalEdit = false;
 
 
     //pagination buttons
@@ -17,7 +18,7 @@
       $scope.sessionLast += SESSIONS_PER_PAGE;
       $scope.currentPage++;
 
-      if ($scope.search.change.length > 0)
+      if ($scope.search !== undefined && $scope.search.change.length > 0 )
         var url = '/api/athletes/?search=' + $scope.search.change;
       else
         var url = '/api/athletes/';
@@ -37,7 +38,7 @@
         $scope.sessionLast -= SESSIONS_PER_PAGE;
         $scope.currentPage--;
       }
-      if ($scope.search.change.length > 0)
+      if ($scope.search !== undefined && $scope.search.change.length > 0 )
         var url = '/api/athletes/?search=' + $scope.search.change;
       else
         var url = '/api/athletes/';
@@ -219,6 +220,8 @@
       var dynamicString = 'editing_icons_' + selectedID;
         $scope[dynamicString] = false;
 
+      $scope.universalEdit = false;
+
 
     };
 
@@ -270,6 +273,7 @@
 
     }
     $scope.deleteButtons = function(x){
+        $scope.universalEdit = true;
         var dynamicString = 'editing_icons_' + x.id;
         $scope[dynamicString] = true;
         var dynamicString = 'showDelete_' + x.id;
@@ -277,6 +281,7 @@
 
     }
     $scope.saveButtons = function(x){
+        $scope.universalEdit = true;
         var dynamicString = 'editing_icons_' + x.id;
         $scope[dynamicString] = true;
         var dynamicString = 'showSave_' + x.id;
@@ -294,5 +299,14 @@
         return buttonStyle2;
       }
     }
+    $scope.hoverIn = function(){
+      if(!$scope.universalEdit)
+        this.hoverEdit = {display:'inline-block'};
+    };
+
+    $scope.hoverOut = function(){
+        this.hoverEdit = {display:'none'};
+    };
+
   });
    
