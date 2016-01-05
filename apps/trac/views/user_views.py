@@ -95,8 +95,9 @@ class AthleteViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = AthleteSerializer
     pagination_class = pagination.LimitOffsetPagination
-    filter_backends = (filters.DjangoFilterBackend,)
+    filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter,)
     filter_class = AthleteFilter
+    search_fields = ('user__first_name', 'user__last_name', 'team__name')
 
     def get_queryset(self):
         """
