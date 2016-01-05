@@ -201,21 +201,42 @@ class ReaderSerializer(serializers.ModelSerializer):
         return reader
 
 
-class TimingSessionSerializer(serializers.ModelSerializer):
+class TimingSessionSerializer(FilterRelatedMixin,
+                              serializers.ModelSerializer):
     coach = serializers.CharField(source='coach.user.username', read_only=True)
     readers = serializers.SlugRelatedField(many=True, read_only=True,
                                            slug_field='id_str')
+    registered_athletes = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Athlete.objects.all(), allow_null=True,
+        required=False)
 
     class Meta:
         model = TimingSession
         lookup_field = 'session'
         exclude = ('splits',)
-        read_only_fields = ('registered_athletes', )
+
+    def filter_registered_athletes(self, queryset):
+        """Only show athletes belonging to the current coach."""
+        if 'request' in self.context:
+            user = self.context['request'].user
+
+            if is_coach(user):
+                queryset = queryset.filter(
+                    team__in=user.coach.team_set.all(),
+                    team__isnull=False)
+            elif is_athlete(user):
+                queryset = queryset.filter(user=user)
+            else:
+                queryset = queryset.none()
+
+        return queryset
 
     def create(self, validated_data):
+        # TODO: ensure the user is a coach
         coach = Coach.objects.get(user=self.context['request'].user)
         readers = Reader.objects.filter(coach=coach)
-        session = TimingSession.objects.create(coach=coach, **validated_data)
+        validated_data['coach'] = coach
+        session = super(TimingSessionSerializer, self).create(validated_data)
         session.readers.add(*readers)
         return session
 
