@@ -314,6 +314,19 @@ class TimingSessionViewSetTest(APITestCase):
         self.assertEqual(results[1].user_id, athlete2.id)
         self.assertEqual(results[1].splits, [12.4, 20.5, 31.45])
 
+    def test_register_athletes(self):
+        """Test appending to registered athletes list."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.post(
+            '/api/sessions/1/register_athletes/',
+            data=json.dumps({'athletes': [1, 2]}),
+            content_type='application/json')
+        self.assertEqual(resp.status_code, 200)
+        session = TimingSession.objects.get(pk=1)
+        self.assertEqual(
+            list(session.registered_athletes.values_list('id', flat=True)),
+            [1, 2])
 
 class PostSplitsTest(APITestCase):
 
@@ -469,6 +482,29 @@ class SplitViewSetTest(APITestCase):
         self.assertEqual(resp.status_code, 201)
         self.assertEqual(resp.data['time'], 1420074061123)
 
+    def test_split_add_session(self):
+        """Test that a split is added to the given session(s)."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        with mock.patch.object(TimingSession, 'clear_cache') as mock_clear:
+            resp = self.client.post('/api/splits/',
+                data=json.dumps({
+                    'reader': None,
+                    'athlete': 1,
+                    'time': '2015/01/01 01:01:01.123',
+                    'tag': None,
+                    'sessions': [1, 2]}),
+                content_type='application/json')
+        self.assertEqual(resp.status_code, 201)
+        split = Split.objects.get(pk=resp.data['id'])
+        self.assertEqual(
+            list(split.timingsession_set.values_list('id', flat=True)),
+            [1, 2])
+
+        # Make sure the cache was cleared for both sessions for this
+        # athlete.
+        mock_clear.assert_has_calls([mock.call(1), mock.call(1)])
+
 
 class UserViewSetTest(APITestCase):
 
@@ -517,6 +553,7 @@ class UserViewSetTest(APITestCase):
         # Database is created when test is run, so should return True.
         self.assertTrue(resp.data['show_tutorial'])
         self.assertEqual(resp.status_code, 200)
+
 
 class AuthTestCase(TestCase):
 

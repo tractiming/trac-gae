@@ -135,13 +135,14 @@ class AthleteSerializer(SaveUserMixin,
                                      required=False)
     team = serializers.PrimaryKeyRelatedField(
         queryset=Team.objects.all(), allow_null=True, required=False)
+    team_name = serializers.CharField(source='team.name', read_only=True)
 
     class Meta:
         model = Athlete
         fields = (
             'id', 'username', 'first_name', 'last_name', 'email',
             'team', 'age', 'birth_date', 'gender', 'tfrrs_id', 'tag',
-            'password'
+            'password', 'team_name'
         )
         read_only_fields = ('age',)
 
@@ -200,21 +201,42 @@ class ReaderSerializer(serializers.ModelSerializer):
         return reader
 
 
-class TimingSessionSerializer(serializers.ModelSerializer):
+class TimingSessionSerializer(FilterRelatedMixin,
+                              serializers.ModelSerializer):
     coach = serializers.CharField(source='coach.user.username', read_only=True)
     readers = serializers.SlugRelatedField(many=True, read_only=True,
                                            slug_field='id_str')
+    registered_athletes = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Athlete.objects.all(), allow_null=True,
+        required=False)
 
     class Meta:
         model = TimingSession
         lookup_field = 'session'
         exclude = ('splits',)
-        read_only_fields = ('registered_athletes', )
+
+    def filter_registered_athletes(self, queryset):
+        """Only show athletes belonging to the current coach."""
+        if 'request' in self.context:
+            user = self.context['request'].user
+
+            if is_coach(user):
+                queryset = queryset.filter(
+                    team__in=user.coach.team_set.all(),
+                    team__isnull=False)
+            elif is_athlete(user):
+                queryset = queryset.filter(user=user)
+            else:
+                queryset = queryset.none()
+
+        return queryset
 
     def create(self, validated_data):
+        # TODO: ensure the user is a coach
         coach = Coach.objects.get(user=self.context['request'].user)
         readers = Reader.objects.filter(coach=coach)
-        session = TimingSession.objects.create(coach=coach, **validated_data)
+        validated_data['coach'] = coach
+        session = super(TimingSessionSerializer, self).create(validated_data)
         session.readers.add(*readers)
         return session
 
@@ -284,7 +306,8 @@ class SplitSerializer(FilterRelatedMixin, serializers.ModelSerializer):
         # If the session(s) is not given explicitly, add splits to sessions
         # based on the reader's active sessions.
         if not split.timingsession_set.exists() and split.reader is not None:
-            for session in split.reader.active_sessions:
+            sessions = split.reader.active_sessions
+            for session in sessions:
                 # If the session has a set of registered athletes, and the
                 # current tag is not in that set, ignore the split.
                 if (session.use_registered_athletes_only and
@@ -292,10 +315,13 @@ class SplitSerializer(FilterRelatedMixin, serializers.ModelSerializer):
                         session.registered_athletes.all()):
                     continue
                 session.splits.add(split.pk)
+        else:
+            sessions = split.timingsession_set.all()
 
-                # Destroying the cache for this session will force the results
-                # to be recalculated. Athlete is a required field on split, so
-                # the id will always exist.
-                session.clear_cache(split.athlete.id)
+        for session in sessions:
+            # Destroying the cache for this session will force the results
+            # to be recalculated. Athlete is a required field on split, so
+            # the id will always exist.
+            session.clear_cache(split.athlete.id)
 
         return split

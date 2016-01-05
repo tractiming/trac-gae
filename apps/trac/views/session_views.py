@@ -368,6 +368,20 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         tfrrs_results = tfrrs.format_tfrrs_results(session)
         return Response(tfrrs_results)
 
+    @detail_route(methods=['post'])
+    def register_athletes(self, request, pk=None):
+        """Append athletes to the list of registered athletes. Has no effect
+        if athlete is already registered.
+        """
+        session = self.get_object()
+        new_athletes = set(request.data.pop('athletes', []))
+        existing_athletes = set(session.registered_athletes.values_list(
+            'id', flat=True))
+        request.data.clear()  # Don't allow for updating other fields.
+        request.data['registered_athletes'] = list(
+            new_athletes | existing_athletes)
+        return self.partial_update(request)
+
 
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))
