@@ -11,6 +11,8 @@ class AthleteFilter(django_filters.FilterSet):
     team_name = django_filters.CharFilter(name='team__name')
     min_age = django_filters.MethodFilter()
     max_age = django_filters.MethodFilter()
+    registered_to_session = django_filters.NumberFilter(
+        name='timingsession', distinct=True)
 
     class Meta:
         model = Athlete
@@ -22,7 +24,8 @@ class AthleteFilter(django_filters.FilterSet):
             'team',
             'team_name',
             'min_age',
-            'max_age'
+            'max_age',
+            'registered_to_session'
         )
 
     def filter_min_age(self, queryset, value):
