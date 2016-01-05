@@ -314,6 +314,19 @@ class TimingSessionViewSetTest(APITestCase):
         self.assertEqual(results[1].user_id, athlete2.id)
         self.assertEqual(results[1].splits, [12.4, 20.5, 31.45])
 
+    def test_register_athletes(self):
+        """Test appending to registered athletes list."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.post(
+            '/api/sessions/1/register_athletes/',
+            data=json.dumps({'athletes': [1, 2]}),
+            content_type='application/json')
+        self.assertEqual(resp.status_code, 200)
+        session = TimingSession.objects.get(pk=1)
+        self.assertEqual(
+            list(session.registered_athletes.values_list('id', flat=True)),
+            [1, 2])
 
 class PostSplitsTest(APITestCase):
 
@@ -540,6 +553,7 @@ class UserViewSetTest(APITestCase):
         # Database is created when test is run, so should return True.
         self.assertTrue(resp.data['show_tutorial'])
         self.assertEqual(resp.status_code, 200)
+
 
 class AuthTestCase(TestCase):
 
