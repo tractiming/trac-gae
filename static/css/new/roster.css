@@ -75,3 +75,11 @@
    -webkit-transition: none !important;
    transition: none !important;
 }
+.expand.ng-hide{
+  transition:1.05s linear all;
+  opacity:0;
+}
+.expand{
+  opacity:1;
+  transition:1.05s linear all;
+}
