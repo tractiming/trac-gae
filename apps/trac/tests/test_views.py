@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from rest_framework.test import APITestCase, force_authenticate
 
-from trac.models import TimingSession, Reader, Split, Athlete, Coach
+from trac.models import TimingSession, Reader, Split, Athlete, Coach, Team
 import trac.views
 
 
@@ -75,7 +75,7 @@ class TeamViewSetTest(APITestCase):
             content_type='application/json')
         self.assertEqual(resp.status_code, 201)
         team = Team.objects.get(pk=resp.data['id'])
-        self.assertEqual(team.coach.username, 'alsal')
+        self.assertEqual(team.coach.user.username, 'alsal')
 
 
 class AthleteViewSetTest(APITestCase):
