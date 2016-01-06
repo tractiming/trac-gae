@@ -85,25 +85,26 @@
       });
 
     }
-    //Load the Roster
-    var url = '/api/athletes/?limit=5';
+    //Load teams for Roster
+    var url = '/api/teams/?primary_team=True';
       $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
       .success(function (response) { 
-        $scope.rosterAthletes = response.results;
+        $scope.rosterTeams = response;
+        var rosterCount = response.length;
 
-        if (response.length == 0){
-          $scope.regNull = true;
-        }
-        else{
-          $scope.regNull = false;
-        }
+          var url = '/api/athletes/?team=' + $scope.rosterTeams[0].id + '&limit=100';
+          $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
+          .success(function (response) { 
 
+            $scope.rosterAthletes = response.results;
+          });
       });
+
       //Search for Roster
       $scope.athleteSearchRoster = function(){
       $scope.searchRoster.change = $scope.searchRoster.model;
-      var url = '/api/athletes/?search=' +  $scope.searchRoster.change;
-      $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
+      var url = '/api/athletes/?primary_team=True&search=' +  $scope.searchRoster.change;
+      $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: 100} })
         .success(function (response) {
 
           $scope.rosterAthletes = response.results;
@@ -236,7 +237,6 @@
           var dynamicString = 'editing_icons_' + runner.id;
           $scope[dynamicString] = false;
       });
-      //TODO: Do an ajax call, to actually save
     }
 
     // editing contact info
@@ -364,6 +364,25 @@
         $scope[dynamicString] = true;
         var dynamicString = 'showEdit_' + x.id;
         $scope[dynamicString] = true;
+
+    }
+
+    $scope.remove = function(array,index,runner){
+      $scope.athletes.splice(index, 1);
+      var url = '/api/sessions/'+ $scope.selectedID +'/remove_athletes/';
+      $http({method: 'POST', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{
+        athletes: [runner.id]} })
+        .success(function (response) { 
+          $scope.universalEdit = false;
+          var url = '/api/athletes/?registered_to_session='+ $scope.selectedID+'&limit=5';
+          $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
+            .success(function (response) { 
+              $scope.athletes = response.results;
+              $scope.count = response.count;
+              
+          });
+
+      });
 
     }
 

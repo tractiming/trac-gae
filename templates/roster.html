@@ -150,7 +150,7 @@
                           <button name="" class="btn btn-default" ng-click="cancel(x)">Cancel</button>
                         </div>
                         <div class="buttons hidden-xs hidden-sm no-animate pull-right" ng-show="showEdit_{{x.id}}">
-                          <button name="" class="btn btn-warning" ng-click="remove(x)">Remove</button>
+                          <button name="" class="btn btn-warning" ng-click="remove(athletes,$index,x)">Remove</button>
                           <button name="" class="btn btn-default" ng-click="cancel(x)">Cancel</button>
                         </div>
                         <div class="buttons hidden-xs hidden-sm no-animate pull-right" ng-show="showDelete_{{x.id}}">
@@ -205,7 +205,8 @@
           Roster Upload <button id="cl" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button>
           </div>
           <div class="modal-body">
-
+            <tabs>
+              <pane title="{{team.name}}" id="{{team.id}}" ng-repeat="team in rosterTeams">
             <div class="input-group col-lg-5">
               <span class="btn btn-default input-group-addon" ng-click="hideInput = !hideInput;" style="{{changeStyle(hideInput)}}">
                 <span class="glyphicon glyphicon-search"></span>
@@ -351,8 +352,10 @@
                   </tr>
                 </tbody>
               </table>
+              </pane>
+            </tabs>
           </div>
-
+              
           <div class="modal-footer">
             <div class="button-container" style="display:table; margin:0 auto;">
               <button name="" class="btn btn-primary" id="registerRunners" ng-click="showSelected();">Register Runners</button>

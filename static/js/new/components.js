@@ -13,8 +13,10 @@
     return {
       restrict: 'E',
       transclude: true,
-      scope: {},
-      controller: function($scope, $element) {
+      scope: {
+        rosterAthletes:'='
+      },
+      controller: function($scope, $element, $http) {
         var panes = $scope.panes = [];
  
         $scope.select = function(pane) {
@@ -22,6 +24,16 @@
             pane.selected = false;
           });
           pane.selected = true;
+        }
+
+        $scope.getRoster = function(id){
+          alert(id);
+          var url = '/api/athletes/?team=' + id + '&limit=100';
+            $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
+            .success(function (response) { 
+
+              $scope.rosterAthletes = response.results;
+            });
         }
  
         this.addPane = function(pane) {
@@ -32,8 +44,8 @@
       template:
         '<div class="tabbable">' +
           '<ul class="nav nav-tabs">' +
-            '<li ng-repeat="pane in panes" ng-class="{active:pane.selected}">'+
-              '<a href="" ng-click="select(pane)">{{pane.title}}</a>' +
+            '<li ng-repeat="pane in panes" ng-class="{active:pane.selected}" role="presentation">'+
+              '<a href="" ng-click="select(pane); getRoster(pane.id)">{{pane.title}}</a>' +
             '</li>' +
           '</ul>' +
           '<div class="tab-content" ng-transclude></div>' +
@@ -47,7 +59,7 @@
       require: '^tabs',
       restrict: 'E',
       transclude: true,
-      scope: { title: '@' },
+      scope: { title: '@', id:'@' },
       link: function(scope, element, attrs, tabsController) {
         tabsController.addPane(scope);
       },
