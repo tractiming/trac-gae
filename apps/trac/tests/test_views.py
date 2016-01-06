@@ -122,11 +122,11 @@ class AthleteViewSetTest(APITestCase):
         """Test that the user is deleted when the athlete is."""
         user = User.objects.get(username='alsal')
         self.client.force_authenticate(user=user)
-        athlete_user = Athlete.objects.get(pk=1).user
+        athlete_username = Athlete.objects.get(pk=1).user.username
         resp = self.client.delete('/api/athletes/1/')
         self.assertEqual(resp.status_code, 204)
         self.assertFalse(User.objects.filter(
-            username=athlete_user.username).exists())
+            username=athlete_username).exists())
 
 
 class ReaderViewSetTest(APITestCase):
