@@ -132,6 +132,36 @@ class AthleteViewSet(viewsets.ModelViewSet):
             resp.data['tag'] = tag.id_str
         return resp
 
+    def update(self, request, *args, **kwargs):
+        # Similar to `create`, we want to allow for editing a tag through
+        # editing an athlete.
+        athlete = self.get_object()
+
+        if 'tag' in request.data:
+            tag_str = request.data.pop('tag')
+
+            # If tag is given, but listed as null, delete the tag.
+            if not tag_str:
+                Tag.objects.filter(athlete=athlete).delete()
+
+            else:
+                if Tag.objects.filter(id_str=tag_str).exists():
+                    # If tag exists and belongs to current user, do nothing.
+                    if Tag.objects.get(id_str=tag_str).athlete == athlete:
+                        pass
+                    # If tag exists and does not belong to current user, raise
+                    # validation error.
+                    else:
+                        return Response({'tag': ['Invalid ID']},
+                                        status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    # If tag does not exist, create it, deleting any existing
+                    # tags.
+                    Tag.objects.filter(athlete=athlete).delete()
+                    Tag.objects.create(athlete=athlete, id_str=tag_str)
+
+        return super(AthleteViewSet, self).update(request, *args, **kwargs)
+
     @detail_route(methods=['get'])
     def completed_sessions(self, request, *args, **kwargs):
         """

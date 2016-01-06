@@ -164,7 +164,31 @@ class AthleteViewSetTest(APITestCase):
 
     def test_update_tag(self):
         """Test updating a user's tag."""
-        pass
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+
+        # Overwrite an existing tag.
+        resp = self.client.patch(
+            '/api/athletes/1/',
+            data=json.dumps({'tag': '1234'}),
+            content_type='application/json')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['tag'], '1234')
+
+        # Clear the tag.
+        resp = self.client.patch(
+            '/api/athletes/1/',
+            data=json.dumps({'tag': None}),
+            content_type='application/json')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['tag'], None)
+
+        # Try to post an existing tag and fail.
+        resp = self.client.patch(
+            '/api/athletes/1/',
+            data=json.dumps({'tag': 'AAAA 0002'}),
+            content_type='application/json')
+        self.assertEqual(resp.status_code, 400)
 
 
 class ReaderViewSetTest(APITestCase):
