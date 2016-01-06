@@ -8,7 +8,9 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from rest_framework.test import APITestCase, force_authenticate
 
-from trac.models import TimingSession, Reader, Split, Athlete, Coach, Team
+from trac.models import (
+    TimingSession, Reader, Split, Athlete, Coach, Team, Tag
+)
 import trac.views
 
 
@@ -140,6 +142,53 @@ class AthleteViewSetTest(APITestCase):
         self.assertEqual(resp.status_code, 204)
         self.assertFalse(User.objects.filter(
             username=athlete_username).exists())
+
+    def test_create_tag(self):
+        """Test creating a new tag with the user."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.post(
+            '/api/athletes/',
+            data=json.dumps({
+                'username': 'mwithrow',
+                'tag': '1234'
+            }),
+            content_type='application/json')
+        self.assertEqual(resp.status_code, 201)
+        self.assertTrue(
+            Athlete.objects.filter(user__username='mwithrow').exists())
+        self.assertTrue(Tag.objects.filter(id_str='1234').exists())
+        self.assertEqual(
+            Tag.objects.get(id_str='1234').athlete.user.username,
+            'mwithrow')
+
+    def test_update_tag(self):
+        """Test updating a user's tag."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+
+        # Overwrite an existing tag.
+        resp = self.client.patch(
+            '/api/athletes/1/',
+            data=json.dumps({'tag': '1234'}),
+            content_type='application/json')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['tag'], '1234')
+
+        # Clear the tag.
+        resp = self.client.patch(
+            '/api/athletes/1/',
+            data=json.dumps({'tag': None}),
+            content_type='application/json')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['tag'], None)
+
+        # Try to post an existing tag and fail.
+        resp = self.client.patch(
+            '/api/athletes/1/',
+            data=json.dumps({'tag': 'AAAA 0002'}),
+            content_type='application/json')
+        self.assertEqual(resp.status_code, 400)
 
 
 class ReaderViewSetTest(APITestCase):

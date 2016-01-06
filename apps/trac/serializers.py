@@ -126,7 +126,9 @@ class SaveUserMixin(object):
 class AthleteSerializer(SaveUserMixin,
                         FilterRelatedMixin,
                         serializers.ModelSerializer):
-    tag = serializers.SlugRelatedField(read_only=True, slug_field='id_str')
+    tag = serializers.SlugRelatedField(
+        queryset=Tag.objects.all(), slug_field='id_str', allow_null=True,
+        required=False)
     username = serializers.CharField(source='user.username')
     first_name = serializers.CharField(source='user.first_name',
                                        required=False)
