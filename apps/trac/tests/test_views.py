@@ -118,6 +118,16 @@ class AthleteViewSetTest(APITestCase):
         self.assertEqual(resp.data[0]['id'], 2)
         self.assertEqual(resp.status_code, 200)
 
+    def test_delete_user(self):
+        """Test that the user is deleted when the athlete is."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        athlete_username = Athlete.objects.get(pk=1).user.username
+        resp = self.client.delete('/api/athletes/1/')
+        self.assertEqual(resp.status_code, 204)
+        self.assertFalse(User.objects.filter(
+            username=athlete_username).exists())
+
 
 class ReaderViewSetTest(APITestCase):
 

@@ -4,7 +4,7 @@ import datetime
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.db import models, connection
-from django.db.models.signals import pre_delete, post_save
+from django.db.models.signals import pre_delete, post_save, post_delete
 from django.dispatch import receiver
 from django.utils import timezone
 from oauth2_provider.models import Application
@@ -461,6 +461,22 @@ def delete_tag_times(sender, instance, using, **kwargs):
     Delete all Split objects associated with this TimingSession prior to deletion.
     """
     instance.clear_results()
+
+
+@receiver(post_delete, sender=Athlete, dispatch_uid='athlete_post_delete')
+def delete_athlete_user(sender, instance, using, **kwargs):
+    """
+    Delete the user associated with an `Athlete`.
+    """
+    instance.user.delete()
+
+
+@receiver(post_delete, sender=Coach, dispatch_uid='coach_post_delete')
+def delete_coach_user(sender, instance, using, **kwargs):
+    """
+    Delete the user associated with a `Coach`.
+    """
+    instance.user.delete()
 
 
 @receiver(post_save, sender=User, dispatch_uid="user_post_save")
