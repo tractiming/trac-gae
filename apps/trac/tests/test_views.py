@@ -36,7 +36,7 @@ class TagViewSetTest(APITestCase):
         self.assertEqual(resp.status_code, 200)
 
 
-def TeamViewSetTest(APITestCase):
+class TeamViewSetTest(APITestCase):
 
     fixtures = ['trac_min.json']
 
@@ -61,8 +61,21 @@ def TeamViewSetTest(APITestCase):
     def test_get_teams_no_login(self):
         """Test getting teams when not logged in."""
         resp = self.client.get('/api/teams/', format='json')
-        self.assertEqual(len(resp.data), 0)
+        self.assertEqual(len(resp.data), 1)
+        self.assertEqual(resp.data[0]['id'], 1)
         self.assertEqual(resp.status_code, 200)
+
+    def test_create_team(self):
+        """Test creating a team and assigning to a coach."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.post(
+            '/api/teams/',
+            data=json.dumps({'name': 'my team'}),
+            content_type='application/json')
+        self.assertEqual(resp.status_code, 201)
+        team = Team.objects.get(pk=resp.data['id'])
+        self.assertEqual(team.coach.username, 'alsal')
 
 
 class AthleteViewSetTest(APITestCase):
