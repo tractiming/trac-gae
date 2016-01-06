@@ -26,13 +26,14 @@
   .glyphicon-pencil{
     color: #ccc;
   }
-  .glyphicon-remove, .glyphicon-eject, .glyphicon-save{
+  .glyphicon-remove, .glyphicon-eject, .glyphicon-save, .glyphicon-share-alt{
     color: #ccc;
   }
     .glyphicon-pencil:hover { color: #337ab7; }
     .glyphicon-remove:hover { color: #d9534f; }
     .glyphicon-eject:hover { color: #ffad33; }
     .glyphicon-save:hover { color: #337ab7;}
+    .glyphicon-share-alt:hover { color: #ffad33; }
     .form-group{
       margin-bottom: 0px !important;
     }
@@ -45,6 +46,17 @@
 }
 
 #searchclear {
+    position: absolute;
+    right: 5px;
+    top: 0;
+    bottom: 0;
+    height: 14px;
+    margin: auto;
+    font-size: 14px;
+    cursor: pointer;
+    color: #ccc;
+}
+#searchclearRoster {
     position: absolute;
     right: 5px;
     top: 0;

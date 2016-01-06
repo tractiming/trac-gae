@@ -7,7 +7,9 @@
 {% endblock %}
 
 {% block js_scripts %}
-<script type="text/javascript" src="{% static "js/new/roster.js" %}" />
+<script type="text/javascript" src="{% static "js/new/roster.js" %}"> </script>
+<script type="text/javascript" src="{% static "js/new/components.js" %}"> </script>
+
 <script type="text/javascript" src="{% static "js/timeConversion.js" %}" />
 
 <!--<script type="text/javascript" src="{% static "js/new/race_angular.js" %}"></script>-->
@@ -140,10 +142,15 @@
                     <td class="col-lg-2 col-sm-2 col-xs-3">
                         <div class="buttons no-animate pull-right" editing="editing" ng-hide="editing_icons_{{x.id}};" ng-style="hoverEdit" style="display:none;">
                           <span class="glyphicon glyphicon-pencil" aria-hidden="true" data-ng-click="edit(x);saveButtons(x)" style="margin-right:10px"></span>
+                          <span class="glyphicon glyphicon-share-alt" aria-hidden="true" data-ng-click="workoutRemove(x)" style="margin-right:10px"></span>
                           <span class="glyphicon glyphicon-remove" aria-hidden="true" ng-click="deleteButtons(x);" style="margin-right:10px"></span>
                         </div>
                         <div class="buttons hidden-xs hidden-sm no-animate pull-right" ng-show="showSave_{{x.id}}">
                           <button name="" class="btn btn-primary" ng-click="save(x)">Save</button>
+                          <button name="" class="btn btn-default" ng-click="cancel(x)">Cancel</button>
+                        </div>
+                        <div class="buttons hidden-xs hidden-sm no-animate pull-right" ng-show="showEdit_{{x.id}}">
+                          <button name="" class="btn btn-warning" ng-click="remove(x)">Remove</button>
                           <button name="" class="btn btn-default" ng-click="cancel(x)">Cancel</button>
                         </div>
                         <div class="buttons hidden-xs hidden-sm no-animate pull-right" ng-show="showDelete_{{x.id}}">
@@ -197,8 +204,18 @@
         <div class="modal-header">
           Roster Upload <button id="cl" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button>
           </div>
-          <div class="modal-body" ng-controller="registeredCtrl">
-          <table id="results-table" class="table table-striped table-hover">
+          <div class="modal-body">
+            <tabs>
+              <pane title="Fix Me">
+            <div class="input-group col-lg-5">
+              <span class="btn btn-default input-group-addon" ng-click="hideInput = !hideInput;" style="{{changeStyle(hideInput)}}">
+                <span class="glyphicon glyphicon-search"></span>
+              </span>
+              <input ng-model="searchRoster.model" ng-change="athleteSearchRoster();" class="form-control animate-hide" ng-hide="hideInput" style="border-top-right-radius:4px !important; border-bottom-right-radius:4px !important; position:static !important;" type="search" id="searchinputRoster">
+              <span id="searchclearRoster" class="glyphicon glyphicon-remove fade" ng-hide="hideInput" onclick="$('#searchinputRoster').val('');" ng-click="searchResetRoster();"></span>
+              <span></span>
+            </div>
+              <table id="results-table" class="table table-striped table-hover">
                   <thead>
                     <tr>
                       <th class="hidden-xs hidden-sm hidden-md hidden-lg">id</th>
@@ -280,12 +297,6 @@
                       </div>
                     </td>
                   </tr>
-
-
-
-
-
-
                   <tr ng-repeat="x in rosterAthletes" id="{{x.id}}" class="ath" ng-class="{danger:showDelete_{{x.id}}, info: showSave_{{x.id}}}" ng-mouseover="hoverIn();" ng-mouseleave="hoverOut();">
                     <td class="col-lg-1">
                       <input type="checkbox" id="check" ng-model="selected[x.id]" ng-hide="editing_{{x.id}}" class="no-animate">
@@ -341,12 +352,14 @@
                   </tr>
                 </tbody>
               </table>
-        </div>
-        <div class="modal-footer">
-          <div class="button-container" style="display:table; margin:0 auto;">
-            <button name="" class="btn btn-primary" id="registerRunners" ng-click="showSelected();">Register Runners</button>
-            <button name="" class="btn btn-default" id="" onclick="$('#rosterModal').modal('hide');">Cancel</button>
-           </div>
+          </div>
+              </pane>
+            </tabs>
+          <div class="modal-footer">
+            <div class="button-container" style="display:table; margin:0 auto;">
+              <button name="" class="btn btn-primary" id="registerRunners" ng-click="showSelected();">Register Runners</button>
+              <button name="" class="btn btn-default" id="" onclick="$('#rosterModal').modal('hide');">Cancel</button>
+            </div>
        </div> 
       </div>
     </div>

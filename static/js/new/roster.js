@@ -53,7 +53,7 @@
     }
 
     $scope.athleteSearch = function(){
-       console.log("Search was changed to:"+$scope.search.model);
+      console.log("Search was changed to:"+$scope.search.model);
       $scope.search.change = $scope.search.model;
 
       var url = '/api/athletes/?search=' +  $scope.search.change;
@@ -99,6 +99,36 @@
         }
 
       });
+      //Search for Roster
+      $scope.athleteSearchRoster = function(){
+      $scope.searchRoster.change = $scope.searchRoster.model;
+      var url = '/api/athletes/?search=' +  $scope.searchRoster.change;
+      $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
+        .success(function (response) {
+
+          $scope.rosterAthletes = response.results;
+
+          if ($scope.count == 0)
+            $scope.queryNull = true;
+          else
+            $scope.queryNull = false;
+          
+      });
+
+    }
+
+    $scope.searchResetRoster = function(){
+      $scope.searchRoster.change = '';
+
+      var url = '/api/athletes/';
+      $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
+        .success(function (response) {
+
+          $scope.rosterAthletes = response.results;
+          
+      });
+
+    }
 
 
     //Load the heat menu bar on the left hand side of page
@@ -253,6 +283,8 @@
       $scope[dynamicString] = false;
       var dynamicString = 'editing_icons_' + selectedID;
         $scope[dynamicString] = false;
+      var dynamicString = 'showEdit_' + x.id;
+        $scope[dynamicString] = false;
 
       $scope.universalEdit = false;
 
@@ -303,8 +335,10 @@
 
        } 
       })
-        .success(function (response) { 
-         alert('successfully changed');
+        .success(function (response) {
+          $scope.rosterAthletes.splice(0,0,runner);
+          //Add to end of runners and close inputs
+         $scope.editing_header = true;
       });
 
     }
@@ -324,6 +358,16 @@
         $scope[dynamicString] = true;
 
     }
+    $scope.workoutRemove = function(x){
+        $scope.universalEdit = true;
+        var dynamicString = 'editing_icons_' + x.id;
+        $scope[dynamicString] = true;
+        var dynamicString = 'showEdit_' + x.id;
+        $scope[dynamicString] = true;
+
+    }
+
+
     //Keep style consistent during animations of search bar
     $scope.changeStyle = function(toggle){
       var buttonStyle = 'border-bottom-right-radius: 4px !important; border-top-right-radius : 4px !important; border-right:1px solid #ccc !important;';
@@ -345,4 +389,8 @@
     };
 
   });
+
+ 
+
+
    
