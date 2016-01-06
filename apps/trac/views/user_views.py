@@ -115,6 +115,23 @@ class AthleteViewSet(viewsets.ModelViewSet):
         else:
             return Athlete.objects.none()
 
+    def create(self, request, *args, **kwargs):
+        # We want to allow for a tag to be created at the same time as an
+        # Athlete. However, creating a new tag requires us to specify an
+        # athlete. Here, we remove the tag from the request, create the
+        # athlete, and then create the tag if needed.
+        tag_str = request.data.pop('tag', None)
+        if tag_str is not None:
+            if not tag_str or Tag.objects.filter(id_str=tag_str).exists():
+                return Response({'tag': ['Invalid id']},
+                                status=status.HTTP_400_BAD_REQUEST)
+        resp = super(AthleteViewSet, self).create(request, *args, **kwargs)
+        if tag_str:
+            athlete = Athlete.objects.get(pk=resp.data['id'])
+            tag = Tag.objects.create(athlete=athlete, id_str=tag_str)
+            resp.data['tag'] = tag.id_str
+        return resp
+
     @detail_route(methods=['get'])
     def completed_sessions(self, request, *args, **kwargs):
         """
