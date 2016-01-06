@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
 from rest_framework import serializers
@@ -183,10 +184,15 @@ class CoachSerializer(SaveUserMixin, serializers.ModelSerializer):
 
 
 class TeamSerializer(serializers.ModelSerializer):
+    coach = serializers.IntegerField(read_only=True, source='coach.id')
 
     class Meta:
         model = Team
-        read_only_fields = ('coach',)
+
+    def create(self, validated_data):
+        """Set the team's coach to match the current user."""
+        coach = get_object_or_404(Coach, user=self.context['request'].user)
+        return Team.objects.create(coach=coach, **validated_data)
 
 
 class ReaderSerializer(serializers.ModelSerializer):

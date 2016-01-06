@@ -44,6 +44,23 @@ class AthleteTestCase(TestCase):
         age = cam.age(as_of_date=datetime.date(2000, 5, 27))
         self.assertEqual(age, 10)
 
+    def test_delete_user(self):
+        """Test that the user is deleted after the athlete."""
+        user = User.objects.create(username='testuser')
+        athlete = Athlete.objects.create(user=user)
+        athlete.delete()
+        self.assertFalse(User.objects.filter(username='testuser').exists())
+
+
+class CoachTestCase(TestCase):
+
+    def test_delete_user(self):
+        """Test that the user is deleted after the coach."""
+        user = User.objects.create(username='testuser')
+        coach = Coach.objects.create(user=user)
+        coach.delete()
+        self.assertFalse(User.objects.filter(username='testuser').exists())
+
 
 class TimingSessionTestCase(TestCase):
 

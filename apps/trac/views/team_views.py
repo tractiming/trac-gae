@@ -28,10 +28,6 @@ class TeamViewSet(viewsets.ModelViewSet):
         else:
             return Team.objects.filter(primary_team=True)
 
-    def pre_save(self, obj):
-        # Associate team with current user.
-        obj.coach = self.request.user.coach
-
 
 # TODO: Merge with GET /sessions
 class ScoringViewSet(viewsets.ModelViewSet):
