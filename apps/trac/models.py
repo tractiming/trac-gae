@@ -30,7 +30,8 @@ class Team(models.Model):
     """
     name = models.CharField(max_length=50)
     coach = models.ForeignKey(Coach)
-    tfrrs_code = models.CharField(max_length=20, unique=True)
+    tfrrs_code = models.CharField(max_length=20, unique=True, null=True,
+                                  blank=True)
     primary_team = models.BooleanField(default=False)
 
     class Meta:
