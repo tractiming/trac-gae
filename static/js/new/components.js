@@ -13,9 +13,7 @@
     return {
       restrict: 'E',
       transclude: true,
-      scope: {
-        rosterAthletes:'='
-      },
+      scope: {},
       controller: function($scope, $element, $http) {
         var panes = $scope.panes = [];
  
@@ -27,7 +25,7 @@
         }
 
         $scope.getRoster = function(id){
-          alert(id);
+          alert(id)
           var url = '/api/athletes/?team=' + id + '&limit=100';
             $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
             .success(function (response) { 
