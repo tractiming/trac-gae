@@ -368,7 +368,7 @@ class TimingSessionViewSetTest(APITestCase):
         session = TimingSession.objects.get(pk=1)
         self.assertEqual(
             list(session.registered_athletes.values_list('id', flat=True)),
-            [2])
+            [1])
 
 class PostSplitsTest(APITestCase):
 
