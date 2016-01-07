@@ -13,7 +13,9 @@
     return {
       restrict: 'E',
       transclude: true,
-      scope: {},
+      scope: {
+        rosterAthletes:'='
+      },
       controller: function($scope, $element, $http) {
         var panes = $scope.panes = [];
  
@@ -30,7 +32,7 @@
             $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
             .success(function (response) { 
 
-              $scope.rosterAthletes = response.results;
+              $scope.$parent.rosterAthletes = response.results;
             });
         }
  
@@ -48,7 +50,7 @@
           '</ul>' +
           '<div class="tab-content" ng-transclude></div>' +
         '</div>',
-      replace: true
+      replace: true,
     };
   })
  
@@ -57,7 +59,7 @@
       require: '^tabs',
       restrict: 'E',
       transclude: true,
-      scope: { title: '@', id:'@' },
+      scope: { title: '@', id:'@'},
       link: function(scope, element, attrs, tabsController) {
         tabsController.addPane(scope);
       },
