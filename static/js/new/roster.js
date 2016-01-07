@@ -255,7 +255,7 @@
         first_name: runner.first_name,
         last_name: runner.last_name,
         username: runner.username,
-        tag: runner.first_name,
+        tag: runner.tag,
         team: runner.team,
         birth_date: runner.birth_date,
         gender: runner.gender,
