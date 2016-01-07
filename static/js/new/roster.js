@@ -19,9 +19,9 @@
       $scope.currentPage++;
 
       if ($scope.search !== undefined && $scope.search.change.length > 0 )
-        var url = '/api/athletes/?search=' + $scope.search.change;
+        var url = '/api/athletes/?registered_to_session='+ $scope.selectedID + '&search=' + $scope.search.change;
       else
-        var url = '/api/athletes/';
+        var url = '/api/athletes/?registered_to_session='+ $scope.selectedID +'&limit=5';
 
 
       $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
@@ -39,9 +39,9 @@
         $scope.currentPage--;
       }
       if ($scope.search !== undefined && $scope.search.change.length > 0 )
-        var url = '/api/athletes/?search=' + $scope.search.change;
+        var url = '/api/athletes/?registered_to_session='+ $scope.selectedID + '&search=' + $scope.search.change;
       else
-        var url = '/api/athletes/';
+        var url = '/api/athletes/?registered_to_session='+ $scope.selectedID +'&limit=5';
       $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
         .success(function (response) {
           $scope.athletes = response.results;
@@ -56,7 +56,7 @@
       console.log("Search was changed to:"+$scope.search.model);
       $scope.search.change = $scope.search.model;
 
-      var url = '/api/athletes/?search=' +  $scope.search.change;
+      var url = '/api/athletes/?registered_to_session='+ $scope.selectedID + '&search=' + $scope.search.change;
       $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
         .success(function (response) {
 
@@ -75,7 +75,7 @@
     $scope.searchReset = function(){
       $scope.search.change = '';
 
-      var url = '/api/athletes/';
+      var url = '/api/athletes/?registered_to_session='+ $scope.selectedID;
       $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
         .success(function (response) {
 
@@ -91,12 +91,14 @@
       .success(function (response) { 
         $scope.rosterTeams = response;
         var rosterCount = response.length;
+        $scope.rosterID = $scope.rosterTeams[0].id
 
-          var url = '/api/athletes/?team=' + $scope.rosterTeams[0].id + '&limit=100';
+          var url = '/api/athletes/?team=' + $scope.rosterID + '&limit=100';
           $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
           .success(function (response) { 
 
             $scope.rosterAthletes = response.results;
+
           });
       });
 
@@ -149,8 +151,8 @@
       .success(function (response) { 
         $scope.athletes = response.results;
         $scope.count = response.count;
-        if (response.length == 0){
-          $scope.regNull = true;
+        if (response.results.length == 0){
+           $scope.regNull = true;
         }
         else{
           $scope.regNull = false;
@@ -209,6 +211,13 @@
             .success(function (response) { 
               $scope.athletes = response.results;
               $scope.count = response.count;
+
+              if (response.results.length == 0){
+                 $scope.regNull = true;
+              }
+              else{
+                $scope.regNull = false;
+              }
               
           });
        });
@@ -287,8 +296,29 @@
         $scope[dynamicString] = false;
 
       $scope.universalEdit = false;
+    };
 
+      $scope.rosterCancel = function(x) { 
 
+      var selectedID = x.id;
+      var tempIndex = $scope.rosterAthletes.indexOf(x);
+      //Resore old data as necessary, only if editing
+      var dynamicString = 'editing_' + selectedID;
+      if ($scope[dynamicString] == true){
+        $scope.rosterAthletes[tempIndex] = $scope.newField;
+        $scope[dynamicString] = false;
+      }
+      
+      var dynamicString = 'showDelete_' + selectedID;
+      $scope[dynamicString] = false;
+      var dynamicString = 'showSave_' + selectedID;
+      $scope[dynamicString] = false;
+      var dynamicString = 'editing_icons_' + selectedID;
+        $scope[dynamicString] = false;
+      var dynamicString = 'showEdit_' + x.id;
+        $scope[dynamicString] = false;
+
+      $scope.universalEdit = false;
     };
 
     //This is pretty jQuery heavy....
@@ -314,6 +344,12 @@
               $scope.athletes = response.results;
               $scope.count = response.count;
               
+              if (response.results.length == 0){
+                 $scope.regNull = true;
+              }
+              else{
+                $scope.regNull = false;
+              }
           });
         });
 
@@ -325,20 +361,27 @@
     $scope.cancelHeader = function(){
       $scope.editing_header = true;
     }
-    $scope.saveHeader = function(runner){
+    $scope.saveHeader = function(regForm){
       $http({method: 'POST', url: '/api/athletes/', headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{
-        first_name: runner.first_name,
-        last_name: runner.last_name,
-        username: runner.first_name+runner.last_name,
-        tag: runner.tag,
-        birth_date : runner.birth_date,
+        first_name: regForm.first_name,
+        last_name: regForm.last_name,
+        username: regForm.first_name+regForm.last_name,
+        tag: regForm.tag,
+        birth_date : regForm.birth_date,
+        team: $scope.rosterID,
 
        } 
       })
         .success(function (response) {
-          $scope.rosterAthletes.splice(0,0,runner);
-          //Add to end of runners and close inputs
-         $scope.editing_header = true;
+
+          var url = '/api/athletes/?team=' + $scope.rosterID + '&limit=100';
+          $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
+          .success(function (response) { 
+
+            $scope.rosterAthletes = response.results;
+          });
+          $scope.editing_header = true;
+
       });
 
     }
@@ -379,7 +422,12 @@
             .success(function (response) { 
               $scope.athletes = response.results;
               $scope.count = response.count;
-              
+              if (response.results.length == 0){
+                 $scope.regNull = true;
+              }
+              else{
+                $scope.regNull = false;
+              }
           });
 
       });
