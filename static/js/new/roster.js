@@ -218,10 +218,36 @@
               else{
                 $scope.regNull = false;
               }
-              
+              $scope.universalEdit = false;
           });
        });
     }
+        //Deleting an athlete off a workout
+    $scope.rosterDelete = function(array,index,runner){
+      $scope.rosterAthletes.splice(index, 1);
+      
+      //TODO: Do an ajax call, to actually delete
+       var url = '/api/athletes/'+runner.id +'/';
+       $http({method: 'DELETE', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}})
+         .success(function (response) {
+          //Update the Count
+          var url = '/api/athletes/?registered_to_session='+ $scope.selectedID+'&limit=5';
+          $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
+            .success(function (response) { 
+              $scope.athletes = response.results;
+              $scope.count = response.count;
+
+              if (response.results.length == 0){
+                 $scope.regNull = true;
+              }
+              else{
+                $scope.regNull = false;
+              }
+              $scope.universalEdit = false;
+          });
+       });
+    }
+
     //Editing an athletes info for a workout
     $scope.save = function(runner){
       var url = '/api/athletes/'+runner.id +'/';
@@ -237,6 +263,7 @@
        } 
       })
         .success(function (response) { 
+          $scope.universalEdit = false;
           var dynamicString = 'editing_' + runner.id;
           $scope[dynamicString] = false;
           var dynamicString = 'showDelete_' + runner.id;
@@ -257,7 +284,7 @@
       if ($(window).width() < 768) {
         $scope.val = x;
         // do something for small screens
-        $('#editAthlete').modal('show');
+        //$('#editAthlete').modal('show');
 
       }
       else if ($(window).width() >= 768 &&  $(window).width() <= 992) {
@@ -381,6 +408,7 @@
             $scope.rosterAthletes = response.results;
           });
           $scope.editing_header = true;
+          $('.expand').val('');
 
       });
 
