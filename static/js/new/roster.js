@@ -2,7 +2,7 @@
 
 
    app.controller('registeredCtrl', function($scope, $http) {
-    var  SESSIONS_PER_PAGE  = 5;
+    var  SESSIONS_PER_PAGE  = 50;
     $scope.hideInput = true;
     $scope.regNull = false;
     $scope.editing_header = true;
@@ -21,7 +21,7 @@
       if ($scope.search !== undefined && $scope.search.change.length > 0 )
         var url = '/api/athletes/?registered_to_session='+ $scope.selectedID + '&search=' + $scope.search.change;
       else
-        var url = '/api/athletes/?registered_to_session='+ $scope.selectedID +'&limit=5';
+        var url = '/api/athletes/?registered_to_session='+ $scope.selectedID +'&limit=50';
 
 
       $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
@@ -41,7 +41,7 @@
       if ($scope.search !== undefined && $scope.search.change.length > 0 )
         var url = '/api/athletes/?registered_to_session='+ $scope.selectedID + '&search=' + $scope.search.change;
       else
-        var url = '/api/athletes/?registered_to_session='+ $scope.selectedID +'&limit=5';
+        var url = '/api/athletes/?registered_to_session='+ $scope.selectedID +'&limit=50';
       $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
         .success(function (response) {
           $scope.athletes = response.results;
@@ -146,7 +146,7 @@
       $scope.selectedID = response.results[0].id;
 
       //load the roster for the most recent workout\
-      var url = '/api/athletes/?registered_to_session='+ mostRecentWorkout+'&limit=5';
+      var url = '/api/athletes/?registered_to_session='+ mostRecentWorkout+'&limit=50';
       $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
       .success(function (response) { 
         $scope.athletes = response.results;
@@ -167,7 +167,7 @@
         var selected = workout.id;
         $scope.selectedID = selected;
         $scope.workoutName = workout.name;
-        var url = '/api/athletes/?registered_to_session='+ selected+'&limit=5';
+        var url = '/api/athletes/?registered_to_session='+ selected+'&limit=50';
         $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
           .success(function (response) { 
             $scope.athletes = response.results;
@@ -206,7 +206,7 @@
        $http({method: 'DELETE', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}})
          .success(function (response) {
           //Update the Count
-          var url = '/api/athletes/?registered_to_session='+ $scope.selectedID+'&limit=5';
+          var url = '/api/athletes/?registered_to_session='+ $scope.selectedID+'&limit=50';
           $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
             .success(function (response) { 
               $scope.athletes = response.results;
@@ -231,7 +231,7 @@
        $http({method: 'DELETE', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}})
          .success(function (response) {
           //Update the Count
-          var url = '/api/athletes/?registered_to_session='+ $scope.selectedID+'&limit=5';
+          var url = '/api/athletes/?registered_to_session='+ $scope.selectedID+'&limit=50';
           $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
             .success(function (response) { 
               $scope.athletes = response.results;
@@ -365,7 +365,7 @@
        } 
       })
         .success(function (response) {
-          var url = '/api/athletes/?registered_to_session='+ $scope.selectedID+'&limit=5';
+          var url = '/api/athletes/?registered_to_session='+ $scope.selectedID+'&limit=50';
           $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
             .success(function (response) { 
               $scope.athletes = response.results;
@@ -445,7 +445,7 @@
         athletes: [runner.id]} })
         .success(function (response) { 
           $scope.universalEdit = false;
-          var url = '/api/athletes/?registered_to_session='+ $scope.selectedID+'&limit=5';
+          var url = '/api/athletes/?registered_to_session='+ $scope.selectedID+'&limit=50';
           $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
             .success(function (response) { 
               $scope.athletes = response.results;
