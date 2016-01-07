@@ -39,7 +39,8 @@ ALLOWED_HOSTS = [
     'www.trac-us.appspot.com',
     'trac-us.appspot.com',
     'www.tracchicago.com',
-    '1.trac-us.appspot.com'
+    '1.trac-us.appspot.com',
+    'default.trac-us.appspot.com'  # Stackdriver
 ]
 ##########################################
 
