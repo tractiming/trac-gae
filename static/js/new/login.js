@@ -42,7 +42,7 @@ $(function() {
     name = escapeString(uname);
     email = escapeString(uemail);
     function escapeString(string){
-      var specialChars = { 
+      var specialChars = {
       "&": "&amp;",
       "<": "&lt;",
       ">": "&gt;",
@@ -75,7 +75,7 @@ $(function() {
       }
     });
   });
-    
+
 	$('#login-form').on('submit', function(e) {
 		e.preventDefault();
 
@@ -88,64 +88,42 @@ $(function() {
 		var form = $(this);
 		form.parsley().validate();
 
-		//if the form is valid then submit
+		// if the form is valid then submit
 		if (form.parsley().isValid()) {
 			var username = $('input#username').val();
 			var password = $('input#password').val();
-			
+
 			$.ajax({
 				type: 'POST',
-				dataType:'json',
+				dataType: 'json',
 				url: '/api/login/',
-                beforeSend: function(request) {
-                    request.setRequestHeader("Authorization",
-                        "Basic " + btoa(username + ":" + password));
+                data: {
+                    client_id: 'aHD4NUa4IRjA1OrPD2kJLXyz34c06Bi5eVX8O94p',
+                    username: username,
+                    password: password,
+                    grant_type: 'password'
                 },
-				
-                // Login was successful.
-				success: function(data) {
-					// Get the access token and store client side.
-					var client_id = data.client_id;
-                    var client_secret = data.client_secret;
+                success: function(data) {
+                    // Get the access token and store client side.
+                    var access_token = data.access_token;
                     var usertype = data.user.user_type;
-
-				    sessionStorage.setItem('usertype', usertype);
-					sessionStorage.setItem('username', username);
-					$.ajax({
-                        type: 'POST',
-						url: '/oauth2/token/',
-                        data: {
-                            username: username,
-                            password: password,
-                            client_id: client_id,
-                            client_secret: client_secret,
-                            grant_type: 'password'
-                        },
-						success: function(data) {
-                            var access_token = data.access_token;
-                            var refresh_token = data.refresh_token;
-					        sessionStorage.setItem('access_token', access_token);
-					        sessionStorage.setItem('refresh_token', refresh_token);
-							location.href = '/home';
-						},
-						error: function(xhr, errmsg, err) {
-							$('.spinner-container').hide();
-							spinner.stop();
-							$('#submit').show();
-							$('p.notification.notification-critical').show();
-							$('#login-form input').removeClass('parsley-success').addClass('parsley-error');
-							}
-					});
-				},
-				// Login request failed.
-				error: function(xhr, errmsg, err) {
-					// hide spinner and show error message
-					$('.spinner-container').hide();
-					spinner.stop();
-					$('#submit').show();
-					$('p.notification.notification-critical').show();
-					$('#login-form input').removeClass('parsley-success').addClass('parsley-error');
-				}
+                    var username = data.user.username;
+                    sessionStorage.setItem('access_token', access_token);
+                    sessionStorage.setItem('usertype', usertype);
+                    sessionStorage.setItem('username', username);
+                    location.href = '/home';
+                },
+                // Login request failed.
+                error: function(xhr, errmsg, err) {
+                    // hide spinner and show error message
+                    $('.spinner-container').hide();
+                    spinner.stop();
+                    $('#submit').show();
+                    $('p.notification.notification-critical').show();
+                    $('#login-form input')
+                        .removeClass('parsley-success')
+                        .addClass('parsley-error');
+                }
 			});
 		}
 	});

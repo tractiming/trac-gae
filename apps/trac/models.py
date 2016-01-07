@@ -478,11 +478,3 @@ def delete_coach_user(sender, instance, using, **kwargs):
     Delete the user associated with a `Coach`.
     """
     instance.user.delete()
-
-
-@receiver(post_save, sender=User, dispatch_uid="user_post_save")
-def create_auth_client(sender, instance, created=False, **kwargs):
-    if created:
-        Application.objects.create(user=instance,
-            client_type=Application.CLIENT_CONFIDENTIAL,
-            authorization_grant_type=Application.GRANT_PASSWORD)

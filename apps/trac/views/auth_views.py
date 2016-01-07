@@ -1,7 +1,11 @@
+import json
+
 from django.contrib import auth
 from django.core.mail import send_mail
 from django.template import RequestContext, loader
+from django.http import HttpResponse
 from oauth2_provider.models import Application
+from oauth2_provider.views import TokenView as _TokenView
 from rest_framework import permissions, status
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.decorators import (
@@ -9,6 +13,7 @@ from rest_framework.decorators import (
 )
 from rest_framework.response import Response
 
+from trac.models import User
 from trac.serializers import AthleteSerializer, CoachSerializer, UserSerializer
 from trac.utils.user_util import user_type
 
@@ -43,11 +48,28 @@ def register(request):
                     status=status.HTTP_201_CREATED)
 
 
+class TokenView(_TokenView):
+    """Override the built-in `oauth2_provider` class to avoid
+    problems with the `method_decorator` decorator on `post`.
+    See `oauth2_provider/views/base.py`.
+    """
+    def post(self, request, *args, **kwargs):
+        url, headers, body, status = self.create_token_response(request)
+        response = HttpResponse(content=body, status=status)
+
+        for k, v in headers.items():
+            response[k] = v
+        return response
+
+
 @api_view(['POST'])
-@authentication_classes((BasicAuthentication,))
+@permission_classes((permissions.AllowAny,))
 def login(request):
     """
-    Log a user into the site. Create Django backend token.
+    Log a user into the site.
+
+    Exchanges a client id, username, and password for a short-lived
+    access token. Also returns info about the current user.
     ---
     parameters:
     - name: username
@@ -61,29 +83,13 @@ def login(request):
       type: string
       paramType: form
     """
-    application = Application.objects.get(user=request.user) 
-    credentials = {
-        'client_id': application.client_id,
-        'client_secret': application.client_secret,
-        'user': UserSerializer().to_representation(request.user)
-    }
-	
-    username = request.POST.get('username')
-    password = request.POST.get('password')
-    user = auth.authenticate(username=username, password=password)
-    auth.login(request, user)
-    return Response(credentials)
-
-
-@api_view(['POST'])
-@permission_classes((permissions.IsAuthenticated,))
-def logout(request):
-    """
-    Logout a user into the site; delete django backend token.
-    TODO: Fix broken pipe
-    """
-    auth.logout(request)
-    return Response(status=status.HTTP_200_OK)
+    resp = TokenView.as_view()(request)
+    data = json.loads(resp.content)
+    data.pop('refresh_token', None)  # Do not pass back refresh token
+    if resp.status_code == 200:
+        user = User.objects.get(username=request.data['username'])
+        data['user'] = UserSerializer().to_representation(user)
+    return Response(data, status=resp.status_code)
 
 
 @api_view(['POST'])

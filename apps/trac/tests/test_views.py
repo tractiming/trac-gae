@@ -580,6 +580,8 @@ class UserViewSetTest(APITestCase):
 
 class AuthTestCase(TestCase):
 
+    fixtures = ['trac_min.json']
+
     def setUp(self):
         self.user_data = {
             'username': 'newuser',
@@ -607,3 +609,16 @@ class AuthTestCase(TestCase):
                                 content_type='application/json')
         self.assertTrue(Coach.objects.get(user__username="newuser"))
         self.assertEqual(resp.status_code, 201)
+
+    def test_login(self):
+        """Test fetching an access token."""
+        resp = self.client.post(
+            '/api/login/',
+            {'username': 'alsal',
+             'password': 'password',
+             'grant_type': 'password',
+             'client_id': 'aHD4NUa4IRjA1OrPD2kJLXyz34c06Bi5eVX8O94p'},
+            format='json')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['user']['username'], 'alsal')
+        self.assertEqual(resp.data['user']['user_type'], 'coach')
