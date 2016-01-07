@@ -67,17 +67,17 @@ DJANGO_APPS = (
 )
 
 THIRD_PARTY_APPS = (
-        'rest_framework',
-        'oauth2_provider',
-        'rest_framework_swagger'
+    'rest_framework',
+    'oauth2_provider',
+    'rest_framework_swagger',
+    'djstripe',
 )
 
 
 LOCAL_APPS = (
-		'djstripe',
-        'trac',
-        'website',
-        'stats',
+    'trac',
+    'website',
+    'stats',
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
