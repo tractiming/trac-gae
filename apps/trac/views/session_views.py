@@ -382,6 +382,18 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             new_athletes | existing_athletes)
         return self.partial_update(request)
 
+    @detail_route(methods=['post'])
+    def remove_athletes(self, request, pk=None):
+        """Remove athletes from the list of registered athletes. If they are not
+        on the list, no effect"""
+        session = self.get_object()
+        athletes_to_remove = set(request.data.pop('athletes',[]))
+        existing_athletes = set(session.registered_athletes.values_list(
+            'id', flat=True))
+        request.data.clear()
+        request.data['registered_athletes'] = list(x for x in existing_athletes if 
+            x not in athletes_to_remove)
+        return self.partial_update(request)
 
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))

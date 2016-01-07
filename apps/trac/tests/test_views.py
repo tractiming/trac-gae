@@ -400,6 +400,25 @@ class TimingSessionViewSetTest(APITestCase):
             list(session.registered_athletes.values_list('id', flat=True)),
             [1, 2])
 
+    def test_remove_athletes(self):
+        """Test removing from registered athletes list."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.post(
+            '/api/sessions/1/register_athletes/',
+            data=json.dumps({'athletes': [1, 2]}),
+            content_type='application/json')
+        self.assertEqual(resp.status_code, 200)
+        resp = self.client.post(
+            '/api/sessions/1/remove_athletes/',
+            data=json.dumps({'athletes': [2]}),
+            content_type='application/json')
+        self.assertEqual(resp.status_code, 200)
+        session = TimingSession.objects.get(pk=1)
+        self.assertEqual(
+            list(session.registered_athletes.values_list('id', flat=True)),
+            [1])
+
 class PostSplitsTest(APITestCase):
 
     @mock.patch.object(trac.views.reader_views, 'create_split')

@@ -42,6 +42,13 @@
 	<script src="{% static "js/pushy.min.js" %}" type="text/javascript"></script>
 	<script src="{% static "js/switchery.min.js" %}" type="text/javascript"></script>
 
+	<!-- Angular Library -->
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0rc1/angular-route.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.2/angular-animate.min.js"></script>
+	
+
+
 	<!-- Twitter Bootstrap -->
 	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
@@ -97,9 +104,9 @@
         <ul class="nav navbar-nav navbar-right">
         	{% block nav-items %}
             <li class="hidden-md hidden-sm"><a href="/home">Home</a></li>
-            <li><a href="/create">Create</a></li>
-            <li><a href="/settings">Race Management</a></li>
-            <li><a href="/liveview">Live View</a></li>
+            <li><a href="/create">Sessions</a></li>
+            <li><a href="/roster">Roster</a></li>
+            <li><a href="/liveview">Results</a></li>
             <li><a href="/analyze">Analysis</a></li>
             <li><a class="hidden-sm hidden-md hidden-lg" href="/readers">Readers</a></li>
             <li><a class="hidden-sm hidden-md hidden-lg" href="/account_settings">Settings</a></li>

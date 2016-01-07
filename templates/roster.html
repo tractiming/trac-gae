@@ -1,0 +1,497 @@
+{% extends "base_new.html" %}
+{% load static %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static "css/new/settings.css" %}">
+<link rel="stylesheet" href="{% static "css/new/roster.css"%}"
+{% endblock %}
+
+{% block js_scripts %}
+<script type="text/javascript" src="{% static "js/new/roster.js" %}"> </script>
+<script type="text/javascript" src="{% static "js/new/components.js" %}"> </script>
+
+<script type="text/javascript" src="{% static "js/timeConversion.js" %}" />
+
+<!--<script type="text/javascript" src="{% static "js/new/race_angular.js" %}"></script>-->
+{% endblock %}
+
+{% block content %}
+
+
+{% verbatim angular %}
+
+
+<div ng-app="raceRegistration" id="containerDiv" ng-controller="registeredCtrl">
+<nav class="pushy pushy-left">
+    <ul class="menulist" ng-repeat='x in json' > 
+      <li id="$index"><a href="#" ng-click="select(x)">{{x.name}}</a></li>
+    </ul>
+    <ul class="menulist" ng-repeat-end ng-if="json.length == temporaryEnd">
+      <li><a href="#" ng-click="seeMore();">See More</a></li>
+    </ul>
+</nav>
+  <div class="site-overlay"></div>
+    <div id="content">  
+        <div class="container-fluid content">
+          <div  class="container"> 
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="row" style="margin-bottom:2%">
+        <div class="col-md-6 col-sm-6 col-xs-6" style="">
+          <div id="menu-btn" class="menu-btn" style="display: inline-block;">
+            <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span> Heat Menu
+          </div>
+        </div>
+        <div class="col-md-6 col-sm-6 col-xs-6" style="">
+          <div id="" class="" data-toggle="modal" data-target="#rosterModal" style="float:right">
+            <span class="glyphicon glyphicon-list" aria-hidden="true"></span> Roster
+          </div>
+        </div>
+      </div>
+
+            <div class="row">
+              <div class="col-lg-offset-10 col-md-offset-10 col-sm-offset-10 col-xs-offset-10">
+              <!--ADD IN WHEN ENDPOINT FINISHED
+
+              <button type="button" class="btn btn-default hidden-xs" id="plus" data-toggle="modal" data-target="#csvModal">
+                  <span class="glyphicon glyphicon-plus" aria-hidden="true"> </span> CSV Upload
+              </button>-->
+            </div>
+            </div>
+              <h1 id="score-title">Roster{{':' + workoutName}}</h1>
+              <div class="row">
+                <div class= "col-lg-5" style="padding-left:0px !important;" ng-hide="regNull">
+                  <div class="input-group">
+                    <span class="btn btn-default input-group-addon" ng-click="hideInput = !hideInput;" style="{{changeStyle(hideInput)}}">
+                      <span class="glyphicon glyphicon-search"></span>
+                    </span>
+                    <input ng-model="search.model" ng-change="athleteSearch();" class="form-control animate-hide" ng-hide="hideInput" style="border-top-right-radius:4px !important; border-bottom-right-radius:4px !important; position:static !important;" type="search" id="searchinput">
+                    <span id="searchclear" class="glyphicon glyphicon-remove fade" ng-hide="hideInput" onclick="$('#searchinput').val('');" ng-click="searchReset();"></span>
+                    <span></span>
+                  </div>
+                </div>
+                <div class=" pull-right" ng-hide="regNull || queryNull;">
+                  <span class="sessions-show-status">Showing {{sessionFirst}} - {{(sessionLast > count ? count : sessionLast)}} of {{count}} results</span>
+                  <button type="button" class="prev btn btn-default" ng-click="pageBackward();" ng-disabled="currentPage == 1">
+                    <span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span>
+                  </button>
+                  <span class="sessions-page-number">{{currentPage}}</span>
+                  <button type="button" class="next btn btn-default" ng-click="pageForward();" ng-disabled="count <= sessionLast">
+                    <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
+                  </button>
+               </div>
+              </div>
+            
+            <div class="spinner-container" style="position:relative; top:100px;">
+                <div id="spinner"></div>
+            </div>
+            <div class="row">
+              <div id="athletes" class="table">
+                <table id="results-table" class="table table-striped table-hover" ng-cloak>
+                  <thead ng-hide="regNull">
+                    <tr>
+                      <th class="hidden-xs hidden-sm hidden-md hidden-lg">id</th>
+                      <th>First Name</th>
+                      <th>Last Name</th>
+                      <th style="display:none">Username</th>
+                      <th>Tag ID</th>
+                      <th>Team</th>
+                      <th class="hidden-xs hidden-sm">Year</th>
+                      <th class="hidden-xs hidden-sm">Gender</th>
+                    </tr>
+                  </thead>
+                <tbody>
+                  <tr ng-repeat="x in athletes" id="{{x.id}}" ng-class="{danger:showDelete_{{x.id}}, info: showSave_{{x.id}}}" ng-mouseover="hoverIn();" ng-mouseleave="hoverOut();">
+                    <td class="hidden-xs hidden-sm hidden-md hidden-lg" >{{x.id}}</td>
+                    <input name="{{ name }}" type="text" ng-model="x.id" ng-show="editing_{{x.id}}" placeholder="{{ placeholder }}" class="form-control">
+                    <td class="col-lg-2 col-sm-3 col-xs-3">
+                      <div class="form-group">
+                        <div ng-bind="x.first_name" ng-hide="editing_{{x.id}}" class="no-animate"></div> 
+                        <input name="{{ name }}" type="text" ng-model="x.first_name" ng-show="editing_{{x.id}}" placeholder="First Name" class="form-control no-animate">
+                      </div>
+                    </td>
+                    <td class="col-lg-2 col-sm-3 col-xs-3">
+                        <div class="form-group">
+                          <div ng-bind="x.last_name" ng-hide="editing_{{x.id}}" class="no-animate"></div> 
+                          <input name="{{ name }}" type="text" ng-model="x.last_name" ng-show="editing_{{x.id}}" placeholder="Last Name" class="form-control no-animate">
+                        </div>
+                    </td>
+                    <td style="display:none">{{x.username}}</td>
+                    <td class="col-lg-1 col-sm-2 col-xs-2">
+                      <div class="form-group">
+                        <div ng-bind="x.tag" ng-hide="editing_{{x.id}}" class="no-animate"></div> 
+                        <input name="{{ name }}" type="text" ng-model="x.tag" ng-show="editing_{{x.id}}" placeholder="Tag ID" class="form-control no-animate">
+                      </div>
+                    </td>
+                    <td class="col-lg-2 col-sm-2 col-xs-1">
+                      <div class="form-group">
+                        <div ng-bind="x.team_name" ng-hide="editing_{{x.id}}" class="no-animate"></div> 
+                        <input name="{{ name }}" type="text" ng-model="x.team_name" ng-show="editing_{{x.id}}" placeholder="Team" class="form-control no-animate" ng-disabled="true">
+                      </div>
+                    </td>
+                    <td class="hidden-xs hidden-sm col-lg-2">
+                      <div class="form-group">
+                        <div ng-bind="x.birth_date" ng-hide="editing_{{x.id}}" class="no-animate"></div> 
+                        <input name="{{ name }}" type="text" ng-model="x.birth_date" ng-show="editing_{{x.id}}" placeholder="Year" class="form-control no-animate">
+                      </div>
+                    </td>
+                    <td class="hidden-xs hidden-sm col-lg-1">
+                      <div class="form-group">
+                        <div ng-bind="x.gender" ng-hide="editing_{{x.id}}" class="no-animate"></div> 
+                        <input name="{{ name }}" type="text" ng-model="x.gender" ng-show="editing_{{x.id}}" placeholder="M/F" class="form-control no-animate" >
+                      </div></td>
+                    <td class="col-lg-2 col-sm-2 col-xs-3">
+                        <div class="buttons no-animate pull-right" editing="editing" ng-hide="editing_icons_{{x.id}};" ng-style="hoverEdit" style="display:none;">
+                          <span class="glyphicon glyphicon-pencil" aria-hidden="true" data-ng-click="edit(x);saveButtons(x)" style="margin-right:10px"></span>
+                          <span class="glyphicon glyphicon-share-alt" aria-hidden="true" data-ng-click="workoutRemove(x)" style="margin-right:10px"></span>
+                          <span class="glyphicon glyphicon-remove" aria-hidden="true" ng-click="deleteButtons(x);" style="margin-right:10px"></span>
+                        </div>
+                        <div class="buttons hidden-xs hidden-sm no-animate pull-right" ng-show="showSave_{{x.id}}">
+                          <button name="" class="btn btn-primary" ng-click="save(x)">Save</button>
+                          <button name="" class="btn btn-default" ng-click="cancel(x)">Cancel</button>
+                        </div>
+                        <div class="buttons hidden-xs hidden-sm no-animate pull-right" ng-show="showEdit_{{x.id}}">
+                          <button name="" class="btn btn-warning" ng-click="remove(athletes,$index,x)">Remove</button>
+                          <button name="" class="btn btn-default" ng-click="cancel(x)">Cancel</button>
+                        </div>
+                        <div class="buttons hidden-xs hidden-sm no-animate pull-right" ng-show="showDelete_{{x.id}}">
+                          <button name="" class="btn btn-danger" ng-click="delete(athletes,$index,x)">Delete</button>
+                          <button name="" class="btn btn-default" ng-click="cancel(x)">Cancel</button>
+                        </div>
+                        <!--<div class="buttons hidden-lg hidden-xl" ng-show="editing_{{x.id}}" >
+                          <span class="glyphicon glyphicon-save" aria-hidden="true" ng-click="save(x);" style="margin-right:5%"></span>
+                          <span class="glyphicon glyphicon-eject" aria-hidden="true" ng-click="cancel($event);"></span>
+                        </div>-->
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              </div>
+              <div class="row" style="margin-bottom:30px;" ng-hide="regNull || queryNull;">
+                <div class="center">
+                  <div id="sessions-navigate-footer" class="sessions-navigate">
+                    <button type="button" class="prev btn btn-default" ng-click="pageBackward();" ng-disabled="currentPage == 1">
+                      <span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span>
+                    </button>
+                    <span class="sessions-page-number">{{currentPage}}</span>
+                    <button type="button" class="next btn btn-default" ng-click="pageForward();" ng-disabled="count <= sessionLast">
+                      <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div style="text-align: center;">
+              <p id="inputheader" class="notification-error notification-default" role="alert" ng-show="regNull">
+              <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Add Athletes from Roster to Workout.
+              </p>
+              <p id="inputheader" class="notification-warning notification-default" role="alert" ng-show="queryNull">
+              <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span> There Are No Athletes Matching Your Query.
+              </p>
+              <p id="inputnoneheader" class="notification-error notification-none" role="alert" style="display:none">
+              <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Add Athletes from Roster to Workout.
+              </p>
+            </div>
+            </div>
+          </div>
+
+      </div>
+      <div id="create" class="container">
+<!--Roster Modal -->
+<div class="container">
+  <div class="modal fade" id="rosterModal" role="dialog">
+    <div class="modal-dialog modal-xl">
+      <div class ="modal-content">
+        <div class="modal-header">
+          Roster Upload <button id="cl" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button>
+          </div>
+          <div class="modal-body">
+            <tabs>
+              <pane title="{{team.name}}" id="{{team.id}}" ng-repeat="team in rosterTeams">
+            <!-- SEARCH BAR TO BE ADDED <div class="input-group col-lg-5">
+              <span class="btn btn-default input-group-addon" ng-click="hideInput = !hideInput;" style="{{changeStyle(hideInput)}}">
+                <span class="glyphicon glyphicon-search"></span>
+              </span>
+              <input ng-model="searchRoster.model" ng-change="athleteSearchRoster();" class="form-control animate-hide" ng-hide="hideInput" style="border-top-right-radius:4px !important; border-bottom-right-radius:4px !important; position:static !important;" type="search" id="searchinputRoster">
+              <span id="searchclearRoster" class="glyphicon glyphicon-remove fade" ng-hide="hideInput" onclick="$('#searchinputRoster').val('');" ng-click="searchResetRoster();"></span>
+              <span></span>
+            </div>-->
+              <table id="results-table" class="table table-striped table-hover">
+                  <thead>
+                    <tr>
+                      <th class="hidden-xs hidden-sm hidden-md hidden-lg">id</th>
+                      <th>
+                        <div class="form-group">
+                          <div ng-bind="'Register'"></div> 
+                        </div>
+                      </th>
+                      <th>
+                        <div class="form-group">
+                          <div ng-bind="'First Name'"></div> 
+                        </div>
+                      </th>
+                      <th>
+                        <div class="form-group">
+                          <div ng-bind="'Last Name'"></div> 
+                        </div>
+                      </th>
+                      <th style="display:none">Username</th>
+                      <th>
+                        <div class="form-group">
+                          <div ng-bind="'Tag ID'"></div> 
+                        </div>
+                      </th>
+                      <th class="hidden-sm hidden-xm">
+                        <div class="form-group">
+                          <div ng-bind="'Year'"></div> 
+                        </div>
+                      </th>
+                      <th class ="hidden-sm hidden-xm">
+                        <div class="form-group">
+                          <div ng-bind="'Gender'"></div> 
+                        </div>
+                      </th>
+                      <th class="col-lg-2">
+                        <button type="button" class="btn btn-default hidden-xs pull-right" ng-click="header();" ng-show="editing_header">
+                          <span class="glyphicon glyphicon-plus" aria-hidden="true"> </span> Runner
+                       </button>
+                     </th>
+                    </tr>
+                  </thead>
+                <tbody>
+                  <tr ng-class="{info:!editing_header}" ng-mouseover="hoverIn();" ng-mouseleave="hoverOut();" ng-hide="editing_header" class="expand">
+                    <td class="col-lg-1">
+                    </td>
+                    <td class="col-lg-2">
+                      <div class="form-group">
+                        <input name="{{ name }}" type="text" ng-model="regForm.first_name" placeholder="First Name" class="form-control expand">
+                      </div>
+                    </td>
+                    <td class="col-lg-2">
+                        <div class="form-group">
+                          <input name="{{ name }}" type="text" ng-model="regForm.last_name" placeholder="Last Name" class="form-control expand">
+                        </div>
+                    </td>
+                    <td class="col-lg-2">
+                      <div class="form-group">
+                        <input name="{{ name }}" type="text" ng-model="regForm.tag" placeholder="Tag ID" class="form-control expand">
+                      </div>
+                    </td>
+                    <td class="hidden-xs hidden-sm col-lg-2">
+                      <div class="form-group">
+                        <input name="{{ name }}" type="text" ng-model="regForm.birth_date" placeholder="Year" class="form-control expand" style="width:70px;">
+                      </div>
+                    </td>
+                    <td class="hidden-xs hidden-sm col-lg-1">
+                      <div class="form-group">
+                        <input name="{{ name }}" type="text" ng-model="regForm.gender" placeholder="M/F" class="form-control expand" style="width:60px;">
+                      </div>
+                    </td>
+                    <td class="col-lg-2">
+                      <div>
+                        <div class="buttons pull-right expand">
+                          <button name="" class="btn btn-primary" ng-click="saveHeader(regForm);">Create</button>
+                          <button name="" class="btn btn-default" ng-click="cancelHeader()">Cancel</button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr ng-repeat="x in rosterAthletes" id="{{x.id}}" class="ath" ng-class="{danger:showDelete_{{x.id}}, info: showSave_{{x.id}}}" ng-mouseover="hoverIn();" ng-mouseleave="hoverOut();">
+                    <td class="col-lg-1">
+                      <input type="checkbox" id="check" ng-model="selected[x.id]" ng-hide="editing_{{x.id}}" class="no-animate">
+                    </td>
+                    <td class="hidden-xs hidden-sm hidden-md hidden-lg" id="id">{{x.id}}</td>
+                    <td class="col-lg-2">
+                      <div class="form-group">
+                        <div ng-bind="x.first_name" ng-hide="editing_{{x.id}}" class="no-animate"></div> 
+                        <input name="{{ name }}" type="text" ng-model="x.first_name" ng-show="editing_{{x.id}}" placeholder="First Name" class="form-control no-animate">
+                      </div>
+                    </td>
+                    <td class="col-lg-2">
+                        <div class="form-group">
+                          <div ng-bind="x.last_name" ng-hide="editing_{{x.id}}" class="no-animate"></div> 
+                          <input name="{{ name }}" type="text" ng-model="x.last_name" ng-show="editing_{{x.id}}" placeholder="Last Name" class="form-control no-animate">
+                        </div>
+                    </td>
+                    <td style="display:none">{{x.username}}</td>
+                    <td class="col-lg-2">
+                      <div class="form-group">
+                        <div ng-bind="x.tag" ng-hide="editing_{{x.id}}" class="no-animate"></div> 
+                        <input name="{{ name }}" type="text" ng-model="x.tag" ng-show="editing_{{x.id}}" placeholder="Tag ID" class="form-control no-animate">
+                      </div>
+                    </td>
+                    <td class="hidden-xs hidden-sm col-lg-2">
+                      <div class="form-group">
+                        <div ng-bind="x.birth_date" ng-hide="editing_{{x.id}}" class="no-animate"></div> 
+                        <input name="{{ name }}" type="text" ng-model="x.birth_date" ng-show="editing_{{x.id}}" placeholder="Year" class="form-control no-animate" style="width:70px;">
+                      </div>
+                    </td>
+                    <td class="hidden-xs hidden-sm col-lg-1">
+                      <div class="form-group">
+                        <div ng-bind="x.gender" ng-hide="editing_{{x.id}}" class="no-animate"></div> 
+                        <input name="{{ name }}" type="text" ng-model="x.gender" ng-show="editing_{{x.id}}" placeholder="M/F" class="form-control no-animate" style="width:60px;">
+                      </div>
+                    </td>
+                    <td class="col-lg-2">
+                      <div>
+                        <div class="buttons pull-right no-animate" editing="editing" ng-hide="editing_icons_{{x.id}};" ng-style="hoverEdit" style="display:none;">
+                          <span class="glyphicon glyphicon-pencil" aria-hidden="true" ng-click="edit(x);saveButtons(x)" style="margin-right:10px"></span>
+                          <span class="glyphicon glyphicon-remove" aria-hidden="true" ng-click="deleteButtons(x);" style="margin-right:10px"></span>
+                        </div>
+                        <div class="buttons pull-right no-animate" ng-show="showSave_{{x.id}}">
+                          <button name="" class="btn btn-primary" ng-click="save(x)">Save</button>
+                          <button name="" class="btn btn-default" ng-click="rosterCancel(x)">Cancel</button>
+                        </div>
+                        <div class="buttons hidden-xs hidden-sm pull-right no-animate" ng-show="showDelete_{{x.id}}">
+                          <button name="" class="btn btn-danger" ng-click="rosterDelete(athletes,$index,x)">Delete</button>
+                          <button name="" class="btn btn-default" ng-click="rosterCancel(x)">Cancel</button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              </pane>
+            </tabs>
+          </div>
+              
+          <div class="modal-footer">
+            <div class="button-container" style="display:table; margin:0 auto;">
+              <button name="" class="btn btn-primary" id="registerRunners" ng-click="showSelected();">Register Runners</button>
+              <button name="" class="btn btn-default" id="" onclick="$('#rosterModal').modal('hide');">Cancel</button>
+            </div>
+       </div> 
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!--End Modal -->
+  <div class="modal fade" id="notificationModal" role="dialog">
+    <div class="modal-dialog">
+      <div class ="modal-content">
+        <div class="modal-body">
+          <div id="notifications">
+              <div class="notification notification-critical" role="alert">Some information you entered isn't right.</div>
+              <div class="notification start-success" role="alert">You have started a workout!</div>
+              <div class="notification open-success" role="alert">You have opened a workout!</div>
+               <div class="notification close-success" role="alert">You have closed a workout!</div>
+            <div class="notification notification-success" role="alert">You have successfully added tag(s) to a workout!</div>
+            <div class="notification delete-success" role="alert">You have successfully delinked a tag from the workout!</div>
+            <div class="notification update-success" role="alert">You have successfully updated a tag!</div>
+            <div class="notification notification-warning" role="alert" style="display:table; margin:0 auto;">Are you sure? <div id="screen-selector"><button href="#" type="button" id="warning-yes" class="btn btn-danger" >Yes</button><button href="#" type="button" id="warning-yes2" class="btn btn-danger" >Yes</button><button id="warning-no" href="#" type="button" style="margin-left:2px;" data-dismiss="modal" data-toggle="modal" data-target="#myModal" class="btn btn-primary">Cancel</button></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="container">
+  <div class="modal fade" id="csvModal" role="dialog">
+    <div class="modal-dialog">
+      <div class ="modal-content">
+        <div class="modal-header">
+          CSV Upload <button id="cl" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button>
+        </div>
+        <div class="modal-body">
+          <form name="csvform" id="csvform" data-parsley-validate>
+          <div class="form-group">
+            <label for="">Workout Name:</label> 
+            <input data-progression="" type="text" data-helper="" id="name" value="" placeholder="" class="form-control" required/>
+          </div>
+          <div class="form-group">
+            <label for="">Workout Date:</label> 
+            <input data-progression="" type="text" data-helper="" id="date" value="" placeholder="" class="form-control" required/>
+          </div>
+          <div class="form-group">
+            <label for="">Confirm Username:</label> 
+            <input data-progression="" type="text" data-helper="" id="coach_username" value="" placeholder="" class="form-control" required/>
+          </div>
+          <div class="form-group">
+            <label for="">Readers:</label> 
+            <input data-progression="" type="text" data-helper="" id="readers" value="" placeholder="" class="form-control" required/>
+          </div>
+          <div class="spinner-container">
+                <div id="spinner_modal"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="file">Select file:</label>
+              <div class="input-group">
+                <span class="input-group-btn">
+                  <span class="btn btn-warning btn-file">
+                    Browse&hellip; <input type="file" id="file" name="myfile" data-parsley-errors-container="#csv-parsley-errors">
+                  </span>
+                </span>
+                <input type="text" class="form-control" readonly required data-parsley-errors-container="#csv-parsley-errors">
+              </div>
+              <div id="csv-parsley-errors"></div>
+            </div>
+
+             <div class="button-container" id="csv_buttons"style="display:table;margin:0 auto;">
+                <!--<input type="file" id="file" name="myfile" class="btn btn-warning form-control" required>-->
+                <input type="submit" class="gen_btn btn btn-primary form-control" id="upload" name ="upload" value="Upload">
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+      <div class="container">
+        <div class="modal fade" id="editAthlete" role="dialog">
+          <div class="modal-dialog">
+            <div class="modal-content">
+               <div class="modal-header">
+                Edit Registered Athlete <button id="cl" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button>
+              </div>
+              <div class="modal-body">
+                <form name="tracform" id="coachform" method="POST" data-parsley-validate>
+                  <div class="button-container-two">
+                  </div>
+                    <p id="idnumber">
+                     
+                      <input type="hidden" id="idnumber" value="" placeholder="" ng-model="val.id" required data-parsley-group="block1" readonly/>
+                  </p>
+                 <div class="form-group">
+                     <label for="">First Name:</label> 
+                     <input data-progression="" type="text" id="fname" value="" placeholder="First Name" ng-model="val.user.first_name" required data-parsley-group="block1" class="form-control"/>
+                 </div>
+                 <div class="form-group">
+                     <label for="">Last Name:</label> 
+                     <input data-progression="" type="text" id="lname" value="" placeholder="Last Name" ng-model="val.user.last_name" required data-parsley-group="block1" class="form-control"/>
+                 </div>
+                 <input type="hidden" id="uname" value="" placeholder="" required data-parsley-group="block1" ng-model="val.user.username" readonly/>
+                  <div class="form-group">
+                     <label for="">TagID:</label> 
+                     <input data-progression="" type="text" id="tag" value="" placeholder="Tag ID" required data-parsley-group="block1" ng-model="val.tag" class="form-control"/>
+                 </div>
+                 <div class="form-group">
+                     <label for="">Age:</label> 
+                     <input data-progression="" type="text" id="age" value="" placeholder="Year" required data-parsley-group="block1" ng-model="val.year" class="form-control"/>
+                 </div>
+                 <div class="form-group">
+                     <label for="">Gender:</label> 
+                     <input data-progression="" type="text" id="gender" value="" placeholder="M/F" required data-parsley-group="block1" ng-model="val.gender" class="form-control"/>
+                 </div>
+                    <br>
+                    </form>   
+                     </div> 
+                        <div class="modal-footer">
+                          <div class="button-container" style="display:table; margin:0 auto;">
+                            <button name="" class="btn btn-primary" id="update"  data-dismiss="modal" data-toggle="modal" data-target="#notificationModal">Update</button>
+                           </div>
+                     </div> 
+                 </div>
+              </div>
+          </div> 
+      </div>
+    </div>
+</div>
+   {% endverbatim angular %}
+   {% endblock %} 
+    
+    
+    
+</html>

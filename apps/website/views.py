@@ -15,3 +15,4 @@ def tutorial(request, page = 1):
 
 def usersettings(request, pk= None, token = None):
     return render(request, 'UserSettings.html', {'pk': pk, 'token' : token})
+
