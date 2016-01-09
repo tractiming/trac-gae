@@ -88,11 +88,6 @@
 
 	  amplitude.init("682ef0da1e09065f2b2359619f592ded");
 	</script>
-	<!--Heap Analytics-->
-	<script type="text/javascript">
-      window.heap=window.heap||[],heap.load=function(e,t){window.heap.appid=e,window.heap.config=t=t||{};var n=t.forceSSL||"https:"===document.location.protocol,a=document.createElement("script");a.type="text/javascript",a.async=!0,a.src=(n?"https:":"http:")+"//cdn.heapanalytics.com/js/heap-"+e+".js";var o=document.getElementsByTagName("script")[0];o.parentNode.insertBefore(a,o);for(var r=function(e){return function(){heap.push([e].concat(Array.prototype.slice.call(arguments,0)))}},p=["clearEventProperties","identify","setEventProperties","track","unsetEventProperty"],c=0;c<p.length;c++)heap[p[c]]=r(p[c])};
-      heap.load("1471589826");
-    </script>
 
 	<title>
 		{% block title %}
@@ -122,14 +117,14 @@
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-right">
         	{% block nav-items %}
-            <li class="hidden-md hidden-sm"><a href="/home">Home</a></li>
-            <li><a href="/create">Sessions</a></li>
-            <li><a href="/roster">Roster</a></li>
-            <li><a href="/liveview">Results</a></li>
-            <li><a href="/analyze">Analysis</a></li>
-            <li><a class="hidden-sm hidden-md hidden-lg" href="/readers">Readers</a></li>
-            <li><a class="hidden-sm hidden-md hidden-lg" href="/account_settings">Settings</a></li>
-            <li><a class="logout hidden-sm hidden-md hidden-lg" href="">Logout</a></li>
+            <li class="hidden-md hidden-sm"><a href="/home" onclick="amplitude.logEvent('internal_home');">Home</a></li>
+            <li><a href="/create" onclick="amplitude.logEvent('internal_sessions');">Sessions</a></li>
+            <li><a href="/roster" onclick="amplitude.logEvent('internal_roster');">Roster</a></li>
+            <li><a href="/liveview" onclick="amplitude.logEvent('internal_results');">Results</a></li>
+            <li><a href="/analyze" onclick="amplitude.logEvent('internal_analysis');">Analysis</a></li>
+            <li><a class="hidden-sm hidden-md hidden-lg" href="/readers" onclick="amplitude.logEvent('internal_readers');">Readers</a></li>
+            <li><a class="hidden-sm hidden-md hidden-lg" href="/account_settings"onclick="amplitude.logEvent('internal_settings');">Settings</a></li>
+            <li><a class="logout hidden-sm hidden-md hidden-lg" href=""onclick="amplitude.logEvent('logout');">Logout</a></li>
           	<!-- Single button -->
             <li id="dropdown-button" class="btn-group hidden-xs">
               <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
