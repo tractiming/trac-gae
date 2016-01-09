@@ -75,6 +75,7 @@ THIRD_PARTY_APPS = (
 
 
 LOCAL_APPS = (
+    'accounts',
     'trac',
     'website',
     'stats',
@@ -126,8 +127,8 @@ REST_FRAMEWORK = {
         ),
         'DEFAULT_AUTHENTICATION_CLASSES': (
             'oauth2_provider.ext.rest_framework.OAuth2Authentication',
-            'rest_framework.authentication.SessionAuthentication',
-            'rest_framework.authentication.BasicAuthentication',
+            #'rest_framework.authentication.SessionAuthentication',
+            #'rest_framework.authentication.BasicAuthentication',
         ),
         'DEFAULT_MODEL_SERIALIZER_CLASS': (
             'rest_framework.serializers.ModelSerializer',
@@ -204,7 +205,7 @@ else:
         dbn = 'tracdb'
 
         # Uncomment the next line to force sqlite, even if mysql is configured.
-        raise MySQLdb.Error
+        #raise MySQLdb.Error
 
         db = MySQLdb.connect(host=host, user=user, db=dbn)
         db.close()
@@ -343,3 +344,9 @@ SWAGGER_SETTINGS = {
         'title': 'TRAC API'
     }
 }
+
+
+GOOGLE_AUTH_CLIENT_ID = ('983021202491-kupk29qejvri4mlpd8ji0pa7r31bkrin.'
+                         'apps.googleusercontent.com')
+GOOGLE_AUTH_CLIENT_SECRET = 'pszNdmSxZEIYhsC-z_BrJtop'
+GOOGLE_AUTH_DOMAINS = ['accounts.google.com', 'https://accounts.google.com']

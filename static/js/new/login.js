@@ -36,45 +36,54 @@ $(function() {
 		$('#pModal').modal('show');
 	});
     $('body').on('submit', 'form#uform', function(e){
-    e.preventDefault();
-    var uname =  $('input#uname').val();
-    var uemail =  $('input#uemail').val();
-    name = escapeString(uname);
-    email = escapeString(uemail);
-    function escapeString(string){
-      var specialChars = {
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': '&quot;',
-      "'": '&#39;',
-      "/": '&#x2F;'
-    };
-      string = String(string).replace(/[&<>"'\/]/g, function(s){
-        return specialChars[s];
-      });
-      return string;
-    }
-    $.ajax({
-      type:"POST",
-      url:"/api/send_email/",
-      data: {
-        user: name,
-        email: email,
-      },
-      success: function(data){
-      	if(data == 403){
-      		alert('Username and Email do not match');
-      	}
-      	else{
-      		alert('email sent');
-      	}
-      },
-      error: function(xhr, errmsg, err){
-      	alert('something went wrong');
-      }
+        e.preventDefault();
+        var uname =  $('input#uname').val();
+        var uemail =  $('input#uemail').val();
+        name = escapeString(uname);
+        email = escapeString(uemail);
+        function escapeString(string){
+            var specialChars = {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': '&quot;',
+                "'": '&#39;',
+                "/": '&#x2F;'
+            };
+            string = String(string).replace(/[&<>"'\/]/g, function(s){
+                return specialChars[s];
+            });
+            return string;
+        }
+        $.ajax({
+            type: "POST",
+            url: "/api/send_email/",
+            data: {
+                user: name,
+                email: email,
+            },
+            success: function(data){
+                if(data == 403){
+                    alert('Username and Email do not match');
+                }
+                else{
+                    alert('email sent');
+                }
+            },
+            error: function(xhr, errmsg, err){
+                alert('something went wrong');
+            }
+        });
     });
-  });
+
+    // Log in using google.
+    $('body').on('click', 'a#google-sign-in', function(e) {
+        e.preventDefault();
+		$('#submit').hide();
+		$('.spinner-container').show();
+		spinner.spin(target);
+    });
+    startApp();
 
 	$('#login-form').on('submit', function(e) {
 		e.preventDefault();
