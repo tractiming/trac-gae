@@ -81,11 +81,20 @@
   ga('send', 'pageview');
 
 </script>
-<!--Heap Analytics-->
-    <script type="text/javascript">
-      window.heap=window.heap||[],heap.load=function(e,t){window.heap.appid=e,window.heap.config=t=t||{};var n=t.forceSSL||"https:"===document.location.protocol,a=document.createElement("script");a.type="text/javascript",a.async=!0,a.src=(n?"https:":"http:")+"//cdn.heapanalytics.com/js/heap-"+e+".js";var o=document.getElementsByTagName("script")[0];o.parentNode.insertBefore(a,o);for(var r=function(e){return function(){heap.push([e].concat(Array.prototype.slice.call(arguments,0)))}},p=["clearEventProperties","identify","setEventProperties","track","unsetEventProperty"],c=0;c<p.length;c++)heap[p[c]]=r(p[c])};
-      heap.load("1471589826");
-    </script>
+  <!--Amplitude Analytics -->
+  <script type="text/javascript">
+    (function(t,e){var n=t.amplitude||{};var r=e.createElement("script");r.type="text/javascript";
+    r.async=true;r.src="https://d24n15hnbwhuhn.cloudfront.net/libs/amplitude-2.8.0-min.gz.js";
+    r.onload=function(){t.amplitude.runQueuedFunctions()};var s=e.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(r,s);var i=function(){this._q=[];return this};function o(t){
+    i.prototype[t]=function(){this._q.push([t].concat(Array.prototype.slice.call(arguments,0)));
+    return this}}var a=["add","append","set","setOnce","unset"];for(var u=0;u<a.length;u++){o(a[u]);
+    }n.Identify=i;n._q=[];function c(t){n[t]=function(){n._q.push([t].concat(Array.prototype.slice.call(arguments,0)));
+    }}var l=["init","logEvent","logRevenue","setUserId","setUserProperties","setOptOut","setVersionName","setDomain","setDeviceId","setGlobalUserProperties","identify"];
+    for(var p=0;p<l.length;p++){c(l[p])}t.amplitude=n})(window,document);
+
+    amplitude.init("682ef0da1e09065f2b2359619f592ded");
+  </script>
 </head>
 
 <body>
@@ -106,13 +115,13 @@
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-right">
             <li class="hidden-sm hidden-xs"><a href="/#top" class="scrollto" rel="top">Home</a></li>
-            <li><a href="/#bg2" class="scrollto" rel="bg2">Product</a></li>
-            <li><a href="/#bg3" class="scrollto" rel="bg3">About</a></li>
-            <li><a href="/#bg4" class="scrollto" rel="bg4">Blog</a></li>
-            <li><a href="/#bg5" class="scrollto" rel="bg5">Team</a></li>
-            <li><a href="/#bg6" class="scrollto" rel="bg6">Contact</a></li>
+            <li><a href="/#bg2" class="scrollto" rel="bg2" onclick="amplitude.logEvent('products');">Product</a></li>
+            <li><a href="/#bg3" class="scrollto" rel="bg3" onclick="amplitude.logEvent('about');">About</a></li>
+            <li><a href="/#bg4" class="scrollto" rel="bg4" onclick="amplitude.logEvent('blog');">Blog</a></li>
+            <li><a href="/#bg5" class="scrollto" rel="bg5" onclick="amplitude.logEvent('team');">Team</a></li>
+            <li><a href="/#bg6" class="scrollto" rel="bg6" onclick="amplitude.logEvent('toContact');">Contact</a></li>
             <li><a class="hidden-lg hidden-md"href="/login" class="scrollto" rel="bg6">Login</a></li>
-            <li class="hidden-sm hidden-xs"><button class="btn btn-warning" style="margin-top:20%; margin-left:5%" onclick="location.href='/login';">Log in</button></li>
+            <li class="hidden-sm hidden-xs"><button class="btn btn-warning" style="margin-top:20%; margin-left:5%" onclick="location.href='/login'; amplitude.logEvent('toLogin');">Log in</button></li>
         </ul>
       </div><!--/.nav-collapse -->
     </div>
@@ -126,7 +135,7 @@
         <a href="#" class="target" id="target" title="play">PLAY</a>
       </div>
       <div id='' class="video-background">
-      	  <a href='https://www.youtube.com/embed/0mxy3hyEMno?rel=0&amp;wmode=transparent' class='youtube'><img src={% static "img/shoes-video.jpg" %} style='width:100%;' class='' /></a>
+      	  <a href='https://www.youtube.com/embed/0mxy3hyEMno?rel=0&amp;wmode=transparent' class='youtube' onclick="amplitude.logEvent('promoVideo');"><img src={% static "img/shoes-video.jpg" %} style='width:100%;' class='' /></a>
       </div>
 	     
     </div>
@@ -320,7 +329,7 @@
         <p>For more information regarding Timing and Racing Around the Clock or about purchasing one of our systems reach us at:</p>
         <br>
           <br>
-         <h3><a href="mailto:info@trac-us.com?subject=TRAC System Interest&body=Hi TRAC Team, I am interested in more information regarding your timing system.">info@trac-us.com</a></h3>
+         <h3><a href="mailto:info@trac-us.com?subject=TRAC System Interest&body=Hi TRAC Team, I am interested in more information regarding your timing system." onclick="amplitude.logEvent('mailto');">info@trac-us.com</a></h3>
       </div>
     </div>
 
@@ -334,10 +343,10 @@
 
         <div class="col-md-3 col-sm-6 footer-item">
           <div class="internal">
-            <a href="https://www.facebook.com/timingracing"><img src={% static "img/facebook.png" %}></a>
+            <a href="https://www.facebook.com/timingracing" onclick="amplitude.logEvent('toFB');"><img src={% static "img/facebook.png" %}></a>
             <a href="http://youtu.be/9OxhM_fiHWo"><img src={% static "img/youtube.png" %} width="50px"></a>
             <a href="https://angel.co/timing-and-racing-around-the-clock"><img src= {% static "img/angellist.png" %}></a>
-            <a href="https://twitter.com/TRAC_Chicago"><img src= {% static "img/twitter2.png" %} style="width:56px"></a>
+            <a href="https://twitter.com/TRAC_Chicago" onclick="amplitude.logEvent('toTwitter');"><img src= {% static "img/twitter2.png" %} style="width:56px"></a>
           </div>
         </div>
 
@@ -345,8 +354,8 @@
           <div class="external">
             <ul>
               <li><a href="/bg3" class="scrollto" rel="bg3">About</a></li>
-              <li><a href="/Tutorial/5/">Frequently Asked Questions</a></li>
-              <li><a href="mailto:info@trac-us.com">Contact us</a></li>
+              <li><a href="/Tutorial/5/" onclick="amplitude.logEvent('toFAQ');">Frequently Asked Questions</a></li>
+              <li><a href="mailto:info@trac-us.com" onclick="amplitude.logEvent('mailto');">Contact us</a></li>
             </ul>
           </div>
         </div>

@@ -38,12 +38,12 @@
             <div class="row" style="margin-bottom:2%">
         <div class="col-md-6 col-sm-6 col-xs-6" style="">
           <div id="menu-btn" class="menu-btn" style="display: inline-block;">
-            <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span> Heat Menu
+            <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true" onclick="amplitude.logEvent('roster_heatmenu');"></span> Heat Menu
           </div>
         </div>
         <div class="col-md-6 col-sm-6 col-xs-6" style="">
           <div id="" class="" data-toggle="modal" data-target="#rosterModal" style="float:right">
-            <span class="glyphicon glyphicon-list" aria-hidden="true"></span> Roster
+            <span class="glyphicon glyphicon-list" aria-hidden="true" onclick="amplitude.logEvent('roster_roster');"></span> Roster
           </div>
         </div>
       </div>
@@ -62,7 +62,7 @@
                 <div class= "col-lg-5" style="padding-left:0px !important;" ng-hide="regNull">
                   <div class="input-group">
                     <span class="btn btn-default input-group-addon" ng-click="hideInput = !hideInput;" style="{{changeStyle(hideInput)}}">
-                      <span class="glyphicon glyphicon-search"></span>
+                      <span class="glyphicon glyphicon-search" onclick="amplitude.logEvent('roster_search');"></span>
                     </span>
                     <input ng-model="search.model" ng-change="athleteSearch();" class="form-control animate-hide" ng-hide="hideInput" style="border-top-right-radius:4px !important; border-bottom-right-radius:4px !important; position:static !important;" type="search" id="searchinput">
                     <span id="searchclear" class="glyphicon glyphicon-remove fade" ng-hide="hideInput" onclick="$('#searchinput').val('');" ng-click="searchReset();"></span>

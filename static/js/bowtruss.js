@@ -85,7 +85,10 @@ function bowtrussHeader() {
 
     } else {
       $.scrollTo('#' + $(this).attr('rel'), 500);
-       $('.navbar-toggle').click();
+       var w = $(window).width();
+        if(w < 719) {
+          $('.navbar-toggle').click();
+        }
     }
   });
 }
