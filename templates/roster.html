@@ -8,7 +8,8 @@
 
 {% block js_scripts %}
 <script type="text/javascript" src="{% static "js/new/roster.js" %}"> </script>
-<script type="text/javascript" src="{% static "js/new/components.js" %}"> </script>
+<script type="text/javascript" src="{% static "js/new/directives/components.js" %}"> </script>
+<script type="text/javascript" src="{% static "js/new/spinner-directive.js" %}"> </script>
 
 <script type="text/javascript" src="{% static "js/timeConversion.js" %}" />
 
@@ -79,11 +80,8 @@
                     <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
                   </button>
                </div>
-              </div>
-            
-            <div class="spinner-container" style="position:relative; top:100px;">
-                <div id="spinner"></div>
-            </div>
+              </div>     
+            <span us-spinner spinner-key="main-spinner" spinner-start-active="true"></span>
             <div class="row">
               <div id="athletes" class="table">
                 <table id="results-table" class="table table-striped table-hover" ng-cloak>
@@ -215,6 +213,7 @@
               <span id="searchclearRoster" class="glyphicon glyphicon-remove fade" ng-hide="hideInput" onclick="$('#searchinputRoster').val('');" ng-click="searchResetRoster();"></span>
               <span></span>
             </div>-->
+            <span us-spinner spinner-key="roster-spinner" spinner-start-active="true"></span>
               <table id="results-table" class="table table-striped table-hover">
                   <thead>
                     <tr>
