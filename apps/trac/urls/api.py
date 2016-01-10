@@ -21,6 +21,8 @@ router.register(r'users', user_views.UserViewSet, 'User')
 
 urlpatterns = [
         url(r'^', include(router.urls)),
+        url(r'^register/$', auth_views.register),
+        url(r'^login/$', auth_views.login),
         url(r'^api-auth/', include('rest_framework.urls',
                                    namespace='rest_framework'))
 ]

@@ -8,10 +8,6 @@ from trac.views import (
 
 urlpatterns = [
 
-        url(r'^register/$', auth_views.register),
-        url(r'^login/$', auth_views.login),
-        url(r'^logout/$', auth_views.logout),
-
         url(r'^edit_athletes/$', user_views.edit_athletes),
         url(r'^edit_split/$', session_views.edit_split),
         url(r'^raceregistration/$', session_views.create_race, name='racereg'),
