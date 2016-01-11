@@ -77,7 +77,7 @@ $(function() {
     });
 
     // Log in using google.
-    $('body').on('click', 'a#google-sign-in', function(e) {
+    $('body').on('click', '#google-sign-in', function(e) {
         e.preventDefault();
 		$('#submit').hide();
 		$('.spinner-container').show();

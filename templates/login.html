@@ -21,6 +21,11 @@ else{
 	   location.href="/home";
 }
 </script>
+<script type="text/javascript" language="javascript">
+                function changeImage(img){
+                   document.getElementById('google-sign-in').src=img;
+                }
+            </script>
 {% endblock %}
 
 <!-- Body -->
@@ -60,11 +65,20 @@ else{
 										<div class="spinner-container" style="position:relative; top:0px; min-height:50px;">
 											<div id="spinner"></div>
 										</div>
-										<button type="submit" id="submit" class="btn btn-primary" onclick="amplitude.logEvent('signin');">Sign in</button>
+										<div class="row">
+											<div class="col-lg-4 pull-left col-md-6 col-sm-6 col-xs-6">
+												<button type="submit" id="submit" class="btn btn-primary" onclick="amplitude.logEvent('signin');" style="width:100%">Sign in</button>
+											</div>
+											<div class="col-lg-2 hidden-xs hidden-sm hidden-md" style="text-align:center; padding-top:7px; padding-right:10px">
+											-or-
+											</div>
+											<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+												<input type="image" src="{% static "img/btn_google_signin_dark_normal_web@2x.png" %}" class="pull-right" id="google-sign-in " style="width:100%"/>
+											</div>
+										</div>
 									</div>
 								</div>
                                 
-                                <a href="#" id="google-sign-in">Sign in with Google</a>
                                 <br>
                                 
                                 <a href="#" id ="passwordlink" onclick="amplitude.logEvent('forgotPassword');">Forgot your Password?</a>
