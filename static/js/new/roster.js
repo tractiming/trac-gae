@@ -229,34 +229,8 @@
       });
 
     }
-    //Deleting an athlete off a workout
-    $scope.delete = function(array,index,runner){
-      $scope.athletes.splice(index, 1);
-      
-      //TODO: Do an ajax call, to actually delete
-       var url = '/api/athletes/'+runner.id +'/';
-       $http({method: 'DELETE', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}})
-         .success(function (response) {
-          //Update the Count
-          var url = '/api/athletes/?registered_to_session='+ $scope.selectedID+'&limit=50';
-          $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
-            .success(function (response) { 
-              $scope.athletes = response.results;
-              $scope.count = response.count;
-
-              if (response.results.length == 0){
-                 $scope.regNull = true;
-              }
-              else{
-                $scope.regNull = false;
-              }
-              $scope.universalEdit = false;
-          });
-       });
-    }
         //Deleting an athlete off a workout
-    $scope.rosterDelete = function(array,index,runner){
-      $scope.rosterAthletes.splice(index, 1);
+    $scope.rosterDelete = function(runner){
       
       //TODO: Do an ajax call, to actually delete
        var url = '/api/athletes/'+runner.id +'/';
@@ -275,6 +249,7 @@
               else{
                 $scope.regNull = false;
               }
+              $scope.hideRemove = false;
               $scope.universalEdit = false;
           });
        });
@@ -304,6 +279,7 @@
           $scope[dynamicString] = false;
           var dynamicString = 'editing_icons_' + runner.id;
           $scope[dynamicString] = false;
+          hideRemove = false;
       });
     }
 
@@ -316,7 +292,7 @@
       if ($(window).width() < 768) {
         $scope.val = x;
         // do something for small screens
-        //$('#editAthlete').modal('show');
+        $('#editAthlete').modal('show');
 
       }
       else if ($(window).width() >= 768 &&  $(window).width() <= 992) {
@@ -354,6 +330,7 @@
       var dynamicString = 'showEdit_' + x.id;
         $scope[dynamicString] = false;
 
+      $scope.hideRemove = false;
       $scope.universalEdit = false;
     };
 
@@ -475,7 +452,7 @@
       var url = '/api/sessions/'+ $scope.selectedID +'/remove_athletes/';
       $http({method: 'POST', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{
         athletes: [runner.id]} })
-        .success(function (response) { 
+        .success(function (response) { 3
           $scope.universalEdit = false;
           var url = '/api/athletes/?registered_to_session='+ $scope.selectedID+'&limit=50';
           $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
@@ -492,6 +469,39 @@
 
       });
 
+    }
+
+    $scope.removeModal = function(runner){
+      var url = '/api/sessions/'+ $scope.selectedID +'/remove_athletes/';
+      $http({method: 'POST', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{
+        athletes: [runner.id]} })
+        .success(function (response) { 3
+          $scope.universalEdit = false;
+          var url = '/api/athletes/?registered_to_session='+ $scope.selectedID+'&limit=50';
+          $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
+            .success(function (response) { 
+              $scope.athletes = response.results;
+              $scope.count = response.count;
+              if (response.results.length == 0){
+                 $scope.regNull = true;
+              }
+              else{
+                $scope.regNull = false;
+              }
+          });
+
+      });
+
+    }
+
+    $scope.doubleModalButton = function(){
+      if ($(window).width() < 768) {
+        $scope.hideRemove = true;
+
+      }
+      else if ($(window).width() >= 768 &&  $(window).width() <= 992) {
+          $scope.hideRemove = true;
+      }
     }
 
 
