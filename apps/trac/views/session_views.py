@@ -5,6 +5,7 @@ import json
 import uuid
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.utils import timezone
@@ -16,6 +17,7 @@ from rest_framework.response import Response
 from trac.filters import TimingSessionFilter
 from trac.models import TimingSession, Reader, Tag, Split, Team, Athlete
 from trac.serializers import TimingSessionSerializer
+from trac.utils.gcs_util import json_write
 from trac.utils.integrations import tfrrs
 from trac.utils.phone_split_util import create_phone_split
 from trac.utils.user_util import is_athlete, is_coach
@@ -394,6 +396,26 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         request.data['registered_athletes'] = list(x for x in existing_athletes if 
             x not in athletes_to_remove)
         return self.partial_update(request)
+
+    @detail_route(methods=['post'])
+    def save_results(self, request, pk=None):
+        """Save a JSON file with results to Google Cloud Storage."""
+        session = self.get_object()
+        results = []
+        for result in session.individual_results():
+            results.append({
+                'athlete_id': result.user_id,
+                'athlete_name': result.name,
+                'team_name': result.team.name,
+                'splits': result.splits,
+                'total': result.total
+            })
+        storage_path = '/'.join((settings.GCS_RESULTS_DIR,
+                                 str(session.pk),
+                                 'individual.json'))
+        json_write(settings.GCS_RESULTS_BUCKET, storage_path, results)
+        return Response(status=status.HTTP_202_ACCEPTED)
+
 
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))

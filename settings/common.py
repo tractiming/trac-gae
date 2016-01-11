@@ -350,3 +350,6 @@ GOOGLE_AUTH_CLIENT_ID = ('983021202491-kupk29qejvri4mlpd8ji0pa7r31bkrin.'
                          'apps.googleusercontent.com')
 GOOGLE_AUTH_CLIENT_SECRET = 'pszNdmSxZEIYhsC-z_BrJtop'
 GOOGLE_AUTH_DOMAINS = ['accounts.google.com', 'https://accounts.google.com']
+
+GCS_RESULTS_BUCKET = 'trac-us.appspot.com'
+GCS_RESULTS_DIR = 'results'
