@@ -1,7 +1,32 @@
-  var app = angular.module('raceRegistration', ['ngAnimate','ngRoute']);
+  var app = angular.module('raceRegistration', ['ngAnimate','ngRoute','angularSpinner']);
 
+  app.config(['usSpinnerConfigProvider', function (usSpinnerConfigProvider) {
+    usSpinnerConfigProvider.setDefaults({
+      lines: 13,              // The number of lines to draw
+      length: 28,             // The length of each line
+      width: 14,              // The line thickness
+      radius: 42,             // The radius of the inner circle
+      scale: 0.5,             // Scales overall size of the Spinner
+      corners: 1,             // Corner roundness (0..1)
+      color: '#3577a8',       // #rgb or #rrggbb or array of colors
+      opacity: 0.25,          // Opacity of the lines
+      rotate: 0,              // The rotation offset
+      direction: 1,           // 1: clockwise, -1: counterclockwise
+      speed: 1,               // Rounds per second
+      trail: 60,              // Afterglow percentage
+      fps: 20,                // Frames per second when using setTimeout() as a fallback for CSS
+      zIndex: 1,              // The z-index (defaults to 2000000000)
+      className: 'spinner',   // The CSS class to assign to the spinner
+      top: '50%',             // Top position relative to parent
+      left: '50%',            // Left position relative to parent
+      shadow: false,          // Whether to render a shadow
+      hwaccel: false,         // Whether to use hardware acceleration
+      position: 'relative'    // Element positioning
+    });
+}]);
 
-   app.controller('registeredCtrl', function($scope, $http) {
+   app.controller('registeredCtrl', function($scope, $http, usSpinnerService) {
+
     var  SESSIONS_PER_PAGE  = 50;
     $scope.hideInput = true;
     $scope.regNull = false;
@@ -14,6 +39,7 @@
 
     //pagination buttons
     $scope.pageForward = function(){
+      usSpinnerService.spin('main-spinner');
       $scope.sessionFirst += SESSIONS_PER_PAGE;
       $scope.sessionLast += SESSIONS_PER_PAGE;
       $scope.currentPage++;
@@ -28,11 +54,13 @@
         .success(function (response) { 
           $scope.athletes = response.results;
           $scope.count = response.count;
+          usSpinnerService.stop('main-spinner');
           
       });
 
     }
     $scope.pageBackward = function(){
+      usSpinnerService.spin('main-spinner');
       if ($scope.sessionFirst != 1) {
         $scope.sessionFirst -= SESSIONS_PER_PAGE;
         $scope.sessionLast -= SESSIONS_PER_PAGE;
@@ -46,6 +74,7 @@
         .success(function (response) {
           $scope.athletes = response.results;
           $scope.count = response.count;
+          usSpinnerService.stop('main-spinner');
           
       });
 
@@ -96,9 +125,8 @@
           var url = '/api/athletes/?team=' + $scope.rosterID + '&limit=100';
           $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
           .success(function (response) { 
-
             $scope.rosterAthletes = response.results;
-
+            usSpinnerService.stop('roster-spinner');
           });
       });
 
@@ -117,7 +145,6 @@
             $scope.queryNull = false;
           
       });
-
     }
 
     $scope.searchResetRoster = function(){
@@ -135,6 +162,7 @@
 
 
     //Load the heat menu bar on the left hand side of page
+    usSpinnerService.spin('main-spinner');
     $http({method: 'GET', url: '/api/sessions/', headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:0, limit:15} })
     .success(function (response) { 
       
@@ -157,6 +185,8 @@
         else{
           $scope.regNull = false;
         }
+          usSpinnerService.stop('main-spinner');
+
 
       });
 
@@ -164,6 +194,7 @@
 
     //onClick event of session in heat menu, dynamically route athletes. 
     $scope.select = function(workout) {
+        usSpinnerService.spin('main-spinner');
         var selected = workout.id;
         $scope.selectedID = selected;
         $scope.workoutName = workout.name;
@@ -182,6 +213,7 @@
             else{
               $scope.regNull = false;
             }
+            usSpinnerService.stop('main-spinner');
 
           });
 
@@ -197,34 +229,8 @@
       });
 
     }
-    //Deleting an athlete off a workout
-    $scope.delete = function(array,index,runner){
-      $scope.athletes.splice(index, 1);
-      
-      //TODO: Do an ajax call, to actually delete
-       var url = '/api/athletes/'+runner.id +'/';
-       $http({method: 'DELETE', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}})
-         .success(function (response) {
-          //Update the Count
-          var url = '/api/athletes/?registered_to_session='+ $scope.selectedID+'&limit=50';
-          $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
-            .success(function (response) { 
-              $scope.athletes = response.results;
-              $scope.count = response.count;
-
-              if (response.results.length == 0){
-                 $scope.regNull = true;
-              }
-              else{
-                $scope.regNull = false;
-              }
-              $scope.universalEdit = false;
-          });
-       });
-    }
         //Deleting an athlete off a workout
-    $scope.rosterDelete = function(array,index,runner){
-      $scope.rosterAthletes.splice(index, 1);
+    $scope.rosterDelete = function(runner){
       
       //TODO: Do an ajax call, to actually delete
        var url = '/api/athletes/'+runner.id +'/';
@@ -243,6 +249,7 @@
               else{
                 $scope.regNull = false;
               }
+              $scope.hideRemove = false;
               $scope.universalEdit = false;
           });
        });
@@ -272,6 +279,7 @@
           $scope[dynamicString] = false;
           var dynamicString = 'editing_icons_' + runner.id;
           $scope[dynamicString] = false;
+          hideRemove = false;
       });
     }
 
@@ -284,7 +292,7 @@
       if ($(window).width() < 768) {
         $scope.val = x;
         // do something for small screens
-        //$('#editAthlete').modal('show');
+        $('#editAthlete').modal('show');
 
       }
       else if ($(window).width() >= 768 &&  $(window).width() <= 992) {
@@ -322,6 +330,7 @@
       var dynamicString = 'showEdit_' + x.id;
         $scope[dynamicString] = false;
 
+      $scope.hideRemove = false;
       $scope.universalEdit = false;
     };
 
@@ -443,7 +452,7 @@
       var url = '/api/sessions/'+ $scope.selectedID +'/remove_athletes/';
       $http({method: 'POST', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{
         athletes: [runner.id]} })
-        .success(function (response) { 
+        .success(function (response) { 3
           $scope.universalEdit = false;
           var url = '/api/athletes/?registered_to_session='+ $scope.selectedID+'&limit=50';
           $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
@@ -460,6 +469,39 @@
 
       });
 
+    }
+
+    $scope.removeModal = function(runner){
+      var url = '/api/sessions/'+ $scope.selectedID +'/remove_athletes/';
+      $http({method: 'POST', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{
+        athletes: [runner.id]} })
+        .success(function (response) { 3
+          $scope.universalEdit = false;
+          var url = '/api/athletes/?registered_to_session='+ $scope.selectedID+'&limit=50';
+          $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
+            .success(function (response) { 
+              $scope.athletes = response.results;
+              $scope.count = response.count;
+              if (response.results.length == 0){
+                 $scope.regNull = true;
+              }
+              else{
+                $scope.regNull = false;
+              }
+          });
+
+      });
+
+    }
+
+    $scope.doubleModalButton = function(){
+      if ($(window).width() < 768) {
+        $scope.hideRemove = true;
+
+      }
+      else if ($(window).width() >= 768 &&  $(window).width() <= 992) {
+          $scope.hideRemove = true;
+      }
     }
 
 

@@ -9,7 +9,7 @@
 
 
  
-  angular.module('raceRegistration').directive('tabs', function() {
+  angular.module('raceRegistration').directive('tabs', function(usSpinnerService) {
     return {
       restrict: 'E',
       transclude: true,
@@ -28,12 +28,14 @@
         }
 
         $scope.getRoster = function(id){
+          usSpinnerService.spin('roster-spinner');
           var url = '/api/athletes/?team=' + id + '&limit=100';
             $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
             .success(function (response) { 
 
               $scope.$parent.rosterAthletes = response.results;
               $scope.$parent.rosterID = id;
+              usSpinnerService.stop('roster-spinner');
             });
         }
  
