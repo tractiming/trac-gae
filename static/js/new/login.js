@@ -30,6 +30,11 @@ $(function() {
 	$('.spinner-container').hide();
 	$('p.notification.notification-critical').hide();
 
+    $('input#google-sign-in').hover(function() {
+    $('input#google-sign-in').attr('src','../static/img/btn_google_signin_dark_focus_web@2x.png');
+        }, function() {
+    $('input#google-sign-in').attr('src','../static/img/btn_google_signin_dark_normal_web@2x.png');
+        });
 	// submit form
 	$('body').on('click', 'a#passwordlink', function(e){
 		e.preventDefault();
@@ -78,10 +83,8 @@ $(function() {
 
     // Log in using google.
     $('body').on('click', '#google-sign-in', function(e) {
+        $('input#google-sign-in').attr('src','../static/img/btn_google_signin_dark_pressed_web@2x.png');
         e.preventDefault();
-		$('#submit').hide();
-		$('.spinner-container').show();
-		spinner.spin(target);
     });
     startApp();
 
@@ -95,7 +98,9 @@ $(function() {
 
 		// validate form with parsley
 		var form = $(this);
+        console.log(form);
 		form.parsley().validate();
+        
 
 		// if the form is valid then submit
 		if (form.parsley().isValid()) {

@@ -27,6 +27,19 @@ $(function() {
   var spinner = new Spinner(opts);
   var username, organization, password, password_verify,user_type, email;
 
+
+  $('input#google-sign-in').hover(function() {
+  $('input#google-sign-in').attr('src','../static/img/btn_google_signin_dark_focus_web@2x.png');
+      }, function() {
+  $('input#google-sign-in').attr('src','../static/img/btn_google_signin_dark_normal_web@2x.png');
+      });
+
+  // Log in using google.
+  $('body').on('click', '#google-sign-in', function(e) {
+      $('input#google-sign-in').attr('src','../static/img/btn_google_signin_dark_pressed_web@2x.png');
+      e.preventDefault();
+  });
+  startApp();
   // hide stuff
   $('.spinner-container').hide();
   $('.notification').hide();
@@ -84,12 +97,12 @@ $(function() {
     form.parsley().validate();
     if (form.parsley().isValid()){
       $('#terms-modal').modal('hide');
-
+      var usertype= "coach";
       var user_data = {
         "username": username,
         "password": password,
         "email": email,
-        "user_type": user_type,
+        "user_type": usertype,
         "organization": organization
       };
 
