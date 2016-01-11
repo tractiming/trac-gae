@@ -118,6 +118,10 @@
     var url = '/api/teams/?primary_team=True';
       $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
       .success(function (response) { 
+        if(response.length == 0){
+          $scope.rosterTeams = '';
+        }
+        else{
         $scope.rosterTeams = response;
         var rosterCount = response.length;
         $scope.rosterID = $scope.rosterTeams[0].id
@@ -128,6 +132,7 @@
             $scope.rosterAthletes = response.results;
             usSpinnerService.stop('roster-spinner');
           });
+        }
       });
 
       //Search for Roster
@@ -165,7 +170,12 @@
     usSpinnerService.spin('main-spinner');
     $http({method: 'GET', url: '/api/sessions/', headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:0, limit:15} })
     .success(function (response) { 
-      
+      if (response.results == ''){
+        usSpinnerService.stop('main-spinner');
+        $scope.regNull = true;
+        $scope.noData = true;
+        return;
+      }
       $scope.json = response.results;
       $scope.idArray = response.results.id;
       $scope.temporaryEnd = 15;
@@ -524,6 +534,36 @@
     $scope.hoverOut = function(){
         this.hoverEdit = {display:'none'};
     };
+
+    $scope.createTeam = function(team){
+      var name = team.name;
+      var bool = true;
+
+      $http({method: 'POST', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{
+        name: name,
+        primary_team: bool,
+       } 
+      })
+        .success(function (response) {
+          $scope.rosterTeams = $scope.rosterTeams.concat(response);
+
+        });
+    }
+    $scope.createFirstTeam = function(team){
+      var name = team.name;
+      var bool = true;
+
+      $http({method: 'POST', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{
+        name: name,
+        primary_team: bool,
+       } 
+      })
+        .success(function (response) {
+          $scope.rosterTeams = [response];
+
+        });
+    }
+
 
   });
 

@@ -15,10 +15,11 @@
       transclude: true,
       scope: {
         rosterAthletes:'=',
-        rosterID:'='
+        rosterID:'=',
       },
       controller: function($scope, $element, $http) {
         var panes = $scope.panes = [];
+        $scope.$parent.rosterBool;
  
         $scope.select = function(pane) {
           angular.forEach(panes, function(pane) {
@@ -28,6 +29,9 @@
         }
 
         $scope.getRoster = function(id){
+          if (id == 'addTeam'){
+          }
+          else {
           usSpinnerService.spin('roster-spinner');
           var url = '/api/athletes/?team=' + id + '&limit=100';
             $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
@@ -37,7 +41,9 @@
               $scope.$parent.rosterID = id;
               usSpinnerService.stop('roster-spinner');
             });
+          }
         }
+
  
         this.addPane = function(pane) {
           if (panes.length == 0) $scope.select(pane);
