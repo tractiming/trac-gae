@@ -20,6 +20,9 @@ libraries:
 - name: ssl
   version: "latest"
 
+- name: pycrypto
+  version: "2.6"
+
 builtins:
 - remote_api: on
 - appstats: on
@@ -44,4 +47,3 @@ skip_files:
 - local
 - venv
 - requirements
-
