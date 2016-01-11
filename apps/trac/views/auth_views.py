@@ -18,22 +18,28 @@ from trac.serializers import AthleteSerializer, CoachSerializer, UserSerializer
 from trac.utils.user_util import user_type
 
 
+_serializer_lookup = {'athlete': AthleteSerializer, 'coach': CoachSerializer}
+
+
+def create_user(user_info, user_type):
+    """Create a new user (Athlete or Coach)."""
+    assert user_type in ('athlete', 'coach'), 'Invalid user type'
+    serializer_class = _serializer_lookup[user_type]
+    serializer = serializer_class(data=user_info)
+    serializer.is_valid(raise_exception=True)
+    return serializer.create(serializer.validated_data)
+
+
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))
 def register(request):
     """Register a new coach or athlete."""
     utype = request.data.get('user_type')
+    if utype not in ('athlete', 'coach'):
+        return Response({'errors': ['Invalid user type']},
+                        status=status.HTTP_400_BAD_REQUEST)
 
-    if utype == 'athlete':
-        serializer_class = AthleteSerializer
-    elif utype == 'coach':
-        serializer_class = CoachSerializer
-    else:
-        return Response(status=status.HTTP_400_BAD_REQUEST)
-
-    serializer = serializer_class(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    new_user = serializer.create(serializer.validated_data)
+    new_user = create_user(request.data, utype) 
 
     # Send email about app availability after sign up.
     context = {}
@@ -44,7 +50,7 @@ def register(request):
         [request.data['email']],
         fail_silently=False)
 
-    return Response(serializer_class(new_user).data,
+    return Response(_serializer_lookup[utype](new_user).data,
                     status=status.HTTP_201_CREATED)
 
 

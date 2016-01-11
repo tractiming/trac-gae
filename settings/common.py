@@ -75,6 +75,7 @@ THIRD_PARTY_APPS = (
 
 
 LOCAL_APPS = (
+    'accounts',
     'trac',
     'website',
     'stats',
@@ -91,7 +92,7 @@ if not APP_ENGINE:
 
     NOSE_ARGS = [
         '--with-coverage', '--cover-inclusive',
-        '--cover-package=trac,website,stats',
+        '--cover-package=trac,website,stats,accounts',
         '--exclude-dir=apps/djstripe'
     ]
 
@@ -126,8 +127,8 @@ REST_FRAMEWORK = {
         ),
         'DEFAULT_AUTHENTICATION_CLASSES': (
             'oauth2_provider.ext.rest_framework.OAuth2Authentication',
-            'rest_framework.authentication.SessionAuthentication',
-            'rest_framework.authentication.BasicAuthentication',
+            #'rest_framework.authentication.SessionAuthentication',
+            #'rest_framework.authentication.BasicAuthentication',
         ),
         'DEFAULT_MODEL_SERIALIZER_CLASS': (
             'rest_framework.serializers.ModelSerializer',
@@ -343,3 +344,9 @@ SWAGGER_SETTINGS = {
         'title': 'TRAC API'
     }
 }
+
+
+GOOGLE_AUTH_CLIENT_ID = ('983021202491-kupk29qejvri4mlpd8ji0pa7r31bkrin.'
+                         'apps.googleusercontent.com')
+GOOGLE_AUTH_CLIENT_SECRET = 'pszNdmSxZEIYhsC-z_BrJtop'
+GOOGLE_AUTH_DOMAINS = ['accounts.google.com', 'https://accounts.google.com']

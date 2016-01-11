@@ -1,20 +1,14 @@
-from django.test import TestCase, Client
 from django.contrib.auth.models import User
+from rest_framework.test import APITestCase, force_authenticate
 
 
-class SwaggerDocsTest(TestCase):
+class SwaggerDocsTest(APITestCase):
 
     def test_generate_docs(self):
         """Test that there are no errors when generating docs."""
-        user = User.objects.create(username='docuser')
-        user.is_superuser = True # docs are for superusers only
-        user.set_password('password')
-        user.save()
-        client = Client()
-        client.login(username='docuser', password='password')
-        resp = client.get('/docs/')
+        user = User.objects.create(username='docuser', is_superuser=True)
+        self.client.force_authenticate(user=user)
+        resp = self.client.get('/docs/api-docs/api')
         self.assertEqual(resp.status_code, 200)
-        resp = client.get('/docs/api-docs/api')
-        self.assertEqual(resp.status_code, 200)
-        resp = client.get('/docs/api-docs/stats')
+        resp = self.client.get('/docs/api-docs/stats')
         self.assertEqual(resp.status_code, 200)

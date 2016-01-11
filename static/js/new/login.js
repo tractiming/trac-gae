@@ -30,51 +30,63 @@ $(function() {
 	$('.spinner-container').hide();
 	$('p.notification.notification-critical').hide();
 
+    $('input#google-sign-in').hover(function() {
+    $('input#google-sign-in').attr('src','../static/img/btn_google_signin_dark_focus_web@2x.png');
+        }, function() {
+    $('input#google-sign-in').attr('src','../static/img/btn_google_signin_dark_normal_web@2x.png');
+        });
 	// submit form
 	$('body').on('click', 'a#passwordlink', function(e){
 		e.preventDefault();
 		$('#pModal').modal('show');
 	});
     $('body').on('submit', 'form#uform', function(e){
-    e.preventDefault();
-    var uname =  $('input#uname').val();
-    var uemail =  $('input#uemail').val();
-    name = escapeString(uname);
-    email = escapeString(uemail);
-    function escapeString(string){
-      var specialChars = {
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': '&quot;',
-      "'": '&#39;',
-      "/": '&#x2F;'
-    };
-      string = String(string).replace(/[&<>"'\/]/g, function(s){
-        return specialChars[s];
-      });
-      return string;
-    }
-    $.ajax({
-      type:"POST",
-      url:"/api/send_email/",
-      data: {
-        user: name,
-        email: email,
-      },
-      success: function(data){
-      	if(data == 403){
-      		alert('Username and Email do not match');
-      	}
-      	else{
-      		alert('email sent');
-      	}
-      },
-      error: function(xhr, errmsg, err){
-      	alert('something went wrong');
-      }
+        e.preventDefault();
+        var uname =  $('input#uname').val();
+        var uemail =  $('input#uemail').val();
+        name = escapeString(uname);
+        email = escapeString(uemail);
+        function escapeString(string){
+            var specialChars = {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': '&quot;',
+                "'": '&#39;',
+                "/": '&#x2F;'
+            };
+            string = String(string).replace(/[&<>"'\/]/g, function(s){
+                return specialChars[s];
+            });
+            return string;
+        }
+        $.ajax({
+            type: "POST",
+            url: "/api/send_email/",
+            data: {
+                user: name,
+                email: email,
+            },
+            success: function(data){
+                if(data == 403){
+                    alert('Username and Email do not match');
+                }
+                else{
+                    alert('email sent');
+                }
+            },
+            error: function(xhr, errmsg, err){
+                alert('something went wrong');
+            }
+        });
     });
-  });
+
+    // Log in using google.
+    $('body').on('click', '#google-sign-in', function(e) {
+        $('input#google-sign-in').attr('src','../static/img/btn_google_signin_dark_pressed_web@2x.png');
+        e.preventDefault();
+    });
+    startApp();
 
 	$('#login-form').on('submit', function(e) {
 		e.preventDefault();
@@ -86,7 +98,9 @@ $(function() {
 
 		// validate form with parsley
 		var form = $(this);
+        console.log(form);
 		form.parsley().validate();
+        
 
 		// if the form is valid then submit
 		if (form.parsley().isValid()) {

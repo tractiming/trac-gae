@@ -1,0 +1,44 @@
+[
+{
+    "pk": 1,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Alberto",
+        "last_name": "Salazar",
+        "username": "alsal",
+        "password": "pbkdf2_sha256$20000$o7ymeyvNvzCL$7l4kQxi0LUIgcLky4WaZEl9N3CrMobtkU2dgQJiVbqg="
+    }
+},
+{
+    "pk": 2,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Matt",
+        "last_name": "Withrow",
+        "username": "mwithrow",
+        "password": "pbkdf2_sha256$20000$o7ymeyvNvzCL$7l4kQxi0LUIgcLky4WaZEl9N3CrMobtkU2dgQJiVbqg="
+    }
+},
+{
+    "pk": 1,
+    "model": "accounts.googlesignin",
+    "fields": {
+        "user": 1,
+        "google_id": "120324098209240343049"
+    }
+},
+{
+    "pk": 1,
+    "model": "oauth2_provider.application",
+    "fields": {
+        "redirect_uris": "",
+        "name": "frontend-app",
+        "client_type": "public",
+        "user": 1,
+        "client_id": "aHD4NUa4IRjA1OrPD2kJLXyz34c06Bi5eVX8O94p",
+        "client_secret": "OlRUU56IVCQMTiThEj0sw2Z6qV70Lncu8kd1WL5y8TVjOQkAhdeBtGx2S1dxgx3DyUM7XOdDKkbXJekFMfawKNwAnDRQA2tCPwwLFVPh4GPvvJBijwfjadEFBDw85G71",
+        "skip_authorization": false,
+        "authorization_grant_type": "password"
+    }
+}
+]
