@@ -204,7 +204,7 @@
           </div>
           <div class="modal-body">
             <tabs>
-              <pane title="{{team.name}}" id="{{team.id}}" ng-repeat="team in rosterTeams">
+              <pane title="{{team.name}}" id="{{team.id}}" ng-repeat-start="team in rosterTeams">
             <!-- SEARCH BAR TO BE ADDED <div class="input-group col-lg-5">
               <span class="btn btn-default input-group-addon" ng-click="hideInput = !hideInput;" style="{{changeStyle(hideInput)}}">
                 <span class="glyphicon glyphicon-search"></span>
@@ -352,6 +352,16 @@
                   </tr>
                 </tbody>
               </table>
+              </pane>
+              <pane title="Add Team +" id="addTeam" ng-repeat-end ng-if="$last">
+                <div class="row" style="padding-top:2%">
+                  <div class="col-lg-5">
+                    <input id="teaminput" ng-model="newTeam.name" placeholder="Team Name" class="form-control">
+                  </div>
+                  <div class="col-lg-2">
+                    <button name="" class="btn btn-primary" ng-click="createTeam(newTeam)">Save</button>
+                  </div>
+                </div>
               </pane>
             </tabs>
           </div>
