@@ -359,17 +359,17 @@
                     <input id="teaminput" ng-model="newTeam.name" placeholder="Team Name" class="form-control">
                   </div>
                   <div class="col-lg-2">
-                    <button name="" class="btn btn-primary" ng-click="createTeam(newTeam)">Save</button>
+                    <button name="" class="btn btn-primary">Save</button>
                   </div>
                 </div>
               </pane>
-              <pane title="Add Team +" id="addTeam" ng-repeat-end ng-if="rosterAthletes == ''">
+              <pane title="Add Team +" id="addTeam" ng-repeat-end ng-if="rosterTeams == ''">
                 <div class="row" style="padding-top:2%">
                   <div class="col-lg-5">
                     <input id="teaminput" ng-model="newTeam.name" placeholder="Team Name" class="form-control">
                   </div>
                   <div class="col-lg-2">
-                    <button name="" class="btn btn-primary" ng-click="createTeam(newTeam)">Save</button>
+                    <button name="" class="btn btn-primary" ng-click="createFirstTeam(newTeam)">Save</button>
                   </div>
                 </div>
               </pane>

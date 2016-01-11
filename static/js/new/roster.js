@@ -119,8 +119,7 @@
       $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
       .success(function (response) { 
         if(response.length == 0){
-          $scope.rosterAthletes = '';
-          $scope.rosterNull = null;
+          $scope.rosterTeams = '';
         }
         else{
         $scope.rosterTeams = response;
@@ -547,6 +546,20 @@
       })
         .success(function (response) {
           $scope.rosterTeams = $scope.rosterTeams.concat(response);
+
+        });
+    }
+    $scope.createFirstTeam = function(team){
+      var name = team.name;
+      var bool = true;
+
+      $http({method: 'POST', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{
+        name: name,
+        primary_team: bool,
+       } 
+      })
+        .success(function (response) {
+          $scope.rosterTeams = [response];
 
         });
     }
