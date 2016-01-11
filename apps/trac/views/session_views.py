@@ -17,11 +17,14 @@ from rest_framework.response import Response
 from trac.filters import TimingSessionFilter
 from trac.models import TimingSession, Reader, Tag, Split, Team, Athlete
 from trac.serializers import TimingSessionSerializer
-from trac.utils.gcs_util import json_write
 from trac.utils.integrations import tfrrs
 from trac.utils.phone_split_util import create_phone_split
 from trac.utils.user_util import is_athlete, is_coach
 
+try:
+    from trac.utils.gcs_util import json_write
+except ImportError:
+    json_write = None
 
 EPOCH = timezone.datetime(1970, 1, 1)
 
@@ -413,7 +416,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         storage_path = '/'.join((settings.GCS_RESULTS_DIR,
                                  str(session.pk),
                                  'individual.json'))
-        json_write(settings.GCS_RESULTS_BUCKET, storage_path, results)
+        if json_write is not None:
+            json_write(settings.GCS_RESULTS_BUCKET, storage_path, results)
         return Response(status=status.HTTP_202_ACCEPTED)
 
 
