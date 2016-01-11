@@ -253,6 +253,9 @@
                         <button type="button" class="btn btn-default pull-right" ng-click="header();" ng-show="editing_header">
                           <span class="glyphicon glyphicon-plus" aria-hidden="true"> </span><span class="hidden-sm hidden-xs">Runner</span>
                        </button>
+                       <button type="button" class="btn btn-default pull-right hidden-lg" ng-click="cancelHeader();" ng-hide="editing_header">
+                        <span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span>
+                       </button>
                      </th>
                     </tr>
                   </thead>
@@ -289,7 +292,7 @@
                       <div>
                         <div class="buttons pull-right expand">
                           <button name="" class="btn btn-primary" ng-click="saveHeader(regForm);">Create</button>
-                          <button name="" class="btn btn-default" ng-click="cancelHeader()">Cancel</button>
+                          <button name="" class="btn btn-default hidden-sm hidden-xs hidden-md" ng-click="cancelHeader()">Cancel</button>
                         </div>
                       </div>
                     </td>
