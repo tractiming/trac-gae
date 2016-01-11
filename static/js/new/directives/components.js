@@ -15,10 +15,11 @@
       transclude: true,
       scope: {
         rosterAthletes:'=',
-        rosterID:'='
+        rosterID:'=',
       },
       controller: function($scope, $element, $http) {
         var panes = $scope.panes = [];
+        $scope.$parent.rosterBool;
  
         $scope.select = function(pane) {
           angular.forEach(panes, function(pane) {

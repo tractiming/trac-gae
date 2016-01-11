@@ -10,7 +10,7 @@
 <script type="text/javascript" src="{% static "js/new/roster.js" %}"> </script>
 <script type="text/javascript" src="{% static "js/new/directives/components.js" %}"> </script>
 <script type="text/javascript" src="{% static "js/new/spinner-directive.js" %}"> </script>
-
+<script type="text/javascript" src="{% static "js/access_token.js" %}"></script>
 <script type="text/javascript" src="{% static "js/timeConversion.js" %}" />
 
 <!--<script type="text/javascript" src="{% static "js/new/race_angular.js" %}"></script>-->
@@ -354,6 +354,16 @@
               </table>
               </pane>
               <pane title="Add Team +" id="addTeam" ng-repeat-end ng-if="$last">
+                <div class="row" style="padding-top:2%">
+                  <div class="col-lg-5">
+                    <input id="teaminput" ng-model="newTeam.name" placeholder="Team Name" class="form-control">
+                  </div>
+                  <div class="col-lg-2">
+                    <button name="" class="btn btn-primary" ng-click="createTeam(newTeam)">Save</button>
+                  </div>
+                </div>
+              </pane>
+              <pane title="Add Team +" id="addTeam" ng-repeat-end ng-if="rosterAthletes == ''">
                 <div class="row" style="padding-top:2%">
                   <div class="col-lg-5">
                     <input id="teaminput" ng-model="newTeam.name" placeholder="Team Name" class="form-control">
