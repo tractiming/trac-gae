@@ -92,7 +92,7 @@ if not APP_ENGINE:
 
     NOSE_ARGS = [
         '--with-coverage', '--cover-inclusive',
-        '--cover-package=trac,website,stats',
+        '--cover-package=trac,website,stats,accounts',
         '--exclude-dir=apps/djstripe'
     ]
 
@@ -205,7 +205,7 @@ else:
         dbn = 'tracdb'
 
         # Uncomment the next line to force sqlite, even if mysql is configured.
-        #raise MySQLdb.Error
+        raise MySQLdb.Error
 
         db = MySQLdb.connect(host=host, user=user, db=dbn)
         db.close()

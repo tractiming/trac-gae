@@ -57,7 +57,6 @@ def google_auth(request):
     created = False
     try:
         user = GoogleSignIn.objects.get(google_id=google_id).user
-        print 'existing user found'
     except ObjectDoesNotExist:
         user = request.user
         if user.is_anonymous():
@@ -69,7 +68,6 @@ def google_auth(request):
             }
             user = create_user(user_info, 'coach').user
             created = True
-            print 'new user created'
 
         # Existing user - link account to Google
         GoogleSignIn.objects.create(user=user, google_id=google_id)

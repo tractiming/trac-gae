@@ -53,11 +53,6 @@ urlpatterns = patterns('',
     url(r'^Tutorial/(?P<page>.+)/$', views.tutorial, name='tutorial'),
     url(r'^UserSettings/(?P<pk>.+)/(?P<token>.+)/$', views.usersettings,
         name="UserSettings"),
-
-    url(r'^google-signin/$',
-        csrf_exempt(TemplateView.as_view(template_name='googlelogin.html')),
-        name='googlesignin'),
-    url(r'^google-auth/$', 'accounts.views.google_auth'),
 )
 
 handler404 = TemplateView.as_view(template_name='404.html')
