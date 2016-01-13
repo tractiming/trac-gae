@@ -1,33 +1,28 @@
 """
-Django settings for trac-gae project.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/1.6/topics/settings/
-
-For the full list of settings and their values, see
-https://docs.djangoproject.com/en/1.6/ref/settings/
+Django settings for the trac-gae project.
 """
-from os.path import abspath, basename, dirname, join, normpath
-from os import getenv
 import os
-from sys import path
+import sys
+from os.path import abspath, basename, dirname, join, normpath
 
 ########## PATH CONFIGURATION ##########
 DJANGO_ROOT = dirname(dirname(abspath(__file__)))
 SITE_ROOT = dirname(DJANGO_ROOT)
 SITE_NAME = basename(DJANGO_ROOT)
-path.append(DJANGO_ROOT)
+sys.path.append(DJANGO_ROOT)
 
 # Check if we are running on Appengine or Shippable.
-APP_ENGINE = getenv('SERVER_SOFTWARE', '').startswith('Google App Engine')
-SHIPPABLE = getenv('SETTINGS_MODE') == 'test'
+APP_ENGINE = os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine')
+SETTINGS_MODE = os.getenv('SETTINGS_MODE')
+SHIPPABLE = (SETTINGS_MODE == 'test')
 
 # Add the location of third-party libraries to the path.
 if APP_ENGINE:
-    path.insert(0, join(DJANGO_ROOT, 'libs'))
+    sys.path.insert(0, join(DJANGO_ROOT, 'libs'))
+    sys.path.insert(0, join(DJANGO_ROOT, 'libs', 'libs.zip'))
 
 # Add the location of the apps to the path.
-path.insert(0, join(DJANGO_ROOT, 'apps'))
+sys.path.insert(0, join(DJANGO_ROOT, 'apps'))
 ########################################
 
 ########## SECRET CONFIGURATION ##########
@@ -40,7 +35,10 @@ ALLOWED_HOSTS = [
     'trac-us.appspot.com',
     'www.tracchicago.com',
     '1.trac-us.appspot.com',
-    'default.trac-us.appspot.com'  # Stackdriver
+    'default.trac-us.appspot.com',  # Stackdriver
+    '1.trac-staging.appspot.com',
+    'default.trac-staging.appspot.com',
+    'trac-staging.appspot.com'
 ]
 ##########################################
 
@@ -100,7 +98,7 @@ if SHIPPABLE:
     NOSE_ARGS += [
         '--with-xunit', '--xunit-file=shippable/testresults/test.xml',
         '--cover-xml', '--cover-xml-file=shippable/codecoverage/coverage.xml'
-        ]
+    ]
 ##############################################
 
 ########## MIDDLEWARE CONFIGURATION ##########
@@ -122,30 +120,28 @@ if APP_ENGINE:
 
 ##############################################
 REST_FRAMEWORK = {
-        'DEFAULT_PERMISSION_CLASSES': (
-            'rest_framework.permissions.IsAuthenticated',
-        ),
-        'DEFAULT_AUTHENTICATION_CLASSES': (
-            'oauth2_provider.ext.rest_framework.OAuth2Authentication',
-            #'rest_framework.authentication.SessionAuthentication',
-            #'rest_framework.authentication.BasicAuthentication',
-        ),
-        'DEFAULT_MODEL_SERIALIZER_CLASS': (
-            'rest_framework.serializers.ModelSerializer',
-        ),
-        'DEFAULT_RENDERER_CLASSES': (
-            'rest_framework.renderers.JSONRenderer',
-        ),
-        'DEFAULT_THROTTLE_CLASSES': (
-            'rest_framework.throttling.AnonRateThrottle',
-            'rest_framework.throttling.UserRateThrottle',
-            'rest_framework.throttling.ScopedRateThrottle'
-        ),
-        'DEFAULT_THROTTLE_RATES': {
-            'anon': '1000/hour',
-            'user': '3600/hour',
-            'splits': '100/minute'
-        }
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'oauth2_provider.ext.rest_framework.OAuth2Authentication',
+    ),
+    'DEFAULT_MODEL_SERIALIZER_CLASS': (
+        'rest_framework.serializers.ModelSerializer',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    ),
+    'DEFAULT_THROTTLE_CLASSES': (
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+        'rest_framework.throttling.ScopedRateThrottle'
+    ),
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '1000/hour',
+        'user': '3600/hour',
+        'splits': '100/minute'
+    }
 }
 OAUTH2_PROVIDER = {
     'SCOPES': {'read': 'Read scope', 'write': 'Write scope'}
@@ -161,38 +157,46 @@ ROOT_URLCONF = 'urls'
 # production. For reference, see:
 # https://developers.google.com/appengine/docs/python/cloud-sql/django#development-settings
 if APP_ENGINE:
+    deployment_type = os.getenv('DEPLOYMENT_TYPE')
+
+    if deployment_type == 'staging':
+        sql_name = 'trac-staging:trac-staging-sql'
+    else:
+        sql_name = 'trac-us:sql1'
+
     # Running on production App Engine, so use a Google Cloud SQL database.
     DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.mysql',
-                'HOST': '/cloudsql/trac-us:sql1',
-                'NAME': 'tracdb',
-                'USER': 'root',
-                'ATOMIC_REQUESTS': True,
-            }
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'HOST': '/cloudsql/{}'.format(sql_name),
+            'NAME': 'tracdb',
+            'USER': 'root',
+            'ATOMIC_REQUESTS': True,
+        }
     }
 
-elif getenv('SETTINGS_MODE') == 'prod':
-    # Running in development, but want to access the Google Cloud SQL instance
-    # in production.
+elif SETTINGS_MODE in ('prod', 'stage'):
+    _ip_addresses = {'prod': '173.194.82.95', 'stage': '173.194.230.143'}
+    # Running in development, but want to access the Google Cloud SQL
+    # instance in production or staging.
     DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.mysql',
-                'HOST': '173.194.82.95',
-                'NAME': 'tracdb',
-                'USER': 'root',
-                'PASSWORD': 'sub4mile'
-            }
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'HOST': _ip_addresses[SETTINGS_MODE],
+            'NAME': 'tracdb',
+            'USER': 'root',
+            'PASSWORD': 'sub4mile'
+        }
     }
 
 elif SHIPPABLE:
     # Running in testing. Use the shippable settings.
     DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.mysql',
-                'NAME': 'test',
-                'USER': 'shippable',
-            }
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'test',
+            'USER': 'shippable',
+        }
     }
 
 else:
@@ -210,28 +214,27 @@ else:
         db = MySQLdb.connect(host=host, user=user, db=dbn)
         db.close()
         DATABASES = {
-                'default': {
-                    'ENGINE': 'django.db.backends.mysql',
-                    'HOST': host,
-                    'NAME': dbn,
-                    'USER': user,
-                    'ATOMIC_REQUESTS': True,
-                }
+            'default': {
+                'ENGINE': 'django.db.backends.mysql',
+                'HOST': host,
+                'NAME': dbn,
+                'USER': user,
+                'ATOMIC_REQUESTS': True,
+            }
         }
 
     except:
-    
-        # Need to let gae sandbox to allow us to import sqlite3.
+        # Need to let gae sandbox allow us to import sqlite3.
         try:
             from google.appengine.tools.devappserver2.python import sandbox
             sandbox._WHITE_LIST_C_MODULES += ['_sqlite3']
         except:
             pass
         DATABASES = {
-                'default': {
-                    'ENGINE': 'django.db.backends.sqlite3',
-                    'NAME': join(DJANGO_ROOT, 'local', 'dev_loc.db'),
-                }
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': join(DJANGO_ROOT, 'local', 'dev_loc.db'),
+            }
         }
 ############################################
 
@@ -240,19 +243,19 @@ else:
 # with django's caching interface.
 if APP_ENGINE:
     CACHES = {
-            'default': {
-                'BACKEND': 'backends.gae_cache.GaeMemcachedCache',
-                'TIMEOUT': 300
-            }
+        'default': {
+            'BACKEND': 'backends.gae_cache.GaeMemcachedCache',
+            'TIMEOUT': 300
+        }
     }
 
 # If running locally, use the dummy cache.
 else:
     CACHES = {
-            'default': {
-                'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-                'TIMEOUT': 300
-            }
+        'default': {
+            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+            'TIMEOUT': 300
+        }
     }
 ###########################################
 
@@ -269,13 +272,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (
-        normpath(join(DJANGO_ROOT, 'static')),
+    normpath(join(DJANGO_ROOT, 'static')),
 )
 ##################################
 
 ########## TEMPLATE CONFIGURATION ##########
 TEMPLATE_DIRS = (
-        normpath(join(DJANGO_ROOT, 'templates')),
+    normpath(join(DJANGO_ROOT, 'templates')),
 )
 ############################################
 
@@ -291,8 +294,14 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 ############################################
 
 ############### STRIPE API ################
-STRIPE_PUBLIC_KEY = os.environ.get("STRIPE_PUBLIC_KEY", "pk_test_CDTkwilGwFbGM1v30Sw46FtO")
-STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", "sk_test_8dwmRwbSMzZNticzW7fQaKu0")
+STRIPE_PUBLIC_KEY = os.environ.get(
+    "STRIPE_PUBLIC_KEY",
+    "pk_test_CDTkwilGwFbGM1v30Sw46FtO"
+)
+STRIPE_SECRET_KEY = os.environ.get(
+    "STRIPE_SECRET_KEY",
+    "sk_test_8dwmRwbSMzZNticzW7fQaKu0"
+)
 
 DJSTRIPE_PLANS = {
     "monthly": {
@@ -329,8 +338,6 @@ DJSTRIPE_SUBSCRIPTION_REQUIRED_EXCEPTION_URLS = (
     'cinci_demo',
     '(trac)',
     '(oauth2)',
-
-
 )
 
 ###########################################
