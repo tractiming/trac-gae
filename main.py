@@ -15,7 +15,6 @@ if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine'):
     # Add libs to path to be able to import django.
     DJANGO_ROOT = os.path.dirname(os.path.abspath(__file__))
     sys.path.insert(0, os.path.join(DJANGO_ROOT, 'libs'))
-    sys.path.insert(0, os.path.join(DJANGO_ROOT, 'libs', 'libs.zip'))
 else:
     settings = "settings.dev"
 

@@ -48,3 +48,5 @@ skip_files:
 - local
 - venv
 - requirements
+- .git
+- ^(.*/)?.*\.py[co]$
