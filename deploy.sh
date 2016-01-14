@@ -8,6 +8,7 @@ rm -rf libs
 mkdir libs
 echo 'Deleted existing libs...'
 
+pip freeze | xargs pip uninstall -y
 pip install \
     --no-deps \
     --upgrade \
