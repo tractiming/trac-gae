@@ -1,5 +1,3 @@
-# The app's runtime configuration.
-
 application: trac-us
 version: 1
 runtime: python27
@@ -22,6 +20,9 @@ libraries:
 
 - name: pycrypto
   version: "2.6"
+
+- name: yaml
+  version: "latest"
 
 builtins:
 - remote_api: on
