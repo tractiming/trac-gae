@@ -43,6 +43,8 @@ if [ -d libs ]; then
     #    *.egg-info/\*
     #
     cd ..
+    ls -l
+    ls -l libs
 fi
 echo 'Created zip archive...'
 
