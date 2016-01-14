@@ -43,6 +43,8 @@ if [ -d libs ]; then
         oauth2_provider/\* \
         djstripe/\* \
         *.egg-info/\*
+
+    cd ..
 fi
 echo 'Created zip archive...'
 
