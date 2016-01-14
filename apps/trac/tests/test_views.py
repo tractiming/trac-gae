@@ -678,6 +678,21 @@ class AuthTestCase(TestCase):
         self.assertTrue(Coach.objects.get(user__username="newuser"))
         self.assertEqual(resp.status_code, 201)
 
+    @mock.patch.object(trac.views.auth_views, 'send_mail')
+    def test_register_coach_team(self, mock_mail):
+        """Test creating a team when the coach is created."""
+        self.user_data['user_type'] = 'coach'
+        self.user_data['organization'] = 'My Team'
+        resp = self.client.post('/api/register/',
+                                data=json.dumps(self.user_data),
+                                content_type='application/json')
+        self.assertTrue(Coach.objects.get(user__username="newuser"))
+        self.assertEqual(resp.status_code, 201)
+        # The team that the coach signs up with should be designated
+        # as his primary team.
+        self.assertTrue(Team.objects.filter(coach__user__username='newuser',
+                                            name='My Team').exists())
+
     def test_login(self):
         """Test fetching an access token."""
         resp = self.client.post(
