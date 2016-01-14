@@ -8,12 +8,15 @@ rm -rf libs
 mkdir libs
 echo 'Deleted existing libs...'
 
-pip freeze | xargs pip uninstall -y
+pip --version
+pip --help
+#pip freeze | xargs pip uninstall -y
 pip install \
     --no-deps \
     --upgrade \
     --force-reinstall \
     --install-option="--prefix=$(pwd)/libs" \
+    -I \
     -r requirements/production.txt
 echo 'Pip installed dependencies...'
 
