@@ -1,21 +1,17 @@
 import json
 
-from django.contrib import auth
 from django.core.mail import send_mail
-from django.template import RequestContext, loader
+from django.template import loader
 from django.http import HttpResponse
 from oauth2_provider.models import Application
 from oauth2_provider.views import TokenView as _TokenView
 from rest_framework import permissions, status
-from rest_framework.authentication import BasicAuthentication
-from rest_framework.decorators import (
-    api_view, permission_classes, authentication_classes, detail_route
-)
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
-from trac.models import User
+from trac.models import User, Team
 from trac.serializers import AthleteSerializer, CoachSerializer, UserSerializer
-from trac.utils.user_util import user_type
+from trac.utils.user_util import user_type, is_coach
 
 
 _serializer_lookup = {'athlete': AthleteSerializer, 'coach': CoachSerializer}
@@ -34,12 +30,17 @@ def create_user(user_info, user_type):
 @permission_classes((permissions.AllowAny,))
 def register(request):
     """Register a new coach or athlete."""
+    team_name = request.data.pop('organization', None)
     utype = request.data.get('user_type')
     if utype not in ('athlete', 'coach'):
         return Response({'errors': ['Invalid user type']},
                         status=status.HTTP_400_BAD_REQUEST)
 
-    new_user = create_user(request.data, utype) 
+    new_user = create_user(request.data, utype)
+    if team_name is not None and is_coach(new_user.user):
+        Team.objects.create(name=team_name,
+                            coach=new_user,
+                            primary_team=True)
 
     # Send email about app availability after sign up.
     context = {}
