@@ -2,6 +2,7 @@ import ast
 import datetime
 import dateutil.parser
 import json
+import logging
 import uuid
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -21,9 +22,14 @@ from trac.utils.integrations import tfrrs
 from trac.utils.phone_split_util import create_phone_split
 from trac.utils.user_util import is_athlete, is_coach
 
+
+log = logging.getLogger(__name__)
+
+
 try:
     from trac.utils.gcs_util import json_write
-except ImportError:
+except ImportError, e:
+    log.debug("Import error: %s", e)
     json_write = None
 
 EPOCH = timezone.datetime(1970, 1, 1)
