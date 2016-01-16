@@ -65,11 +65,11 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         if is_athlete(user):
             return TimingSession.objects.filter(
                 splits__athlete=user.athlete).distinct()
-        
+
         # If the user is a coach, list all sessions he manages.
         elif is_coach(user):
             return TimingSession.objects.filter(coach=user.coach)
-            
+
         # If not a user or coach, list all public sessions.
         else:
             return TimingSession.objects.filter(private=False)
@@ -78,7 +78,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         # Return sessions in reverse chronological order.
         queryset = super(TimingSessionViewSet, self).filter_queryset(queryset)
         return queryset.order_by('-start_time')
-    
+
     @csrf_exempt
     @detail_route(methods=['post'])
     def reset(self, request, *args, **kwargs):
@@ -91,7 +91,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         session = self.get_object()
         session.clear_results()
         return Response({}, status=status.HTTP_202_ACCEPTED)
-    
+
     @csrf_exempt
     @detail_route(methods=['post'])
     def open(self, request, *args, **kwargs):
@@ -208,7 +208,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         if (len(raw_results) < limit) and all_athletes:
             # Want to append results set with results for runners who are
             # registered, but do not yet have a time. These results are added
-            # to the end of the list, since they cannot be ordered. 
+            # to the end of the list, since they cannot be ordered.
             if len(raw_results) == 0:
                 extra_offset = offset - session.num_athletes
             else:
@@ -232,7 +232,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         results = {
             'num_results': len(distinct_ids),
             'num_returned': len(raw_results)+len(extra_results),
-            'results': [] 
+            'results': []
         }
 
         for result in (raw_results + extra_results):
@@ -241,7 +241,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                 'id': result.user_id,
                 'splits': [[str(split)] for split in result.splits],
                 'total': str(result.total),
-                'has_split': result in raw_results 
+                'has_split': result in raw_results
             }
             results['results'].append(individual_result)
 
@@ -350,7 +350,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             time = ts.start_button_time
         else:
             time = 0
-        
+
         # create final split
         hours = int(data.get('hour', 0))
         mins = int(data.get('min', 0))
@@ -398,7 +398,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         existing_athletes = set(session.registered_athletes.values_list(
             'id', flat=True))
         request.data.clear()
-        request.data['registered_athletes'] = list(x for x in existing_athletes if 
+        request.data['registered_athletes'] = list(x for x in existing_athletes if
             x not in athletes_to_remove)
         return self.partial_update(request)
 
@@ -423,7 +423,13 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['post'])
     def export_results(self, request, pk=None):
-        """Get a link to a text results file."""
+        """Get a link to a text results file.
+
+        The file will be formatted as a CSV with one column for name
+        and one for total time. NOTE: This creates a public link to
+        the results. Anyone with this link will be able to download
+        the file.
+        """
         session = self.get_object()
         storage_path = '/'.join((settings.GCS_RESULTS_DIR,
                                  str(session.pk),
@@ -446,11 +452,11 @@ def create_race(request):
     """
     Creates a race by making a timing session and registering runners/tags.
     Posted data should be in the form:
-        {race_name: '', 
-         race_date: 'yyyy/mm/dd', 
+        {race_name: '',
+         race_date: 'yyyy/mm/dd',
          director_username: '',
          readers = [id1, id2, ...],
-         athletes: [{first_name: '', last_name: '', tag: '', 
+         athletes: [{first_name: '', last_name: '', tag: '',
                      team: '', age: '', gender: ''}, ...]
         }
     """
@@ -474,12 +480,12 @@ def create_race(request):
         except ObjectDoesNotExist:
             r = Reader.objects.create(id_str=r_id, coach=c, name=r_id)
         ts.readers.add(r.pk)
-    ts.save()    
+    ts.save()
 
     # Get a list of all the teams in the race and register each one.
     #teams = set([a['team'] for a in data['athletes'] if (a['team'] is not None)])
     #for team in teams:
-    
+
 
     # Add each athlete to the race.
     for athlete in data['athletes']:
@@ -528,7 +534,7 @@ def create_race(request):
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))
 def upload_workouts(request):
-    """ 
+    """
     Create a complete workout through CSV file upload.
     ---
     parameters:
@@ -563,12 +569,12 @@ def upload_workouts(request):
     start_time = dateutil.parser.parse(data['start_time'])
     #stop_time = dateutil.parser.parse(data['start_time'])
 
-    ts = TimingSession(name=data['title'], coach=coach, 
-                        start_time=start_time, stop_time=start_time, 
-                        track_size=data['track_size'], 
-                        interval_distance=data['interval_distance'], 
+    ts = TimingSession(name=data['title'], coach=coach,
+                        start_time=start_time, stop_time=start_time,
+                        track_size=data['track_size'],
+                        interval_distance=data['interval_distance'],
                         filter_choice=False, private=True)
-    
+
     # set start button time in milliseconds since epoch
     timestamp = (start_time.replace(tzinfo=None)-EPOCH).total_seconds()
     ts.start_button_time = int(round(timestamp * 10**3))
@@ -576,8 +582,8 @@ def upload_workouts(request):
 
     results = data['results']
     if results:
-        
-        reader, created = Reader.objects.get_or_create(id_str='ArchivedReader', 
+
+        reader, created = Reader.objects.get_or_create(id_str='ArchivedReader',
                 defaults={ 'name': 'Archived Reader', 'coach': coach })
         ts.readers.add(reader.pk)
 
@@ -649,7 +655,7 @@ def edit_split(request):
     all_tags = ts.splits.values_list('tag_id', flat=True).distinct()
     tag = Tag.objects.filter(athlete_id=int(data['user_id']), id__in=all_tags)
     dt = int(float(data.get('val', 0)) * 1000)
-    
+
     if data['action'] == 'edit':
         ts._edit_split(tag[0].id, int(data['indx']), dt)
     elif data['action'] == 'insert':
@@ -666,7 +672,7 @@ def edit_split(request):
         return Response({}, status=status.HTTP_404_NOT_FOUND)
 
     return Response({}, status=status.HTTP_202_ACCEPTED)
-    
+
 
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))
@@ -677,7 +683,7 @@ def add_individual_splits(request):
     if request.method == 'POST':
         data = request.POST
         split_list = ast.literal_eval(data['s'])
-        
+
         split_status = 0
         for split in split_list:
             if create_phone_split(split[0], split[1]):
