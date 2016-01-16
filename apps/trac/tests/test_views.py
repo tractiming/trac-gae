@@ -3,6 +3,7 @@ import json
 
 import mock
 
+from django.conf import settings
 from django.test import TestCase
 from django.utils import timezone
 from django.contrib.auth.models import User
@@ -418,6 +419,26 @@ class TimingSessionViewSetTest(APITestCase):
         self.assertEqual(
             list(session.registered_athletes.values_list('id', flat=True)),
             [1])
+
+    @mock.patch.object(trac.views.session_views, 'get_public_link')
+    @mock.patch.object(trac.views.session_views, 'csv_writer')
+    def test_export_results(self, mock_writer, mock_link):
+        """Test saving a results file in GCS."""
+        mock_link.return_value = 'filedownloadurl.csv'
+        results_path = '{}/1/individual.csv'.format(settings.GCS_RESULTS_DIR)
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.post(
+            '/api/sessions/1/export_results/',
+            content_type='application/json')
+        self.assertEqual(resp.status_code, 200)
+        mock_writer.assert_called_with(settings.GCS_RESULTS_BUCKET,
+                                       results_path, make_public=True)
+        mock_writer().__enter__().writerow.assert_has_calls([
+            mock.call(('Cam Levins', '05:18.601')),
+            mock.call(('Galen Rupp', '06:29.045'))])
+        self.assertEqual(resp.data['uri'], 'filedownloadurl.csv')
+
 
 class PostSplitsTest(APITestCase):
 
