@@ -20,17 +20,13 @@ from trac.models import TimingSession, Reader, Tag, Split, Team, Athlete
 from trac.serializers import TimingSessionSerializer
 from trac.utils.integrations import tfrrs
 from trac.utils.phone_split_util import create_phone_split
+from trac.utils.gcs_util import json_write, csv_writer, get_public_link
+from trac.utils.split_util import format_total_seconds
 from trac.utils.user_util import is_athlete, is_coach
 
 
 log = logging.getLogger(__name__)
 
-
-try:
-    from trac.utils.gcs_util import json_write
-except ImportError, e:
-    log.debug("Import error: %s", e)
-    json_write = None
 
 EPOCH = timezone.datetime(1970, 1, 1)
 
@@ -406,7 +402,6 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             x not in athletes_to_remove)
         return self.partial_update(request)
 
-    @detail_route(methods=['post'])
     def save_results(self, request, pk=None):
         """Save a JSON file with results to Google Cloud Storage."""
         session = self.get_object()
@@ -425,6 +420,24 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         if json_write is not None:
             json_write(settings.GCS_RESULTS_BUCKET, storage_path, results)
         return Response(status=status.HTTP_202_ACCEPTED)
+
+    @detail_route(methods=['post'])
+    def export_results(self, request, pk=None):
+        """Get a link to a text results file."""
+        session = self.get_object()
+        storage_path = '/'.join((settings.GCS_RESULTS_DIR,
+                                 str(session.pk),
+                                 'individual.csv'))
+        with csv_writer(settings.GCS_RESULTS_BUCKET, storage_path,
+                        make_public=True) as _results:
+            for result in session.individual_results():
+                _results.writerow((result.name,
+                                   format_total_seconds(result.total)))
+        log.debug('Saved results to %s', storage_path)
+
+        return Response({'uri': get_public_link(settings.GCS_RESULTS_BUCKET,
+                                                storage_path)},
+                        status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])

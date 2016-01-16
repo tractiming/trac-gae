@@ -8,8 +8,11 @@ Examples
 >>> json_read('trac-us.appspot.com', 'test/mydata.json')
 {'foo': 42, 'bar': 'spam'}
 """
+import contextlib
+import csv
 import json
 import os
+import tempfile
 
 import httplib2
 from gcloud import storage
@@ -24,7 +27,7 @@ _PROJECT = 'trac-us'
 _LOCATION = os.path.realpath(os.path.join(os.getcwd(),
                              os.path.dirname(__file__)))
 _SCOPES = [
-    'https://www.googleapis.com/auth/devstorage.read_write'
+    'https://www.googleapis.com/auth/devstorage.full_control'
 ]
 
 
@@ -51,9 +54,23 @@ def _get_http_auth():
     return credentials.authorize(httplib2.Http())
 
 
+def _get_blob(bucket, path):
+    """Get an existing blob from GCS."""
+    client = storage.Client(project=_PROJECT, http=_get_http_auth())
+    bucket = client.get_bucket(bucket)
+    return bucket.get_blob(path)
+
+
+def _make_blob(bucket, path):
+    """Create a new blob in GCS."""
+    client = storage.Client(project=_PROJECT, http=_get_http_auth())
+    bucket = client.get_bucket(bucket)
+    return bucket.blob(path)
+
+
 def json_read(bucket, path):
     """Read a JSON file from cloud storage.
-    
+
     Parameters
     ----------
     bucket : str
@@ -61,15 +78,13 @@ def json_read(bucket, path):
     path : str
         Full path to blob within `bucket`.
     """
-    client = storage.Client(project=_PROJECT, http=_get_http_auth())
-    bucket = client.get_bucket(bucket)
-    blob = bucket.get_blob(path)
+    blob = _get_blob(bucket, path)
     return json.loads(blob.download_as_string())
 
 
 def json_write(bucket, path, data):
     """Write a JSON object to cloud storage.
-    
+
     Parameters
     ----------
     bucket : str
@@ -79,7 +94,50 @@ def json_write(bucket, path, data):
     data : dict
         Data to be rendered to JSON and then uploaded.
     """
-    client = storage.Client(project=_PROJECT, http=_get_http_auth())
-    bucket = client.get_bucket(bucket)
-    blob = bucket.blob(path)
+    blob = _make_blob(bucket, path)
     return blob.upload_from_string(json.dumps(data))
+
+
+@contextlib.contextmanager
+def csv_writer(bucket, path, make_public=False):
+    """A context for writing CSV files to cloud storage.
+
+    Parameters
+    ----------
+    bucket : str
+        Save the file in this bucket.
+    path : str
+        Save the file contents to this location when exiting the
+        context.
+    make_public : bool, optional
+        If True, make the file contents public.
+
+    Yields
+    ------
+    csv.writer object
+
+    Examples
+    --------
+    >>> data = [['foo', '1'], ['bar', '2']]
+    >>> with csv_write('bucket', 'path/to.csv') as _file:
+    ...     for d in data:
+    ...         _file.writerow(d)
+    """
+    temp = tempfile.TemporaryFile()
+    try:
+        yield csv.writer(temp)
+        temp.seek(0, os.SEEK_END)
+        size = temp.tell()
+
+        blob = _make_blob(bucket, path)
+        blob.upload_from_file(temp, rewind=True, size=size)
+
+        if make_public:
+            blob.make_public()
+    finally:
+        temp.close()
+
+
+def get_public_link(bucket, path):
+    """Retrieve a public link to a file in GCS."""
+    return _get_blob(bucket, path).public_url
