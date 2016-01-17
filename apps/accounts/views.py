@@ -38,7 +38,9 @@ def _get_user_id(token, client_id):
             return None
         id_info = response.json()
 
-    if any((id_info['aud'] not in [settings.GOOGLE_AUTH_CLIENT_ID],
+    if any((id_info['aud'] not in [settings.GOOGLE_AUTH_CLIENT_ID,
+                                   settings.GOOGLE_AUTH_CLIENT_ID_IOS,
+                                   settings.GOOGLE_AUTH_CLIENT_ID_ANDROID],
             id_info['iss'] not in settings.GOOGLE_AUTH_DOMAINS)):
         return None
 

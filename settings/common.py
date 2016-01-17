@@ -353,9 +353,16 @@ SWAGGER_SETTINGS = {
 }
 
 
-GOOGLE_AUTH_CLIENT_ID = ('983021202491-kupk29qejvri4mlpd8ji0pa7r31bkrin.'
-                         'apps.googleusercontent.com')
+GOOGLE_AUTH_CLIENT_ID = (
+    '983021202491-kupk29qejvri4mlpd8ji0pa7r31bkrin.apps.googleusercontent.com'
+)
 GOOGLE_AUTH_CLIENT_SECRET = 'pszNdmSxZEIYhsC-z_BrJtop'
+GOOGLE_AUTH_CLIENT_ID_IOS = (
+    '983021202491-subvfv7oi83djh8vf7tkfqm6l7amg1a1.apps.googleusercontent.com'
+)
+GOOGLE_AUTH_CLIENT_ID_ANDROID = (
+    '983021202491-3nkh0li86biqsjm7rpfgusv0pfhtnqd3.apps.googleusercontent.com'
+)
 GOOGLE_AUTH_DOMAINS = ['accounts.google.com', 'https://accounts.google.com']
 
 GCS_RESULTS_BUCKET = 'trac-us.appspot.com'
