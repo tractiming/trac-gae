@@ -1,5 +1,6 @@
 import uuid
 
+import requests
 from django.conf import settings
 from django.core import serializers
 from django.core.exceptions import ObjectDoesNotExist
@@ -18,6 +19,9 @@ from trac.serializers import UserSerializer
 from trac.views.auth_views import create_user
 
 
+_TOKENINFO_URL = 'https://www.googleapis.com/oauth2/v3/tokeninfo'
+
+
 def _get_user_id(token, client_id):
     """Verify a Google `id_token` and return a user id. See:
     https://developers.google.com/identity/sign-in/web/backend-auth.
@@ -27,6 +31,12 @@ def _get_user_id(token, client_id):
         id_info = client.verify_id_token(token, client_id)
     except crypt.AppIdentityError:
         return None
+    except ValueError:
+        # Handle iOS error "ValueError: Plaintext too large".
+        response = requests.get(_TOKENINFO_URL, params={'id_token': token})
+        if response.status_code != 200:
+            return None
+        id_info = response.json()
 
     if any((id_info['aud'] not in [settings.GOOGLE_AUTH_CLIENT_ID],
             id_info['iss'] not in settings.GOOGLE_AUTH_DOMAINS)):
