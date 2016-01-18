@@ -218,13 +218,14 @@ $(document).ready(function(){
 </script>
 <div class="container fluid-content">
   <div class="content" id ="content">
-    <h3 style="text-align: left;">Account Settings</h3><br>
-    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3 pull-left">
-      <a href="" id="e_profile">Edit Profile Information</a><br>
-      <a href="" id="e_password">Change Your Password</a><br>
-      <a href="" id="e_payment">Set up and Edit Payment & Subscription Information</a><br>
-      <a href="" id="e_roster">Manage Roster</a>
+    <h3 style="text-align: left;">Settings</h3><br>
+    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3 pull-left"  style="border-right: 1px solid #eee; padding-left: 2%;">
+      <a href="" id="e_profile"><img src="{% static "img/general.png" %}" width="20px"> General</a><br>
+      <a href="" id="e_password"><img src="{% static "img/security.png" %}" width="20px"> Security</a><br>
+      <a href="" id="e_payment"><img src="{% static "img/payment.png" %}" width="20px"> Payments</a><br>
+      <a href="" id="e_roster"><img src="{% static "img/peopleicon.png" %}" width="20px"> Team</a>
     </div>
+
     <div class = "col-lg-9 col-md-9 col-sm-9 col-xs-9">
       <form id="edit-information" name="edit-information"  style="display: none;" data-parsley-validate>
         <div class="form-group">
