@@ -73,7 +73,7 @@ $(document).ready(function(){
       });
       $('body').on('click', 'a#e_payment', function(e){
           e.preventDefault();
-          location.href='/payments';
+          location.href='/payments/change/cards/';
       });
       $('body').on('click', 'a#e_roster', function(e){
           e.preventDefault();
@@ -223,7 +223,7 @@ $(document).ready(function(){
 </script>
 <div class="container fluid-content">
   <div class="content" id ="content">
-    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3 pull-left"  style="border-right: 1px solid #eee; padding-left: 2%;">
+    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3 pull-left" >
       <div class="panel panel-default">
         <div class="panel-heading">
           <h3 class="panel-title" style="text-align:left">Settings</h3>
@@ -233,8 +233,8 @@ $(document).ready(function(){
             <a href="" id="e_password"><img src="{% static "img/security.png" %}" width="20px"> Security</a><br>
             <a href="" id="e_roster"><img src="{% static "img/peopleicon.png" %}" width="20px"> Team</a><br>
             <a href="" id="e_payment"><img src="{% static "img/payment.png" %}" width="20px"> Payments</a><br>
-            <a href="" id="e_payment"><span class="glyphicon glyphicon-retweet"></span> Subscription</a><br>
-            <a href="" id="e_payment"><span class="glyphicon glyphicon-book"></span> History</a><br>
+            <a href="" id=""><span class="glyphicon glyphicon-retweet"></span> Subscription</a><br>
+            <a href="/payments/history/" id=""><span class="glyphicon glyphicon-book"></span> History</a><br>
             
           </div>
       </div>
@@ -265,7 +265,7 @@ $(document).ready(function(){
                 <input type="password" id="o_password" name="o_password" class="form-group form-control" required autofocus data-parsley-group="block1">
                 <label for="n_password">New Password</label><br>
                 <input type="password" id="n_password" name="n_password" class="form-group form-control" required autofocus data-parsley-group="block1">
-                <label for="c_password">Confirm Password</label><br>
+                <label for="c_password">Confirm New Password</label><br>
                 <input type="password" id="c_password" name="c_password" class="form-group form-control" required autofocus data-parsley-group="block1">
                 <div class="btn-group" role="group">
                   <button type="submit" id="submit" class="btn btn-success form-control">Update Password</button>

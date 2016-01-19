@@ -40,114 +40,129 @@
 });
 </script>
 <script type="text/javascript" src="{% static "js/demo.js" %}" />
+
 {% endblock js_scripts %}
 {% block stylesheets %}
 <link rel="stylesheet" href="{% static "css/demo.css" %}" />
 {% endblock stylesheets %}
 
-{% block title %}Change Card{% endblock title %}
 
 {% block content %}
 <div id="content" class="container-fluid">
     <div class="container">
-<div class="row">
-    <div class="col-xs-12">
-        <ul class="breadcrumb">
-          <li><a href="{% url 'djstripe:account' %}">Home</a></li>
-          <li class="active">Change Card</li>
-        </ul>
-    </div>
-</div>
- <h2>Current Card</h2>
-<div class="row" style="margin-left:2%; margin-top:2%; margin-bottom:4%">
-    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6"> 
-       
-        <p style="font-size:18px" >
-            {% if customer.card_kind and customer.card_last_4 %}
-                Current card on file is a <strong>{{ customer.card_kind }}</strong>
-                ending in the digits <strong>{{ customer.card_last_4 }}</strong>.
-            {% else %}
-                You do not currently have a card on file.
-            {% endif %}
-        </p>
-        
-        {% if stripe_error %}
-            <div class="alert alert-error">{{ stripe_error }}</div>
-        {% endif %}
-        
-            
-        <form action="/api/stripe/" method="POST" id="change-card-form" class="form-group">
-                {% csrf_token %}
-                <span class="payment-errors"></span>
-                    <ul>
-                        <div class="row">
-                          <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
-                            <label for="card_number">Card number </label>
-                            <input type="text" id="card_number" placeholder="1234 5678 9012 3456" data-stripe="number">
-                          </div>
-                           
-                        </div>
-
-                        <div class="row span 6">
-                           <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
-                                    <label for="expiry_date">Expiry Month</label>
-                                    <input class="col-lg-4 col-md-4 col-sm-4 col-xs-4" type="text" id="expiry_date" maxlength="2" placeholder="mm" data-stripe="exp_month">
-                            </div>
-                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
-                                    <label for="expiry_date">Expiry Year</label>
-                                    <input  class="col-lg-4 col-md-4 col-sm-4 col-xs-4" type="text" id="expiry_date" maxlength="2" placeholder="yy" data-stripe="exp_year">
-                                </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
-                                    <label  for="cvv">CVV</label>
-                                    <input class="col-lg-4 col-md-4 col-sm-4 col-xs-4" type="text" id="cvv" maxlength="3" placeholder="123" data-stripe="cvc">
-                            </div>
-                        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3 pull-left">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title" style="text-align:left">Settings</h3>
+            </div>
+              <div class="panel-body">
+                <a href="/account_settings/" id="e_profile"><img src="{% static "img/general.png" %}" width="20px"> General</a><br>
+                <a href="/account_settings/" id="e_password"><img src="{% static "img/security.png" %}" width="20px"> Security</a><br>
+                <a href="/account_settings/" id="e_roster"><img src="{% static "img/peopleicon.png" %}" width="20px"> Team</a><br>
+                <a href="" id="e_payment"><img src="{% static "img/payment.png" %}" width="20px"> Payments</a><br>
+                <a href="" id="e_payment"><span class="glyphicon glyphicon-retweet"></span> Subscription</a><br>
+                <a href="/payments/history/" id="e_payment"><span class="glyphicon glyphicon-book"></span> History</a><br>
+              </div>
+          </div>
+        </div>
+        <div class = "col-lg-9 col-md-9 col-sm-9 col-xs-9">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title" id="display-title">Payment Information</h3>
+            </div>
+              <div class="panel-body">
+            <div class="row" style="margin-left:2%; margin-top:2%; margin-bottom:4%">
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6"> 
+                   
+                    <p style="font-size:18px" >
+                        {% if customer.card_kind and customer.card_last_4 %}
+                            Current card on file is a <strong>{{ customer.card_kind }}</strong>
+                            ending in the digits <strong>{{ customer.card_last_4 }}</strong>.
+                        {% else %}
+                            You do not currently have a card on file.
+                        {% endif %}
+                    </p>
+                    
+                    {% if stripe_error %}
+                        <div class="alert alert-error">{{ stripe_error }}</div>
+                    {% endif %}
+                    
                         
+                    <form action="/api/stripe/" method="POST" id="change-card-form" class="form-group">
+                            {% csrf_token %}
+                            <span class="payment-errors"></span>
+                                <ul>
+                                    <div class="row">
+                                      <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                                        <label for="card_number">Card number </label>
+                                        <input type="text" id="card_number" placeholder="1234 5678 9012 3456" data-stripe="number">
+                                      </div>
+                                       
+                                    </div>
 
-                       <li class="vertical maestro">
-                            <ul>
-                                <li>
-                                    <label for="issue_date">Issue date</label>
-                                    <input type="text"  id="issue_date" maxlength="5" placeholder="mm/yy">
-                                </li>
+                                    <div class="row span 6">
+                                       <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                                                <label for="expiry_date">Expiry Month</label>
+                                                <input class="col-lg-4 col-md-4 col-sm-4 col-xs-4" type="text" id="expiry_date" maxlength="2" placeholder="mm" data-stripe="exp_month">
+                                        </div>
+                                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                                                <label for="expiry_date">Expiry Year</label>
+                                                <input  class="col-lg-4 col-md-4 col-sm-4 col-xs-4" type="text" id="expiry_date" maxlength="2" placeholder="yy" data-stripe="exp_year">
+                                            </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                                                <label  for="cvv">CVV</label>
+                                                <input class="col-lg-4 col-md-4 col-sm-4 col-xs-4" type="text" id="cvv" maxlength="3" placeholder="123" data-stripe="cvc">
+                                        </div>
+                                    </div>
+                                    
 
-                                <li>
-                                    <span class="or">or</span>
-                                    <label for="issue_number">Issue number</label>
-                                    <input type="text"  id="issue_number" maxlength="2">
-                                </li>
-                            </ul>
-                        </li>
+                                   <li class="vertical maestro">
+                                        <ul>
+                                            <li>
+                                                <label for="issue_date">Issue date</label>
+                                                <input type="text"  id="issue_date" maxlength="5" placeholder="mm/yy">
+                                            </li>
 
-                        <div class="row span 4">
-                           <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
-                            <label for="name_on_card">Name on card</label>
-                            <input type="text" id="name_on_card" placeholder="Full Name" data-stripe="name">
-                          </div>
-                        </div>
-                        <div class="row span 4">
-                           <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
-                            <label for="email">Email Address</label>
-                            <input type="text" id="email" placeholder="Email Address" data-stripe="email">
-                          </div>
-                        </div>
-                    </ul>
-                    <div class="row">
-                         <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7" style="display:table; margin:0 auto">
-                             <button class="btn btn-primary change-card " type="submit" style="float:right; margin-left:5%;">Change Card</button>
-                             <a class="btn btn-default" href="{% url 'djstripe:account' %}" style="float:right">Cancel</a>
-                            
-                        </div>
-                    </div>
-                </form>
+                                            <li>
+                                                <span class="or">or</span>
+                                                <label for="issue_number">Issue number</label>
+                                                <input type="text"  id="issue_number" maxlength="2">
+                                            </li>
+                                        </ul>
+                                    </li>
+
+                                    <div class="row span 4">
+                                       <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                                        <label for="name_on_card">Name on card</label>
+                                        <input type="text" id="name_on_card" placeholder="Full Name" data-stripe="name">
+                                      </div>
+                                    </div>
+                                    <div class="row span 4">
+                                       <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                                        <label for="email">Email Address</label>
+                                        <input type="text" id="email" placeholder="Email Address" data-stripe="email">
+                                      </div>
+                                    </div>
+                                </ul>
+                                <div class="row">
+                                     <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7" style="display:table; margin:0 auto">
+                                         <button class="btn btn-primary change-card " type="submit" style="float:right; margin-left:5%;">Change Card</button>
+                                         <a class="btn btn-default" href="{% url 'djstripe:account' %}" style="float:right">Cancel</a>
+                                        
+                                    </div>
+                                </div>
+                            </form>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-6 hidden-xs" style="margin-top:5%">
+                    <a href="https://stripe.com"><img src="{% static 'img/bigstripe.png' %}" width="90%"></a>
+                </div>
+            </div>
+            </div>
+         </div>
+        </div>
     </div>
-    <div class="col-lg-6 col-md-6 col-sm-6 hidden-xs" style="margin-top:5%">
-        <a href="https://stripe.com"><img src="{% static 'img/bigstripe.png' %}"></a>
-    </div>
-</div>
-</div>
 </div>
 {% endblock content %}
 
