@@ -271,7 +271,7 @@ div.parallax {
     background: none;
     text-align: center;
     position: relative;
-    height: 945px; }
+    height: 745px; }
     @media only screen and (max-width: 719px) {
       div.parallax div#top {
         height: 245px; } }
@@ -296,7 +296,7 @@ div.parallax {
   div.parallax div.video-background {
     overflow: hidden;
     background-color: #000;
-    height: 900px;
+    height: 700px;
     position: absolute;
     width: 100%;
     top: 45px;
