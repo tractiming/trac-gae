@@ -123,6 +123,28 @@
 
     amplitude.init("682ef0da1e09065f2b2359619f592ded");
   </script>
+  <style>
+  #subcontainer {
+  }
+#image {
+}
+#subtext {
+  z-index: 100;
+  position: absolute;
+  color: white;
+  font-size: 24px;
+  left: 7%;
+  top: 25%;
+}
+#grad {
+  background: rgba(52,119,168,1)); /* For browsers that do not support gradients */
+  background: -webkit-linear-gradient(left,rgba(255,0,0,0),rgba(52,119,168,1)); /*Safari 5.1-6*/
+  background: -o-linear-gradient(right,rgba(255,0,0,0),rgba(52,119,168,1)); /*Opera 11.1-12*/
+  background: -moz-linear-gradient(right,rgba(255,0,0,0),rgba(52,119,168,1)); /*Fx 3.6-15*/
+  background: linear-gradient(to right, rgba(255,0,0,0), rgba(52,119,168,1)); /*Standard*/
+}
+
+  </style>
 </head>
 
 <body>
@@ -157,11 +179,52 @@
 
 
   <div class="parallax">
-    <div id="top">
-      <div class="swiper-container">
+      <div class="swiper-container" id="grad"> 
         <div class="swiper-wrapper">
-            <div class="swiper-slide"><a href='https://www.youtube.com/embed/0mxy3hyEMno?rel=0&amp;wmode=transparent' class='youtube' onclick="amplitude.logEvent('promoVideo');"><img src={% static "img/shoes-video.jpg" %} style='width:100%;' class='' /></a></div>
-                        <div class="swiper-slide">Slide 1</div>
+          <div class="swiper-slide">
+            <div id="subcontainer">
+              <img id='image' src={% static "img/splash1.jpg" %} style='width:100%;' class='' />
+              <div id="subtext" >
+              <h2>YOUR RACE, ON DEMAND</h2><br>
+              <p>TIMING AT THE CLICK OF A BUTTON</p> <br> 
+              <button type="submit" id="submit" class="btn btn-primary form-control" style="margin-left:2%; width:250px;">Order Now</button> 
+              </div>
+            </div>
+          </div>
+          <div class="swiper-slide">
+            <div id="subcontainer">
+              <a href='https://www.youtube.com/embed/0mxy3hyEMno?rel=0&amp;wmode=transparent' class='youtube' onclick="amplitude.logEvent('promoVideo');"><img id='image' src={% static "img/splash2.jpg" %} style='width:100%;' class='' /></a>
+              <div id="subtext" >
+              <h2 style="color:black">NEVER MISS A SPLIT</h2><br>
+              <p style="color:black">THE TIMING SOLUTION FOR COACHES AND ATHLETES</p> <br> 
+              <button type="submit" id="submit" class="btn btn-primary form-control" style="margin-left:2%; width:250px;">Create Account</button> 
+              </div>
+            </div>
+          </div>
+          <div class="swiper-slide">
+            <div id="subcontainer">
+              <div id="subtext" >
+                <div class="row" style="padding-top:10%">
+                  <div class="col-lg-5" style="padding-top:7%">
+                    <h2 style="color:black">POWERFUL COMPUTING</h2><br>
+                    <p style="color:black">RUN ON SMARTPHONE, PROCESSED IN THE CLOUD</p> <br> 
+                    <img src={% static "img/android_googleplay.png" %} style='height:38px' />
+                    <img src={% static "img/appleicon.svg" %} style='height:38px' />
+
+                  </div>
+                   <div class="col-lg-6">
+                    <img src={% static "img/phoneapps.png" %} style='width:100%;' />
+                  </div>
+              </div>
+              </div>
+            </div>
+          </div>
+
+
+           <!-- <div class="swiper-slide">
+              <a href='https://www.youtube.com/embed/0mxy3hyEMno?rel=0&amp;wmode=transparent' class='youtube' onclick="amplitude.logEvent('promoVideo');"><img src={% static "img/shoes-video.jpg" %} style='width:100%;' class='' /></a>
+            </div>-->
+
         </div>
         <!-- Add Pagination -->
         <div class="swiper-pagination"></div>
@@ -182,8 +245,7 @@
         loop: true
     });
     </script>
-	     
-    </div>
+
 	<div style="position:absolute; margin-top:-60px;">
 		<h1 class="logo hidden-xs" style="font-family: 'GothamHTF-Book', 'Helvetica', 'Arial', sans; font-size:30px; color:#fff; margin-right:auto; margin-left:auto; font-weight:700;">Timing And Racing Around the Clock</h1> 
 	  </div> 
@@ -271,7 +333,7 @@
             <div class="col-lg-6 col-lg-offset-3 col-md-6 col-md-offset-3 col-sm-12 col-xs-12">
               <br> <br> <br>
               <p>
-                After finishing their master's degrees in the winter of 2013, Elliot and Griffin thought it would be the end of their journey. However, after forgetting his watch multiple times on lonely winter runs, Griffin realized technology was missing from track and field and cross-country running. Needing a partner who could share the dream, and the burden of the startup life, Griffin reached out to Elliot.
+                After finishing their master's degrees in the winter of 2013, Elliot and Griffin thought it would be the end of their journey. However, after forgetting his watch multiple times on lonely winter runs, Griffin realized technology was missing from track and field and cross-country running. Technology that was simple, easy to use, and available on demand. Needing a partner who could share the dream.
               </p>
               <br>
             </div>
