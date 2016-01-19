@@ -308,15 +308,15 @@ DJSTRIPE_PLANS = {
         "stripe_plan_id": "Monthly",
         "name": "($9.99/month)",
         "description": "The monthly base charge",
-        "price": 999,  # $9.99
+        "price": 9999,  # $9.99
         "currency": "usd",
         "interval": "month"
     },
     "yearly": {
         "stripe_plan_id": "Yearly",
-        "name": "($110/year)",
+        "name": "($1000/year)",
         "description": "Yearly base charge",
-        "price": 10999,  # $109.99
+        "price": 10000,  # $109.99
         "currency": "usd",
         "interval": "year"
     }
@@ -339,6 +339,8 @@ DJSTRIPE_SUBSCRIPTION_REQUIRED_EXCEPTION_URLS = (
     '(trac)',
     '(oauth2)',
 )
+
+DJSTRIPE_SEND_INVOICE_RECEIPT_EMAILS = True
 
 ###########################################
 
