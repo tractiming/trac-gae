@@ -6,6 +6,7 @@ from django.core import serializers
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.contrib.auth.models import User
 from oauth2_provider.models import Application, AccessToken
 from oauth2client import client, crypt
 from oauthlib.common import generate_token
@@ -18,6 +19,9 @@ from accounts.models import GoogleSignIn
 from trac.serializers import UserSerializer
 from trac.views.auth_views import create_user
 
+from decimal import Decimal
+
+from djstripe.models import Customer
 
 _TOKENINFO_URL = 'https://www.googleapis.com/oauth2/v3/tokeninfo'
 
@@ -102,3 +106,22 @@ def google_auth(request):
     }
     resp_status = status.HTTP_201_CREATED if created else status.HTTP_200_OK
     return Response(token_data, status=resp_status)
+
+@api_view(['post'])
+@permission_classes((permissions.AllowAny,))
+def stripeSingleCharge(request):
+    """Create a single payment charge for a user via Stripe.
+
+    Send the amount you want to charge them, and user ID if
+    applicable.
+    """
+    user = request.user
+    print(user)
+    charge_amount = request.data['amount']
+    print(charge_amount)
+
+    customer, created = Customer.get_or_create(subscriber=user)
+    amount = Decimal(charge_amount)
+    customer.charge(amount)
+
+    return Response(201, status.HTTP_201_CREATED)

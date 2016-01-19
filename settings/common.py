@@ -306,8 +306,8 @@ STRIPE_SECRET_KEY = os.environ.get(
 DJSTRIPE_PLANS = {
     "monthly": {
         "stripe_plan_id": "Monthly",
-        "name": "($9.99/month)",
-        "description": "The monthly base charge",
+        "name": "($99.99/month)",
+        "description": "Educators only",
         "price": 9999,  # $9.99
         "currency": "usd",
         "interval": "month"
@@ -315,7 +315,7 @@ DJSTRIPE_PLANS = {
     "yearly": {
         "stripe_plan_id": "Yearly",
         "name": "($1000/year)",
-        "description": "Yearly base charge",
+        "description": "Yearly educators discount",
         "price": 10000,  # $109.99
         "currency": "usd",
         "interval": "year"
