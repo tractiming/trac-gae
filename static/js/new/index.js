@@ -3,7 +3,8 @@ $(function() {
 	//=================================== datepicker configuration ====================================
 	var datepickerOptions = {
 		todayHighlight: true,
-		todayBtn: true
+		todayBtn: true,
+		datesDisabled:[new Date()],
 	};
 	$('input#start-date').datepicker(datepickerOptions);
 	$('input#end-date').datepicker(datepickerOptions);
@@ -36,7 +37,7 @@ $(function() {
 	});
 
 	function changePricing(tag_type,num_tags,systems,diff){
-	  price = (tag_type * num_tags) + (systems * 350) + (systems * diff);
+	  price = (tag_type * num_tags) + (systems * 350) + (systems * diff) + (diff/3);
 	  $('#pricing').text('Calculated Price: $' + price+'.00');
 
 	};
