@@ -36,6 +36,7 @@
   <link href="{% static "css/new/main.css" %}" rel="stylesheet" type="text/css">
   <link href="{% static "css/new/style.css" %}" rel="stylesheet" type="text/css">
   <link href="{% static "css/colorbox.css" %}" rel="stylesheet" type="text/css">
+  <link href="{% static "css/bootstrap-datepicker3.min.css" %}" rel="stylesheet" type="text/css">
   <link rel="stylesheet" href="{% static "css/new/swiper.min.css" %}">
   <style>
     .swiper-container {
@@ -63,6 +64,13 @@
         -webkit-align-items: center;
         align-items: center;
     }
+    button#submit {
+      cursor: pointer !important;
+    }
+    div.datepicker {
+      color:black;
+
+    }
     
   </style>
 
@@ -82,8 +90,9 @@
   <script src="{% static "js/switchery.min.js" %}" type="text/javascript"></script>
   <script src="{% static "js/new/jquery.colorbox.js" %}" type="text/javascript"></script>
   <script src="{% static "js/bowtruss.js" %}" type="text/javascript"></script>
-
-
+  <script src="{% static "js/bootstrap-datepicker.min.js" %}" type="text/javascript"></script>
+  <script type="text/javascript" src="{% static "js/timeConversion.js" %}"></script>
+  <script type="text/javascript" src="{% static "js/new/index.js" %}"></script>
   
 <!--colorbox-->
 <link rel="stylesheet" href="static/css/colorbox.css" />  
@@ -186,8 +195,8 @@
               <img id='image' src={% static "img/splash1.jpg" %} style='width:100%;' class='' />
               <div id="subtext" >
               <h2>YOUR RACE, ON DEMAND</h2><br>
-              <p>TIMING AT THE CLICK OF A BUTTON</p> <br> 
-              <button type="submit" id="submit" class="btn btn-primary form-control" style="margin-left:2%; width:250px;">Order Now</button> 
+              <p class="hidden-xs">TIMING AT THE CLICK OF A BUTTON</p> <br> 
+              <button type="submit" id="submit" class="btn btn-primary form-control" style="margin-left:2%; width:250px;" data-toggle="modal" data-target="#order-modal">Order Now</button> 
               </div>
             </div>
           </div>
@@ -196,8 +205,8 @@
               <a href='https://www.youtube.com/embed/0mxy3hyEMno?rel=0&amp;wmode=transparent' class='youtube' onclick="amplitude.logEvent('promoVideo');"><img id='image' src={% static "img/splash2.jpg" %} style='width:100%;' class='' /></a>
               <div id="subtext" >
               <h2 style="color:black">NEVER MISS A SPLIT</h2><br>
-              <p style="color:black">THE TIMING SOLUTION FOR COACHES AND ATHLETES</p> <br> 
-              <button type="submit" id="submit" class="btn btn-primary form-control" style="margin-left:2%; width:250px;">Create Account</button> 
+              <p style="color:black" class="hidden-xs">THE TIMING SOLUTION FOR COACHES AND ATHLETES</p> <br> 
+              <button type="submit" id="submit" class="btn btn-primary form-control" style="margin-left:2%; width:250px;" onclick="location.href='/register';">Create Account</button> 
               </div>
             </div>
           </div>
@@ -242,7 +251,9 @@
         slidesPerView: 1,
         paginationClickable: true,
         spaceBetween: 30,
-        loop: true
+        loop: true,
+      //  autoplay: 4000,
+        //autoplayDisableOnInteraction: false
     });
     </script>
 
@@ -540,6 +551,68 @@ $("video").bind("ended", function() {
 }(window.jQuery);
 */
 </script>
+
+<div class="modal fade" id="order-modal" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header" style="color:black">
+            Race Day Information:<button id="cl" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button>
+        </div>
+        <div class="modal-body" style="color:black">
+          <form id="session-form" name="session-form" method="POST">
+            
+            <div class="form-group">
+              <label for="title">Workout Title:</label>
+              <input type="text" id="title" name="title" class="form-control" required autofocus data-parsley-group="block1">
+            </div>
+            <div class="form-group">
+              <label >Number of Tags</label>
+              <input type="text" id="tags" name="organization" class="form-group form-control" placeholder="25">
+            </div>
+            <label>Tag Type:</label>
+            <div class="form-group">
+              <label class="btn btn-default">
+              <input type="radio" id="tag_type" name="tag_type" value="4"/> Durable
+              </label>
+              <label class="btn btn-default">
+              <input type="radio" id="tag_type" name="tag_type" value="1" checked="checked"/> Disposable w/ Bib
+              </label>
+            </div>
+            <div class="form-group">
+              <label >Number of Systems</label><br>
+              <input type="text" id="systems" class="form-group form-control" placeholder="0">
+            </div>
+            <div class="form-group" style="overflow:hidden;">
+              <div style="width:50%; float:left; padding-right:5px;">
+                <label for="start-date">Race Start Date:</label>
+                <input type="text" id="start-date" name="start-date" class="form-control" required data-parsley-group="block1" data-parsley-date>
+              </div>
+              <div style="width:50%; float:left; padding-left:5px;">
+                <label for="start-time">Race Start Time:</label>
+                <div style="width:60%; float:left; padding-right:5px;">
+                  <input type="text" id="start-time" name="start-time" class="form-control" required data-parsley-group="block1" data-parsley-time>
+                </div>
+                <div style="width:40%; float:left; padding-left:5px;">
+                  <label for="start-am-pm" class="sr-only">AM/PM</label>
+                  <select class="form-control" id="start-am-pm">
+                    <option selected>AM</option>
+                    <option>PM</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <label id="pricing">Calculated Price: $25.00</label>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <div class="btn-group center" role="group">
+            <button type="submit" id="submit" class="btn btn-success" style="margin-left:2%">Order</button>
+          </div>
+          <div id="spinner-form"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   </body>
 </html>
