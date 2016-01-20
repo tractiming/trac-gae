@@ -23,6 +23,7 @@ urlpatterns = [
         url(r'^stripe/$', user_views.subscribe),
         url(r'^token_validation/$', user_views.token_validation),
         url(r'^verifyLogin/$', user_views.verifyLogin.as_view()),
+        url(r'^request_quote/$', user_views.request_quote),
 
         url(r'^updates/$', reader_views.post_splits, name='updates'),
 ]

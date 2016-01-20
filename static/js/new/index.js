@@ -82,4 +82,109 @@ $(function() {
 	changePricing(tag_type,num_tags,systems,shipping);
 });
 
+
+		$('body').on('click', 'button#quote', function(e){
+			e.preventDefault();
+				//validate that form is correctly filled out
+				var form = $('#session-form');
+				form.parsley().validate();
+
+				if (!form.parsley().isValid())
+					return;
+
+				// reset parsley styling
+				form.parsley().reset();
+
+				// hide button and show spinner
+				//$('.session-form-buttons').hide();
+				//target = $('#spinner-form');
+				//target.css('height', 50);
+				//spinner.spin(target[0]);
+
+				var name = $('input[id=title]').val();
+				var email = $('input[id=email]').val();
+
+				// get start date and time
+				var startDate = $('input[id=start-date]').val().trim().split(/[\/-]/),
+						startTime = $('input[id=start-time]').val().trim().split(':').map(Number),
+						startAMPM = $('select#start-am-pm').val();
+				
+				// create start date object
+				var startDateTime = new Date();
+				startDateTime.setFullYear(startDate[2]);
+				startDateTime.setMonth(startDate[0]-1);
+				startDateTime.setDate(startDate[1]);
+
+				if ((startAMPM == 'PM' ) && (startTime[0] < 12))
+					startDateTime.setHours(startTime[0]+12);
+				else if ((startAMPM == 'AM') && (startTime[0] == 12))
+					startDateTime.setHours(startTime[0]-12);
+				else
+					startDateTime.setHours(startTime[0]);
+
+				startDateTime.setMinutes(startTime[1]);
+
+				if (startTime.length > 2)
+					startDateTime.setSeconds(startTime[2]);
+				else
+					startDateTime.setSeconds(0);
+
+				var tag_type = $("input[name=tag_type]:checked").val();
+				var num_tags = $('input[id=tags]').val();
+				var num_systems = $('input[id=systems]').val();
+				var tag_string;
+				if (tag_type == 4)
+					tag_string = 'durable';
+				else if (tag_type == 1)
+					tag_string = 'disposable with bib'
+
+
+				//*
+				$.ajax({
+					type: 'POST',
+					dataType:'json',
+					url: '/api/request_quote/',
+					headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+					data: {
+						name: name,
+						date: startDateTime.toISOString(),
+						email: email,
+						tag_number: num_tags,
+						tag_type: tag_string,
+						systems: num_systems,
+						price: price,						
+					},
+					success: function(data) {
+						// hide spinner
+						//spinner.stop();
+						//target.css('height', '');
+						
+						// show success message
+						//$('.notification').hide();
+						//$('.notification.create-success').show();
+
+						// switch modals
+						$('#order-modal').modal('hide');
+						//$('#notifications-modal').modal('show');
+
+						// clear form and reload data
+						$('#session-form')[0].reset();
+					},
+					error: function(xhr, errmsg, err) {
+						// hide spinner
+						//spinner.stop();
+						//target.css('height', '');
+						
+						// show error message
+						//$('.notification').hide();
+						//$('.notification.server-error').show();
+
+						// switch modals
+						$('#order-modal').modal('hide');
+						//$('#notifications-modal').modal('show');
+					}
+				});
+			});
+
+
 });

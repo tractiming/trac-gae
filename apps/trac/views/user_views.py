@@ -343,6 +343,29 @@ def send_email(request):
 
 @csrf_exempt
 @permission_classes((permissions.AllowAny,))
+def request_quote(request):
+    """
+    If user requests quote, have it email founders to proceed from there.  
+    """
+    email = request.POST.get('email')
+    name = request.POST.get('name')
+    tag_number = request.POST.get('tag_number')
+    tag_type = request.POST.get('tag_type')
+    system_number = request.POST.get('systems')
+    date = request.POST.get('date')
+    price = request.POST.get('price')
+    context = {'name': name, 'tag_number': tag_number,'tag_type':tag_type,
+        'system_number': system_number,'date':date,'price':price}
+    send_mail(
+        'Quote',
+        loader.render_to_string('../templates/quote.txt', context),
+        'tracchicago@gmail.com',
+        [email, 'founders@tracchicago.com'],
+        fail_silently=False)
+    return HttpResponse(status.HTTP_200_OK)
+
+@csrf_exempt
+@permission_classes((permissions.AllowAny,))
 def give_athlete_password(request):
     atl = Athlete.objects.get(id=request.POST.get('id'))
     atl.user.first_name = request.POST.get('first_name')
