@@ -34,11 +34,48 @@
   <link href="{% static "css/switchery.min.css" %}" rel="stylesheet" type="text/css">
   <link href="{% static "css/new/blog.css" %}" rel="stylesheet" type="text/css">
   <link href="{% static "css/new/main.css" %}" rel="stylesheet" type="text/css">
-   <link href="{% static "css/new/style.css" %}" rel="stylesheet" type="text/css">
-     <link href="{% static "css/colorbox.css" %}" rel="stylesheet" type="text/css">
+  <link href="{% static "css/new/style.css" %}" rel="stylesheet" type="text/css">
+  <link href="{% static "css/colorbox.css" %}" rel="stylesheet" type="text/css">
+  <link href="{% static "css/bootstrap-datepicker3.min.css" %}" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="{% static "css/new/swiper.min.css" %}">
+  <style>
+    .swiper-container {
+        width: 100%;
+        height: 100%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .swiper-slide {
+        text-align: center;
+        font-size: 18px;
+        background: #fff;
+
+        /* Center slide text vertically */
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-pack: center;
+        -ms-flex-pack: center;
+        -webkit-justify-content: center;
+        justify-content: center;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        -webkit-align-items: center;
+        align-items: center;
+    }
+    button#submit {
+      cursor: pointer !important;
+    }
+    div.datepicker {
+      color:black;
+
+    }
+    
+  </style>
 
   <!-- Vendor scripts -->
-
+  <script src="{% static "js/new/swiper.min.js" %}" type="text/javascript"></script>
   <script src="{% static "js/jquery.scrollTo.js" %}" type="text/javascript"></script>
   <script src="{% static "js/jquery.serializeJSON.min.js" %}" type="text/javascript"></script>
   <script src="{% static "js/jquery.tablesorter.min.js" %}" type="text/javascript"></script>
@@ -53,9 +90,9 @@
   <script src="{% static "js/switchery.min.js" %}" type="text/javascript"></script>
   <script src="{% static "js/new/jquery.colorbox.js" %}" type="text/javascript"></script>
   <script src="{% static "js/bowtruss.js" %}" type="text/javascript"></script>
-
-
-
+  <script src="{% static "js/bootstrap-datepicker.min.js" %}" type="text/javascript"></script>
+  <script type="text/javascript" src="{% static "js/timeConversion.js" %}"></script>
+  <script type="text/javascript" src="{% static "js/new/index.js" %}"></script>
   
 <!--colorbox-->
 <link rel="stylesheet" href="static/css/colorbox.css" />  
@@ -95,6 +132,28 @@
 
     amplitude.init("682ef0da1e09065f2b2359619f592ded");
   </script>
+  <style>
+  #subcontainer {
+  }
+#image {
+}
+#subtext {
+  z-index: 100;
+  position: absolute;
+  color: white;
+  font-size: 24px;
+  left: 7%;
+  top: 25%;
+}
+#grad {
+  background: rgba(52,119,168,1)); /* For browsers that do not support gradients */
+  background: -webkit-linear-gradient(left,rgba(255,0,0,0),rgba(52,119,168,1)); /*Safari 5.1-6*/
+  background: -o-linear-gradient(right,rgba(255,0,0,0),rgba(52,119,168,1)); /*Opera 11.1-12*/
+  background: -moz-linear-gradient(right,rgba(255,0,0,0),rgba(52,119,168,1)); /*Fx 3.6-15*/
+  background: linear-gradient(to right, rgba(255,0,0,0), rgba(52,119,168,1)); /*Standard*/
+}
+
+  </style>
 </head>
 
 <body>
@@ -129,16 +188,75 @@
 
 
   <div class="parallax">
-    <div id="top">
-      <div id="banner" class="content">
-        
-        <a href="#" class="target" id="target" title="play">PLAY</a>
-      </div>
-      <div id='' class="video-background">
-      	  <a href='https://www.youtube.com/embed/0mxy3hyEMno?rel=0&amp;wmode=transparent' class='youtube' onclick="amplitude.logEvent('promoVideo');"><img src={% static "img/shoes-video.jpg" %} style='width:100%;' class='' /></a>
-      </div>
-	     
+      <div class="swiper-container" id="grad"> 
+        <div class="swiper-wrapper">
+          <div class="swiper-slide">
+            <div id="subcontainer">
+              <img id='image' src={% static "img/splash1.jpg" %} style='width:100%;' class='' />
+              <div id="subtext" >
+              <h2>YOUR RACE, ON DEMAND</h2><br>
+              <p class="hidden-xs">TIMING AT THE CLICK OF A BUTTON</p> <br> 
+              <button type="submit" id="submit" class="btn btn-primary form-control" style="margin-left:2%; width:250px;" data-toggle="modal" data-target="#order-modal">Order Now</button> 
+              </div>
+            </div>
+          </div>
+          <div class="swiper-slide">
+            <div id="subcontainer">
+              <a href='https://www.youtube.com/embed/0mxy3hyEMno?rel=0&amp;wmode=transparent' class='youtube' onclick="amplitude.logEvent('promoVideo');"><img id='image' src={% static "img/splash2.jpg" %} style='width:100%;' class='' /></a>
+              <div id="subtext" >
+              <h2 style="color:black">NEVER MISS A SPLIT</h2><br>
+              <p style="color:black" class="hidden-xs">THE TIMING SOLUTION FOR COACHES AND ATHLETES</p> <br> 
+              <button type="submit" id="submit" class="btn btn-primary form-control" style="margin-left:2%; width:250px;" onclick="location.href='/register';">Create Account</button> 
+              </div>
+            </div>
+          </div>
+          <div class="swiper-slide">
+            <div id="subcontainer">
+              <div id="subtext" >
+                <div class="row" style="padding-top:10%">
+                  <div class="col-lg-5" style="padding-top:7%">
+                    <h2 style="color:black">POWERFUL COMPUTING</h2><br>
+                    <p style="color:black">RUN ON SMARTPHONE, PROCESSED IN THE CLOUD</p> <br> 
+                    <img src={% static "img/android_googleplay.png" %} style='height:38px' />
+                    <img src={% static "img/appleicon.svg" %} style='height:38px' />
+
+                  </div>
+                   <div class="col-lg-6">
+                    <img src={% static "img/phoneapps.png" %} style='width:100%;' />
+                  </div>
+              </div>
+              </div>
+            </div>
+          </div>
+
+
+           <!-- <div class="swiper-slide">
+              <a href='https://www.youtube.com/embed/0mxy3hyEMno?rel=0&amp;wmode=transparent' class='youtube' onclick="amplitude.logEvent('promoVideo');"><img src={% static "img/shoes-video.jpg" %} style='width:100%;' class='' /></a>
+            </div>-->
+
+        </div>
+        <!-- Add Pagination -->
+        <div class="swiper-pagination"></div>
+        <!-- Add Arrows -->
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
     </div>
+
+    <!-- Initialize Swiper -->
+    <script>
+    var swiper = new Swiper('.swiper-container', {
+        pagination: '.swiper-pagination',
+        nextButton: '.swiper-button-next',
+        prevButton: '.swiper-button-prev',
+        slidesPerView: 1,
+        paginationClickable: true,
+        spaceBetween: 30,
+        loop: true,
+        autoplay: 4000,
+        autoplayDisableOnInteraction: false
+    });
+    </script>
+
 	<div style="position:absolute; margin-top:-60px;">
 		<h1 class="logo hidden-xs" style="font-family: 'GothamHTF-Book', 'Helvetica', 'Arial', sans; font-size:30px; color:#fff; margin-right:auto; margin-left:auto; font-weight:700;">Timing And Racing Around the Clock</h1> 
 	  </div> 
@@ -150,51 +268,51 @@
           <br>
         <div class="pictures hidden-xs">
         <div class="left">
-          <img src={% static "img/runningguy.png" %} height="150px">
+          <img src={% static "img/box-01.png" %} height="200px">
         </div>
         <div class="wifione hidden-xs">
-          <img src={% static "img/wifi.png" %} height="100px">
+          <img src={% static "img/dashes-01.png" %} height="100px">
         </div>
         <div class="mid">
           
-          <img src={% static "img/cloud.png" %} height="100px">
+          <img src={% static "img/phone.png" %} height="150px">
             
         </div>
         <div class="wifitwo hidden-xs">
-          <img src={% static "img/wifi.png" %} height="100px">
+          <img src={% static "img/dashes-01.png" %} height="100px">
         </div>
         <div class="right">
-          <img src={% static "img/phone.png" %} height="150px">
+          <img src={% static "img/trophy-01.png" %} height="150px">
         </div>
         </div>
         <div class="text hidden-xs">
           <div class="left">
             <p>
-              The runner is tracked by our proprietary hardware and wearable sensors. Timing information is then live streamed to our servers.
+              Order everything necessary in preparation for race day. We ship it to you a few days before.
             </p>
           </div>
           <div class="mid">
-            <p>Server-side code interprets runner's I.D.s, times, and computes pace.</p>
+            <p>Run the entire system off your smartphone. No messy cables or equipment.</p>
           </div>
           <div class="right">
-            <p>Times are immediately pushed from the cloud to your personal device or tablet.</p>
+            <p>Results are streamed live to the web and immediately available for all participants.</p>
           </div>
            
         </div>
         <div class="row hidden-lg hidden-md hidden-sm">
-          <img src={% static "img/runningguy.png" %} height="150px">
+          <img src={% static "img/box-01.png" %} height="200px">
           <p>
-              The runner is tracked by our proprietary hardware and wearable sensors. Timing information is then live streamed to our servers.
+              Order everything necessary in preparation for race day. We ship it to you a few days before.
             </p>
           <div class="col-4-xs">
           </div>
           <div class="col-4-xs">
-            <img src={% static "img/cloud.png" %} height="100px">
-            <p>Server-side code interprets runner's I.D.s, times, and computes pace.</p>
+            <img src={% static "img/phone.png" %} height="150px">
+            <p>Run the entire system off your smartphone. No messy cables or equipment.</p>
           </div>
           <div class="col-4-xs">
-            <img src={% static "img/phone.png" %} height="150px">
-            <p>Times are immediately pushed from the cloud to your personal device or tablet.</p>
+            <img src={% static "img/trophy-01.png" %} height="150px">
+            <p>Results are streamed live to the web and immediately available for all participants.</p>
           </div>
         </div>
 
@@ -226,7 +344,7 @@
             <div class="col-lg-6 col-lg-offset-3 col-md-6 col-md-offset-3 col-sm-12 col-xs-12">
               <br> <br> <br>
               <p>
-                After finishing their master's degrees in the winter of 2013, Elliot and Griffin thought it would be the end of their journey. However, after forgetting his watch multiple times on lonely winter runs, Griffin realized technology was missing from track and field and cross-country running. Needing a partner who could share the dream, and the burden of the startup life, Griffin reached out to Elliot.
+                After finishing their master's degrees in the winter of 2013, Elliot and Griffin thought it would be the end of their journey. However, after forgetting his watch multiple times on lonely winter runs, Griffin realized technology was missing from track and field and cross-country running; technology that was simple, easy to use, and available on demand. Needing a partner who could share the dream.
               </p>
               <br>
             </div>
@@ -433,6 +551,92 @@ $("video").bind("ended", function() {
 }(window.jQuery);
 */
 </script>
+
+<div class="modal fade" id="order-modal" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header" style="color:black">
+            Race Day Information:<button id="cl" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button>
+        </div>
+        <div class="modal-body" style="color:black">
+          <form id="session-form" name="session-form" method="POST">
+            
+            <div class="form-group">
+              <div style="width:50%; float:left; padding-right:5px;">
+                <label for="title">Name:</label>
+                <input type="text" id="title" name="title" class="form-control" required autofocus data-parsley-group="block1">
+              </div>
+              <div style="width:50%; float:left; padding-right:5px;">
+                <label for="email">Email:</label>
+                <input type="text" id="email" name="email" class="form-control" required autofocus data-parsley-group="block1">
+              </div>
+            </div>
+            <div class="form-group">
+              <label >Number of Tags:</label>
+              <input type="text" id="tags" name="organization" class="form-group form-control" required placeholder="25">
+            </div>
+            <label>Tag Type:</label>
+            <div class="form-group">
+              <label class="btn btn-default">
+              <input type="radio" id="tag_type" name="tag_type" value="4"/> Durable
+              </label>
+              <label class="btn btn-default">
+              <input type="radio" id="tag_type" name="tag_type" value="1" checked="checked"/> Disposable w/ Bib
+              </label>
+            </div>
+            <div class="form-group">
+              <label >Number of Systems:</label><br>
+              <input type="text" id="systems" class="form-group form-control" placeholder="0">
+            </div>
+            <div class="form-group" style="overflow:hidden;">
+              <div style="width:50%; float:left; padding-right:5px;">
+                <label for="start-date">Race Start Date:</label>
+                <input type="text" id="start-date" name="start-date" class="form-control" required data-parsley-group="block1" data-parsley-date>
+              </div>
+              <div style="width:50%; float:left; padding-left:5px;">
+                <label for="start-time">Race Start Time:</label>
+                <div style="width:60%; float:left; padding-right:5px;">
+                  <input type="text" id="start-time" name="start-time" class="form-control" value="9:00" required data-parsley-group="block1" data-parsley-time>
+                </div>
+                <div style="width:40%; float:left; padding-left:5px;">
+                  <label for="start-am-pm" class="sr-only">AM/PM</label>
+                  <select class="form-control" id="start-am-pm">
+                    <option selected>AM</option>
+                    <option>PM</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+            <label id="pricing">Calculated Price: $25.00</label>
+            <button class="btn btn-primary pull-right" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+            Ordering Guidelines
+            </button>
+              
+            </div>
+          </form>
+          <div class="collapse" id="collapseExample">
+                <div class="well">
+                  Durable Chips are worn on foot and are designed for practices. Disposable chips are sent on a racing bib. <br>
+                  System Rentals:<br>
+                  Mass start & finish line (>15ft): 1 <br>
+                  Mass start & wide finish line (<15ft): 2 <br>
+                  If you intend to have a chip timed start, that is not the finish, add 1 (>15ft) or 2 (<15ft)<br>
+                  For checkpoints, depending on the width, add the necessary number of systems. If races are circular, and start and finish in the same place, the same systems can be used.<br>
+                  For more information contact: info@trac-us.com
+
+                </div>
+              </div>
+        </div>
+        <div class="modal-footer">
+          <div class="btn-group center" role="group">
+            <button type="submit" id="quote" class="btn btn-success" style="margin-left:2%">Email Request</button>
+          </div>
+          <div id="spinner-form"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   </body>
 </html>

@@ -13,6 +13,9 @@ def individual(request, id = 0):
 def tutorial(request, page = 1):
     return render(request, 'tutorial.html', {'page': page})
 
+def account_settings(request, page = 1):
+    return render(request, 'account_settings.html', {'page': page})
+
 def usersettings(request, pk= None, token = None):
     return render(request, 'UserSettings.html', {'pk': pk, 'token' : token})
 

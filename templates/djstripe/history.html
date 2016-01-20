@@ -1,20 +1,40 @@
 {% extends "djstripe/base.html" %}
-
+{% load staticfiles %} 
 {% block title %}Payment History{% endblock title %}
 
 {% block content %}
 <div id="content" class="container-fluid">
     <div class="container">
-      <div class="row">
-        <div class="col-xs-12">
-          <ul class="breadcrumb">
-            <li><a href="{% url 'djstripe:account' %}">Home</a></li>
-            <li class="active">Payment History</li>
-          </ul>
-          {% include "djstripe/includes/_history_table.html" %}
+      <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3 pull-left">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title" style="text-align:left">Settings</h3>
+            </div>
+              <div class="panel-body">
+                <a href="/account_settings/1/" id="e_profile"><img src="{% static "img/general.png" %}" width="20px"> General</a><br>
+                <a href="/account_settings/2/" id="e_password"><img src="{% static "img/security.png" %}" width="20px"> Security</a><br>
+                <a href="/account_settings/3/" id="e_roster"><img src="{% static "img/peopleicon.png" %}" width="20px"> Team</a><br>
+                <a href="/payments/change/cards/" id="e_payment"><img src="{% static "img/payment.png" %}" width="20px"> Payments</a><br>
+                <a href="/payments/subscribe/" id="e_payment"><span class="glyphicon glyphicon-retweet"></span> Subscription</a><br>
+                <a href="/payments/history/" id="e_payment"><span class="glyphicon glyphicon-book"></span> History</a><br>
+              </div>
+          </div>
         </div>
-      </div>
-      </div>
+        <div class = "col-lg-9 col-md-9 col-sm-9 col-xs-9">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title" id="display-title">Payment History</h3>
+            </div>
+              <div class="panel-body">
+                <div class="row">
+                  <div class="col-xs-12">
+                    {% include "djstripe/includes/_history_table.html" %}
+                  </div>
+                </div>
+            </div>
+          </div>
+        </div>
+    </div>
 </div>
 {% endblock content %}
 
@@ -24,7 +44,6 @@
     $(function() {
         $.post("{% url 'djstripe:sync_history' %}", function(data) {
             $('#history-table').html(data);
-            $('.in-progress-gif').hide();
         });
     });
 </script>

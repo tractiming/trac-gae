@@ -1,6 +1,5 @@
 {% load static %}
 <div id="history-table">
-<h2>Payment History <img class="in-progress-gif" src="{% static 'img/in-progress.gif' %}" /></h2>
 <table class="table table-striped">
     <thead>
         <tr>
@@ -30,11 +29,6 @@
             </td>
         </tr>
     {% empty %}
-        <tr>
-            <td colspan="3">
-                <img class="in-progress-gif" src="{% static 'img/in-progress.gif' %}" />
-            </td>
-        </tr>
     {% endfor %}
 </table>
 
