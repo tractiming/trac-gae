@@ -5,6 +5,7 @@ $(function() {
 		todayHighlight: true,
 		todayBtn: true,
 		datesDisabled:[new Date()],
+		startDate: '+0d',
 	};
 	$('input#start-date').datepicker(datepickerOptions);
 	$('input#end-date').datepicker(datepickerOptions);
