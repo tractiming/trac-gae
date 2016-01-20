@@ -97,9 +97,9 @@ else{
                           for (var ii=0;ii < json.length;ii++){
                //alert(ii);
                                 id = json[ii].id;
-                                fname = json[ii].user.first_name;
-                                lname = json[ii].user.last_name;
-                                uname = json[ii].user.username;
+                                fname = json[ii].first_name;
+                                lname = json[ii].last_name;
+                                uname = json[ii].username;
                                 $('#athletes tbody').append(
                                       '<tr data-href="/individual/'+id+'/">' +
                                           '<td class="hidden-xs hidden-sm hidden-md hidden-lg">' + id + '</td>' +
@@ -120,8 +120,7 @@ function loadworkouts(){
          headers: {Authorization: "Bearer " + sessionStorage.access_token},
                     //force to handle it as text
                     data: {
-                      i1: instanceFirst,
-                      i2: instanceLast,
+                      limit: instanceLast,
                     },
                     dataType: "text",
                     success: function(data) {
