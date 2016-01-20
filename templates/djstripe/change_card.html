@@ -72,9 +72,7 @@
             </div>
               <div class="panel-body">
             <div class="row" style="margin-left:2%; margin-top:2%; margin-bottom:4%">
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6"> 
-                   
-                    <p style="font-size:18px" >
+                <p style="font-size:18px" >
                         {% if customer.card_kind and customer.card_last_4 %}
                             Current card on file is a <strong>{{ customer.card_kind }}</strong>
                             ending in the digits <strong>{{ customer.card_last_4 }}</strong>.
@@ -86,7 +84,8 @@
                     {% if stripe_error %}
                         <div class="alert alert-error">{{ stripe_error }}</div>
                     {% endif %}
-                    
+
+                <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12"> 
                         
                     <form action="/api/stripe/" method="POST" id="change-card-form" class="form-group">
                             {% csrf_token %}
@@ -155,8 +154,8 @@
                                 </div>
                             </form>
                 </div>
-                <div class="col-lg-6 col-md-6 col-sm-6 hidden-xs" style="margin-top:5%">
-                    <a href="https://stripe.com"><img src="{% static 'img/bigstripe.png' %}" width="90%"></a>
+                <div class="col-lg-5 col-md-5 hidden-sm hidden-xs" style="margin-top:5%">
+                    <a href="https://stripe.com"><img src="{% static 'img/bigstripe.png' %}" width="100%"></a>
                 </div>
             </div>
             </div>
