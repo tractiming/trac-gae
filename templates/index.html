@@ -562,11 +562,18 @@ $("video").bind("ended", function() {
           <form id="session-form" name="session-form" method="POST">
             
             <div class="form-group">
-              <label for="title">Workout Title:</label>
-              <input type="text" id="title" name="title" class="form-control" required autofocus data-parsley-group="block1">
+              <div style="width:50%; float:left; padding-right:5px;">
+                <label for="title">Name:</label>
+                <input type="text" id="title" name="title" class="form-control" required autofocus data-parsley-group="block1">
+              </div>
+              <div style="width:50%; float:left; padding-right:5px;">
+                <label for="title">Email:</label>
+                <input type="text" id="title" name="title" class="form-control" required autofocus data-parsley-group="block1">
+              </div>
             </div>
+
             <div class="form-group">
-              <label >Number of Tags</label>
+              <label >Number of Tags:</label>
               <input type="text" id="tags" name="organization" class="form-group form-control" placeholder="25">
             </div>
             <label>Tag Type:</label>
@@ -579,7 +586,7 @@ $("video").bind("ended", function() {
               </label>
             </div>
             <div class="form-group">
-              <label >Number of Systems</label><br>
+              <label >Number of Systems:</label><br>
               <input type="text" id="systems" class="form-group form-control" placeholder="0">
             </div>
             <div class="form-group" style="overflow:hidden;">

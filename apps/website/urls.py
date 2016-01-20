@@ -43,10 +43,8 @@ urlpatterns = patterns('',
         name='readers'),
     url(r'^tags', TemplateView.as_view(template_name='tags.html'),
         name='tags'),
-    url(r'^account_settings/$',
-        TemplateView.as_view(template_name='account_settings.html'),
-        name='account_settings'),
-
+    
+    url(r'^account_settings/(?P<page>.+)/$', views.account_settings, name='account_settings'),
     url(r'^score/$', views.score, name='score'),
     url(r'^score/(?P<org>.+)/$', views.score, name='score'),
     url(r'^individual/(?P<id>.+)/$', views.individual, name='individual_splits'),

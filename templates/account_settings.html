@@ -20,7 +20,9 @@
 {% endblock %}
 
 {% block js_scripts %}
-
+  <script type="text/javascript">
+    var page = "{{ page }}";
+  </script>
 <script>
 if (sessionStorage.access_token == null) {
     //link to login page
@@ -217,8 +219,14 @@ $(document).ready(function(){
           alert('passwords mismatch');
         }
       });  
-
-      $('a#e_profile').click();    
+      if (page == 1)
+        $('a#e_profile').click();    
+      else if (page == 2)
+        $('a#e_password').click();
+      else if (page == 3)
+        $('a#e_roster').click();
+      else
+        $('a#e_profile').click();  
 });
 </script>
 <div class="container fluid-content">
