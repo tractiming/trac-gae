@@ -252,8 +252,8 @@
         paginationClickable: true,
         spaceBetween: 30,
         loop: true,
-      //  autoplay: 4000,
-        //autoplayDisableOnInteraction: false
+        autoplay: 4000,
+        autoplayDisableOnInteraction: false
     });
     </script>
 
@@ -590,7 +590,7 @@ $("video").bind("ended", function() {
               <div style="width:50%; float:left; padding-left:5px;">
                 <label for="start-time">Race Start Time:</label>
                 <div style="width:60%; float:left; padding-right:5px;">
-                  <input type="text" id="start-time" name="start-time" class="form-control" required data-parsley-group="block1" data-parsley-time>
+                  <input type="text" id="start-time" name="start-time" class="form-control" value="9:00" required data-parsley-group="block1" data-parsley-time>
                 </div>
                 <div style="width:40%; float:left; padding-left:5px;">
                   <label for="start-am-pm" class="sr-only">AM/PM</label>
@@ -601,8 +601,26 @@ $("video").bind("ended", function() {
                 </div>
               </div>
             </div>
+            <div class="form-group">
             <label id="pricing">Calculated Price: $25.00</label>
+            <button class="btn btn-primary pull-right" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+            Ordering Guidelines
+            </button>
+              
+            </div>
           </form>
+          <div class="collapse" id="collapseExample">
+                <div class="well">
+                  Durable Chips are worn on foot and are designed for practices. Disposable chips are sent on a racing bib. <br>
+                  System Rentals:<br>
+                  Mass start & finish line (>15ft): 1 <br>
+                  Mass start & wide finish line (<15ft): 2 <br>
+                  If you intend to have a chip timed start, that is not the finish, add 1 (>15ft) or 2 (<15ft)<br>
+                  For checkpoints, depending on the width, add the necessary number of systems. If races are circular, and start and finish in the same place, the same systems can be used.<br>
+                  For more information contact: info@trac-us.com
+
+                </div>
+              </div>
         </div>
         <div class="modal-footer">
           <div class="btn-group center" role="group">
