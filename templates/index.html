@@ -196,7 +196,7 @@
               <div id="subtext" >
               <h2>YOUR RACE, ON DEMAND</h2><br>
               <p class="hidden-xs">TIMING AT THE CLICK OF A BUTTON</p> <br> 
-              <button type="submit" id="submit" class="btn btn-primary form-control" style="margin-left:2%; width:250px;" data-toggle="modal" data-target="#order-modal">Order Now</button> 
+              <button type="submit" id="submit" class="btn btn-primary form-control" style="margin-left:2%; width:250px;" data-toggle="modal" data-target="#order-modal" onclick="amplitude.logEvent('Order_Now');">Order Now</button> 
               </div>
             </div>
           </div>
@@ -206,7 +206,7 @@
               <div id="subtext" >
               <h2 style="color:black">NEVER MISS A SPLIT</h2><br>
               <p style="color:black" class="hidden-xs">THE TIMING SOLUTION FOR COACHES AND ATHLETES</p> <br> 
-              <button type="submit" id="submit" class="btn btn-primary form-control" style="margin-left:2%; width:250px;" onclick="location.href='/register';">Create Account</button> 
+              <button type="submit" id="submit" class="btn btn-primary form-control" style="margin-left:2%; width:250px;" onclick="location.href='/register';" onclick="amplitude.logEvent('Create_Account_Off_Splash');">Create Account</button> 
               </div>
             </div>
           </div>
