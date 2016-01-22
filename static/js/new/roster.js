@@ -31,6 +31,7 @@
     $scope.hideInput = true;
     $scope.regNull = false;
     $scope.editing_header = true;
+    $scope.csvHeader = true;
     $scope.currentPage = 1;
     $scope.sessionFirst = 1;
     $scope.sessionLast = SESSIONS_PER_PAGE;
@@ -407,6 +408,18 @@
     $scope.cancelHeader = function(){
       $scope.editing_header = true;
     }
+    $scope.csvheader = function(){
+      $scope.csvHeader = false;
+    }
+    $scope.csvcancelHeader = function(){
+      $scope.csvHeader = true;
+    }
+    $scope.csvTeamCreate = function(){
+
+
+      
+    }
+
     $scope.saveHeader = function(regForm){
       $http({method: 'POST', url: '/api/athletes/', headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{
         first_name: regForm.first_name,
