@@ -1,17 +1,17 @@
-import django_filters
+import rest_framework_filters as filters
 
 from trac.models import Athlete, Coach, TimingSession, Team, Split
 
 
-class AthleteFilter(django_filters.FilterSet):
-    session = django_filters.NumberFilter(name='split__timingsession',
-                                          distinct=True)
-    primary_team = django_filters.BooleanFilter(name='team__primary_team',
-                                                distinct=True)
-    team_name = django_filters.CharFilter(name='team__name')
-    min_age = django_filters.MethodFilter()
-    max_age = django_filters.MethodFilter()
-    registered_to_session = django_filters.NumberFilter(
+class AthleteFilter(filters.FilterSet):
+    session = filters.NumberFilter(name='split__timingsession',
+                                   distinct=True)
+    primary_team = filters.BooleanFilter(name='team__primary_team',
+                                         distinct=True)
+    team_name = filters.CharFilter(name='team__name')
+    min_age = filters.MethodFilter()
+    max_age = filters.MethodFilter()
+    registered_to_session = filters.NumberFilter(
         name='timingsession', distinct=True)
 
     class Meta:
@@ -51,8 +51,8 @@ class AthleteFilter(django_filters.FilterSet):
         return queryset.filter(pk__in=athlete_ids)
 
 
-class CoachFilter(django_filters.FilterSet):
-    team_name = django_filters.CharFilter(name='team__name')
+class CoachFilter(filters.FilterSet):
+    team_name = filters.CharFilter(name='team__name')
 
     class Meta:
         model = Coach
@@ -62,13 +62,10 @@ class CoachFilter(django_filters.FilterSet):
         )
 
 
-class TimingSessionFilter(django_filters.FilterSet):
-    start_date = django_filters.DateFilter(
-        name='start_time', lookup_type='gte')
-    stop_date = django_filters.DateFilter(
-        name='start_time', lookup_type='lte')
-    athlete = django_filters.NumberFilter(name='splits__athlete',
-                                          distinct=True)
+class TimingSessionFilter(filters.FilterSet):
+    start_date = filters.DateFilter(name='start_time', lookup_type='gte')
+    stop_date = filters.DateFilter(name='start_time', lookup_type='lte')
+    athlete = filters.NumberFilter(name='splits__athlete', distinct=True)
 
     class Meta:
         model = TimingSession
@@ -81,7 +78,7 @@ class TimingSessionFilter(django_filters.FilterSet):
         )
 
 
-class TeamFilter(django_filters.FilterSet):
+class TeamFilter(filters.FilterSet):
 
     class Meta:
         model = Team
@@ -92,12 +89,12 @@ class TeamFilter(django_filters.FilterSet):
         )
 
 
-class SplitFilter(django_filters.FilterSet):
-    reader = django_filters.CharFilter(name='reader__id_str')
-    tag = django_filters.CharFilter(name='tag__id_str')
-    time_gte = django_filters.NumberFilter(name='time', lookup_type='gte')
-    time_lte = django_filters.NumberFilter(name='time', lookup_type='lte')
-    session = django_filters.NumberFilter(name='timingsession')
+class SplitFilter(filters.FilterSet):
+    reader = filters.CharFilter(name='reader__id_str')
+    tag = filters.CharFilter(name='tag__id_str')
+    time_gte = filters.NumberFilter(name='time', lookup_type='gte')
+    time_lte = filters.NumberFilter(name='time', lookup_type='lte')
+    session = filters.NumberFilter(name='timingsession')
 
     class Meta:
         model = Split
