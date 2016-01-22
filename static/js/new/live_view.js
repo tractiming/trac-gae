@@ -591,33 +591,13 @@ google.setOnLoadCallback(function(){
 					e.preventDefault();
 
 					// make ajax call to turn off filter
-					var id = sessionData.id,
-							name = sessionData.name,
-							start = sessionData.start_time,
-							stop = sessionData.stop_time,
-							restTime = sessionData.rest_time,
-							distance = sessionData.interval_distance,
-							size = sessionData.track_size,
-							intervalNumber = sessionData.interval_number,
-							privateSelect = sessionData.private,
-							filter = false;
-
 					$.ajax({
-						type: 'POST',
-						dataType:'json',
-						url: '/api/time_create/',
+						type: 'PATCH',
+						dataType: 'json',
+						url: '/api/sessions/' + currentID + '/',
 						headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
 						data: {
-							id: id,
-							name: name,
-							start_time: start,
-							stop_time: stop,
-							rest_time: restTime,
-							track_size: size,
-							interval_distance: distance,
-							interval_number: intervalNumber,
-							filter_choice: filter,
-							private: privateSelect
+							filter_choice: false,
 						},
 						success: function(data) {
 							// update front end data
