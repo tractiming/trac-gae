@@ -404,7 +404,8 @@ google.setOnLoadCallback(function(){
 			// request for registered runners
 			$.ajax({
 				method: 'GET',
-				url: 'api/reg_tag',
+				url: 'api/athletes?registered_to_session=' + currentID +
+                     '&session!=' + currentID,
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				data: {id: currentID, missed: true },
 				dataType: 'text',
@@ -425,9 +426,11 @@ google.setOnLoadCallback(function(){
 						$('#add-missed-runner-select').prop('disabled', false);
 
 						for (var i=0; i<data.length; i++) {
-							var tag = data[i];
+							var athlete = data[i];
 							$('#add-missed-runner-select').append(
-								'<option value="'+tag.id+'">'+tag.first+' '+tag.last+'</option>'
+								'<option value="'+athlete.id+'">' +
+                                athlete.first_name + ' ' + athlete.last_name +
+                                '</option>'
 							);
 						}
 
@@ -443,7 +446,7 @@ google.setOnLoadCallback(function(){
 						$('body').on('click', '#add-missed-runner-confirm', function(e) {
 							e.preventDefault();
 
-							tagID = $('#add-missed-runner-select option:selected').val();
+							athleteID = $('#add-missed-runner-select option:selected').val();
 							hrs = Number($('#add-missed-runner-hrs').val());
 							mins = Number($('#add-missed-runner-mins').val());
 							secs = Number($('#add-missed-runner-secs').val());
@@ -453,19 +456,19 @@ google.setOnLoadCallback(function(){
 								$('.notification.add-missed-runner-error').show();
 								return;
 							}
+                            var data = [{
+                                "id": athleteID,
+                                "splits": [hrs*3600 + mins*60 + secs + ms/1000.0]
+                            }];
 
 							$.ajax({
 								method: 'POST',
-								url: 'api/sessions/'+currentID+'/add_missed_runner/',
-								headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-								data: {
-									tag_id: tagID,
-									hour: hrs,
-									min: mins,
-									sec: secs,
-									mil: ms 
-								},
-								dataType: 'text',
+								url: 'api/sessions/'+currentID+'/upload_results/',
+								headers: {Authorization: 'Bearer ' +
+                                          sessionStorage.access_token},
+
+								data: JSON.stringify(data),
+								contentType: 'application/json',
 								success: function(data) {
 									$('#table-canvas').empty();
 									spinner.spin(target);
