@@ -95,6 +95,18 @@ class AthleteViewSet(viewsets.ModelViewSet):
     create:
       omit_parameters:
       - query
+    update:
+      omit_parameters:
+      - query
+    partial_update:
+      omit_parameters:
+      - query
+    destroy:
+      omit_parameters:
+      - query
+    retrieve:
+      omit_parameters:
+      - query
     """
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = AthleteSerializer
@@ -168,8 +180,28 @@ class AthleteViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'])
     def completed_sessions(self, request, *args, **kwargs):
-        """
-        Get all the sessions an athlete has participated in.
+        """Get the results of one athlete across all sessions.
+        ---
+        omit_serializer: true
+        omit_parameters:
+        - query
+        - form
+        type:
+          id:
+            description: Session ID
+            type: integer
+          name:
+            description: Athlete name
+            type: string
+          date:
+            description: Date of the session
+            type: string
+          splits:
+            description: Times the athlete has recorded in this session
+            type: list
+          total:
+            description: Cumulative time for the athlete in this session
+            type: string
         """
         athlete = self.get_object()
         name = athlete.user.get_full_name() or athlete.user.username
