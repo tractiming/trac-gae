@@ -146,19 +146,18 @@ def stripe_CustomerPayment(request):
     applicable.
     """
     stripe.api_key = "sk_test_8dwmRwbSMzZNticzW7fQaKu0"
-    user = requeset.user
+    user = request.user
     # Get the credit card details submitted by the form
-    token = request.POST['stripeToken']
     price = request.POST['price']
 
     customer, created = Customer.get_or_create(subscriber=user)
+
     # Create the charge on Stripe's servers - this will charge the user's card
     try:
       charge = stripe.Charge.create(
           amount=price, # amount in cents, again
           currency="usd",
-          source=token,
-          description="TRAC Timing"
+          description="TRAC Timing",
           customer=customer.id
       )
     except stripe.error.CardError, e:

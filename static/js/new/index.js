@@ -61,7 +61,6 @@ $(function() {
 					type: 'POST',
 					dataType:'json',
 					url: '/stripe-single/',
-					headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
 					data: {
 						stripeToken: token.id,
 						price: stripePrice
@@ -72,7 +71,7 @@ $(function() {
 						$('#payment-modal').modal('show');
 					},
 					error: function(xhr, errmsg, err) {
-						$('#success_reference').text('Something went wrong...We are sorry for any inconvenience');
+						$('#payment_reference').text('Something went wrong...We are sorry for any inconvenience');
 						$('#payment-modal').modal('show');
 					}
 				});

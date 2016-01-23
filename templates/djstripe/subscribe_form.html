@@ -113,7 +113,6 @@
 
                       </div>
                       <label class="col-lg-offset-4" id="pricing">Price: $25.00</label>
-                        <script src="https://checkout.stripe.com/checkout.js"></script>
 <script>
 var tag_type=1, num_tags=25, systems=0;
 
@@ -144,45 +143,90 @@ $("#systems").on('input', function(){
 function changePricing(tag_type,num_tags,systems){
   price = (tag_type * num_tags) + (systems * 350);
   $('#pricing').text('Price: $' + price+'.00');
-  price = price *100;
 
 };
 
-var handler = StripeCheckout.configure({
-  key:  "{{ STRIPE_PUBLIC_KEY }}",
-  image: '../../static/img/trac_stripe.png',
-  locale: 'auto',
-  token: function(token) {
-    // Use the token to create the charge with a server-side script.
-    // You can access the token ID with `token.id`
-  }
-  });
 
   $('#customButton').on('click', function(e) {
   // Open Checkout with further options
-  handler.open({
-    name: 'TRAC',
-    description: 'TRAC Timing',
-    amount: price,
-    shippingAddress:true,
-  });
+  var stripePrice = price *100;
+  $.ajax({
+          type: 'POST',
+          dataType:'json',
+          url: '/stripe-Customer/',
+          headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+          data: {
+            price: stripePrice
+                    
+          },
+          success: function(data) {
+           $('#payment-modal').modal('show');
+          },
+          error: function(xhr, errmsg, err) {
+            $('#payment-modal').modal('show');
+            $('#success_reference').text('Error. We are unable to process your request');
+          }
+        });
+
   e.preventDefault();
   });
 
-  // Close Checkout on page navigation
-  $(window).on('popstate', function() {
-  handler.close();
-  });
+ 
 
 </script>
-
-
                   </div>
               </div>
             </div>
           </div>
+         <!-- <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4" style="padding-top:2%">
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h3 class="panel-title" id="display-title">Apply Coupons</h3>
+                  </div>
+                  <div class="panel-body">
+                  <div class="form-group">
+                    
+                    <label >Coupon Code:</label><br>
+                    <input type="text" id="tags" name="organization" class="form-group form-control">
+
+                      <div class="btn-group" role="group">
+
+                          <button  type="submit" id="customButton" class="btn btn-success form-control">Apply</button>
+
+                      </div>
+                      <label class="col-lg-offset-4" id="pricing">Discount: $25.00</label>
+                      </div>
+              </div>
+            </div>
+          </div>
+        -->
         </div>
     </div>
+
+    <div class="modal fade" id="payment-modal" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header" style="color:black">
+            Success!<button id="cl" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button>
+        </div>
+        <div class="modal-body" style="color:black">
+          <div id="success_reference">
+            Thanks for ordering. We will notify you when your equipment ships. Please visit the history page for more information or email <a href="mailto:info@trac-us.com" style="color:#3577A8 !important;">info@trac-us.com</a>
+            <!-- TODO: Take info, create account as necessary
+            <br><br>
+            To manage your event, and stay updated with your order please create an account: <br><center><button type="submit" id="submit" class="btn btn-primary" style="margin-left:2%; width:250px;" onclick="location.href='/register';" onclick="amplitude.logEvent('Create_Account_Payment_Popup');">Register</button> </center>-->
+            <br><br>
+            </div>
+         </div>
+        <div class="modal-footer">
+          <div class="btn-group pull-right" role="group">
+            <button type="submit" data-dismiss="modal" class="btn btn-primary" style="margin-left:2%">Close</button>
+          </div>
+          <div id="spinner-form"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock content %}
 
 {% block js_scripts %}
