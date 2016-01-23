@@ -605,14 +605,8 @@ def upload_workouts(request):
                     athlete.team = team
                     athlete.save()
 
-            tags = Tag.objects.filter(athlete=new_user.athlete)
-            if tags:
-                tag = tags[0]
-            else:
-                tag = Tag.objects.create(id_str=runner['username'], athlete=athlete)
-
             # register tag to the timing session
-            ts.registered_athletes.add(tag.athlete.pk)
+            ts.registered_athletes.add(new_user.athlete.pk)
 
             # init reference timestamp
             time = ts.start_button_time
@@ -627,8 +621,7 @@ def upload_workouts(request):
 
                 time += diff
 
-                tt = Split.objects.create(tag_id=tag.id,
-                                          athlete_id=new_user.athlete.id,
+                tt = Split.objects.create(athlete_id=new_user.athlete.id,
                                           time=time,
                                           reader_id=reader.id)
                 ts.splits.add(tt.pk)
@@ -652,20 +645,19 @@ def edit_split(request):
     """
     data = request.POST
     ts = TimingSession.objects.get(id=int(data['id']))
-    all_tags = ts.splits.values_list('tag_id', flat=True).distinct()
-    tag = Tag.objects.filter(athlete_id=int(data['user_id']), id__in=all_tags)
+    athlete = Athlete.objects.get(id=int(data['user_id']))
     dt = int(float(data.get('val', 0)) * 1000)
 
     if data['action'] == 'edit':
-        ts._edit_split(tag[0].id, int(data['indx']), dt)
+        ts._edit_split(athlete.id, int(data['indx']), dt)
     elif data['action'] == 'insert':
-        ts._insert_split(tag[0].id, int(data['indx']), dt, True)
+        ts._insert_split(athlete.id, int(data['indx']), dt, True)
     elif data['action'] == 'delete':
-        ts._delete_split(tag[0].id, int(data['indx']))
+        ts._delete_split(athlete.id, int(data['indx']))
     elif data['action'] == 'split':
-        ts._insert_split(tag[0].id, int(data['indx']), dt, False)
+        ts._insert_split(athlete.id, int(data['indx']), dt, False)
     elif data['action'] == 'total_time':
-        ts._overwrite_final_time(tag[0].id, int(data['hour']),
+        ts._overwrite_final_time(athlete.id, int(data['hour']),
                                  int(data['min']), int(data['sec']),
                                  int(data['mil']))
     else:

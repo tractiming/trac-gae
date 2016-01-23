@@ -1303,12 +1303,20 @@ google.setOnLoadCallback(function(){
 		$('body').on('change', '#gender-select, #age-select', function(){
 			drawIndividual();
 		});
+		//Prevent from typing any non numeric characters
+		$("#age-select").keypress(function (e) {
+			if (e.which != 8 && e.which != 0 && e.which != 45 &&(e.which < 48 || e.which > 57)) {
+			return false;
+			}
+		});
+
 
 		function drawIndividual() {
 			$('#individual-table-canvas').empty();
 
 			var a = $('#age-select').val();
 			var g = $('#gender-select').val();
+			console.log(a);
 
 			// gender or age wasn't selected
 			if ((a === null) || (g === null)) {
