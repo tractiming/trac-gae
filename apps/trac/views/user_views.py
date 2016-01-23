@@ -1,13 +1,12 @@
 import base64
 import datetime
 
+import stripe
 from django.conf import settings
-from django.contrib.auth import authenticate, login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
-from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.template import loader
@@ -20,19 +19,17 @@ from oauthlib.common import generate_token
 from rest_framework import (
     viewsets, permissions, status, views, pagination, filters
 )
-from rest_framework.authentication import BasicAuthentication
 from rest_framework.decorators import (
-    api_view, permission_classes, authentication_classes, detail_route
+    api_view, permission_classes, detail_route
 )
 from rest_framework.response import Response
-import stripe
 
 from trac.filters import AthleteFilter, CoachFilter
-from trac.models import Coach, Athlete, Team, Tag, TimingSession
+from trac.models import Coach, Athlete, Tag, TimingSession
 from trac.serializers import (
     AthleteSerializer, CoachSerializer, UserSerializer
 )
-from trac.utils.user_util import is_athlete, is_coach, user_type
+from trac.utils.user_util import is_athlete, is_coach
 
 
 class UserViewSet(viewsets.ModelViewSet):
