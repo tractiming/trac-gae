@@ -56,6 +56,27 @@ $(function() {
 	  token: function(token) {
 	    // Use the token to create the charge with a server-side script.
 	    // You can access the token ID with `token.id`
+	    var stripePrice = price *100;
+	    $.ajax({
+					type: 'POST',
+					dataType:'json',
+					url: '/stripe-single/',
+					headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+					data: {
+						stripeToken: token.id,
+						price: stripePrice
+										
+					},
+					success: function(data) {
+						$('#payment_reference').text(token.id);
+						$('#payment-modal').modal('show');
+					},
+					error: function(xhr, errmsg, err) {
+						$('#success_reference').text('Something went wrong...We are sorry for any inconvenience');
+						$('#payment-modal').modal('show');
+					}
+				});
+
 	  }
 	  });
 
