@@ -209,7 +209,7 @@ else:
         dbn = 'tracdb'
 
         # Uncomment the next line to force sqlite, even if mysql is configured.
-        raise MySQLdb.Error
+        #raise MySQLdb.Error
 
         db = MySQLdb.connect(host=host, user=user, db=dbn)
         db.close()
@@ -348,6 +348,7 @@ SWAGGER_SETTINGS = {
     'api_version': '0.1',
     'is_authenticated': True,
     'is_superuser': True,
+    'exclude_namespaces': ['djstripe', 'accounts', 'stats', 'internal'],
     'info': {
         'contact': 'info@trac-us.com',
         'title': 'TRAC API'

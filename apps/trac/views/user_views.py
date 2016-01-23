@@ -76,8 +76,9 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class CoachViewSet(viewsets.ModelViewSet):
-    """
-    Coach resource.
+    """Coach resource.
+
+    A coach manages teams, sessions, and athletes.
     """
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = CoachSerializer
@@ -89,8 +90,14 @@ class CoachViewSet(viewsets.ModelViewSet):
 
 
 class AthleteViewSet(viewsets.ModelViewSet):
-    """
-    Athlete resource.
+    """Athlete resource.
+
+    An athlete competes in sessions, appears in results, may
+    belong to a team, and can be assigned a tag ("bib").
+    ---
+    create:
+      omit_parameters:
+      - query
     """
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = AthleteSerializer
