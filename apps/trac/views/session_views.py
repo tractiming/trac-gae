@@ -84,7 +84,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
     @csrf_exempt
     @detail_route(methods=['post'],
-                  permission_classes=(permissions.IsAuthenticated),)
+                  permission_classes=(permissions.IsAuthenticated,))
     def reset(self, request, *args, **kwargs):
         """Reset a timing session by clearing all of its tagtimes.
         ---
@@ -152,7 +152,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         session = self.get_object()
         session.start_button_time = timestamp
         session.save()
-        return Response(status.HTTP_202_ACCEPTED)
+        return Response(status=status.HTTP_202_ACCEPTED)
 
     @detail_route(methods=['get'])
     def individual_results(self, request, *args, **kwargs):
