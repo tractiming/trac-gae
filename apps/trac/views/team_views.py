@@ -48,7 +48,8 @@ class TeamViewSet(viewsets.ModelViewSet):
         athlete will be assigned to the current team.
         """
         team = self.get_object()
-        file_obj = request.data.pop('file', None)
+        file_obj = request.data.pop('myfile', None)
+        print(request.data)
         if not file_obj:
             return Response("No file uploaded",
                             status=status.HTTP_400_BAD_REQUEST)

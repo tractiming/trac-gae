@@ -11,7 +11,7 @@
 <script type="text/javascript" src="{% static "js/new/directives/components.js" %}"> </script>
 <script type="text/javascript" src="{% static "js/new/spinner-directive.js" %}"> </script>
 <script type="text/javascript" src="{% static "js/access_token.js" %}"></script>
-<script type="text/javascript" src="{% static "js/timeConversion.js" %}" />
+<script type="text/javascript" src="{% static "js/new/roster_jquery.js" %}"></script>
 
 <!--<script type="text/javascript" src="{% static "js/new/race_angular.js" %}"></script>-->
 {% endblock %}
@@ -273,18 +273,18 @@
                       <div class="row">
                         <div class="col-lg-6">
                           <p class="notification-warning">
-                            <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> CSV uploads must be in a specific format. Click <a href="{% static "files/workout_upload_sample.csv" %}">here</a> for an example.
+                            <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> CSV uploads must be in a specific format. Click <a href="../../../static/files/workout_upload_sample.csv">here</a> for an example.
                           </p>
                         </div>
                         <div class="input-group col-lg-6">
                           <span class="input-group-btn">
                             <span class="btn btn-warning btn-file">
-                              Browse&hellip; <input type="file" id="file" name="myfile" data-parsley-errors-container="#csv-parsley-errors">
+                              Browse&hellip; <input type="file" id="file" name="myfile" ng-model="file" data-parsley-errors-container="#csv-parsley-errors">
                             </span>
                           </span>
                           <input type="text" class="form-control" readonly required data-parsley-errors-container="#csv-parsley-errors" style="width:45%">
                           <div class="pull-right" style="width:40%"> 
-                            <button name="" class="btn btn-primary" ng-click="">Create</button>
+                            <button name="" class="btn btn-primary" ng-click="csvTeamCreate(file);">Create</button>
                             <button name="" class="btn btn-default hidden-sm hidden-xs hidden-md" ng-click="csvcancelHeader()">Cancel</button>
                           </div>
                         </div>
@@ -455,7 +455,7 @@
             </div>
             <div class="center form-group">
               <p class="notification-warning">
-                <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> CSV uploads must be in a specific format. Click <a href="{% static "files/workout_upload_sample.csv" %}">here</a> for an example.
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> CSV uploads must be in a specific format. Click <a href="../../../static/files/workout_upload_sample.csv">here</a> for an example.
               </p>
             </div>
 
@@ -474,7 +474,7 @@
 
              <div class="button-container" id="csv_buttons"style="display:table;margin:0 auto;">
                 <!--<input type="file" id="file" name="myfile" class="btn btn-warning form-control" required>-->
-                <input type="submit" class="gen_btn btn btn-primary form-control" id="upload" name ="upload" value="Upload">
+                <input type="submit" class="gen_btn btn btn-primary form-control" id="upload" name ="upload" ng-click="csvWorkoutCreate();">
             </div>
           </form>
         </div>

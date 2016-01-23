@@ -414,10 +414,28 @@
     $scope.csvcancelHeader = function(){
       $scope.csvHeader = true;
     }
-    $scope.csvTeamCreate = function(){
+    $scope.csvTeamCreate = function(files){
+      var fd = new FormData();
+    //Take the first selected file
+    fd.append("file", files[0]);
+    var uploadUrl = "/api/upload_roster";
+    $http.post(uploadUrl, fd, {
+        withCredentials: true,
+        headers: {'Content-Type': undefined },
+        transformRequest: angular.identity
+    }).success(function (response) { alert('success');}).error( );
+    }
 
+    $scope.csvWorkoutCreate = function(files){
+      var fd = new FormData($('#csvform')[0]);
+      alert(fd);
+    var url = "/api/teams/21/upload_roster/";
 
-      
+    $http({method: 'POST', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:fd, transformRequest: angular.identity })
+          .success(function (response) { 
+            alert('success')
+          });
+
     }
 
     $scope.saveHeader = function(regForm){
