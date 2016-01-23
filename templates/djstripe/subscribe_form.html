@@ -108,10 +108,12 @@
                     <input type="text" id="systems" class="form-group form-control" placeholder="0">
 
                       <div class="btn-group" role="group">
-                        <button type="submit" id="submit" class="btn btn-success form-control" style="margin-left:2%">Order</button>
+
+                          <button  type="submit" id="customButton" class="btn btn-success form-control">Purchase</button>
 
                       </div>
                       <label class="col-lg-offset-4" id="pricing">Price: $25.00</label>
+                        <script src="https://checkout.stripe.com/checkout.js"></script>
 <script>
 var tag_type=1, num_tags=25, systems=0;
 
@@ -142,8 +144,35 @@ $("#systems").on('input', function(){
 function changePricing(tag_type,num_tags,systems){
   price = (tag_type * num_tags) + (systems * 350);
   $('#pricing').text('Price: $' + price+'.00');
+  price = price *100;
 
 };
+
+var handler = StripeCheckout.configure({
+  key:  "{{ STRIPE_PUBLIC_KEY }}",
+  image: '../../static/img/trac_stripe.png',
+  locale: 'auto',
+  token: function(token) {
+    // Use the token to create the charge with a server-side script.
+    // You can access the token ID with `token.id`
+  }
+  });
+
+  $('#customButton').on('click', function(e) {
+  // Open Checkout with further options
+  handler.open({
+    name: 'TRAC',
+    description: 'TRAC Timing',
+    amount: price,
+    shippingAddress:true,
+  });
+  e.preventDefault();
+  });
+
+  // Close Checkout on page navigation
+  $(window).on('popstate', function() {
+  handler.close();
+  });
 
 </script>
 
@@ -194,4 +223,6 @@ function changePricing(tag_type,num_tags,systems){
 
     });
 </script>
+
+
 {% endblock js_scripts %}

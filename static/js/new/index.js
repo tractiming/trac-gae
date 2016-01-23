@@ -11,7 +11,7 @@ $(function() {
 	$('input#end-date').datepicker(datepickerOptions);
 
 
-	var tag_type=1, num_tags=25, systems=0, startTime = [9,0], startDate, startAMPM, shipping=0;
+	var tag_type=1, num_tags=25, systems=0, startTime = [9,0], startDate, startAMPM, shipping=0,email;
 
 	$("#tags").keypress(function (e) {
 	//if the letter is not digit then display error and don't type anything
@@ -37,11 +37,33 @@ $(function() {
 	  changePricing(tag_type,num_tags,systems,shipping);
 	});
 
+	$("#email").on('input', function(){
+	  email = $('#email').val();
+	 
+	});
+
 	function changePricing(tag_type,num_tags,systems,diff){
 	  price = (tag_type * num_tags) + (systems * 350) + (systems * diff) + (diff/3);
 	  $('#pricing').text('Calculated Price: $' + price+'.00');
 
 	};
+
+
+	var handler = StripeCheckout.configure({
+	  key:  'pk_test_CDTkwilGwFbGM1v30Sw46FtO',
+	  image: '../../static/img/trac_stripe.png',
+	  locale: 'auto',
+	  token: function(token) {
+	    // Use the token to create the charge with a server-side script.
+	    // You can access the token ID with `token.id`
+	  }
+	  });
+
+	  // Close Checkout on page navigation
+	  $(window).on('popstate', function() {
+	  handler.close();
+	  });
+
 
 	$("input[id=start-date]").on('change', function(){
 	startDate = $('input[id=start-date]').val().trim().split(/[\/-]/),
@@ -103,6 +125,16 @@ $(function() {
 
 				var name = $('input[id=title]').val();
 				var email = $('input[id=email]').val();
+				var stripePrice = price *100;
+
+			  handler.open({
+			  	email: email,
+			    name: 'TRAC',
+			    description: 'TRAC Timing',
+			    amount: stripePrice,
+			    shippingAddress:true,
+			  });
+			  e.preventDefault();
 
 				// get start date and time
 				var startDate = $('input[id=start-date]').val().trim().split(/[\/-]/),
