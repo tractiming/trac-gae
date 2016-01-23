@@ -76,6 +76,22 @@ class CoachViewSet(viewsets.ModelViewSet):
     """Coach resource.
 
     A coach manages teams, sessions, and athletes.
+    ---
+    create:
+      omit_parameters:
+      - query
+    update:
+      omit_parameters:
+      - query
+    partial_update:
+      omit_parameters:
+      - query
+    destroy:
+      omit_parameters:
+      - query
+    retrieve:
+      omit_parameters:
+      - query
     """
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = CoachSerializer
