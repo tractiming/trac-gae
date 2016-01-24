@@ -19,7 +19,7 @@ from rest_framework.parsers import FileUploadParser
 
 from trac.filters import TimingSessionFilter
 from trac.models import TimingSession, Reader, Tag, Split, Team, Athlete
-from trac.serializers import TimingSessionSerializer
+from trac.serializers import TimingSessionSerializer, AthleteSerializer
 from trac.utils.integrations import tfrrs
 from trac.utils.phone_split_util import create_phone_split
 from trac.utils.gcs_util import json_write, csv_writer, get_public_link
@@ -459,6 +459,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         athlete will be added to the selected session
         """
         session = self.get_object()
+        user = request.user
+
         file_obj = request.data.pop('file', None)
 
         if not file_obj:
@@ -474,18 +476,18 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
 
         for athlete in roster:
+            team, created = Team.objects.get_or_create(name=athlete.get('team',None),coach_id=user.coach.id)
             athlete_data = {
                 'username': uuid.uuid4().hex[:30],  # Assign random username
                 'first_name': athlete['first_name'],
                 'last_name': athlete['last_name'],
                 'gender': athlete.get('gender', None),
                 'birth_date': athlete.get('birth_date', None),
-                'team': Team.objects.get_or_create(athlete.get('team',None))
+                'team': team.id
             }
             serializer = AthleteSerializer(data=athlete_data)
             serializer.is_valid(raise_exception=True)
             serializer.create(serializer.validated_data)
-            print(serializer.id)
 
         existing_athletes = set(session.registered_athletes.values_list(
             'id', flat=True))
