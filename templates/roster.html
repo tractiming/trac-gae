@@ -270,16 +270,17 @@
                 <tbody>
                   <tr ng-hide="csvHeader" class="expand">
                     <td colspan="7">
+                      <form name="csvform" id="csvform" data-parsley-validate>
                       <div class="row">
                         <div class="col-lg-6">
                           <p class="notification-warning">
                             <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> CSV uploads must be in a specific format. Click <a href="../../../static/files/workout_upload_sample.csv">here</a> for an example.
                           </p>
                         </div>
-                        <div class="input-group col-lg-6">
+                        <div class="input-group col-lg-6 file-input-{{team.id}}">
                           <span class="input-group-btn">
-                            <span class="btn btn-warning btn-file">
-                              Browse&hellip; <input type="file" id="file" name="myfile" ng-model="file" data-parsley-errors-container="#csv-parsley-errors">
+                            <span class="btn btn-warning btn-file roster_{{team.id}}">
+                              Browse&hellip; <input type="file" id="file" name="file" onchange="angular.element(this).scope().fileNameChanged()" data-parsley-errors-container="#csv-parsley-errors">
                             </span>
                           </span>
                           <input type="text" class="form-control" readonly required data-parsley-errors-container="#csv-parsley-errors" style="width:45%">
@@ -290,6 +291,7 @@
                         </div>
                         
                       </div>
+                    </form>
                     </td>
                   </tr>
                   <tr ng-class="{info:!editing_header}" ng-mouseover="hoverIn();" ng-mouseleave="hoverOut();" ng-hide="editing_header" class="expand">

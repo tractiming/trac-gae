@@ -27,6 +27,23 @@
 
    app.controller('registeredCtrl', function($scope, $http, usSpinnerService) {
 
+    // trigger event on file selection
+    $('body').off('change', '.roster_'+$scope.rosterID+' :file');
+    $('body').on('change', '.roster_6 :file', function() {
+      
+      var input = $(this),
+          numFiles = input.get(0).files ? input.get(0).files.length : 1,
+          label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+       var input = $(this).parents('.file-input-'+$scope.rosterID).find(':text'),
+          log = numFiles > 1 ? numFiles + ' files selected' : label;
+      console.log($(this));
+      if( input.length ) {
+        input.val(log);
+      } else {
+        if( log ) alert(log);
+      }
+    });
+
     var  SESSIONS_PER_PAGE  = 50;
     $scope.hideInput = true;
     $scope.regNull = false;
@@ -37,6 +54,19 @@
     $scope.sessionLast = SESSIONS_PER_PAGE;
     $scope.universalEdit = false;
 
+    $scope.fileNameChanged = function() {
+      var input = $('.roster_'+$scope.rosterID+' :file'),
+          numFiles = input.get(0).files ? input.get(0).files.length : 1,
+          label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+       var input = $('.roster_'+$scope.rosterID+' :file').parents('.file-input-'+$scope.rosterID).find(':text'),
+          log = numFiles > 1 ? numFiles + ' files selected' : label;
+      
+      if( input.length ) {
+        input.val(log);
+      } else {
+        if( log ) alert(log);
+      }
+    }
 
     //pagination buttons
     $scope.pageForward = function(){
@@ -415,23 +445,20 @@
       $scope.csvHeader = true;
     }
     $scope.csvTeamCreate = function(files){
-      var fd = new FormData();
-    //Take the first selected file
-    fd.append("file", files[0]);
-    var uploadUrl = "/api/upload_roster";
-    $http.post(uploadUrl, fd, {
-        withCredentials: true,
-        headers: {'Content-Type': undefined },
-        transformRequest: angular.identity
-    }).success(function (response) { alert('success');}).error( );
+      var fd = new FormData($('#csvform')[0]);
+      var url = "/api/teams/"+ $scope.rosterID +"/upload_roster/";
+
+    $http({method: 'POST', url: url, cache:false, headers: {Authorization: 'Bearer ' + sessionStorage.access_token, 'Content-Type': undefined}, data:fd, transformRequest: angular.identity })
+          .success(function (response) { 
+            alert('success')
+          });
     }
 
     $scope.csvWorkoutCreate = function(files){
       var fd = new FormData($('#csvform')[0]);
-      alert(fd);
-    var url = "/api/teams/21/upload_roster/";
+      var url = "/api/teams/7/upload_roster/";
 
-    $http({method: 'POST', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:fd, transformRequest: angular.identity })
+    $http({method: 'POST', url: url, cache:false, headers: {Authorization: 'Bearer ' + sessionStorage.access_token, 'Content-Type': undefined}, data:fd, transformRequest: angular.identity })
           .success(function (response) { 
             alert('success')
           });
