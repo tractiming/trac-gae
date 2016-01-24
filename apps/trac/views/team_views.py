@@ -15,8 +15,25 @@ from trac.utils.user_util import is_athlete, is_coach
 
 
 class TeamViewSet(viewsets.ModelViewSet):
-    """
-    Team resource.
+    """Team resource.
+
+    A team is managed by a coach and contains a group of athletes.
+    ---
+    partial_update:
+      omit_parameters:
+      - query
+    create:
+      omit_parameters:
+      - query
+    update:
+      omit_parameters:
+      - query
+    retrieve:
+      omit_parameters:
+      - query
+    destroy:
+      omit_parameters:
+      - query
     """
     permission_classes = (permissions.AllowAny,)
     serializer_class = TeamSerializer
@@ -24,17 +41,21 @@ class TeamViewSet(viewsets.ModelViewSet):
     filter_class = TeamFilter
 
     def get_queryset(self):
+        """Filter teams based on current user.
+
+        A coach can see all of the teams he owns, an athlete can see
+        all of the teams he belongs to, an anonymous user cannot see
+        any teams.
+        """
         user = self.request.user
 
         if is_coach(user):
             return user.coach.team_set.all()
-
         elif is_athlete(user):
             return Team.objects.filter(athlete__in=[user.athlete.pk],
                                        primary_team=True)
-
         else:
-            return Team.objects.filter(primary_team=True)
+            return Team.objects.none()
 
     @detail_route(methods=['post'], parser_classes=(FileUploadParser,))
     def upload_roster(self, request, *args, **kwargs):
@@ -46,6 +67,15 @@ class TeamViewSet(viewsets.ModelViewSet):
 
         A new athlete will be created for each row in the file and that
         athlete will be assigned to the current team.
+        ---
+        omit_serializer: true
+        omit_parameters:
+        - query
+        - form
+        parameters:
+        - name: file
+          description: CSV file with roster information
+          type: file
         """
         team = self.get_object()
         file_obj = request.data.pop('file', None)

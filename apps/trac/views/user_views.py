@@ -1,13 +1,12 @@
 import base64
 import datetime
 
+import stripe
 from django.conf import settings
-from django.contrib.auth import authenticate, login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
-from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.template import loader
@@ -20,19 +19,17 @@ from oauthlib.common import generate_token
 from rest_framework import (
     viewsets, permissions, status, views, pagination, filters
 )
-from rest_framework.authentication import BasicAuthentication
 from rest_framework.decorators import (
-    api_view, permission_classes, authentication_classes, detail_route
+    api_view, permission_classes, detail_route
 )
 from rest_framework.response import Response
-import stripe
 
 from trac.filters import AthleteFilter, CoachFilter
-from trac.models import Coach, Athlete, Team, Tag, TimingSession
+from trac.models import Coach, Athlete, Tag, TimingSession
 from trac.serializers import (
     AthleteSerializer, CoachSerializer, UserSerializer
 )
-from trac.utils.user_util import is_athlete, is_coach, user_type
+from trac.utils.user_util import is_athlete, is_coach
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -76,8 +73,25 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class CoachViewSet(viewsets.ModelViewSet):
-    """
-    Coach resource.
+    """Coach resource.
+
+    A coach manages teams, sessions, and athletes.
+    ---
+    create:
+      omit_parameters:
+      - query
+    update:
+      omit_parameters:
+      - query
+    partial_update:
+      omit_parameters:
+      - query
+    destroy:
+      omit_parameters:
+      - query
+    retrieve:
+      omit_parameters:
+      - query
     """
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = CoachSerializer
@@ -89,8 +103,26 @@ class CoachViewSet(viewsets.ModelViewSet):
 
 
 class AthleteViewSet(viewsets.ModelViewSet):
-    """
-    Athlete resource.
+    """Athlete resource.
+
+    An athlete competes in sessions, appears in results, may
+    belong to a team, and can be assigned a tag ("bib").
+    ---
+    create:
+      omit_parameters:
+      - query
+    update:
+      omit_parameters:
+      - query
+    partial_update:
+      omit_parameters:
+      - query
+    destroy:
+      omit_parameters:
+      - query
+    retrieve:
+      omit_parameters:
+      - query
     """
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = AthleteSerializer
@@ -164,8 +196,28 @@ class AthleteViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'])
     def completed_sessions(self, request, *args, **kwargs):
-        """
-        Get all the sessions an athlete has participated in.
+        """Get the results of one athlete across all sessions.
+        ---
+        omit_serializer: true
+        omit_parameters:
+        - query
+        - form
+        type:
+          id:
+            description: Session ID
+            type: integer
+          name:
+            description: Athlete name
+            type: string
+          date:
+            description: Date of the session
+            type: string
+          splits:
+            description: Times the athlete has recorded in this session
+            type: list
+          total:
+            description: Cumulative time for the athlete in this session
+            type: string
         """
         athlete = self.get_object()
         name = athlete.user.get_full_name() or athlete.user.username

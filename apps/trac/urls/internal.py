@@ -1,4 +1,5 @@
-from django.conf.urls import url
+from django.conf.urls import url, include
+from rest_framework import routers
 
 from trac.views import (
     user_views, session_views, tag_views, reader_views, team_views,
@@ -6,7 +7,17 @@ from trac.views import (
 )
 
 
+router = routers.DefaultRouter()
+router.register(r'users', user_views.UserViewSet, 'User')
+router.register(r'score', team_views.ScoringViewSet, 'Score')
+
+
 urlpatterns = [
+    url(r'^', include(router.urls)),
+    url(r'^register/$', auth_views.register),
+    url(r'^login/$', auth_views.login),
+    url(r'^api-auth/', include('rest_framework.urls',
+                               namespace='rest_framework')),
 
     url(r'^edit_athletes/$', user_views.edit_athletes),
     url(r'^edit_split/$', session_views.edit_split),

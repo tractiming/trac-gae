@@ -1,28 +1,24 @@
 from django.conf.urls import url, include
 from rest_framework import routers
 
-from trac.views import (
-    user_views, session_views, tag_views, reader_views, team_views,
-    split_views, auth_views
-)
+from trac.views.reader_views import ReaderViewSet
+from trac.views.session_views import TimingSessionViewSet
+from trac.views.split_views import SplitViewSet
+from trac.views.tag_views import TagViewSet
+from trac.views.team_views import TeamViewSet
+from trac.views.user_views import AthleteViewSet, CoachViewSet
 
 
 router = routers.DefaultRouter()
-router.register(r'athletes', user_views.AthleteViewSet, 'Athlete')
-router.register(r'coaches', user_views.CoachViewSet, 'Coach')
-router.register(r'readers', reader_views.ReaderViewSet, 'Reader')
-router.register(r'score', team_views.ScoringViewSet, 'Score')
-router.register(r'sessions', session_views.TimingSessionViewSet, 'Session')
-router.register(r'splits', split_views.SplitViewSet, 'Split')
-router.register(r'tags', tag_views.TagViewSet, 'Tag')
-router.register(r'teams', team_views.TeamViewSet, 'Team')
-router.register(r'users', user_views.UserViewSet, 'User')
+router.register(r'athletes', AthleteViewSet, 'Athlete')
+router.register(r'coaches', CoachViewSet, 'Coach')
+router.register(r'readers', ReaderViewSet, 'Reader')
+router.register(r'sessions', TimingSessionViewSet, 'Session')
+router.register(r'splits', SplitViewSet, 'Split')
+router.register(r'tags', TagViewSet, 'Tag')
+router.register(r'teams', TeamViewSet, 'Team')
 
 
 urlpatterns = [
-        url(r'^', include(router.urls)),
-        url(r'^register/$', auth_views.register),
-        url(r'^login/$', auth_views.login),
-        url(r'^api-auth/', include('rest_framework.urls',
-                                   namespace='rest_framework'))
+    url(r'^', include(router.urls))
 ]

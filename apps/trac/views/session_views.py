@@ -1,14 +1,13 @@
 import ast
 import datetime
-import dateutil.parser
 import json
 import logging
 import uuid
 
+import dateutil.parser
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.db.models import Q
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import viewsets, permissions, status, pagination, filters
@@ -20,7 +19,7 @@ from trac.models import TimingSession, Reader, Tag, Split, Team, Athlete
 from trac.serializers import TimingSessionSerializer
 from trac.utils.integrations import tfrrs
 from trac.utils.phone_split_util import create_phone_split
-from trac.utils.gcs_util import json_write, csv_writer, get_public_link
+from trac.utils.gcs_util import csv_writer, get_public_link
 from trac.utils.split_util import format_total_seconds
 from trac.utils.user_util import is_athlete, is_coach
 
@@ -32,21 +31,27 @@ EPOCH = timezone.datetime(1970, 1, 1)
 
 
 class TimingSessionViewSet(viewsets.ModelViewSet):
-    """
-    Timing session resource.
+    """Timing session resource.
+
+    A timing session can be, for example, a workout or a race. It
+    collects splits and manages results and athletes. Each session
+    is owned by a coach.
     ---
-    list:
-      parameters:
-      - name: start_date
-        description: Get sessions after this date
-        required: false
-        type: str
-        paramType: query
-      - name: stop_date
-        description: Get sessions before this date
-        required: false
-        type: str
-        paramType: query
+    create:
+      omit_parameters:
+      - query
+    update:
+      omit_parameters:
+      - query
+    retrieve:
+      omit_parameters:
+      - query
+    partial_update:
+      omit_parameters:
+      - query
+    destroy:
+      omit_parameters:
+      - query
     """
     serializer_class = TimingSessionSerializer
     permission_classes = (permissions.AllowAny,)
@@ -56,79 +61,84 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
     search_fields = ('name',)
 
     def get_queryset(self):
-        """
-        Filter sessions by user.
+        """Filter sessions by user.
+        
+        If the user is an athlete, list the sessions he has
+        completed. If the user is a coach, list the sessions he owns.
+        Otherwise, list all public sessions.
         """
         user = self.request.user
 
-        # If the user is an athlete, list all the workouts he has run.
         if is_athlete(user):
             return TimingSession.objects.filter(
                 splits__athlete=user.athlete).distinct()
-
-        # If the user is a coach, list all sessions he manages.
         elif is_coach(user):
             return TimingSession.objects.filter(coach=user.coach)
-
-        # If not a user or coach, list all public sessions.
         else:
             return TimingSession.objects.filter(private=False)
 
     def filter_queryset(self, queryset):
-        # Return sessions in reverse chronological order.
+        """Return sessions in reverse chronological order."""
         queryset = super(TimingSessionViewSet, self).filter_queryset(queryset)
         return queryset.order_by('-start_time')
 
     @csrf_exempt
-    @detail_route(methods=['post'])
+    @detail_route(methods=['post'],
+                  permission_classes=(permissions.IsAuthenticated,))
     def reset(self, request, *args, **kwargs):
-        """
-        Reset a timing session by clearing all of its tagtimes.
+        """Reset a timing session by clearing all of its tagtimes.
         ---
+        omit_serializer: true
         omit_parameters:
+        - query
         - form
         """
         session = self.get_object()
         session.clear_results()
-        return Response({}, status=status.HTTP_202_ACCEPTED)
-
-    @csrf_exempt
-    @detail_route(methods=['post'])
-    def open(self, request, *args, **kwargs):
-        """
-        Open a session for the next 24 hrs.
-        ---
-        omit_parameters:
-        - form
-        """
-        session = self.get_object()
-        session.start_time = timezone.now()-timezone.timedelta(seconds=8)
-        session.stop_time = session.start_time+timezone.timedelta(days=1)
-        session.save()
-        return Response({}, status=status.HTTP_202_ACCEPTED)
+        return Response(status=status.HTTP_202_ACCEPTED)
 
     @csrf_exempt
     @detail_route(methods=['post'],
-                  permission_classes=[permissions.IsAuthenticated])
-    def close(self, request, *args, **kwargs):
-        """
-        Close a session by setting its stop time to now.
+                  permission_classes=(permissions.IsAuthenticated,))
+    def open(self, request, *args, **kwargs):
+        """Open a session for the next 24 hrs.
         ---
+        omit_serializer: true
         omit_parameters:
+        - query
+        - form
+        """
+        session = self.get_object()
+        session.start_time = timezone.now() - timezone.timedelta(seconds=8)
+        session.stop_time = session.start_time + timezone.timedelta(days=1)
+        session.save()
+        return Response(status=status.HTTP_202_ACCEPTED)
+
+    @csrf_exempt
+    @detail_route(methods=['post'],
+                  permission_classes=(permissions.IsAuthenticated,))
+    def close(self, request, *args, **kwargs):
+        """Close a session by setting its stop time to now.
+        ---
+        omit_serializer: true
+        omit_parameters:
+        - query
         - form
         """
         session = self.get_object()
         session.stop_time = timezone.now()
         session.save()
-        return Response({}, status=status.HTTP_202_ACCEPTED)
+        return Response(status=status.HTTP_202_ACCEPTED)
 
     @csrf_exempt
-    @detail_route(methods=['POST'])
+    @detail_route(methods=['post'],
+                  permission_classes=(permissions.IsAuthenticated,))
     def start_timer(self, request, *args, **kwargs):
-        """
-        Start a session, ie, calibrate the gun time.
+        """Start a session, i.e., calibrate the gun time.
         ---
+        omit_serializer: true
         omit_parameters:
+        - query
         - form
         """
         # FIXME: This is a hack that offsets the delay the reader has in
@@ -136,13 +146,13 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         # the time the request hits the server, not the time the button is
         # pressed on the phone, etc.
         current_time = datetime.datetime.utcnow()-datetime.timedelta(seconds=8)
-        timestamp = int((current_time-
-            timezone.datetime(1970, 1, 1)).total_seconds()*1000)
+        timestamp = int((current_time - timezone.datetime(
+            1970, 1, 1)).total_seconds()*1000)
 
         session = self.get_object()
         session.start_button_time = timestamp
         session.save()
-        return Response({}, status.HTTP_202_ACCEPTED)
+        return Response(status=status.HTTP_202_ACCEPTED)
 
     @detail_route(methods=['get'])
     def individual_results(self, request, *args, **kwargs):
@@ -150,44 +160,70 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         Calculate individual-level results.
         ---
         parameters:
-        - name: limit
-          description: Maximum number of results to return
-          required: false
-          type: int
-          paramType: query
-        - name: offset
-          description: Start results set from this offset
-          required: false
-          type: int
-          paramType: query
-        - name: all_athletes
-          description: >
-            If True, return result for all registered athletes,
-            regardless of whether or not they have recorded a time
-          required: false
-          type: boolean
-          paramType: query
-        - name: gender
-          description: Filter by gender
-          required: false
-          type: string
-          paramType: query
-        - name: age_lte
-          description: Maximum age (inclusive)
-          required: false
-          type: int
-          paramType: query
-        - name: age_gte
-          description: Minimum age (inclusive)
-          required: false
-          type: string
-          paramType: query
-        - name: teams
-          description: Get results for these teams only
-          required: false
-          type: string
-          paramType: query
-          allowMultiple: true
+          - name: limit
+            description: Maximum number of results to return
+            required: false
+            type: int
+            paramType: query
+          - name: offset
+            description: Start results set from this offset
+            required: false
+            type: int
+            paramType: query
+          - name: all_athletes
+            description: >
+              If True, return result for all registered athletes,
+              regardless of whether or not they have recorded a time
+            required: false
+            type: boolean
+            paramType: query
+          - name: gender
+            description: Filter by gender ("M" or "F")
+            required: false
+            type: string
+            paramType: query
+          - name: age_lte
+            description: Maximum age (inclusive)
+            required: false
+            type: int
+            paramType: query
+          - name: age_gte
+            description: Minimum age (inclusive)
+            required: false
+            type: string
+            paramType: query
+          - name: teams
+            description: Get results for these teams only
+            required: false
+            type: string
+            paramType: query
+            allowMultiple: true
+        omit_parameters:
+          - form
+        parameters_strategy:
+          query: replace
+        omit_serializer: true
+        type:
+          name:
+            description: Athlete's name
+            required: true
+            type: string
+          id:
+            description: Athlete id
+            required: true
+            type: int
+          splits:
+            description: Array of splits for this athlete
+            required: true
+            type: list
+          total:
+            description: Cumulative time for this athlete
+            required: true
+            type: string
+          has_split:
+            description: Whether or not the athlete has recorded a time
+            required: true
+            type: boolean
         """
         to_int = lambda x: int(x) if x is not None else x
         gender = request.query_params.get('gender', None)
@@ -249,8 +285,34 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'])
     def team_results(self, request, pk=None):
-        """
-        Calculate team-level results.
+        """Calculate team-level results.
+        ---
+        omit_serializer: true
+        omit_parameters:
+          - form
+          - query
+        omit_serializer: true
+        type:
+          athletes:
+            description: Athlete IDs of scoring runners
+            required: true
+            type: list
+          score:
+            description: Point total
+            required: true
+            type: int
+          id:
+            description: Team ID
+            required: true
+            type: int
+          name:
+            description: Team name
+            required: true
+            type: string
+          place:
+            description: Place taken by this team in this session
+            required: true
+            type: int
         """
         session = self.get_object()
         raw_results = session.team_results()
@@ -273,6 +335,22 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
         TODO: validate coach can save times for the given
         athlete ids.
+        TODO: Take file uploads instead of JSON
+        ---
+        omit_serializer: true
+        omit_parameters:
+          - query
+        parameters_strategy:
+          form: replace
+        parameters:
+        - name: id
+          description: Athlete ID
+          paramType: form
+          type: int
+        - name: splits
+          description: List of splits (in seconds)
+          type: list
+          paramType: form
         """
         data = json.loads(request.body)
         session = self.get_object()
@@ -302,83 +380,22 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         session.save()
         return Response(status=status.HTTP_201_CREATED)
 
-    @detail_route(methods=['post'], permission_classes=[])
-    def add_missed_runner(self, request, pk=None):
-        """
-        Add a split for a registered tag never picked up by the reader.
-        ---
-        parameters_strategy: replace
-        parameters:
-        - name: tag_id
-          description: Tag ID
-          required: true
-          type: int
-          paramType: form
-        - name: hour
-          description: Hour of time
-          required: true
-          type: int
-          paramType: form
-        - name: min
-          description: Minute of time
-          required: true
-          type: int
-          paramType: form
-        - name: sec
-          description: Second of time
-          required: true
-          type: int
-          paramType: form
-        - name: mil
-          description: Millisecond of time
-          required: true
-          type: int
-          paramType: form
-        """
-        data = request.POST
-
-        ts = TimingSession.objects.get(pk=pk)
-        reg_tags = ts.registered_athletes.all()
-
-        tag = Tag.objects.get(id=data['tag_id'], athlete_id__in=reg_tags)
-
-        # get reader
-        reader = ts.readers.all()[0]
-
-        # create reference split
-        if ts.start_button_time is not None:
-            time = ts.start_button_time
-        else:
-            time = 0
-
-        # create final split
-        hours = int(data.get('hour', 0))
-        mins = int(data.get('min', 0))
-        secs = int(data.get('sec', 0))
-        ms = int(data.get('mil', 0))
-
-        diff = hours * 3600000 + mins * 60000 + secs * 1000 + ms
-        time += diff
-
-        tt = Split.objects.create(tag_id=tag.id, athlete_id=tag.athlete.id,
-                                  time=time, reader_id=reader.id)
-        ts.splits.add(tt.pk)
-
-        return Response({}, status=status.HTTP_202_ACCEPTED)
-
-    @detail_route(methods=['get'], permission_classes=[])
-    def tfrrs(self, request, pk=None):
-        """
-        Create a TFRRS formatted CSV text string for the specified workout ID.
-        """
-        session = self.get_object()
-        tfrrs_results = tfrrs.format_tfrrs_results(session)
-        return Response(tfrrs_results)
-
     @detail_route(methods=['post'])
     def register_athletes(self, request, pk=None):
-        """Append athletes to the list of registered athletes. Has no effect
-        if athlete is already registered.
+        """Append athletes to the list of registered athletes.
+        
+        Has no effect if athlete is already registered.
+        ---
+        omit_parameters:
+          - query
+        parameters_strategy:
+          form: replace
+        omit_serializer: true
+        parameters:
+        - name: athletes
+          description: List of athlete IDs
+          paramType: form
+          type: list
         """
         session = self.get_object()
         new_athletes = set(request.data.pop('athletes', []))
@@ -391,8 +408,21 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['post'])
     def remove_athletes(self, request, pk=None):
-        """Remove athletes from the list of registered athletes. If they are not
-        on the list, no effect"""
+        """Remove athletes from the list of registered athletes.
+        
+        If they are not on the list, no effect.
+        ---
+        omit_parameters:
+          - query
+        parameters_strategy:
+          form: replace
+        omit_serializer: true
+        parameters:
+        - name: athletes
+          description: List of athlete IDs
+          paramType: form
+          type: list
+        """
         session = self.get_object()
         athletes_to_remove = set(request.data.pop('athletes',[]))
         existing_athletes = set(session.registered_athletes.values_list(
@@ -402,25 +432,6 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             x not in athletes_to_remove)
         return self.partial_update(request)
 
-    def save_results(self, request, pk=None):
-        """Save a JSON file with results to Google Cloud Storage."""
-        session = self.get_object()
-        results = []
-        for result in session.individual_results():
-            results.append({
-                'athlete_id': result.user_id,
-                'athlete_name': result.name,
-                'team_name': result.team.name,
-                'splits': result.splits,
-                'total': result.total
-            })
-        storage_path = '/'.join((settings.GCS_RESULTS_DIR,
-                                 str(session.pk),
-                                 'individual.json'))
-        if json_write is not None:
-            json_write(settings.GCS_RESULTS_BUCKET, storage_path, results)
-        return Response(status=status.HTTP_202_ACCEPTED)
-
     @detail_route(methods=['post'])
     def export_results(self, request, pk=None):
         """Get a link to a text results file.
@@ -429,6 +440,21 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         and one for total time. NOTE: This creates a public link to
         the results. Anyone with this link will be able to download
         the file.
+        TODO: allow for tfrrs format
+        ---
+        omit_serializer: true
+        omit_parameters:
+        - query
+        parameters_strategy:
+          form: replace
+        parameters:
+        - name: format
+          description: How to format results ("plain" or "tfrrs")
+        type:
+          uri:
+            required: true
+            type: url
+            description: Link to downloadable results file
         """
         session = self.get_object()
         storage_path = '/'.join((settings.GCS_RESULTS_DIR,
