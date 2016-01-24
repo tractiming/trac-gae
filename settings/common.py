@@ -348,10 +348,13 @@ SWAGGER_SETTINGS = {
     'api_version': '0.1',
     'is_authenticated': True,
     'is_superuser': True,
+    'token_type': 'Bearer',
     'exclude_namespaces': ['djstripe', 'accounts', 'stats', 'internal'],
     'info': {
         'contact': 'info@trac-us.com',
-        'title': 'TRAC API'
+        'title': 'TRAC API',
+        'description': 'Core API for managing, recording, and reporting live '
+                       'race results.'
     }
 }
 
