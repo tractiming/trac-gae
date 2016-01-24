@@ -420,9 +420,10 @@ class TimingSessionViewSetTest(APITestCase):
             list(session.registered_athletes.values_list('id', flat=True)),
             [1])
 
+    @mock.patch.object(trac.views.session_views, 'csv')
     @mock.patch.object(trac.views.session_views, 'get_public_link')
-    @mock.patch.object(trac.views.session_views, 'csv_writer')
-    def test_export_results(self, mock_writer, mock_link):
+    @mock.patch.object(trac.views.session_views, 'gcs_writer')
+    def test_export_results_csv(self, mock_writer, mock_link, mock_csv):
         """Test saving a results file in GCS."""
         mock_link.return_value = 'filedownloadurl.csv'
         results_path = '{}/1/individual.csv'.format(settings.GCS_RESULTS_DIR)
@@ -434,7 +435,7 @@ class TimingSessionViewSetTest(APITestCase):
         self.assertEqual(resp.status_code, 200)
         mock_writer.assert_called_with(settings.GCS_RESULTS_BUCKET,
                                        results_path, make_public=True)
-        mock_writer().__enter__().writerow.assert_has_calls([
+        mock_csv.writer().writerow.assert_has_calls([
             mock.call(('Cam Levins', '05:18.601')),
             mock.call(('Galen Rupp', '06:29.045'))])
         self.assertEqual(resp.data['uri'], 'filedownloadurl.csv')

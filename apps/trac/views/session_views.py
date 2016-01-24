@@ -489,8 +489,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         log.debug('Saved results to %s', storage_path)
 
         return Response({'uri': get_public_link(settings.GCS_RESULTS_BUCKET,
-                                                storage_path)},
-                        status=status.HTTP_200_OK)
+                                                storage_path)})
 
 
 @api_view(['POST'])
