@@ -41,7 +41,7 @@
       var input = $('.roster_'+$scope.rosterID+' :file'),
           numFiles = input.get(0).files ? input.get(0).files.length : 1,
           label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
-          
+
       input.trigger('fileselect', [numFiles, label]);
 
        var input = $('.roster_'+$scope.rosterID+' :file').parents('.file-input-'+$scope.rosterID).find(':text'),
@@ -431,13 +431,20 @@
     $scope.csvcancelHeader = function(){
       $scope.csvHeader = true;
     }
-    $scope.csvTeamCreate = function(){
-      var fd = new FormData($('#csvformRoster')[0]);
-      var url = "/api/teams/"+ $scope.rosterID +"/upload_roster/";
+    $scope.csvTeamCreate = function(id){
+      var fd = new FormData($('#csvformRoster-'+id)[0]);
+      var url = "/api/teams/"+ id +"/upload_roster/";
+      console.log(fd);
 
     $http({method: 'POST', url: url, cache:false, headers: {Authorization: 'Bearer ' + sessionStorage.access_token, 'Content-Type': undefined}, data:fd, transformRequest: angular.identity })
           .success(function (response) { 
-            alert('success')
+            usSpinnerService.spin('main-spinner');
+            var url = '/api/athletes/?team=' + $scope.rosterID + '&limit=100';
+          $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
+          .success(function (response) { 
+            $scope.rosterAthletes = response.results;
+            usSpinnerService.stop('roster-spinner');
+            });
           });
     }
 
@@ -449,7 +456,7 @@
 
     $http({method: 'POST', url: url, cache:false, headers: {Authorization: 'Bearer ' + sessionStorage.access_token, 'Content-Type': undefined}, data:fd, transformRequest: angular.identity })
           .success(function (response) { 
-            alert('success')
+            alert('Success!')
           });
 
     }

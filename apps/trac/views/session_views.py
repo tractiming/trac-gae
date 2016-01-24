@@ -4,6 +4,7 @@ import dateutil.parser
 import json
 import logging
 import uuid
+import csv
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
@@ -479,15 +480,15 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                 'last_name': athlete['last_name'],
                 'gender': athlete.get('gender', None),
                 'birth_date': athlete.get('birth_date', None),
-                'team': team.get_or_create('team', None)
+                'team': Team.objects.get_or_create(athlete.get('team',None))
             }
             serializer = AthleteSerializer(data=athlete_data)
             serializer.is_valid(raise_exception=True)
             serializer.create(serializer.validated_data)
+            print(serializer.id)
 
         existing_athletes = set(session.registered_athletes.values_list(
             'id', flat=True))
-        request.data.clear()  # Don't allow for updating other fields.
         request.data['registered_athletes'] = list(
             new_athletes | existing_athletes)
 
