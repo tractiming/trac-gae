@@ -444,8 +444,8 @@
     $scope.csvcancelHeader = function(){
       $scope.csvHeader = true;
     }
-    $scope.csvTeamCreate = function(files){
-      var fd = new FormData($('#csvform')[0]);
+    $scope.csvTeamCreate = function(){
+      var fd = new FormData($('#csvformRoster')[0]);
       var url = "/api/teams/"+ $scope.rosterID +"/upload_roster/";
 
     $http({method: 'POST', url: url, cache:false, headers: {Authorization: 'Bearer ' + sessionStorage.access_token, 'Content-Type': undefined}, data:fd, transformRequest: angular.identity })
@@ -454,11 +454,12 @@
           });
     }
 
-    $scope.csvWorkoutCreate = function(files){
+    $scope.csvWorkoutCreate = function(){
       var fd = new FormData($('#csvform')[0]);
-      var url = "/api/teams/7/upload_roster/";
+      var url = "/api/teams/21/upload_roster/";
+      console.log(fd);
 
-    $http({method: 'POST', url: url, cache:false, headers: {Authorization: 'Bearer ' + sessionStorage.access_token, 'Content-Type': undefined}, data:fd, transformRequest: angular.identity })
+    $http({method: 'POST', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token,  'Content-Type': undefined}, data:fd, transformRequest: angular.identity })
           .success(function (response) { 
             alert('success')
           });
