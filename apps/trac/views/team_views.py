@@ -49,7 +49,7 @@ class TeamViewSet(viewsets.ModelViewSet):
         """
         team = self.get_object()
         file_obj = request.data.pop('file', None)
-
+        print(request.data)
         if not file_obj:
             return Response("No file uploaded",
                             status=status.HTTP_400_BAD_REQUEST)

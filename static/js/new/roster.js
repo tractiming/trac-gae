@@ -27,23 +27,6 @@
 
    app.controller('registeredCtrl', function($scope, $http, usSpinnerService) {
 
-    // trigger event on file selection
-    $('body').off('change', '.roster_'+$scope.rosterID+' :file');
-    $('body').on('change', '.roster_6 :file', function() {
-      
-      var input = $(this),
-          numFiles = input.get(0).files ? input.get(0).files.length : 1,
-          label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
-       var input = $(this).parents('.file-input-'+$scope.rosterID).find(':text'),
-          log = numFiles > 1 ? numFiles + ' files selected' : label;
-      console.log($(this));
-      if( input.length ) {
-        input.val(log);
-      } else {
-        if( log ) alert(log);
-      }
-    });
-
     var  SESSIONS_PER_PAGE  = 50;
     $scope.hideInput = true;
     $scope.regNull = false;
@@ -58,6 +41,9 @@
       var input = $('.roster_'+$scope.rosterID+' :file'),
           numFiles = input.get(0).files ? input.get(0).files.length : 1,
           label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+          
+      input.trigger('fileselect', [numFiles, label]);
+
        var input = $('.roster_'+$scope.rosterID+' :file').parents('.file-input-'+$scope.rosterID).find(':text'),
           log = numFiles > 1 ? numFiles + ' files selected' : label;
       
@@ -66,6 +52,7 @@
       } else {
         if( log ) alert(log);
       }
+
     }
 
     //pagination buttons
@@ -454,12 +441,13 @@
           });
     }
 
-    $scope.csvWorkoutCreate = function(){
+    $scope.csvWorkoutCreate = function(files){
       var fd = new FormData($('#csvform')[0]);
-      var url = "/api/teams/21/upload_roster/";
+      alert(fd);
       console.log(fd);
+    var url = "/api/teams/21/upload_roster/";
 
-    $http({method: 'POST', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token,  'Content-Type': undefined}, data:fd, transformRequest: angular.identity })
+    $http({method: 'POST', url: url, cache:false, headers: {Authorization: 'Bearer ' + sessionStorage.access_token, 'Content-Type': undefined}, data:fd, transformRequest: angular.identity })
           .success(function (response) { 
             alert('success')
           });

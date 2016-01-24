@@ -280,12 +280,12 @@
                         <div class="input-group col-lg-6 file-input-{{team.id}}">
                           <span class="input-group-btn">
                             <span class="btn btn-warning btn-file roster_{{team.id}}">
-                              Browse&hellip; <input type="file" id="file" name="file" onchange="angular.element(this).scope().fileNameChanged()" data-parsley-errors-container="#csv-parsley-errors">
+                              Browse&hellip; <input type="file" id="file" name="myfile" onchange="angular.element(this).scope().fileNameChanged()" data-parsley-errors-container="#csv-parsley-errors">
                             </span>
                           </span>
                           <input type="text" class="form-control" readonly required data-parsley-errors-container="#csv-parsley-errors" style="width:45%">
                           <div class="pull-right" style="width:40%"> 
-                            <button name="" class="btn btn-primary" ng-click="csvTeamCreate(file);">Create</button>
+                            <button name="" class="btn btn-primary" ng-click="csvTeamCreate();">Create</button>
                             <button name="" class="btn btn-default hidden-sm hidden-xs hidden-md" ng-click="csvcancelHeader()">Cancel</button>
                           </div>
                         </div>
@@ -466,7 +466,7 @@
               <div class="input-group">
                 <span class="input-group-btn">
                   <span class="btn btn-warning btn-file">
-                    Browse&hellip; <input type="file" id="file" name="myfile" data-parsley-errors-container="#csv-parsley-errors">
+                    Browse&hellip; <input type="file" id="file" name="file" data-parsley-errors-container="#csv-parsley-errors">
                   </span>
                 </span>
                 <input type="text" class="form-control" readonly required data-parsley-errors-container="#csv-parsley-errors">
