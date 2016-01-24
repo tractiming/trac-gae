@@ -434,29 +434,40 @@
     $scope.csvTeamCreate = function(id){
       var fd = new FormData($('#csvformRoster-'+id)[0]);
       var url = "/api/teams/"+ id +"/upload_roster/";
-      console.log(fd);
-
-    $http({method: 'POST', url: url, cache:false, headers: {Authorization: 'Bearer ' + sessionStorage.access_token, 'Content-Type': undefined}, data:fd, transformRequest: angular.identity })
-          .success(function (response) { 
-            usSpinnerService.spin('main-spinner');
-            var url = '/api/athletes/?team=' + $scope.rosterID + '&limit=100';
-          $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
-          .success(function (response) { 
-            $scope.rosterAthletes = response.results;
-            usSpinnerService.stop('roster-spinner');
+      $('#csvModal').modal('hide');
+      usSpinnerService.spin('roster-spinner');
+      $http({method: 'POST', url: url, cache:false, headers: {Authorization: 'Bearer ' + sessionStorage.access_token, 'Content-Type': undefined}, data:fd, transformRequest: angular.identity })
+            .success(function (response) { 
+             
+              var url = '/api/athletes/?team=' + $scope.rosterID + '&limit=100';
+            $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
+            .success(function (response) { 
+              $scope.rosterAthletes = response.results;
+              usSpinnerService.stop('roster-spinner');
+              });
             });
-          });
     }
 
     $scope.csvWorkoutCreate = function(files){
       var fd = new FormData($('#csvform')[0]);
-      alert(fd);
-      console.log(fd);
-    var url = "/api/teams/21/upload_roster/";
 
-    $http({method: 'POST', url: url, cache:false, headers: {Authorization: 'Bearer ' + sessionStorage.access_token, 'Content-Type': undefined}, data:fd, transformRequest: angular.identity })
-          .success(function (response) { 
-            alert('Success!')
+      var url = "/api/sessions/"+$scope.selectedID+"/upload_runners/";
+      usSpinnerService.spin('main-spinner');
+      $http({method: 'POST', url: url, cache:false, headers: {Authorization: 'Bearer ' + sessionStorage.access_token, 'Content-Type': undefined}, data:fd, transformRequest: angular.identity })
+            .success(function (response) { 
+              var url = '/api/athletes/?registered_to_session='+ $scope.selectedID+'&limit=50';
+            $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
+              .success(function (response) { 
+                $scope.athletes = response.results;
+                $scope.count = response.count;
+                if (response.results.length == 0){
+                   $scope.regNull = true;
+                }
+                else{
+                  $scope.regNull = false;
+                }
+                usSpinnerService.stop('main-spinner');
+            });
           });
 
     }

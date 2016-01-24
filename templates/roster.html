@@ -90,7 +90,7 @@
                       <th class="col-lg-2 col-sm-3 col-xs-3">Last Name</th>
                       <th style="display:none">Username</th>
                       <th class="col-lg-2 col-sm-2 col-xs-2">Tag ID</th>
-                      <th class="col-lg-1 col-sm-2 col-xs-1">Team</th>
+                      <th class="col-lg-2 col-sm-2 col-xs-1">Team</th>
                       <th class="hidden-xs hidden-sm">Year</th>
                       <th class="hidden-xs hidden-sm">Gender</th>
                     </tr>
@@ -118,13 +118,13 @@
                         <input name="{{ name }}" type="text" ng-model="x.tag" ng-show="editing_{{x.id}}" placeholder="Tag ID" class="form-control no-animate">
                       </div>
                     </td>
-                    <td class="col-lg-1 col-sm-2 col-xs-1">
+                    <td class="col-lg-2 col-sm-2 col-xs-1">
                       <div class="form-group">
                         <div ng-bind="x.team_name" ng-hide="editing_{{x.id}}" class="no-animate"></div> 
                         <input name="{{ name }}" type="text" ng-model="x.team_name" ng-show="editing_{{x.id}}" placeholder="Team" class="form-control no-animate" ng-disabled="true">
                       </div>
                     </td>
-                    <td class="hidden-xs hidden-sm col-lg-2">
+                    <td class="hidden-xs hidden-sm col-lg-1">
                       <div class="form-group">
                         <div ng-bind="x.birth_date" ng-hide="editing_{{x.id}}" class="no-animate"></div> 
                         <input name="{{ name }}" type="text" ng-model="x.birth_date" ng-show="editing_{{x.id}}" placeholder="Year" class="form-control no-animate">
@@ -457,7 +457,7 @@
             </div>
             <div class="center form-group">
               <p class="notification-warning">
-                <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> CSV uploads must be in a specific format. Click <a href="../../../static/files/workout_upload_sample.csv">here</a> for an example.
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> CSV uploads must be in a specific format. Click <a href="../../../static/files/workout_team_upload_sample.csv">here</a> for an example.
               </p>
             </div>
 

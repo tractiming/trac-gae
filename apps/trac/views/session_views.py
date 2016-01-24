@@ -475,6 +475,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                             '"last_name" in header',
                             status=status.HTTP_400_BAD_REQUEST)
 
+        new_athletes = list()
+
         for athlete in roster:
             team, created = Team.objects.get_or_create(name=athlete.get('team',None),coach_id=user.coach.id)
             athlete_data = {
@@ -487,12 +489,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             }
             serializer = AthleteSerializer(data=athlete_data)
             serializer.is_valid(raise_exception=True)
-            serializer.create(serializer.validated_data)
-
-        existing_athletes = set(session.registered_athletes.values_list(
-            'id', flat=True))
-        request.data['registered_athletes'] = list(
-            new_athletes | existing_athletes)
+            new_athlete = serializer.create(serializer.validated_data)
+            session.registered_athletes.add(new_athlete.pk)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
