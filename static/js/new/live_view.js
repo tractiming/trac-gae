@@ -2112,6 +2112,50 @@ google.setOnLoadCallback(function(){
 			link.click();
 			document.body.removeChild(link);
 		}*/
+		//=================================== searchbar functions ====================================
+		var bool = 1;
+    	$("#basic-search").click(function(){
+    		if(bool==0){
+        		$( "#searchinput" ).animate({
+        			width:'0',
+        			paddingRight:0,
+        			paddingLeft:0,
+        		},1000);
+        		$( "#searchclear" ).animate({
+        			opacity:0
+        		},1000);
+    			bool = 1;
+    			return;
+    		}
+    		else(bool==1)
+    		{
+    			$( "#searchinput" ).animate({
+    				width:'100%',
+    				paddingRight:'12px',
+    				paddingLeft:'12px',
+    			},1000);
+    			$( "#searchclear" ).animate({
+    				opacity:1
+    			},1000);
+    			bool=0;
+    			return;
+    		}
+    	});
+    	$("#searchinput").on('input', function(){
+    		searchTerm = $('#searchinput').val();
+    		$.ajax({
+				url: '/api/athletes/?session='+ currentID + '&search='+searchTerm,
+				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				data: data,
+				dataType: 'text',
+				success: function(data) {
+					console.log(data);
+
+				}
+			});
+    	});
+
+
 
 	});
 });
