@@ -49,7 +49,6 @@ class UserViewSet(viewsets.ModelViewSet):
         else:
             return super(UserViewSet, self).get_object()
 
-
     @detail_route(methods=['post'])
     def change_password(self, request, *args, **kwargs):
         """
@@ -244,41 +243,6 @@ class AthleteViewSet(viewsets.ModelViewSet):
         return Response(results)
 
 
-class verifyLogin(views.APIView):
-    """
-    Verify that a user is currently logged into the site.
-    """
-    permission_classes = ()
-
-    @csrf_exempt
-    def get(self,request):
-        """
-        Check login status.
-        ---
-        parameters:
-        - name: token
-          description: OAuth2 token
-          required: true
-          type: string
-          paramType: query
-        """
-
-        data = request.GET.get('token')
-        #Does the token exist?
-        try:
-            token = AccessToken.objects.get(token=data)
-        except: #ObjectDoesNotExist:
-            return Response(404, status.HTTP_404_NOT_FOUND)
-
-        #Is the Token Valid?
-        if token.expires < timezone.now():
-            return Response(404, status.HTTP_404_NOT_FOUND)
-        else:
-            return Response(200, status.HTTP_200_OK)
-
-
-
-
 # TODO: Move to AthleteViewSet
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))
@@ -340,16 +304,6 @@ def edit_athletes(request):
 
         return Response({}, status.HTTP_200_OK)
 
-@api_view(['POST'])
-@login_required()
-@permission_classes((permissions.IsAuthenticated,))
-def token_validation(request):
-    """
-    Validate a token.
-    """
-    return HttpResponse(status.HTTP_200_OK)
-
-
 
 @csrf_exempt
 @permission_classes((permissions.AllowAny,))
@@ -393,11 +347,12 @@ def send_email(request):
               (email_config['email'],), fail_silently=False)
     return HttpResponse(status.HTTP_200_OK)
 
+
 @csrf_exempt
 @permission_classes((permissions.AllowAny,))
 def request_quote(request):
     """
-    If user requests quote, have it email founders to proceed from there.  
+    If user requests quote, have it email founders to proceed from there.
     """
     email = request.POST.get('email')
     name = request.POST.get('name')
@@ -415,6 +370,7 @@ def request_quote(request):
         [email, 'founders@tracchicago.com'],
         fail_silently=False)
     return HttpResponse(status.HTTP_200_OK)
+
 
 @csrf_exempt
 @permission_classes((permissions.AllowAny,))
@@ -461,26 +417,6 @@ def give_athlete_password(request):
         return HttpResponse(status.HTTP_403_FORBIDDEN)
 
 
-@api_view(['POST'])
-@login_required()
-@permission_classes((permissions.IsAuthenticated,))
-def reset_password(request):
-    name =  base64.urlsafe_b64decode(request.POST.get('user').encode('utf-8'))
-    user = get_object_or_404(User, pk=name)
-    token = request.auth
-    if token not in user.accesstoken_set.all():
-        return HttpResponse(status.HTTP_403_FORBIDDEN)
-    if token.expires < timezone.now():
-        return HttpResponse(status.HTTP_403_FORBIDDEN)
-    if user.is_authenticated():
-        user.set_password(request.POST.get('password'))
-        user.save()
-    else:
-        return HttpResponse(status.HTTP_403_FORBIDDEN)
-    user.accesstoken_set.get(token=token).delete()
-    return HttpResponse(status.HTTP_200_OK)
-
-
 def subscribe(request, **kwargs):
 	data = request.POST
 	print data
@@ -497,4 +433,3 @@ def subscribe(request, **kwargs):
 	stripe.api_key = settings.STRIPE_SECRET_KEY
 
 	return redirect('/payments')
-

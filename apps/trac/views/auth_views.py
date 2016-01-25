@@ -1,9 +1,12 @@
+import base64
 import json
 
 from django.core.mail import send_mail
-from django.template import loader
 from django.http import HttpResponse
-from oauth2_provider.models import Application
+from django.shortcuts import get_object_or_404
+from django.template import loader
+from django.utils import timezone
+from oauth2_provider.models import AccessToken
 from oauth2_provider.views import TokenView as _TokenView
 from rest_framework import permissions, status
 from rest_framework.decorators import api_view, permission_classes
@@ -11,7 +14,7 @@ from rest_framework.response import Response
 
 from trac.models import User, Team
 from trac.serializers import AthleteSerializer, CoachSerializer, UserSerializer
-from trac.utils.user_util import user_type, is_coach
+from trac.utils.user_util import is_coach
 
 
 _serializer_lookup = {'athlete': AthleteSerializer, 'coach': CoachSerializer}
@@ -61,7 +64,7 @@ class TokenView(_TokenView):
     See `oauth2_provider/views/base.py`.
     """
     def post(self, request, *args, **kwargs):
-        url, headers, body, status = self.create_token_response(request)
+        _, headers, body, status = self.create_token_response(request)
         response = HttpResponse(content=body, status=status)
 
         for k, v in headers.items():
@@ -99,6 +102,26 @@ def login(request):
     return Response(data, status=resp.status_code)
 
 
+@api_view(['get'])
+@permission_classes((permissions.AllowAny,))
+def verify_login(request):
+    """Validate an existing access token.
+
+    If token is valid, return 200, otherwise return 404.
+    ---
+    parameters:
+    - name: token
+      description: OAuth2 token
+      required: true
+      type: string
+      paramType: query
+    """
+    token = request.GET.get('token', '')
+    if get_object_or_404(AccessToken, token=token).is_valid():
+        return Response(200, status=status.HTTP_200_OK)
+    return Response(404, status=status.HTTP_404_NOT_FOUND)
+
+
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))
 def reset_password(request):
@@ -117,18 +140,17 @@ def reset_password(request):
       required: true
       type: string
     """
-    name =  base64.urlsafe_b64decode(request.POST.get('user').encode('utf-8'))
-    user = User.objects.get(pk = name)
+    name = base64.urlsafe_b64decode(request.POST.get('user').encode('utf-8'))
+    user = User.objects.get(pk=name)
     token = request.auth
     if token not in user.accesstoken_set.all():
-            return HttpResponse(status.HTTP_403_FORBIDDEN)
+        return HttpResponse(status.HTTP_403_FORBIDDEN)
     if token.expires < timezone.now():
-            return HttpResponse(status.HTTP_403_FORBIDDEN)
+        return HttpResponse(status.HTTP_403_FORBIDDEN)
     if user.is_authenticated():
         user.set_password(request.POST.get('password'))
         user.save()
     else:
         return HttpResponse(status.HTTP_403_FORBIDDEN)
-    user.accesstoken_set.get(token = token).delete()
+    user.accesstoken_set.get(token=token).delete()
     return HttpResponse(status.HTTP_200_OK)
-

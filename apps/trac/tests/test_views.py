@@ -8,6 +8,7 @@ from django.conf import settings
 from django.test import TestCase
 from django.utils import timezone
 from django.contrib.auth.models import User
+from oauth2_provider.models import AccessToken, Application
 from rest_framework.test import APITestCase, force_authenticate
 
 from trac.models import (
@@ -746,3 +747,21 @@ class AuthTestCase(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['user']['username'], 'alsal')
         self.assertEqual(resp.data['user']['user_type'], 'coach')
+
+    def test_verify_login(self):
+        """Test validating an access token."""
+        application = Application.objects.get(pk=1)
+        AccessToken.objects.create(
+            token='1234',
+            expires=(timezone.now() + timezone.timedelta(days=1)),
+            application=application)
+        AccessToken.objects.create(
+            token='5678',
+            expires=(timezone.now() - timezone.timedelta(days=1)),
+            application=application)
+        resp = self.client.get('/api/verifyLogin/', {'token': '1234'})
+        self.assertEqual(resp.status_code, 200)
+        resp = self.client.get('/api/verifyLogin/', {'token': '5678'})
+        self.assertEqual(resp.status_code, 404)
+        resp = self.client.get('/api/verifyLogin/', {'token': '2112'})
+        self.assertEqual(resp.status_code, 404)
