@@ -2205,34 +2205,34 @@ google.setOnLoadCallback(function(){
 								'</tr>'
 							);
 							$("#resultsLink"+runner.id).on('click', function(){
-				    		//Sent the binder, load the data
-				    		alert('heyo');
-				    		$(this);
-							//var total = 0;
-							for (var j=0; j < splits.length; j++) {
-								var split = Number(splits[j][0]).toFixed(3);
-
-								// add splits to subtable
-								/*$('table#splits-'+id+'>tbody').append(
-									'<tr>' + 
-										'<td class="split-number">' + (j+1) + '</td>' + 
-										'<td class="split-time">' + split + '</td>' + 
-										'<td class="split-edit-options hidden-xs">' +
-											'<div class="modify-splits modify-splits-'+id+' pull-right" style="display:none;">' +
-												'<div class="insert-split"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></div>' +
-												'<div class="insert-split"><span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span></div>' +
-												'<div class="edit-split"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
-												'<div class="delete-split"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></div>' +
-											'</div>' +
-										'</td>' + 
-									'</tr>'
-								);*/
-
-								// now calculate total time
-								//total += Number(split);
-							}
-
-
+				    			//Sent the binder, load the data
+				    			$.ajax({
+									url: '/api/sessions/'+ currentID+'/individual_results/' ,
+									headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+									dataType: 'text',
+									success: function(data) {
+										var total =0;
+										var splits = $.parseJSON(data).results[0].splits;
+										console.log(splits);
+										for (var j=0; j < splits.length; j++) {
+											console.log(splits[j]);
+											$('table#splits-'+runner.id+'>tbody').append(
+													'<tr>' + 
+														'<td class="split-number">' + (j+1) + '</td>' + 
+														'<td class="split-time">' + splits[j] + '</td>' + 
+														'<td class="split-edit-options hidden-xs">' +
+															'<div class="modify-splits modify-splits-'+runner.id+' pull-right" style="display:none;">' +
+																'<div class="insert-split"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></div>' +
+																'<div class="insert-split"><span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span></div>' +
+																'<div class="edit-split"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
+																'<div class="delete-split"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></div>' +
+															'</div>' +
+														'</td>' + 
+													'</tr>'
+												);
+										}
+									}
+								});
 				    	});
 
 
