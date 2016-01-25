@@ -1,13 +1,12 @@
 import base64
 import datetime
 
+import stripe
 from django.conf import settings
-from django.contrib.auth import authenticate, login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
-from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.template import loader
@@ -20,19 +19,17 @@ from oauthlib.common import generate_token
 from rest_framework import (
     viewsets, permissions, status, views, pagination, filters
 )
-from rest_framework.authentication import BasicAuthentication
 from rest_framework.decorators import (
-    api_view, permission_classes, authentication_classes, detail_route
+    api_view, permission_classes, detail_route
 )
 from rest_framework.response import Response
-import stripe
 
 from trac.filters import AthleteFilter, CoachFilter
-from trac.models import Coach, Athlete, Team, Tag, TimingSession
+from trac.models import Coach, Athlete, Tag, TimingSession
 from trac.serializers import (
     AthleteSerializer, CoachSerializer, UserSerializer
 )
-from trac.utils.user_util import is_athlete, is_coach, user_type
+from trac.utils.user_util import is_athlete, is_coach
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -51,7 +48,6 @@ class UserViewSet(viewsets.ModelViewSet):
             return self.request.user
         else:
             return super(UserViewSet, self).get_object()
-
 
     @detail_route(methods=['post'])
     def change_password(self, request, *args, **kwargs):
@@ -76,8 +72,25 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class CoachViewSet(viewsets.ModelViewSet):
-    """
-    Coach resource.
+    """Coach resource.
+
+    A coach manages teams, sessions, and athletes.
+    ---
+    create:
+      omit_parameters:
+      - query
+    update:
+      omit_parameters:
+      - query
+    partial_update:
+      omit_parameters:
+      - query
+    destroy:
+      omit_parameters:
+      - query
+    retrieve:
+      omit_parameters:
+      - query
     """
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = CoachSerializer
@@ -89,8 +102,26 @@ class CoachViewSet(viewsets.ModelViewSet):
 
 
 class AthleteViewSet(viewsets.ModelViewSet):
-    """
-    Athlete resource.
+    """Athlete resource.
+
+    An athlete competes in sessions, appears in results, may
+    belong to a team, and can be assigned a tag ("bib").
+    ---
+    create:
+      omit_parameters:
+      - query
+    update:
+      omit_parameters:
+      - query
+    partial_update:
+      omit_parameters:
+      - query
+    destroy:
+      omit_parameters:
+      - query
+    retrieve:
+      omit_parameters:
+      - query
     """
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = AthleteSerializer
@@ -164,8 +195,28 @@ class AthleteViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'])
     def completed_sessions(self, request, *args, **kwargs):
-        """
-        Get all the sessions an athlete has participated in.
+        """Get the results of one athlete across all sessions.
+        ---
+        omit_serializer: true
+        omit_parameters:
+        - query
+        - form
+        type:
+          id:
+            description: Session ID
+            type: integer
+          name:
+            description: Athlete name
+            type: string
+          date:
+            description: Date of the session
+            type: string
+          splits:
+            description: Times the athlete has recorded in this session
+            type: list
+          total:
+            description: Cumulative time for the athlete in this session
+            type: string
         """
         athlete = self.get_object()
         name = athlete.user.get_full_name() or athlete.user.username
@@ -190,41 +241,6 @@ class AthleteViewSet(viewsets.ModelViewSet):
             results['sessions'].append(session_info)
 
         return Response(results)
-
-
-class verifyLogin(views.APIView):
-    """
-    Verify that a user is currently logged into the site.
-    """
-    permission_classes = ()
-
-    @csrf_exempt
-    def get(self,request):
-        """
-        Check login status.
-        ---
-        parameters:
-        - name: token
-          description: OAuth2 token
-          required: true
-          type: string
-          paramType: query
-        """
-
-        data = request.GET.get('token')
-        #Does the token exist?
-        try:
-            token = AccessToken.objects.get(token=data)
-        except: #ObjectDoesNotExist:
-            return Response(404, status.HTTP_404_NOT_FOUND)
-
-        #Is the Token Valid?
-        if token.expires < timezone.now():
-            return Response(404, status.HTTP_404_NOT_FOUND)
-        else:
-            return Response(200, status.HTTP_200_OK)
-
-
 
 
 # TODO: Move to AthleteViewSet
@@ -288,16 +304,6 @@ def edit_athletes(request):
 
         return Response({}, status.HTTP_200_OK)
 
-@api_view(['POST'])
-@login_required()
-@permission_classes((permissions.IsAuthenticated,))
-def token_validation(request):
-    """
-    Validate a token.
-    """
-    return HttpResponse(status.HTTP_200_OK)
-
-
 
 @csrf_exempt
 @permission_classes((permissions.AllowAny,))
@@ -341,11 +347,12 @@ def send_email(request):
               (email_config['email'],), fail_silently=False)
     return HttpResponse(status.HTTP_200_OK)
 
+
 @csrf_exempt
 @permission_classes((permissions.AllowAny,))
 def request_quote(request):
     """
-    If user requests quote, have it email founders to proceed from there.  
+    If user requests quote, have it email founders to proceed from there.
     """
     email = request.POST.get('email')
     name = request.POST.get('name')
@@ -363,6 +370,7 @@ def request_quote(request):
         [email, 'founders@tracchicago.com'],
         fail_silently=False)
     return HttpResponse(status.HTTP_200_OK)
+
 
 @csrf_exempt
 @permission_classes((permissions.AllowAny,))
@@ -409,26 +417,6 @@ def give_athlete_password(request):
         return HttpResponse(status.HTTP_403_FORBIDDEN)
 
 
-@api_view(['POST'])
-@login_required()
-@permission_classes((permissions.IsAuthenticated,))
-def reset_password(request):
-    name =  base64.urlsafe_b64decode(request.POST.get('user').encode('utf-8'))
-    user = get_object_or_404(User, pk=name)
-    token = request.auth
-    if token not in user.accesstoken_set.all():
-        return HttpResponse(status.HTTP_403_FORBIDDEN)
-    if token.expires < timezone.now():
-        return HttpResponse(status.HTTP_403_FORBIDDEN)
-    if user.is_authenticated():
-        user.set_password(request.POST.get('password'))
-        user.save()
-    else:
-        return HttpResponse(status.HTTP_403_FORBIDDEN)
-    user.accesstoken_set.get(token=token).delete()
-    return HttpResponse(status.HTTP_200_OK)
-
-
 def subscribe(request, **kwargs):
 	data = request.POST
 	print data
@@ -445,4 +433,3 @@ def subscribe(request, **kwargs):
 	stripe.api_key = settings.STRIPE_SECRET_KEY
 
 	return redirect('/payments')
-

@@ -23,7 +23,19 @@
     {% block django_rest_swagger %}
         <div id="django-rest-swagger" style="background-color:#3577A8">
             <div class="swagger-ui-wrap">
-                <a href="https://github.com/marcgibbons/django-rest-swagger/">Django REST Swagger</a>
+                <form id="api_selector">
+                    <div class="input">
+                        API Key:
+                        <input placeholder="api_key"
+                               id="input_apiKey"
+                               name="apiKey"
+                               type="text"
+                               style="color:black;font-size:10pt">
+                    </div>
+                </form>
+                <a href="https://github.com/marcgibbons/django-rest-swagger/">
+                    Django REST Swagger
+                </a>
             </div>
         </div>
     {% endblock %}

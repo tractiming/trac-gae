@@ -1,4 +1,5 @@
-from django.conf.urls import url
+from django.conf.urls import url, include
+from rest_framework import routers
 
 from trac.views import (
     user_views, session_views, tag_views, reader_views, team_views,
@@ -6,7 +7,17 @@ from trac.views import (
 )
 
 
+router = routers.DefaultRouter()
+router.register(r'users', user_views.UserViewSet, 'User')
+router.register(r'score', team_views.ScoringViewSet, 'Score')
+
+
 urlpatterns = [
+    url(r'^', include(router.urls)),
+    url(r'^register/$', auth_views.register),
+    url(r'^login/$', auth_views.login),
+    url(r'^api-auth/', include('rest_framework.urls',
+                               namespace='rest_framework')),
 
     url(r'^edit_athletes/$', user_views.edit_athletes),
     url(r'^edit_split/$', session_views.edit_split),
@@ -18,8 +29,7 @@ urlpatterns = [
     url(r'^reset_password/$', auth_views.reset_password),
     url(r'^send_email/$', user_views.send_email),
     url(r'^stripe/$', user_views.subscribe),
-    url(r'^token_validation/$', user_views.token_validation),
-    url(r'^verifyLogin/$', user_views.verifyLogin.as_view()),
+    url(r'^verifyLogin/$', auth_views.verify_login),
     url(r'^request_quote/$', user_views.request_quote),
 
     url(r'^updates/$', reader_views.post_splits, name='updates'),

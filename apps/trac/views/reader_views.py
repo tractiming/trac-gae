@@ -1,37 +1,42 @@
+import ast
 import logging
+
+from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework import viewsets, permissions, status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
 
 from trac.models import Reader
 from trac.serializers import ReaderSerializer
 from trac.utils.user_util import is_coach
 from trac.utils.split_util import create_split
-from rest_framework import viewsets, permissions, status
-from rest_framework.response import Response
-from django.utils import timezone
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework.decorators import api_view, permission_classes
-import ast
 
 
 log = logging.getLogger(__name__)
 
 
 class ReaderViewSet(viewsets.ModelViewSet):
+    """RFID reader resource.
+
+    An RFID reader is a sensor that senses tags and assigns timestamps
+    to those readings. It is used to create splits. It is owned by a
+    coach and assigned to a session to indicate where the splits it
+    creates should appear.
     """
-    RFID reader resource.
-    """
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.IsAuthenticated,)
     serializer_class = ReaderSerializer
 
     def get_queryset(self):
-        """ 
-        Return only those readers belonging to the current user.
+        """Return only those readers belonging to the current user.
+
+        A coach can see his own readers, other users can't see any.
         """
         user = self.request.user
         if is_coach(user):
             return Reader.objects.filter(coach=user.coach)
-        
         else:
-            return Reader.objects.none() # Athletes don't have readers.
+            return Reader.objects.none()
 
 
 @csrf_exempt
@@ -49,7 +54,7 @@ def post_splits(request):
         data = request.POST
         reader_name = data['r']
         split_list = ast.literal_eval(data['s'])
-        
+
         split_status = 0
         for split in split_list:
             if create_split(reader_name, split[0], split[1]):
@@ -61,6 +66,6 @@ def post_splits(request):
             return Response({}, status=status.HTTP_201_CREATED)
 
     # To avoid having to navigate between different urls on the readers, we use
-    # this same endpoint to retrieve the server time. 
+    # this same endpoint to retrieve the server time.
     elif request.method == 'GET':
         return Response({str(timezone.now())}, status.HTTP_200_OK)
