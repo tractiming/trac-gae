@@ -507,7 +507,6 @@ google.setOnLoadCallback(function(){
 			    spinner.spin(document.getElementById('spinner-download-results'));
 
                 downloadFormat = $('input[name="download-format"]:checked').val();
-                downloadType = $('input[name="download-type"]:checked').val();
 
                 $.ajax({
                     method: 'POST',
@@ -516,8 +515,7 @@ google.setOnLoadCallback(function(){
                         Authorization: 'Bearer ' + sessionStorage.access_token
                     },
                     data: JSON.stringify({
-                        'file_format': downloadType,
-                        'results_format': downloadFormat,
+                        'file_format': downloadFormat
                     }),
                     contentType: 'application/json',
                     dataType: 'text',
@@ -528,6 +526,7 @@ google.setOnLoadCallback(function(){
                         link.style = 'visibility:hidden';
 
                         spinner.stop();
+						$('#spinner-download-results').css('height', '');
 				        $('#download-results-modal').modal('hide');
 
                         document.body.appendChild(link);

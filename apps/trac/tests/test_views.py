@@ -1,5 +1,6 @@
 import datetime
 import json
+from collections import OrderedDict
 
 import mock
 
@@ -357,13 +358,6 @@ class TimingSessionViewSetTest(APITestCase):
             list(completed_sessions))
         self.assertEqual(resp.status_code, 200)
 
-    #def test_get_tfrrs_results(self):
-    #    """Test getting tfrrs-formatted results."""
-    #    user = User.objects.get(username='alsal')
-    #    self.client.force_authenticate(user=user)
-    #    resp = self.client.get('/api/sessions/1/tfrrs/')
-    #    self.assertEqual(resp.status_code, 200)
-
     def test_upload_results(self):
         """Test uploading pre-recorded splits."""
         user = User.objects.get(username='alsal')
@@ -436,9 +430,34 @@ class TimingSessionViewSetTest(APITestCase):
         mock_writer.assert_called_with(settings.GCS_RESULTS_BUCKET,
                                        results_path, make_public=True)
         mock_csv.writer().writerow.assert_has_calls([
-            mock.call(('Cam Levins', '05:18.601')),
-            mock.call(('Galen Rupp', '06:29.045'))])
+            mock.call(('Name', 'Time')),
+            mock.call(['Cam Levins', '05:18.601']),
+            mock.call(['Galen Rupp', '06:29.045'])])
         self.assertEqual(resp.data['uri'], 'filedownloadurl.csv')
+
+    @mock.patch.object(trac.views.session_views, 'write_pdf_results')
+    @mock.patch.object(trac.views.session_views, 'get_public_link')
+    @mock.patch.object(trac.views.session_views, 'gcs_writer')
+    def test_export_results_pdf(self, mock_writer, mock_link, mock_pdf):
+        """Test saving results in a PDF file."""
+        mock_link.return_value = 'filedownloadurl.pdf'
+        results_path = '{}/1/individual.pdf'.format(settings.GCS_RESULTS_DIR)
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.post(
+            '/api/sessions/1/export_results/',
+            data=json.dumps({'file_format': 'pdf'}),
+            content_type='application/json')
+        self.assertEqual(resp.status_code, 200)
+        mock_writer.assert_called_with(settings.GCS_RESULTS_BUCKET,
+                                       results_path, make_public=True)
+        results = (
+            OrderedDict((('name', 'Cam Levins'), ('time', '05:18.601'))),
+            OrderedDict((('name', 'Galen Rupp'), ('time', '06:29.045')))
+        )
+        mock_pdf.assert_called_with(mock_writer().__enter__(), mock.ANY)
+        self.assertEqual(results, tuple(mock_pdf.call_args_list[0][0][1]))
+        self.assertEqual(resp.data['uri'], 'filedownloadurl.pdf')
 
 
 class PostSplitsTest(APITestCase):

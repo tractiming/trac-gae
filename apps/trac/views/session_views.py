@@ -4,6 +4,7 @@ import datetime
 import json
 import logging
 import uuid
+from collections import OrderedDict
 
 import dateutil.parser
 from django.core.exceptions import ObjectDoesNotExist
@@ -442,7 +443,6 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         and one for total time. NOTE: This creates a public link to
         the results. Anyone with this link will be able to download
         the file.
-        TODO: allow for tfrrs format
         ---
         omit_serializer: true
         omit_parameters:
@@ -450,10 +450,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         parameters_strategy:
           form: replace
         parameters:
-        - name: format
-          description: How to format results ("plain" or "tfrrs")
         - name: file_format
-          description: Type of file to write ("csv" or "pdf")
+          description: Type of file to write ("csv", "pdf", or "tfrss")
         type:
           uri:
             required: true
@@ -463,26 +461,35 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         session = self.get_object()
 
         file_format = request.data.get('file_format', 'csv')
-        if file_format not in ('csv', 'pdf'):
+        if file_format not in ('csv', 'pdf', 'tfrrs'):
             return Response('Invalid file format',
                             status=status.HTTP_400_BAD_REQUEST)
 
+        extension = 'pdf' if file_format == 'pdf' else 'csv'
+        tfrrs_name = '-tfrrs' if file_format == 'tfrrs' else ''
         storage_path = '/'.join((settings.GCS_RESULTS_DIR,
                                  str(session.pk),
-                                 'individual.{}'.format(file_format)))
+                                 'individual{tfrrs}.{extension}'.format(
+                                     extension=extension,
+                                     tfrrs=tfrrs_name)))
 
-        results_to_write = ({
-            'name': result.name,
-            'time': format_total_seconds(result.total)
-        } for result in session.individual_results())
+        if file_format == 'tfrrs':
+            results_to_write = tfrrs.format_tfrrs_results(session)
+            header = tfrrs._TFRRS_FIELDS
+        else:
+            results_to_write = (OrderedDict((
+                ('name', result.name),
+                ('time', format_total_seconds(result.total)))
+            ) for result in session.individual_results())
+            header = ('Name', 'Time')
 
         with gcs_writer(settings.GCS_RESULTS_BUCKET, storage_path,
                         make_public=True) as _results:
-            if file_format == 'csv':
+            if file_format in ('csv', 'tfrrs'):
                 writer = csv.writer(_results)
-                writer.writerow(('Name', 'Time'))
+                writer.writerow(header)
                 for result in results_to_write:
-                    writer.writerow((result['name'], result['time']))
+                    writer.writerow(result.values())
             elif file_format == 'pdf':
                 write_pdf_results(_results, results_to_write)
 
