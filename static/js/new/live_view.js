@@ -2142,18 +2142,64 @@ google.setOnLoadCallback(function(){
     		}
     	});
     	$("#searchinput").on('input', function(){
-    		searchTerm = $('#searchinput').val();
-    		$.ajax({
+    		drawIndividualSearch();
+    	});
+
+    	function drawIndividualSearch() {
+			$('#individual-table-canvas').empty();
+			$('.notification.select-group').hide();
+
+			$('#spinner').css('height', 150);
+			spinner.spin(target);
+
+			searchTerm = $('#searchinput').val();
+
+			$.ajax({
 				url: '/api/athletes/?session='+ currentID + '&search='+searchTerm,
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-				data: data,
 				dataType: 'text',
 				success: function(data) {
-					console.log(data);
+					var results = $.parseJSON(data);
+					if (results.length === 0) {
+						spinner.stop();
+						$('#spinner').css('height', '');
+						$('#individual-table-canvas').empty();
+						$('.notification.no-individual-data').show();
+						$('#download-container').hide();
+					} else {
+						$('.notification').hide();
 
+						$('#individual-table-canvas').append(
+							'<thead>' +
+								'<tr>' +
+									'<th>Name</th>' +
+									'<th></th>' +
+								'</tr>' +
+							'</thead>' +
+							'<tbody>' +
+							'</tbody>'
+						);
+
+						var runner = {};
+						for (var i=0; i < results.length; i++) {
+							runner = results[i];
+							$('#individual-table-canvas tbody').append(
+								'<tr>' +
+									'<td>'+ runner.first_name +' '+ runner.last_name +'</td>' +
+									'<td>'+ '<a>See Results</a>' +'</td>' +
+								'</tr>'
+							);
+						}
+
+						// show results
+						spinner.stop();
+						$('#spinner').css('height', '');
+						$('#individual-table-canvas').show();
+						$('#download-container').show();
+					}
 				}
 			});
-    	});
+		}
 
 
 
