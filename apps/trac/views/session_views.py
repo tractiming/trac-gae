@@ -1,8 +1,10 @@
 import ast
+import csv
 import datetime
 import json
 import logging
 import uuid
+from collections import OrderedDict
 
 import dateutil.parser
 from django.core.exceptions import ObjectDoesNotExist
@@ -19,7 +21,8 @@ from trac.models import TimingSession, Reader, Tag, Split, Team, Athlete
 from trac.serializers import TimingSessionSerializer
 from trac.utils.integrations import tfrrs
 from trac.utils.phone_split_util import create_phone_split
-from trac.utils.gcs_util import csv_writer, get_public_link
+from trac.utils.gcs_util import gcs_writer, get_public_link
+from trac.utils.pdf_util import write_pdf_results
 from trac.utils.split_util import format_total_seconds
 from trac.utils.user_util import is_athlete, is_coach
 
@@ -62,7 +65,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """Filter sessions by user.
-        
+
         If the user is an athlete, list the sessions he has
         completed. If the user is a coach, list the sessions he owns.
         Otherwise, list all public sessions.
@@ -383,7 +386,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['post'])
     def register_athletes(self, request, pk=None):
         """Append athletes to the list of registered athletes.
-        
+
         Has no effect if athlete is already registered.
         ---
         omit_parameters:
@@ -409,7 +412,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['post'])
     def remove_athletes(self, request, pk=None):
         """Remove athletes from the list of registered athletes.
-        
+
         If they are not on the list, no effect.
         ---
         omit_parameters:
@@ -440,7 +443,6 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         and one for total time. NOTE: This creates a public link to
         the results. Anyone with this link will be able to download
         the file.
-        TODO: allow for tfrrs format
         ---
         omit_serializer: true
         omit_parameters:
@@ -448,8 +450,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         parameters_strategy:
           form: replace
         parameters:
-        - name: format
-          description: How to format results ("plain" or "tfrrs")
+        - name: file_format
+          description: Type of file to write ("csv", "pdf", or "tfrss")
         type:
           uri:
             required: true
@@ -457,19 +459,44 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             description: Link to downloadable results file
         """
         session = self.get_object()
+
+        file_format = request.data.get('file_format', 'csv')
+        if file_format not in ('csv', 'pdf', 'tfrrs'):
+            return Response('Invalid file format',
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        extension = 'pdf' if file_format == 'pdf' else 'csv'
+        tfrrs_name = '-tfrrs' if file_format == 'tfrrs' else ''
         storage_path = '/'.join((settings.GCS_RESULTS_DIR,
                                  str(session.pk),
-                                 'individual.csv'))
-        with csv_writer(settings.GCS_RESULTS_BUCKET, storage_path,
+                                 'individual{tfrrs}.{extension}'.format(
+                                     extension=extension,
+                                     tfrrs=tfrrs_name)))
+
+        if file_format == 'tfrrs':
+            results_to_write = tfrrs.format_tfrrs_results(session)
+            header = tfrrs._TFRRS_FIELDS
+        else:
+            results_to_write = (OrderedDict((
+                ('name', result.name),
+                ('time', format_total_seconds(result.total)))
+            ) for result in session.individual_results())
+            header = ('Name', 'Time')
+
+        with gcs_writer(settings.GCS_RESULTS_BUCKET, storage_path,
                         make_public=True) as _results:
-            for result in session.individual_results():
-                _results.writerow((result.name,
-                                   format_total_seconds(result.total)))
+            if file_format in ('csv', 'tfrrs'):
+                writer = csv.writer(_results)
+                writer.writerow(header)
+                for result in results_to_write:
+                    writer.writerow(result.values())
+            elif file_format == 'pdf':
+                write_pdf_results(_results, results_to_write)
+
         log.debug('Saved results to %s', storage_path)
 
         return Response({'uri': get_public_link(settings.GCS_RESULTS_BUCKET,
-                                                storage_path)},
-                        status=status.HTTP_200_OK)
+                                                storage_path)})
 
 
 @api_view(['POST'])

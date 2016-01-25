@@ -492,6 +492,61 @@ google.setOnLoadCallback(function(){
 			});
 		});
 
+		// register handler for downloading results
+		$('body').on('click', 'button#download', function(e) {
+			e.stopPropagation();
+
+			$('.notification').hide();
+			$('#download-results-modal').modal('show');
+			$('#download-results-body').show();
+            $('body').off('click', '#download-results-confirm');
+            $('body').on('click', '#download-results-confirm', function(e) {
+                e.preventDefault();
+
+			    $('#spinner-download-results').css('height', 150);
+			    spinner.spin(document.getElementById('spinner-download-results'));
+
+                downloadFormat = $('input[name="download-format"]:checked').val();
+
+                $.ajax({
+                    method: 'POST',
+                    url: '/api/sessions/' + currentID + '/export_results/',
+                    headers: {
+                        Authorization: 'Bearer ' + sessionStorage.access_token
+                    },
+                    data: JSON.stringify({
+                        'file_format': downloadFormat
+                    }),
+                    contentType: 'application/json',
+                    dataType: 'text',
+                    success: function(data) {
+                        var uri = $.parseJSON(data).uri;
+                        var link = document.createElement('a');
+                        link.href = uri;
+                        link.style = 'visibility:hidden';
+
+                        spinner.stop();
+						$('#spinner-download-results').css('height', '');
+				        $('#download-results-modal').modal('hide');
+
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+
+                    },
+                    error: function(jqXHR, exception) {
+                        $('.notification.server-error').show();
+                    }
+                });
+            });
+            $('body').off('click', '#download-results-cancel');
+            $('body').on('click', '#download-results-cancel', function(e) {
+                e.preventDefault();
+                $('#download-results-modal').modal('hide');
+            });
+
+		});
+
 		// register handler for edit total time
 		$('body').on('mouseover', '#table-canvas>tbody>tr', function() {
 			$(this).find('.modify-total-time').show();
@@ -1827,7 +1882,7 @@ google.setOnLoadCallback(function(){
 		});
 
 		// download to CSV script
-		$('body').on('click', '#download', function(){
+		/*$('body').on('click', '#download', function(){
 			// hide download buttons and show status
 			$('#download-container').hide();
 			$('#download-status').show();
@@ -1862,7 +1917,7 @@ google.setOnLoadCallback(function(){
 					$('#download-container').show();
 				}
 			});
-		});
+		});*/
 
 		//=================================== download functions ====================================
 		function createFullCSV(){
@@ -2030,7 +2085,7 @@ google.setOnLoadCallback(function(){
 			});
 		}
 
-		function download(CSV, reportTitle) {
+		/*function download(CSV, reportTitle) {
 			//Generate a file name
 			var fileName = 'TRAC_';
 			//this will remove the blank-spaces from the title and replace it with an underscore
@@ -2056,7 +2111,7 @@ google.setOnLoadCallback(function(){
 			document.body.appendChild(link);
 			link.click();
 			document.body.removeChild(link);
-		}
+		}*/
 
 	});
 });

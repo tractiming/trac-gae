@@ -158,6 +158,44 @@
 			</div>
 		</div>
 	</div>
+	<div class="modal fade" id="download-results-modal" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Download Results</h4>
+				</div>
+				<div class="modal-body">
+					<div id="spinner-download-results"></div>
+					<div id="download-results-body">
+					    <div class="center" style="margin-bottom:15px;">
+                            <label for="download-format">Results Format</label>
+                            <div style="padding-left:5px; border-radius:4px;">
+                                <input type="radio"
+                                       name="download-format"
+                                       id="download-format-csv"
+                                       value="csv"
+                                       checked="checked" required> CSV
+                                <input type="radio"
+                                       name="download-format"
+                                       id="download-format-pdf"
+                                       value="pdf"
+                                       style="margin-left:10px" required> PDF
+                                <input type="radio"
+                                       name="download-format"
+                                       id="download-format-tfrrs"
+                                       value="tfrrs"
+                                       style="margin-left:10px;" required> CSV (TFRRS)
+                            </div>
+						</div>
+						<div class="center">
+							<button id="download-results-confirm" class="btn btn-primary btn-md" style="margin-right: 10px;">Confirm</button>
+							<button id="download-results-cancel" class="btn btn-danger btn-md">Cancel</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 
 	<div id="content" class="container-fluid">
 		<div class="container">
@@ -304,7 +342,6 @@
 			</div>
 			<div id="download-container" class="center" style="display:none;">
 			  <button id="download" class="btn btn-primary btn-md" style="margin-right:10px">Download</button>
-			  <button id="download-TFRRS" class="btn btn-primary btn-md">TFRRS</button>
 			</div>
 		</div>
 	</div>

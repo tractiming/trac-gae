@@ -54,7 +54,7 @@ class IntegrationsTestCase(TestCase):
         session = TimingSession.objects.get(pk=1)
         tfrrs_results = format_tfrrs_results(session)
         self.assertEqual(
-            tfrrs_results, 
+            [','.join(result.values()) for result in tfrrs_results], 
             ['AAAA 0002,,Nike,,Cam,Levins,M,,1990-05-26,400,60 x '
              '400m,,,,,318.601,1,0,1,1,,,,,,',
              'AAAA 0001,,Nike,,Galen,Rupp,,,,400,60 x '
