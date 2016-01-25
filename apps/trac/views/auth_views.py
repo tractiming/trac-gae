@@ -1,9 +1,10 @@
 import json
 
 from django.core.mail import send_mail
-from django.template import loader
 from django.http import HttpResponse
-from oauth2_provider.models import Application
+from django.shortcuts import get_object_or_404
+from django.template import loader
+from oauth2_provider.models import Application, AccessToken
 from oauth2_provider.views import TokenView as _TokenView
 from rest_framework import permissions, status
 from rest_framework.decorators import api_view, permission_classes
@@ -99,6 +100,26 @@ def login(request):
     return Response(data, status=resp.status_code)
 
 
+@api_view(['get'])
+@permission_classes((permissions.AllowAny,))
+def verify_login(request):
+    """Validate an existing access token.
+
+    If token is valid, return 200, otherwise return 404.
+    ---
+    parameters:
+    - name: token
+      description: OAuth2 token
+      required: true
+      type: string
+      paramType: query
+    """
+    token = request.GET.get('token', '')
+    if get_object_or_404(AccessToken, token=token).is_valid():
+        return Response(200, status=status.HTTP_200_OK)
+    return Response(404, status=status.HTTP_404_NOT_FOUND)
+
+
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))
 def reset_password(request):
@@ -131,4 +152,3 @@ def reset_password(request):
         return HttpResponse(status.HTTP_403_FORBIDDEN)
     user.accesstoken_set.get(token = token).delete()
     return HttpResponse(status.HTTP_200_OK)
-

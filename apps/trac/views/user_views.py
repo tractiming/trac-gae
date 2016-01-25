@@ -49,7 +49,6 @@ class UserViewSet(viewsets.ModelViewSet):
         else:
             return super(UserViewSet, self).get_object()
 
-
     @detail_route(methods=['post'])
     def change_password(self, request, *args, **kwargs):
         """
@@ -244,41 +243,6 @@ class AthleteViewSet(viewsets.ModelViewSet):
         return Response(results)
 
 
-class verifyLogin(views.APIView):
-    """
-    Verify that a user is currently logged into the site.
-    """
-    permission_classes = ()
-
-    @csrf_exempt
-    def get(self,request):
-        """
-        Check login status.
-        ---
-        parameters:
-        - name: token
-          description: OAuth2 token
-          required: true
-          type: string
-          paramType: query
-        """
-
-        data = request.GET.get('token')
-        #Does the token exist?
-        try:
-            token = AccessToken.objects.get(token=data)
-        except: #ObjectDoesNotExist:
-            return Response(404, status.HTTP_404_NOT_FOUND)
-
-        #Is the Token Valid?
-        if token.expires < timezone.now():
-            return Response(404, status.HTTP_404_NOT_FOUND)
-        else:
-            return Response(200, status.HTTP_200_OK)
-
-
-
-
 # TODO: Move to AthleteViewSet
 @api_view(['POST'])
 @permission_classes((permissions.IsAuthenticated,))
@@ -340,16 +304,6 @@ def edit_athletes(request):
 
         return Response({}, status.HTTP_200_OK)
 
-@api_view(['POST'])
-@login_required()
-@permission_classes((permissions.IsAuthenticated,))
-def token_validation(request):
-    """
-    Validate a token.
-    """
-    return HttpResponse(status.HTTP_200_OK)
-
-
 
 @csrf_exempt
 @permission_classes((permissions.AllowAny,))
@@ -393,6 +347,7 @@ def send_email(request):
               (email_config['email'],), fail_silently=False)
     return HttpResponse(status.HTTP_200_OK)
 
+
 @csrf_exempt
 @permission_classes((permissions.AllowAny,))
 def request_quote(request):
@@ -415,6 +370,7 @@ def request_quote(request):
         [email, 'founders@tracchicago.com'],
         fail_silently=False)
     return HttpResponse(status.HTTP_200_OK)
+
 
 @csrf_exempt
 @permission_classes((permissions.AllowAny,))

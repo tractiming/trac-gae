@@ -29,8 +29,7 @@ urlpatterns = [
     url(r'^reset_password/$', auth_views.reset_password),
     url(r'^send_email/$', user_views.send_email),
     url(r'^stripe/$', user_views.subscribe),
-    url(r'^token_validation/$', user_views.token_validation),
-    url(r'^verifyLogin/$', user_views.verifyLogin.as_view()),
+    url(r'^verifyLogin/$', auth_views.verify_login),
     url(r'^request_quote/$', user_views.request_quote),
 
     url(r'^updates/$', reader_views.post_splits, name='updates'),
