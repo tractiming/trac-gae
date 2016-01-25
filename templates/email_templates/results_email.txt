@@ -1,6 +1,7 @@
 Hi {{name}},
 
-You particpated in the following run on {{date}}. The results link is attached:
+You particpated in a run on {{date}}. The results can be downloaded
+at: {{link}}
 
 Best,
 

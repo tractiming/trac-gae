@@ -520,7 +520,6 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             'results_email.txt' if full_results else
             'results_email_single.txt')
         if full_results:
-            request.data.clear()
             resp = self.export_results(request)
             if resp.status_code != 200:
                 return Response(status=status.HTTP_404_BAD_REQUEST)
