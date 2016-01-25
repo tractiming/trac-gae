@@ -503,7 +503,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['post'],
                   permission_classes=(permissions.IsAuthenticated,))
-    def email_athletes(self, request, pk=None):
+    def email_results(self, request, pk=None):
         """Email all users in a workout with attachment link of workout.
 
         Will attach a CSV file to an email at all users that have an email
@@ -513,27 +513,29 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         session = self.get_object()
         athletes = Athlete.objects.filter(
             Q(split__timingsession=session) & ~Q(user__email='')).distinct()
-        full_workout = (request.POST.get('full_workout', 1) in
+        full_results = (request.POST.get('full_results', 1) in
                         ('true', 'True', 1))
 
         email_template = '../templates/email_templates/{}'.format(
-            'results_email.txt' if full_workout else
+            'results_email.txt' if full_results else
             'results_email_single.txt')
-        if full_workout:
-            download_link = ''
+        if full_results:
+            request.data.clear()
+            resp = self.export_results(request)
+            if resp.status_code != 200:
+                return Response(status=status.HTTP_404_BAD_REQUEST)
+            download_link = resp.data['uri']
         else:
             download_link = None
 
-        import ipdb; ipdb.set_trace()
         email_list = []
         for athlete in athletes:
-            athlete_email = 'elliot@tracchicago.com'
-            # athlete_email = athlete.user.email
+            athlete_email = athlete.user.email
             context = {
                 'name': athlete.user.first_name,
                 'date': session.start_time
             }
-            if full_workout:
+            if full_results:
                 context.update({'link': download_link})
             else:
                 context.update({

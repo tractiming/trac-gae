@@ -16,7 +16,8 @@
         "first_name": "Galen",
         "last_name": "Rupp",
         "username": "grupp",
-        "password": "sha1$e2fd5$96edae9adc8870fd87a65c051e7fdace6226b5a8"
+        "password": "sha1$e2fd5$96edae9adc8870fd87a65c051e7fdace6226b5a8",
+        "email": "grupp@nike.com"
     }
 },
 {
