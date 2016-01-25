@@ -1921,7 +1921,7 @@ google.setOnLoadCallback(function(){
 
 		//=================================== download functions ====================================
 		function createFullCSV(){
-			/*$.ajax({
+			$.ajax({
 				url: '/api/sessions/'+currentID+'/individual_results',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'text',
@@ -1985,35 +1985,7 @@ google.setOnLoadCallback(function(){
 					$('#download-status').hide();
 					$('#download-container').show();
 				}
-			});*/
-            $.ajax({
-                method: 'POST',
-                url: '/api/sessions/' + currentID + '/export_results/',
-                headers: {
-                    Authorization: 'Bearer ' + sessionStorage.access_token
-                },
-                data: JSON.stringify({'file_format': 'pdf'}),
-                contentType: 'application/json',
-                dataType: 'text',
-                success: function(data) {
-                    console.log(data);
-					var uri = $.parseJSON(data).uri;
-                    console.log(uri);
-			        var link = document.createElement('a');
-			        link.href = uri;
-			        link.style = 'visibility:hidden';
-
-			        document.body.appendChild(link);
-			        link.click();
-			        document.body.removeChild(link);
-
-					$('#download-status').hide();
-					$('#download-container').show();
-                },
-                error: function(jqXHR, exception) {
-                    $('.notification.server-error').show();
-                }
-            });
+			});
 		}
 
 		function createFilteredCSV() {
