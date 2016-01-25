@@ -326,7 +326,7 @@ def send_email(request):
 
     uidb64 = base64.urlsafe_b64encode(force_bytes(user.pk))
     token = AccessToken(user=user,
-                        application=Application.objects.get(user=user),
+                        application = Application.objects.get(client_id='aHD4NUa4IRjA1OrPD2kJLXyz34c06Bi5eVX8O94p'),
                         expires=timezone.now()+timezone.timedelta(minutes=5),
                         token=generate_token())
     token.save()
@@ -341,7 +341,7 @@ def send_email(request):
     }
     url = "/".join((email_config['domain'], 'UserSettings',
                     email_config['uid'], email_config['token'], ''))
-    email_body = loader.render_to_string('../templates/email_template.html',
+    email_body = loader.render_to_string('../templates/email_templates/email_template.html',
                                          email_config)
     send_mail('Reset Password Request', email_body, 'tracchicago@gmail.com',
               (email_config['email'],), fail_silently=False)
@@ -365,7 +365,7 @@ def request_quote(request):
         'system_number': system_number,'date':date,'price':price}
     send_mail(
         'Quote',
-        loader.render_to_string('../templates/quote.txt', context),
+        loader.render_to_string('../templates/email_templates/quote.txt', context),
         'tracchicago@gmail.com',
         [email, 'founders@tracchicago.com'],
         fail_silently=False)
@@ -375,6 +375,13 @@ def request_quote(request):
 @csrf_exempt
 @permission_classes((permissions.AllowAny,))
 def give_athlete_password(request):
+    """
+    Endpoint to email athletes via the settings page. 
+
+    Will first save any changes made to the athlete's info
+    then email them with a link to reset and gain access to
+    their account. 
+    """
     atl = Athlete.objects.get(id=request.POST.get('id'))
     atl.user.first_name = request.POST.get('first_name')
     atl.user.last_name = request.POST.get('last_name')
@@ -391,26 +398,27 @@ def give_athlete_password(request):
             tag.save()
         except ObjectDoesNotExist:
             tag = Tag.objects.create(id_str=request.POST.get('id_str'), athlete=atl)
-    email = request.POST.get('email')
-    name = request.POST.get('username')
-    u = User.objects.get(email = email)
-    user2 = User.objects.get(username = name)
-    if u == user2:
-        uidb64 = base64.urlsafe_b64encode(force_bytes(u.pk))
-        token = AccessToken.objects.create(user = user2, application = Application.objects.get(user = user2), expires = timezone.now()+timezone.timedelta(minutes=2880), token=generate_token())
+
+    if atl:
+        uidb64 = base64.urlsafe_b64encode(force_bytes(atl.user.pk))
+        token = AccessToken.objects.create(user = atl.user, 
+            application = Application.objects.get(client_id='aHD4NUa4IRjA1OrPD2kJLXyz34c06Bi5eVX8O94p'), 
+            expires = timezone.now()+timezone.timedelta(minutes=2880), 
+            token=generate_token())
         token.save()
         c = {
-            'email': email,
+            'name': atl.user.first_name,
+            'email': atl.user.email,
             'domain': request.META['HTTP_HOST'],
             'site_name': 'TRAC',
             'uid': uidb64,
-            'user': u,
-            'username':name,
+            'user': atl.user,
+            'username': atl.user.username,
             'token': str(token),
             'protocol': 'https://',
         }
         url = c['domain'] + '/UserSettings/' + c['uid'] + '/' + c['token'] + '/'
-        email_body = loader.render_to_string('../templates/athlete_password.html', c)
+        email_body = loader.render_to_string('../templates/email_templates/athlete_password.html', c)
         send_mail('Reset Password Request', email_body, 'tracchicago@gmail.com', [c['email'],], fail_silently=False)
         return HttpResponse(status.HTTP_200_OK)
     else:
