@@ -40,7 +40,7 @@ class TagSerializer(FilterRelatedMixin, serializers.ModelSerializer):
 
     class Meta:
         model = Tag
-        fields = ('id', 'id_str', 'username', 'full_name', 'athlete')
+        fields = ('id', 'id_str', 'username', 'full_name', 'athlete', 'bib')
 
     def filter_athlete(self, queryset):
         """Only show athletes belonging to the current coach."""
