@@ -466,7 +466,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             for athlete in athlete_list:
                 athlete_email = athlete.user.email
                 if athlete_email:
-                    context = {'name': athlete.user.first_name, 'date': session.start_time, 'link': }
+                    context = {'name': athlete.user.first_name, 'date': session.start_time, }
                     message = (session.name, loader.render_to_string
                         ('../templates/email_templates/results_email.txt', context),'tracchicago@gmail.com', [athlete_email])
                     email_list.append(message)
