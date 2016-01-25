@@ -83,6 +83,7 @@ class Tag(models.Model):
     An RFID tag that is worn by an athlete. Each athlete can have only one tag.
     """
     id_str = models.CharField(max_length=50, unique=True)
+    bib = models.CharField(max_length=25, null=True, blank=True)
     athlete = models.OneToOneField(Athlete)
 
     def __unicode__(self):
