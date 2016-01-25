@@ -1,0 +1,9 @@
+Hi {{name}},
+
+You particpated in the following run on {{date}}. Your splits for the workout {{workout_name}} are as follows:
+{{splits}}
+
+Best,
+
+The TRAC Team
+

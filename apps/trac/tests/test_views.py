@@ -460,6 +460,26 @@ class TimingSessionViewSetTest(APITestCase):
         self.assertEqual(results, tuple(mock_pdf.call_args_list[0][0][1]))
         self.assertEqual(resp.data['uri'], 'filedownloadurl.pdf')
 
+    @mock.patch.object(trac.views.session_views.TimingSessionViewSet,
+                       'export_results')
+    @mock.patch.object(trac.views.session_views, 'send_mass_mail')
+    def test_send_email(self, mock_send, mock_export):
+        """Test sending emails with results."""
+        mock_export().data = {'uri': 'linktofile.csv'}
+        mock_export().status_code = 200
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.post(
+            '/api/sessions/1/email_results/',
+            data=json.dumps({'full_results': True}),
+            content_type='application/json')
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(mock_export.called)
+        mock_send.assert_called_with([('60 x 400m', mock.ANY,
+                                      'tracchicago@gmail.com',
+                                      ['grupp@nike.com'])],
+                                     fail_silently=False)
+
 
 class PostSplitsTest(APITestCase):
 
