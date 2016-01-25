@@ -11,6 +11,8 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
+from django.template import loader
+from django.core.mail import send_mass_mail
 from rest_framework import viewsets, permissions, status, pagination, filters
 from rest_framework.decorators import api_view, permission_classes, detail_route
 from rest_framework.response import Response
@@ -444,6 +446,42 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         return Response({'uri': get_public_link(settings.GCS_RESULTS_BUCKET,
                                                 storage_path)},
                         status=status.HTTP_200_OK)
+
+    @detail_route(methods=['post'])
+    def email_athletes(self, request, pk=None):
+        """
+        Email all users in a workout with attachment link of workout.
+
+        Will attach a CSV file to an email at all users that have an email
+        associated with them. If they do not have an email, it will not
+        include them.
+        """
+
+        session = self.get_object()
+        athlete_list = Athlete.objects.filter(split__timingsession=session).distinct()
+        full_workout = request.POST.get('full_workout')
+        email_list = list()
+
+        if full_workout:
+            for athlete in athlete_list:
+                athlete_email = athlete.user.email
+                if athlete_email:
+                    context = {'name': athlete.user.first_name, 'date': session.start_time, 'link': }
+                    message = (session.name, loader.render_to_string
+                        ('../templates/email_templates/results_email.txt', context),'tracchicago@gmail.com', [athlete_email])
+                    email_list.append(message)
+        else:
+            for athlete in athlete_list:
+                athlete_email = athlete.user.email
+                if athlete_email:
+                    context = {'name': athlete.user.first_name, 'date': session.start_time, 'splits': session._calc_athlete_splits(athlete.id).splits}
+                    message = (session.name, loader.render_to_string
+                        ('../templates/email_templates/results_email.txt', context),'tracchicago@gmail.com', [athlete_email])
+                    email_list.append(message)
+
+        send_mass_mail(email_list, fail_silently=False)
+
+        return Response(status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
