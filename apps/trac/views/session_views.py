@@ -462,21 +462,21 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         full_workout = request.POST.get('full_workout')
         email_list = list()
 
-        if full_workout:
+        if full_workout == 'true':
             for athlete in athlete_list:
                 athlete_email = athlete.user.email
                 if athlete_email:
-                    context = {'name': athlete.user.first_name, 'date': session.start_time, }
+                    context = {'name': athlete.user.first_name, 'date': session.start_time, 'link': }
                     message = (session.name, loader.render_to_string
                         ('../templates/email_templates/results_email.txt', context),'tracchicago@gmail.com', [athlete_email])
                     email_list.append(message)
         else:
             for athlete in athlete_list:
-                athlete_email = athlete.user.email
+                athlete_email = 'griffin@tracchicago.com'
                 if athlete_email:
-                    context = {'name': athlete.user.first_name, 'date': session.start_time, 'splits': session._calc_athlete_splits(athlete.id).splits}
+                    context = {'name': athlete.user.first_name, 'date': session.start_time, 'workout_name': session.name ,'splits': session._calc_athlete_splits(athlete.id).splits}
                     message = (session.name, loader.render_to_string
-                        ('../templates/email_templates/results_email.txt', context),'tracchicago@gmail.com', [athlete_email])
+                        ('../templates/email_templates/results_email_single.txt', context),'tracchicago@gmail.com', [athlete_email])
                     email_list.append(message)
 
         send_mass_mail(email_list, fail_silently=False)
