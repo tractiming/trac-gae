@@ -5,14 +5,14 @@ import json
 import logging
 import uuid
 
-from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.mail import send_mass_mail
 from django.db.models import Q
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.template import loader
-from django.core.mail import send_mass_mail
 from rest_framework import viewsets, permissions, status, pagination, filters
 from rest_framework.decorators import api_view, permission_classes, detail_route
 from rest_framework.response import Response
@@ -447,40 +447,54 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                                                 storage_path)},
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['post'])
+    @detail_route(methods=['post'],
+                  permission_classes=(permissions.IsAuthenticated,))
     def email_athletes(self, request, pk=None):
-        """
-        Email all users in a workout with attachment link of workout.
+        """Email all users in a workout with attachment link of workout.
 
         Will attach a CSV file to an email at all users that have an email
         associated with them. If they do not have an email, it will not
         include them.
         """
-
         session = self.get_object()
-        athlete_list = Athlete.objects.filter(split__timingsession=session).distinct()
-        full_workout = request.POST.get('full_workout')
-        email_list = list()
+        athletes = Athlete.objects.filter(
+            Q(split__timingsession=session) & ~Q(user__email='')).distinct()
+        full_workout = (request.POST.get('full_workout', 1) in
+                        ('true', 'True', 1))
 
-        if full_workout == 'true':
-            for athlete in athlete_list:
-                athlete_email = athlete.user.email
-                if athlete_email:
-                    context = {'name': athlete.user.first_name, 'date': session.start_time, 'link': }
-                    message = (session.name, loader.render_to_string
-                        ('../templates/email_templates/results_email.txt', context),'tracchicago@gmail.com', [athlete_email])
-                    email_list.append(message)
+        email_template = '../templates/email_templates/{}'.format(
+            'results_email.txt' if full_workout else
+            'results_email_single.txt')
+        if full_workout:
+            download_link = ''
         else:
-            for athlete in athlete_list:
-                athlete_email = 'griffin@tracchicago.com'
-                if athlete_email:
-                    context = {'name': athlete.user.first_name, 'date': session.start_time, 'workout_name': session.name ,'splits': session._calc_athlete_splits(athlete.id).splits}
-                    message = (session.name, loader.render_to_string
-                        ('../templates/email_templates/results_email_single.txt', context),'tracchicago@gmail.com', [athlete_email])
-                    email_list.append(message)
+            download_link = None
+
+        import ipdb; ipdb.set_trace()
+        email_list = []
+        for athlete in athletes:
+            athlete_email = 'elliot@tracchicago.com'
+            # athlete_email = athlete.user.email
+            context = {
+                'name': athlete.user.first_name,
+                'date': session.start_time
+            }
+            if full_workout:
+                context.update({'link': download_link})
+            else:
+                context.update({
+                    'workout_name': session.name,
+                    'splits': session._calc_athlete_splits(athlete.id).splits
+                })
+            message = (
+                session.name,
+                loader.render_to_string(email_template, context),
+                'tracchicago@gmail.com',
+                [athlete_email]
+            )
+            email_list.append(message)
 
         send_mass_mail(email_list, fail_silently=False)
-
         return Response(status=status.HTTP_200_OK)
 
 
