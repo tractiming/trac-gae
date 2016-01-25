@@ -215,6 +215,46 @@
 			<div class="row">
 				<h1 id="results-title">Results</h1>
 				<div id="results-status" class="center">Workout status: <span></span></div>
+				<div class= "col-lg-5" style="padding-left:0px !important;">
+                  <div class="input-group">
+					  <span class="input-group-addon " id="basic-search"  aria-hidden="true" style="cursor:pointer;"><span class="glyphicon glyphicon-search" onclick="amplitude.logEvent('roster_search');"></span></span>
+					  <input type="text" class="form-control" placeholder="Search" aria-describedby="basic-search" style="border-top-right-radius:4px !important; border-bottom-right-radius:4px !important; position:static !important;" type="search" id="searchinput">
+					  <span id="searchclear" class="glyphicon glyphicon-remove fade" onclick="$('#searchinput').val('');"></span>
+                      <span></span>
+					</div>
+                </div>
+                <script>
+                //Script to alternate search bar
+                	var bool = 1;
+                	$("#basic-search").click(function(){
+                		if(bool==1){
+	                		$( "#searchinput" ).animate({
+	                			width:'0',
+	                			paddingRight:0,
+	                			paddingLeft:0,
+	                		},1000);
+	                		$( "#searchclear" ).animate({
+	                			opacity:0
+	                		},1000);
+	                		bool = 0;
+	                		return;
+	                	}
+	                	else(bool==0)
+	                	{
+
+                		$( "#searchinput" ).animate({
+                			width:'100%',
+                			paddingRight:'12px',
+                			paddingLeft:'12px',
+                		},1000);
+                		$( "#searchclear" ).animate({
+                			opacity:1
+                		},1000);
+                		bool=1;
+                		return;
+                	}
+                	})
+                </script>
 				<div id="results">
 					<ul id="results-nav" class="nav nav-tabs">
 					  <li role="presentation" class="active"><a href="#">Live Results</a></li>
