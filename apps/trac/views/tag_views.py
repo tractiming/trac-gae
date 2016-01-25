@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, pagination
 
 from trac.models import Tag
 from trac.serializers import TagSerializer
@@ -14,6 +14,7 @@ class TagViewSet(viewsets.ModelViewSet):
     """
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = TagSerializer
+    pagination_class = pagination.LimitOffsetPagination
 
     def get_queryset(self):
         """Filter tags by requesting user.
