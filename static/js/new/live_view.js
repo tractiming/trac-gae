@@ -2186,7 +2186,7 @@ google.setOnLoadCallback(function(){
 							$('#individual-table-canvas>tbody').append(
 								'<tr id="results-'+runner.id+'" class="accordion-toggle" data-toggle="collapse" data-parent="#table-canvas" data-target="#collapse-'+runner.id+'" aria-expanded="false" aria-controls="collapse-'+runner.id+'">' + 
 									'<td>' + runner.first_name +' '+ runner.last_name  + '</td>' + 
-									'<td id="total-time-'+runner.id+'">'+ '<a id="resultsLink'+runner.id+'" style="cursor:pointer">See Results</a>' +'</td>' + 
+									'<td id="total-time-'+runner.id+'">'+ '<a id="resultsLink-'+runner.id+'" style="cursor:pointer">See Results</a>' +'</td>' + 
 										'<div class="modify-total-time pull-right" style="display:none;">' +
 											'<div class="edit-total"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
 										'</div>' +
@@ -2204,8 +2204,10 @@ google.setOnLoadCallback(function(){
 									'</td>' +
 								'</tr>'
 							);
-							$("#resultsLink"+runner.id).on('click', function(){
+							$("#resultsLink-"+runner.id).on('click', function(){
 				    			//Sent the binder, load the data
+				    			var dynamicID = $(this).attr('id').split('-')[1];
+
 				    			$.ajax({
 									url: '/api/sessions/'+ currentID+'/individual_results/' ,
 									headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
@@ -2216,7 +2218,9 @@ google.setOnLoadCallback(function(){
 										console.log(splits);
 										for (var j=0; j < splits.length; j++) {
 											console.log(splits[j]);
-											$('table#splits-'+runner.id+'>tbody').append(
+											console.log(runner.id);
+											//console.log($'$this')
+											$('table#splits-'+dynamicID+'>tbody').append(
 													'<tr>' + 
 														'<td class="split-number">' + (j+1) + '</td>' + 
 														'<td class="split-time">' + splits[j] + '</td>' + 
