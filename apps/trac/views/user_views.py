@@ -352,7 +352,7 @@ def send_email(request):
 @permission_classes((permissions.AllowAny,))
 def request_quote(request):
     """
-    If user requests quote, have it email founders to proceed from there.  
+    If user requests quote, have it email founders to proceed from there.
     """
     email = request.POST.get('email')
     name = request.POST.get('name')
@@ -417,26 +417,6 @@ def give_athlete_password(request):
         return HttpResponse(status.HTTP_403_FORBIDDEN)
 
 
-@api_view(['POST'])
-@login_required()
-@permission_classes((permissions.IsAuthenticated,))
-def reset_password(request):
-    name =  base64.urlsafe_b64decode(request.POST.get('user').encode('utf-8'))
-    user = get_object_or_404(User, pk=name)
-    token = request.auth
-    if token not in user.accesstoken_set.all():
-        return HttpResponse(status.HTTP_403_FORBIDDEN)
-    if token.expires < timezone.now():
-        return HttpResponse(status.HTTP_403_FORBIDDEN)
-    if user.is_authenticated():
-        user.set_password(request.POST.get('password'))
-        user.save()
-    else:
-        return HttpResponse(status.HTTP_403_FORBIDDEN)
-    user.accesstoken_set.get(token=token).delete()
-    return HttpResponse(status.HTTP_200_OK)
-
-
 def subscribe(request, **kwargs):
 	data = request.POST
 	print data
@@ -453,4 +433,3 @@ def subscribe(request, **kwargs):
 	stripe.api_key = settings.STRIPE_SECRET_KEY
 
 	return redirect('/payments')
-
