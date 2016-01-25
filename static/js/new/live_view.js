@@ -2183,12 +2183,59 @@ google.setOnLoadCallback(function(){
 						var runner = {};
 						for (var i=0; i < results.length; i++) {
 							runner = results[i];
-							$('#individual-table-canvas tbody').append(
-								'<tr>' +
-									'<td>'+ runner.first_name +' '+ runner.last_name +'</td>' +
-									'<td>'+ '<a>See Results</a>' +'</td>' +
+							$('#individual-table-canvas>tbody').append(
+								'<tr id="results-'+runner.id+'" class="accordion-toggle" data-toggle="collapse" data-parent="#table-canvas" data-target="#collapse-'+runner.id+'" aria-expanded="false" aria-controls="collapse-'+runner.id+'">' + 
+									'<td>' + runner.first_name +' '+ runner.last_name  + '</td>' + 
+									'<td id="total-time-'+runner.id+'">'+ '<a id="resultsLink'+runner.id+'" style="cursor:pointer">See Results</a>' +'</td>' + 
+										'<div class="modify-total-time pull-right" style="display:none;">' +
+											'<div class="edit-total"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
+										'</div>' +
+									'</td>' +
+								'</tr>' + 
+								'<tr></tr>'	+		// for correct stripes 
+								'<tr class="splits">' +
+									'<td colspan="4">' +
+										'<div id="collapse-'+runner.id+'" class="accordion-body collapse" aria-labelledby="results-'+runner.id+'">' + 
+											'<table id="splits-'+runner.id+'" class="table" style="text-align:center; background-color:transparent">' +
+												'<tbody>' +
+												'</tbody>' +
+											'</table>' +
+										'</div>' + 
+									'</td>' +
 								'</tr>'
 							);
+							$("#resultsLink"+runner.id).on('click', function(){
+				    		//Sent the binder, load the data
+				    		alert('heyo');
+				    		$(this);
+							//var total = 0;
+							for (var j=0; j < splits.length; j++) {
+								var split = Number(splits[j][0]).toFixed(3);
+
+								// add splits to subtable
+								/*$('table#splits-'+id+'>tbody').append(
+									'<tr>' + 
+										'<td class="split-number">' + (j+1) + '</td>' + 
+										'<td class="split-time">' + split + '</td>' + 
+										'<td class="split-edit-options hidden-xs">' +
+											'<div class="modify-splits modify-splits-'+id+' pull-right" style="display:none;">' +
+												'<div class="insert-split"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></div>' +
+												'<div class="insert-split"><span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span></div>' +
+												'<div class="edit-split"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
+												'<div class="delete-split"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></div>' +
+											'</div>' +
+										'</td>' + 
+									'</tr>'
+								);*/
+
+								// now calculate total time
+								//total += Number(split);
+							}
+
+
+				    	});
+
+
 						}
 
 						// show results
@@ -2199,7 +2246,9 @@ google.setOnLoadCallback(function(){
 					}
 				}
 			});
-		}
+		};
+
+		
 
 
 
