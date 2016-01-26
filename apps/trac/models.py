@@ -1,4 +1,4 @@
-from collections import namedtuple, Iterable
+from collections import namedtuple
 import datetime
 
 from django.contrib.auth.models import User
@@ -276,8 +276,6 @@ class TimingSession(models.Model):
         Individual results can also be filtered by age, gender, etc.
         """
         if athlete_ids is not None:
-            if not isinstance(athlete_ids, Iterable):
-                athlete_ids = [athlete_ids]
             athletes = list(set(athlete_ids))
         else:
             athletes = self._sorted_athlete_list(limit=limit,

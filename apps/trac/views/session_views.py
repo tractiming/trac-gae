@@ -4,9 +4,7 @@ import datetime
 import json
 import logging
 import uuid
-import csv
-
-from collections import OrderedDict
+from collections import OrderedDict, Iterable
 
 import dateutil.parser
 from django.conf import settings
@@ -217,6 +215,12 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             type: string
             paramType: query
             allowMultiple: true
+          - name: athletes
+            description: Get results for these athletes only
+            required: false
+            type: string
+            paramType: query
+            allowMultiple: true
         omit_parameters:
           - form
         parameters_strategy:
@@ -252,13 +256,23 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         offset = int(request.query_params.get('offset', 0))
         all_athletes = bool(request.query_params.get('all_athletes', False))
 
+        athletes = _to_ast(request.query_params.get('athletes', None))
+        if athletes is not None:
+            if not isinstance(athletes, Iterable):
+                athletes = [athletes]
+            # Filter out IDs that do not belong to valid athletes.
+            athletes = Athlete.objects.filter(pk__in=athletes).values_list(
+                'id', flat=True)
+            all_athletes = False
+
         session = self.get_object()
         raw_results = session.individual_results(limit,
                                                  offset,
                                                  gender=gender,
                                                  age_lte=age_lte,
                                                  age_gte=age_gte,
-                                                 teams=teams)
+                                                 teams=teams,
+                                                 athlete_ids=athletes)
 
         extra_results = []
         distinct_ids = set(session.splits.values_list('athlete_id',
