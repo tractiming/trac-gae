@@ -9,7 +9,6 @@ Examples
 {'foo': 42, 'bar': 'spam'}
 """
 import contextlib
-import csv
 import json
 import os
 import tempfile
@@ -99,8 +98,8 @@ def json_write(bucket, path, data):
 
 
 @contextlib.contextmanager
-def csv_writer(bucket, path, make_public=False):
-    """A context for writing CSV files to cloud storage.
+def gcs_writer(bucket, path, make_public=False):
+    """A context for writing files to cloud storage.
 
     Parameters
     ----------
@@ -114,18 +113,19 @@ def csv_writer(bucket, path, make_public=False):
 
     Yields
     ------
-    csv.writer object
+    file object
 
     Examples
     --------
     >>> data = [['foo', '1'], ['bar', '2']]
-    >>> with csv_write('bucket', 'path/to.csv') as _file:
+    >>> with gcs_writer('bucket', 'path/to.csv') as _file:
+    ...     writer = csv.writer(_file)
     ...     for d in data:
-    ...         _file.writerow(d)
+    ...         writer.writerow(d)
     """
     temp = tempfile.TemporaryFile()
     try:
-        yield csv.writer(temp)
+        yield temp
         temp.seek(0, os.SEEK_END)
         size = temp.tell()
 

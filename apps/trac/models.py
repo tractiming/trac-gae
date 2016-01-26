@@ -83,6 +83,7 @@ class Tag(models.Model):
     An RFID tag that is worn by an athlete. Each athlete can have only one tag.
     """
     id_str = models.CharField(max_length=50, unique=True)
+    bib = models.CharField(max_length=25, null=True, blank=True)
     athlete = models.OneToOneField(Athlete)
 
     def __unicode__(self):
@@ -345,7 +346,7 @@ class TimingSession(models.Model):
 
 
     # TODO: Move to utils.
-    def _delete_split(self, tag_id, split_indx):
+    def _delete_split(self, athlete_id, split_indx):
         """
         Delete a result from the array of splits. The runner is identified by
         tag id and the split to be deleted is identified by its position in the
@@ -353,8 +354,8 @@ class TimingSession(models.Model):
         results.
         """
         assert self.filter_choice is False, "Filter must be off to delete."
-        tt = self.splits.filter(tag__id=tag_id).order_by('time')
-        athlete = Athlete.objects.get(tag__id=tag_id)
+        tt = self.splits.filter(athlete_id=athlete_id).order_by('time')
+        athlete = Athlete.objects.get(id=athlete_id)
 
         # Find the index of the first tag time we need to change.
         if self.start_button_time is not None:
@@ -363,7 +364,7 @@ class TimingSession(models.Model):
             indx = split_indx+1
 
         # Get the offset and delete the time.
-        splits = self.calc_athlete_splits(athlete.id)
+        splits = self._calc_athlete_splits(athlete.id)
         offset_ms = int(splits[3][split_indx] * 1000)
         tt[indx].delete()
 
@@ -373,14 +374,14 @@ class TimingSession(models.Model):
             tt[i].save()
 
     # TODO: Move to utils.
-    def _insert_split(self, tag_id, split_indx, val, shift):
+    def _insert_split(self, athlete_id, split_indx, val, shift):
         """
         Insert a new split into the array before the given index.
         Can specify whether to shift following splits.
         """
         assert self.filter_choice is False, "Filter must be off to insert."
 
-        tt = self.splits.filter(tag__id=tag_id).order_by('time')
+        tt = self.splits.filter(athlete_id=athlete_id).order_by('time')
         split_dt = val
 
         # Find the index of the first tag time we need to change as well as the
@@ -398,8 +399,7 @@ class TimingSession(models.Model):
         # Create a new tagtime.
         t_curr = t_prev+split_dt
         r = self.readers.all()[0]
-        athlete = Athlete.objects.get(tag__id=tag_id)
-        nt = Split.objects.create(tag_id=tag_id, athlete=athlete, time=t_curr,
+        nt = Split.objects.create(athlete_id=athlete_id, time=t_curr,
                                   reader=r)
 
         if shift:
@@ -415,7 +415,7 @@ class TimingSession(models.Model):
         self.save()
 
     # TODO: Move to utils.
-    def _edit_split(self, tag_id, split_indx, val):
+    def _edit_split(self, athlete_id, split_indx, val):
         """
         Change the value of a split in the list of results. The split index
         should refer to the position in the unfiltered results.
@@ -424,17 +424,17 @@ class TimingSession(models.Model):
 
         # The split is edited by deleting the current time and inserting a new
         # split in its place.
-        self._delete_split(tag_id, split_indx)
-        self._insert_split(tag_id, split_indx, val, True)
+        self._delete_split(athlete_id, split_indx)
+        self._insert_split(athlete_id, split_indx, val, True)
 
     # TODO: Move to utils.
-    def _overwrite_final_time(self, tag_id, hr, mn, sc, ms):
+    def _overwrite_final_time(self, athlete_id, hr, mn, sc, ms):
         """
         Force a final time for the given tag id. This will delete all existing
         splits and assign a final time only.
         """
         # Delete all existing times for this tag.
-        times = self.splits.filter(tag__id=tag_id)
+        times = self.splits.filter(athlete_id=athlete_id)
         times.delete()
 
         # If the start button has not been set, we need to set it.
@@ -448,8 +448,7 @@ class TimingSession(models.Model):
         #    final_time += timezone.timedelta(hours=0, minutes=0, seconds=1)
         #    new_ms = new_ms % 1000
 
-        athlete = Athlete.objects.get(tag__id=tag_id)
-        tt = Split.objects.create(tag_id=tag_id, athlete=athlete, reader=r,
+        tt = Split.objects.create(athlete_id=athlete_id, reader=r,
                                   time=final_time)
         self.splits.add(tt.pk)
         self.save()

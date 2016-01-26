@@ -36,10 +36,7 @@ $(function() {
     $('input#google-sign-in').attr('src','../static/img/btn_google_signin_dark_normal_web@2x.png');
         });
 	// submit form
-	$('body').on('click', 'a#passwordlink', function(e){
-		e.preventDefault();
-		$('#pModal').modal('show');
-	});
+
     $('body').on('submit', 'form#uform', function(e){
         e.preventDefault();
         var uname =  $('input#uname').val();

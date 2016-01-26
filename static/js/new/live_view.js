@@ -404,7 +404,8 @@ google.setOnLoadCallback(function(){
 			// request for registered runners
 			$.ajax({
 				method: 'GET',
-				url: 'api/reg_tag',
+				url: 'api/athletes?registered_to_session=' + currentID +
+                     '&session!=' + currentID,
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				data: {id: currentID, missed: true },
 				dataType: 'text',
@@ -425,9 +426,11 @@ google.setOnLoadCallback(function(){
 						$('#add-missed-runner-select').prop('disabled', false);
 
 						for (var i=0; i<data.length; i++) {
-							var tag = data[i];
+							var athlete = data[i];
 							$('#add-missed-runner-select').append(
-								'<option value="'+tag.id+'">'+tag.first+' '+tag.last+'</option>'
+								'<option value="'+athlete.id+'">' +
+                                athlete.first_name + ' ' + athlete.last_name +
+                                '</option>'
 							);
 						}
 
@@ -443,7 +446,7 @@ google.setOnLoadCallback(function(){
 						$('body').on('click', '#add-missed-runner-confirm', function(e) {
 							e.preventDefault();
 
-							tagID = $('#add-missed-runner-select option:selected').val();
+							athleteID = $('#add-missed-runner-select option:selected').val();
 							hrs = Number($('#add-missed-runner-hrs').val());
 							mins = Number($('#add-missed-runner-mins').val());
 							secs = Number($('#add-missed-runner-secs').val());
@@ -453,19 +456,19 @@ google.setOnLoadCallback(function(){
 								$('.notification.add-missed-runner-error').show();
 								return;
 							}
+                            var data = [{
+                                "id": athleteID,
+                                "splits": [hrs*3600 + mins*60 + secs + ms/1000.0]
+                            }];
 
 							$.ajax({
 								method: 'POST',
-								url: 'api/sessions/'+currentID+'/add_missed_runner/',
-								headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-								data: {
-									tag_id: tagID,
-									hour: hrs,
-									min: mins,
-									sec: secs,
-									mil: ms 
-								},
-								dataType: 'text',
+								url: 'api/sessions/'+currentID+'/upload_results/',
+								headers: {Authorization: 'Bearer ' +
+                                          sessionStorage.access_token},
+
+								data: JSON.stringify(data),
+								contentType: 'application/json',
 								success: function(data) {
 									$('#table-canvas').empty();
 									spinner.spin(target);
@@ -487,6 +490,61 @@ google.setOnLoadCallback(function(){
 					}
 				}
 			});
+		});
+
+		// register handler for downloading results
+		$('body').on('click', 'button#download', function(e) {
+			e.stopPropagation();
+
+			$('.notification').hide();
+			$('#download-results-modal').modal('show');
+			$('#download-results-body').show();
+            $('body').off('click', '#download-results-confirm');
+            $('body').on('click', '#download-results-confirm', function(e) {
+                e.preventDefault();
+
+			    $('#spinner-download-results').css('height', 150);
+			    spinner.spin(document.getElementById('spinner-download-results'));
+
+                downloadFormat = $('input[name="download-format"]:checked').val();
+
+                $.ajax({
+                    method: 'POST',
+                    url: '/api/sessions/' + currentID + '/export_results/',
+                    headers: {
+                        Authorization: 'Bearer ' + sessionStorage.access_token
+                    },
+                    data: JSON.stringify({
+                        'file_format': downloadFormat
+                    }),
+                    contentType: 'application/json',
+                    dataType: 'text',
+                    success: function(data) {
+                        var uri = $.parseJSON(data).uri;
+                        var link = document.createElement('a');
+                        link.href = uri;
+                        link.style = 'visibility:hidden';
+
+                        spinner.stop();
+						$('#spinner-download-results').css('height', '');
+				        $('#download-results-modal').modal('hide');
+
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+
+                    },
+                    error: function(jqXHR, exception) {
+                        $('.notification.server-error').show();
+                    }
+                });
+            });
+            $('body').off('click', '#download-results-cancel');
+            $('body').on('click', '#download-results-cancel', function(e) {
+                e.preventDefault();
+                $('#download-results-modal').modal('hide');
+            });
+
 		});
 
 		// register handler for edit total time
@@ -588,33 +646,13 @@ google.setOnLoadCallback(function(){
 					e.preventDefault();
 
 					// make ajax call to turn off filter
-					var id = sessionData.id,
-							name = sessionData.name,
-							start = sessionData.start_time,
-							stop = sessionData.stop_time,
-							restTime = sessionData.rest_time,
-							distance = sessionData.interval_distance,
-							size = sessionData.track_size,
-							intervalNumber = sessionData.interval_number,
-							privateSelect = sessionData.private,
-							filter = false;
-
 					$.ajax({
-						type: 'POST',
-						dataType:'json',
-						url: '/api/time_create/',
+						type: 'PATCH',
+						dataType: 'json',
+						url: '/api/sessions/' + currentID + '/',
 						headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
 						data: {
-							id: id,
-							name: name,
-							start_time: start,
-							stop_time: stop,
-							rest_time: restTime,
-							track_size: size,
-							interval_distance: distance,
-							interval_number: intervalNumber,
-							filter_choice: filter,
-							private: privateSelect
+							filter_choice: false,
 						},
 						success: function(data) {
 							// update front end data
@@ -1320,12 +1358,20 @@ google.setOnLoadCallback(function(){
 		$('body').on('change', '#gender-select, #age-select', function(){
 			drawIndividual();
 		});
+		//Prevent from typing any non numeric characters
+		$("#age-select").keypress(function (e) {
+			if (e.which != 8 && e.which != 0 && e.which != 45 &&(e.which < 48 || e.which > 57)) {
+			return false;
+			}
+		});
+
 
 		function drawIndividual() {
 			$('#individual-table-canvas').empty();
 
 			var a = $('#age-select').val();
 			var g = $('#gender-select').val();
+			console.log(a);
 
 			// gender or age wasn't selected
 			if ((a === null) || (g === null)) {
@@ -1836,7 +1882,7 @@ google.setOnLoadCallback(function(){
 		});
 
 		// download to CSV script
-		$('body').on('click', '#download', function(){
+		/*$('body').on('click', '#download', function(){
 			// hide download buttons and show status
 			$('#download-container').hide();
 			$('#download-status').show();
@@ -1871,7 +1917,7 @@ google.setOnLoadCallback(function(){
 					$('#download-container').show();
 				}
 			});
-		});
+		});*/
 
 		//=================================== download functions ====================================
 		function createFullCSV(){
@@ -2039,7 +2085,7 @@ google.setOnLoadCallback(function(){
 			});
 		}
 
-		function download(CSV, reportTitle) {
+		/*function download(CSV, reportTitle) {
 			//Generate a file name
 			var fileName = 'TRAC_';
 			//this will remove the blank-spaces from the title and replace it with an underscore
@@ -2065,7 +2111,7 @@ google.setOnLoadCallback(function(){
 			document.body.appendChild(link);
 			link.click();
 			document.body.removeChild(link);
-		}
+		}*/
 
 	});
 });

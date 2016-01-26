@@ -77,25 +77,32 @@ else{
                                 
                                 <br>
                                 
-                                <a href="#" id ="passwordlink" onclick="amplitude.logEvent('forgotPassword');">Forgot your Password?</a>
+                                <a href="#" id ="passwordlink" onclick="amplitude.logEvent('forgotPassword');" data-toggle="modal" data-target="#pModal">Forgot your Password?</a>
 							</form>
 							<div class="modal fade" id="pModal" role="dialog">
     							<div class="modal-dialog">
       								<div class ="modal-content">
+      									<form id="uform" style="margin: 2%;" method="post">
+      										<div class="modal-header">
+							                Forgot Password <button id="cl" class="close" data-dismiss="modal" ng-click="cancel(val);"><span class="glyphicon glyphicon-remove"></span></button>
+							              </div>
        									<div class="modal-body">
-											<form id="uform" style="margin: 2%;" method="post">
 												{% csrf_token %}
 												<div class="form-group">
       												<label for="uname">Username</label>
-     	 											<input type="text" id="uname" class='form-control'>
+     	 											<input type="text" id="uname" class='form-control' required>
      	 										</div>
      	 										<div class="form-group">
       												<label for="uemail">Email</label>
-      												<input type="text" id="uemail" class="form-control">
-      											</div>
-      											<button type="submit" id="edit-submit" class="btn btn-primary" style="margin-right:10px;">Submit</button>
-											</form>
+      												<input type="text" id="uemail" class="form-control" required>
+      											</div>									
 										</div>
+										<div class="modal-footer">
+											<div class="button-container" >
+												<button type="submit" id="edit-submit" class="btn btn-primary" >Submit</button>
+											</div>
+										</div>
+										</form>
 									</div>
 								</div>
 							</div>

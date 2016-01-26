@@ -1,7 +1,6 @@
 import logging
 
 from dateutil import parser
-from django.db.models import Q
 from django.utils import timezone
 from rest_framework import (
     viewsets, permissions, status, pagination, filters
@@ -44,8 +43,28 @@ def _convert_times(data):
 
 
 class SplitViewSet(viewsets.ModelViewSet):
-    """
-    Split resource.
+    """Split resource.
+
+    A split represents a time when a particular athlete was at a
+    specific location. It is essentially a timestamp that may come
+    from a reader or a manual entry. Taking the time difference between
+    consecutive splits calculates results.
+    ---
+    create:
+      omit_parameters:
+      - query
+    update:
+      omit_parameters:
+      - query
+    partial_update:
+      omit_parameters:
+      - query
+    destroy:
+      omit_parameters:
+      - query
+    retrieve:
+      omit_parameters:
+      - query
     """
     serializer_class = SplitSerializer
     permission_classes = (permissions.IsAuthenticated,)

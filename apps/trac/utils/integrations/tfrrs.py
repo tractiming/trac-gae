@@ -1,7 +1,7 @@
 """
 Utilities for outputing results in TFRRS format.
 """
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -19,8 +19,8 @@ _TFRRS_FIELDS = [
 
 def format_tfrrs_results(session):
     """Given a session, generate raw results using
-    `TimingSession.individual_results` and create a list of strings,
-    each containing a row of a TFRRS-formatted CSV file.
+    `TimingSession.individual_results` and create a list of ordered
+    dicts, each containing a row of a TFRRS-formatted CSV file.
     """
     raw_results = session.individual_results()
 
@@ -63,6 +63,7 @@ def format_tfrrs_results(session):
         row = {key: str(value) for key, value in data.items()
                if value is not None}
         row = defaultdict(str, row)
-        results.append(','.join(row[field] for field in _TFRRS_FIELDS))
+        results.append(
+            OrderedDict((field, row[field]) for field in _TFRRS_FIELDS))
 
     return results
