@@ -276,6 +276,10 @@ STATICFILES_DIRS = (
 )
 ##################################
 
+########### STORAGE CONFIGURATION ###########
+DEFAULT_FILE_STORAGE = 'backends.gae_storage.GCSStorage'
+#############################################
+
 ########## TEMPLATE CONFIGURATION ##########
 TEMPLATE_DIRS = (
     normpath(join(DJANGO_ROOT, 'templates')),
@@ -373,3 +377,4 @@ GOOGLE_AUTH_DOMAINS = ['accounts.google.com', 'https://accounts.google.com']
 
 GCS_RESULTS_BUCKET = 'trac-us.appspot.com'
 GCS_RESULTS_DIR = 'results'
+GCS_DEFAULT_BUCKET = 'trac-us.appspot.com'
