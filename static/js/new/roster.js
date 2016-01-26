@@ -31,11 +31,29 @@
     $scope.hideInput = true;
     $scope.regNull = false;
     $scope.editing_header = true;
+    $scope.csvHeader = true;
     $scope.currentPage = 1;
     $scope.sessionFirst = 1;
     $scope.sessionLast = SESSIONS_PER_PAGE;
     $scope.universalEdit = false;
 
+    $scope.fileNameChanged = function() {
+      var input = $('.roster_'+$scope.rosterID+' :file'),
+          numFiles = input.get(0).files ? input.get(0).files.length : 1,
+          label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+
+      input.trigger('fileselect', [numFiles, label]);
+
+       var input = $('.roster_'+$scope.rosterID+' :file').parents('.file-input-'+$scope.rosterID).find(':text'),
+          log = numFiles > 1 ? numFiles + ' files selected' : label;
+      
+      if( input.length ) {
+        input.val(log);
+      } else {
+        if( log ) alert(log);
+      }
+
+    }
 
     //pagination buttons
     $scope.pageForward = function(){
@@ -407,6 +425,53 @@
     $scope.cancelHeader = function(){
       $scope.editing_header = true;
     }
+    $scope.csvheader = function(){
+      $scope.csvHeader = false;
+    }
+    $scope.csvcancelHeader = function(){
+      $scope.csvHeader = true;
+    }
+    $scope.csvTeamCreate = function(id){
+      var fd = new FormData($('#csvformRoster-'+id)[0]);
+      var url = "/api/teams/"+ id +"/upload_roster/";
+      $('#csvModal').modal('hide');
+      usSpinnerService.spin('roster-spinner');
+      $http({method: 'POST', url: url, cache:false, headers: {Authorization: 'Bearer ' + sessionStorage.access_token, 'Content-Type': undefined}, data:fd, transformRequest: angular.identity })
+            .success(function (response) { 
+             
+              var url = '/api/athletes/?team=' + $scope.rosterID + '&limit=100';
+            $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
+            .success(function (response) { 
+              $scope.rosterAthletes = response.results;
+              usSpinnerService.stop('roster-spinner');
+              });
+            });
+    }
+
+    $scope.csvWorkoutCreate = function(files){
+      var fd = new FormData($('#csvform')[0]);
+
+      var url = "/api/sessions/"+$scope.selectedID+"/upload_runners/";
+      usSpinnerService.spin('main-spinner');
+      $http({method: 'POST', url: url, cache:false, headers: {Authorization: 'Bearer ' + sessionStorage.access_token, 'Content-Type': undefined}, data:fd, transformRequest: angular.identity })
+            .success(function (response) { 
+              var url = '/api/athletes/?registered_to_session='+ $scope.selectedID+'&limit=50';
+            $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
+              .success(function (response) { 
+                $scope.athletes = response.results;
+                $scope.count = response.count;
+                if (response.results.length == 0){
+                   $scope.regNull = true;
+                }
+                else{
+                  $scope.regNull = false;
+                }
+                usSpinnerService.stop('main-spinner');
+            });
+          });
+
+    }
+
     $scope.saveHeader = function(regForm){
       $http({method: 'POST', url: '/api/athletes/', headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{
         first_name: regForm.first_name,

@@ -4,6 +4,8 @@ import datetime
 import json
 import logging
 import uuid
+import csv
+
 from collections import OrderedDict
 
 import dateutil.parser
@@ -18,10 +20,11 @@ from django.template import loader
 from rest_framework import viewsets, permissions, status, pagination, filters
 from rest_framework.decorators import api_view, permission_classes, detail_route
 from rest_framework.response import Response
+from rest_framework.parsers import FileUploadParser
 
 from trac.filters import TimingSessionFilter
 from trac.models import TimingSession, Reader, Tag, Split, Team, Athlete
-from trac.serializers import TimingSessionSerializer
+from trac.serializers import TimingSessionSerializer, AthleteSerializer
 from trac.utils.integrations import tfrrs
 from trac.utils.phone_split_util import create_phone_split
 from trac.utils.gcs_util import gcs_writer, get_public_link
@@ -551,6 +554,53 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
         send_mass_mail(email_list, fail_silently=False)
         return Response(status=status.HTTP_200_OK)
+
+    @detail_route(methods=['post'], parser_classes=(FileUploadParser,))
+    def upload_runners(self, request, *args, **kwargs):
+        """Upload a CSV file for athletes to be registered into a workout
+
+        The uploaded file must have a header row that contains the
+        fields "first_name" and "last_name" and may additionally
+        contain any of the fields "gender" or "birth_date".
+
+        A new athlete will be created for each row in the file and that
+        athlete will be added to the selected session
+        """
+        session = self.get_object()
+        user = request.user
+
+        file_obj = request.data.pop('file', None)
+
+        if not file_obj:
+            return Response("No file uploaded",
+                            status=status.HTTP_400_BAD_REQUEST)
+        file_obj = file_obj[0]
+
+        roster = csv.DictReader(file_obj)
+        if not all(field in roster.fieldnames for field in
+                   ('first_name', 'last_name')):
+            return Response('File does not contain "first_name" and '
+                            '"last_name" in header',
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        new_athletes = list()
+
+        for athlete in roster:
+            team, created = Team.objects.get_or_create(name=athlete.get('team',None),coach_id=user.coach.id)
+            athlete_data = {
+                'username': uuid.uuid4().hex[:30],  # Assign random username
+                'first_name': athlete['first_name'],
+                'last_name': athlete['last_name'],
+                'gender': athlete.get('gender', None),
+                'birth_date': athlete.get('birth_date', None),
+                'team': team.id
+            }
+            serializer = AthleteSerializer(data=athlete_data)
+            serializer.is_valid(raise_exception=True)
+            new_athlete = serializer.create(serializer.validated_data)
+            session.registered_athletes.add(new_athlete.pk)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @api_view(['POST'])

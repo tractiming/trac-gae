@@ -11,7 +11,7 @@
 <script type="text/javascript" src="{% static "js/new/directives/components.js" %}"> </script>
 <script type="text/javascript" src="{% static "js/new/spinner-directive.js" %}"> </script>
 <script type="text/javascript" src="{% static "js/access_token.js" %}"></script>
-<script type="text/javascript" src="{% static "js/timeConversion.js" %}" />
+<script type="text/javascript" src="{% static "js/new/roster_jquery.js" %}"></script>
 
 <!--<script type="text/javascript" src="{% static "js/new/race_angular.js" %}"></script>-->
 {% endblock %}
@@ -51,11 +51,9 @@
 
             <div class="row">
               <div class="col-lg-offset-10 col-md-offset-10 col-sm-offset-10 col-xs-offset-10">
-              <!--ADD IN WHEN ENDPOINT FINISHED
-
               <button type="button" class="btn btn-default hidden-xs" id="plus" data-toggle="modal" data-target="#csvModal">
                   <span class="glyphicon glyphicon-plus" aria-hidden="true"> </span> CSV Upload
-              </button>-->
+              </button>
             </div>
             </div>
               <h1 id="score-title">Roster{{':' + workoutName}}</h1>
@@ -92,7 +90,7 @@
                       <th class="col-lg-2 col-sm-3 col-xs-3">Last Name</th>
                       <th style="display:none">Username</th>
                       <th class="col-lg-2 col-sm-2 col-xs-2">Tag ID</th>
-                      <th class="col-lg-1 col-sm-2 col-xs-1">Team</th>
+                      <th class="col-lg-2 col-sm-2 col-xs-1">Team</th>
                       <th class="hidden-xs hidden-sm">Year</th>
                       <th class="hidden-xs hidden-sm">Gender</th>
                     </tr>
@@ -120,13 +118,13 @@
                         <input name="{{ name }}" type="text" ng-model="x.tag" ng-show="editing_{{x.id}}" placeholder="Tag ID" class="form-control no-animate">
                       </div>
                     </td>
-                    <td class="col-lg-1 col-sm-2 col-xs-1">
+                    <td class="col-lg-2 col-sm-2 col-xs-1">
                       <div class="form-group">
                         <div ng-bind="x.team_name" ng-hide="editing_{{x.id}}" class="no-animate"></div> 
                         <input name="{{ name }}" type="text" ng-model="x.team_name" ng-show="editing_{{x.id}}" placeholder="Team" class="form-control no-animate" ng-disabled="true">
                       </div>
                     </td>
-                    <td class="hidden-xs hidden-sm col-lg-2">
+                    <td class="hidden-xs hidden-sm col-lg-1">
                       <div class="form-group">
                         <div ng-bind="x.birth_date" ng-hide="editing_{{x.id}}" class="no-animate"></div> 
                         <input name="{{ name }}" type="text" ng-model="x.birth_date" ng-show="editing_{{x.id}}" placeholder="Year" class="form-control no-animate">
@@ -202,7 +200,7 @@
         <div class="modal-header">
           Roster Upload <button id="cl" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button>
           </div>
-          <div class="modal-body">
+          <div class="modal-body" style="min-height:250px">
             <tabs>
               <pane title="{{team.name}}" id="{{team.id}}" ng-repeat-start="team in rosterTeams">
             <!-- SEARCH BAR TO BE ADDED <div class="input-group col-lg-5">
@@ -250,9 +248,19 @@
                         </div>
                       </th>
                       <th class="col-lg-2 col-sm-1">
-                        <button type="button" class="btn btn-default pull-right" ng-click="header();" ng-show="editing_header">
+                        <div class="dropdown">
+                          <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            Add Runners
+                            <span class="caret"></span>
+                          </button>
+                          <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                            <li><a  ng-click="header();" ng-show="editing_header">Add Runner</a></li>
+                            <li><a ng-click="csvheader();" ng-show="csvHeader">CSV Upload Team</a></li>
+                          </ul>
+                        </div>
+                      <!--  <button type="button" class="btn btn-default pull-right" ng-click="header();" ng-show="editing_header">
                           <span class="glyphicon glyphicon-plus" aria-hidden="true"> </span><span class="hidden-sm hidden-xs">Runner</span>
-                       </button>
+                       </button>-->
                        <button type="button" class="btn btn-default pull-right hidden-lg" ng-click="cancelHeader();" ng-hide="editing_header">
                         <span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span>
                        </button>
@@ -260,6 +268,32 @@
                     </tr>
                   </thead>
                 <tbody>
+                  <tr ng-hide="csvHeader" class="expand">
+                    <td colspan="7">
+                      <form name="csvformRoster" id="csvformRoster-{{team.id}}" data-parsley-validate>
+                      <div class="row">
+                        <div class="col-lg-6">
+                          <p class="notification-warning">
+                            <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> CSV uploads must be in a specific format. Click <a href="../../../static/files/workout_upload_sample.csv">here</a> for an example.
+                          </p>
+                        </div>
+                        <div class="input-group col-lg-6 file-input-{{team.id}}">
+                          <span class="input-group-btn">
+                            <span class="btn btn-warning btn-file roster_{{team.id}}">
+                              Browse&hellip; <input type="file" id="file" name="file" onchange="angular.element(this).scope().fileNameChanged()" data-parsley-errors-container="#csv-parsley-errors">
+                            </span>
+                          </span>
+                          <input type="text" class="form-control" readonly required data-parsley-errors-container="#csv-parsley-errors" style="width:45%">
+                          <div class="pull-right" style="width:40%"> 
+                            <button name="" class="btn btn-primary" ng-click="csvTeamCreate(team.id);">Create</button>
+                            <button name="" class="btn btn-default hidden-sm hidden-xs hidden-md" ng-click="csvcancelHeader()">Cancel</button>
+                          </div>
+                        </div>
+                        
+                      </div>
+                    </form>
+                    </td>
+                  </tr>
                   <tr ng-class="{info:!editing_header}" ng-mouseover="hoverIn();" ng-mouseleave="hoverOut();" ng-hide="editing_header" class="expand">
                     <td class="col-lg-1">
                     </td>
@@ -413,28 +447,18 @@
     <div class="modal-dialog">
       <div class ="modal-content">
         <div class="modal-header">
-          CSV Upload <button id="cl" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button>
+          CSV Upload For Workout<button id="cl" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button>
         </div>
         <div class="modal-body">
           <form name="csvform" id="csvform" data-parsley-validate>
           <div class="form-group">
-            <label for="">Workout Name:</label> 
-            <input data-progression="" type="text" data-helper="" id="name" value="" placeholder="" class="form-control" required/>
-          </div>
-          <div class="form-group">
-            <label for="">Workout Date:</label> 
-            <input data-progression="" type="text" data-helper="" id="date" value="" placeholder="" class="form-control" required/>
-          </div>
-          <div class="form-group">
-            <label for="">Confirm Username:</label> 
-            <input data-progression="" type="text" data-helper="" id="coach_username" value="" placeholder="" class="form-control" required/>
-          </div>
-          <div class="form-group">
-            <label for="">Readers:</label> 
-            <input data-progression="" type="text" data-helper="" id="readers" value="" placeholder="" class="form-control" required/>
-          </div>
           <div class="spinner-container">
                 <div id="spinner_modal"></div>
+            </div>
+            <div class="center form-group">
+              <p class="notification-warning">
+                <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> CSV uploads must be in a specific format. Click <a href="../../../static/files/workout_team_upload_sample.csv">here</a> for an example.
+              </p>
             </div>
 
             <div class="form-group">
@@ -442,7 +466,7 @@
               <div class="input-group">
                 <span class="input-group-btn">
                   <span class="btn btn-warning btn-file">
-                    Browse&hellip; <input type="file" id="file" name="myfile" data-parsley-errors-container="#csv-parsley-errors">
+                    Browse&hellip; <input type="file" id="file" name="file" data-parsley-errors-container="#csv-parsley-errors">
                   </span>
                 </span>
                 <input type="text" class="form-control" readonly required data-parsley-errors-container="#csv-parsley-errors">
@@ -452,7 +476,7 @@
 
              <div class="button-container" id="csv_buttons"style="display:table;margin:0 auto;">
                 <!--<input type="file" id="file" name="myfile" class="btn btn-warning form-control" required>-->
-                <input type="submit" class="gen_btn btn btn-primary form-control" id="upload" name ="upload" value="Upload">
+                <input type="submit" class="gen_btn btn btn-primary form-control" id="upload" name ="upload" ng-click="csvWorkoutCreate();">
             </div>
           </form>
         </div>
