@@ -535,7 +535,13 @@ google.setOnLoadCallback(function(){
 
                     },
                     error: function(jqXHR, exception) {
-                        $('.notification.server-error').show();
+                    	spinner.stop();
+                    	$('#spinner-download-results').css('height', '');
+				        $('#download-results-modal').modal('hide');
+
+                        $('#email-success').modal('show');
+                    	$('#email-success-message').hide();
+                        $('#email-failure-message').show();
                     }
                 });
             });
@@ -543,6 +549,61 @@ google.setOnLoadCallback(function(){
             $('body').on('click', '#download-results-cancel', function(e) {
                 e.preventDefault();
                 $('#download-results-modal').modal('hide');
+            });
+
+		});
+
+		//Register Handler for Emailing Results
+				// register handler for downloading results
+		$('body').on('click', 'button#email', function(e) {
+			e.stopPropagation();
+
+			$('.notification').hide();
+			$('#email-results-modal').modal('show');
+			$('#email-body').show();
+            $('body').off('click', '#email-results-confirm');
+            $('body').on('click', '#email-results-confirm', function(e) {
+                e.preventDefault();
+
+			    $('#spinner-email-results').css('height', 150);
+			    spinner.spin(document.getElementById('spinner-email-results'));
+
+                resultsBoolean = $('input[name="email-format"]:checked').val();
+
+                $.ajax({
+                    method: 'POST',
+                    url: '/api/sessions/' + currentID + '/email_results/',
+                    headers: {
+                        Authorization: 'Bearer ' + sessionStorage.access_token
+                    },
+                    data: {'full_results': resultsBoolean},
+                    success: function(data) {
+                        spinner.stop();
+						$('#spinner-email-results').css('height', '');
+				        $('#email-results-modal').modal('hide');
+
+                        $('#email-success').modal('show');
+                        $('#email-failure-message').hide();
+                    	$('#email-success-message').show();
+
+
+                    },
+                    error: function(jqXHR, exception) {
+                    	spinner.stop();
+                    	$('#spinner-email-results').css('height', '');
+				        $('#email-results-modal').modal('hide');
+
+
+                    	$('#email-success').modal('show');
+                    	$('#email-success-message').hide();
+                        $('#email-failure-message').show();
+                    }
+                });
+            });
+            $('body').off('click', '#email-results-cancel');
+            $('body').on('click', '#email-results-cancel', function(e) {
+                e.preventDefault();
+                $('#email-results-modal').modal('hide');
             });
 
 		});
