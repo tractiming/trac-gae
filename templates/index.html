@@ -81,6 +81,7 @@
   <script src="{% static "js/bowtruss.js" %}" type="text/javascript"></script>
   <script src="{% static "js/bootstrap-datepicker.min.js" %}" type="text/javascript"></script>
   <script type="text/javascript" src="{% static "js/new/index.js" %}"></script>
+   <script src="https://checkout.stripe.com/checkout.js"></script>
   
 <!--colorbox-->
 <link rel="stylesheet" href="static/css/colorbox.css" />  
@@ -616,8 +617,35 @@ $("video").bind("ended", function() {
               </div>
         </div>
         <div class="modal-footer">
-          <div class="btn-group center" role="group">
-            <button type="submit" id="quote" class="btn btn-success" style="margin-left:2%">Email Request</button>
+          <div class="btn-group pull-right" role="group">
+            <button type="submit" id="quote" class="btn btn-secondary" style="margin-left:2%">Next<span class="glyphicon glyphicon-menu-right"></span></button>
+          </div>
+          <div id="spinner-form"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div class="modal fade" id="payment-modal" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header" style="color:black">
+            Success!<button id="cl" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button>
+        </div>
+        <div class="modal-body" style="color:black">
+          <div id="success_reference">
+            Let's get ready for race day! <br><br> Expect your equipment at least one day before your event. Your payment reference number is:<br><br>
+            <center id="payment_reference"></center> 
+            <!-- TODO: Take info, create account as necessary
+            <br><br>
+            To manage your event, and stay updated with your order please create an account: <br><center><button type="submit" id="submit" class="btn btn-primary" style="margin-left:2%; width:250px;" onclick="location.href='/register';" onclick="amplitude.logEvent('Create_Account_Payment_Popup');">Register</button> </center>-->
+            <br><br>
+            For more information regarding your order, email <a href="mailto:info@trac-us.com" style="color:#3577A8 !important;">info@trac-us.com</a>
+            </div>
+         </div>
+        <div class="modal-footer">
+          <div class="btn-group pull-right" role="group">
+            <button type="submit" data-dismiss="modal" class="btn btn-primary" style="margin-left:2%">Close</button>
           </div>
           <div id="spinner-form"></div>
         </div>
