@@ -395,3 +395,7 @@ GOOGLE_AUTH_DOMAINS = ['accounts.google.com', 'https://accounts.google.com']
 GCS_RESULTS_BUCKET = 'trac-us.appspot.com'
 GCS_RESULTS_DIR = 'results'
 GCS_DEFAULT_BUCKET = 'trac-us.appspot.com'
+
+TWILIO_PHONE_NUMBER = '+17082942625'
+TWILIO_ACCOUNT_SID = 'AC40ea55a316f07e80ca5fa00e201c8142'
+TWILIO_AUTH_TOKEN = 'f4e5502a5d4d9df88643d0e357cf6400'
