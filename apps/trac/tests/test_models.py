@@ -165,6 +165,12 @@ class TimingSessionTestCase(TestCase):
         """Test calculating individual results."""
         pass
 
+    def test_individual_results_athlete_list(self):
+        """Test calculating results given a list of athlete IDs."""
+        session = TimingSession.objects.get(pk=1)
+        results = session.individual_results(athlete_ids=[1, 1])
+        self.assertEqual([1], [result.user_id for result in results])
+
     def test_team_results(self):
         """Test calculating team results."""
         pass
