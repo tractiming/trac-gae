@@ -12,6 +12,7 @@
 <script type="text/javascript" src="{% static "js/new/spinner-directive.js" %}"> </script>
 <script type="text/javascript" src="{% static "js/access_token.js" %}"></script>
 <script type="text/javascript" src="{% static "js/new/roster_jquery.js" %}"></script>
+<script type='text/javascript' src="{% static "js/new/directives/ng-infinite-scroll.min.js" %}"></script>
 
 <!--<script type="text/javascript" src="{% static "js/new/race_angular.js" %}"></script>-->
 {% endblock %}
@@ -43,7 +44,7 @@
           </div>
         </div>
         <div class="col-md-6 col-sm-6 col-xs-6" style="">
-          <div id="" class="" data-toggle="modal" data-target="#rosterModal" style="float:right">
+          <div id="" class="" data-toggle="modal" data-target="#rosterModal" style="float:right" ng-click="loadRosterData()">
             <span class="glyphicon glyphicon-list" aria-hidden="true" onclick="amplitude.logEvent('roster_roster');"></span> Roster
           </div>
         </div>
@@ -200,7 +201,7 @@
         <div class="modal-header">
           Roster Upload <button id="cl" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button>
           </div>
-          <div class="modal-body" style="min-height:250px">
+          <div class="modal-body" id="parent-selector" style="min-height:250px">
             <tabs>
               <pane title="{{team.name}}" id="{{team.id}}" ng-repeat-start="team in rosterTeams">
             <!-- SEARCH BAR TO BE ADDED <div class="input-group col-lg-5">
@@ -211,7 +212,7 @@
               <span id="searchclearRoster" class="glyphicon glyphicon-remove fade" ng-hide="hideInput" onclick="$('#searchinputRoster').val('');" ng-click="searchResetRoster();"></span>
               <span></span>
             </div>-->
-            <span us-spinner spinner-key="roster-spinner" spinner-start-active="true"></span>
+            <span us-spinner spinner-key="roster-spinner" spinner-start-active="false"></span>
               <table id="results-table" class="table table-striped table-hover">
                   <thead>
                     <tr>
@@ -331,6 +332,7 @@
                       </div>
                     </td>
                   </tr>
+                  <div infinite-scroll='loadMore()' infinite-scroll-distance="0" infinite-scroll-container="'#parent-selector'" infinite-scroll-parent="true">
                   <tr ng-repeat="x in rosterAthletes" id="{{x.id}}" class="ath" ng-class="{danger:showDelete_{{x.id}}, info: showSave_{{x.id}}}" ng-mouseover="hoverIn();" ng-mouseleave="hoverOut();">
                     <td class="col-lg-1">
                       <input type="checkbox" id="check" ng-model="selected[x.id]" ng-hide="editing_{{x.id}}" class="no-animate">
@@ -384,6 +386,8 @@
                       </div>
                     </td>
                   </tr>
+                </div>
+
                 </tbody>
               </table>
               </pane>

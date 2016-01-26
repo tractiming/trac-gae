@@ -1,4 +1,4 @@
-  var app = angular.module('raceRegistration', ['ngAnimate','ngRoute','angularSpinner']);
+  var app = angular.module('raceRegistration', ['ngAnimate','ngRoute','angularSpinner','infinite-scroll']);
 
   app.config(['usSpinnerConfigProvider', function (usSpinnerConfigProvider) {
     usSpinnerConfigProvider.setDefaults({
@@ -125,39 +125,62 @@
       var url = '/api/athletes/?registered_to_session='+ $scope.selectedID;
       $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
         .success(function (response) {
-
           $scope.athletes = response.results;
           $scope.count = response.count;
-          
       });
-
     }
-    //Load teams for Roster
-    var url = '/api/teams/?primary_team=True';
-      $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
-      .success(function (response) { 
-        if(response.length == 0){
-          $scope.rosterTeams = '';
-        }
-        else{
-        $scope.rosterTeams = response;
-        var rosterCount = response.length;
-        $scope.rosterID = $scope.rosterTeams[0].id
 
-          var url = '/api/athletes/?team=' + $scope.rosterID + '&limit=100';
-          $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
-          .success(function (response) { 
-            $scope.rosterAthletes = response.results;
-            usSpinnerService.stop('roster-spinner');
-          });
-        }
-      });
+    //Load teams for Roster
+    var firedOnce = false;
+    var holdTilFinish = true;
+    $scope.loadRosterData = function(){
+      if (!firedOnce){
+        var url = '/api/teams/?primary_team=True';
+        $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
+        .success(function (response) { 
+          if(response.length == 0){
+            $scope.rosterTeams = '';
+          }
+          else
+          {
+            $scope.rosterTeams = response;
+            var rosterCount = response.length;
+            $scope.rosterID = $scope.rosterTeams[0].id;
+            var url = '/api/athletes/?team=' + $scope.rosterID + '&limit=10';
+            $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
+            .success(function (response) { 
+              $scope.rosterAthletes = response.results;
+            });
+          }
+        });
+        firedOnce = true;
+        holdTilFinish = false;
+      }
+      usSpinnerService.stop('roster-spinner');
+    }
+    //Infinite scroll abilities.
+    var busy = false;
+    $scope.loadMore = function() {
+          if (holdTilFinish) return;
+          else if (busy) return;
+          busy = true;
+          var last = $scope.rosterAthletes.length;
+          var url = '/api/athletes/?team=' + $scope.rosterID;
+            $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:last, limit: 2} })
+            .success(function (response) { 
+              if(response.results.length == 0) return;
+              for(i=0; i < response.results.length; i++){
+                $scope.rosterAthletes.push(response.results[i]);
+              }
+              busy = false;
+            });
+  };
 
       //Search for Roster
       $scope.athleteSearchRoster = function(){
       $scope.searchRoster.change = $scope.searchRoster.model;
       var url = '/api/athletes/?primary_team=True&search=' +  $scope.searchRoster.change;
-      $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: 100} })
+      $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: 50} })
         .success(function (response) {
 
           $scope.rosterAthletes = response.results;
@@ -439,7 +462,7 @@
       $http({method: 'POST', url: url, cache:false, headers: {Authorization: 'Bearer ' + sessionStorage.access_token, 'Content-Type': undefined}, data:fd, transformRequest: angular.identity })
             .success(function (response) { 
              
-              var url = '/api/athletes/?team=' + $scope.rosterID + '&limit=100';
+              var url = '/api/athletes/?team=' + $scope.rosterID + '&limit=10';
             $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
             .success(function (response) { 
               $scope.rosterAthletes = response.results;
@@ -466,6 +489,7 @@
                 else{
                   $scope.regNull = false;
                 }
+                $('#csvModal').modal('hide');
                 usSpinnerService.stop('main-spinner');
             });
           });
@@ -485,7 +509,7 @@
       })
         .success(function (response) {
 
-          var url = '/api/athletes/?team=' + $scope.rosterID + '&limit=100';
+          var url = '/api/athletes/?team=' + $scope.rosterID + '&limit=10';
           $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
           .success(function (response) { 
 
