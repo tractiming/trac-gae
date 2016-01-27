@@ -4,9 +4,7 @@ import datetime
 import json
 import logging
 import uuid
-import csv
-
-from collections import OrderedDict
+from collections import OrderedDict, Iterable
 
 import dateutil.parser
 from django.conf import settings
@@ -37,6 +35,16 @@ log = logging.getLogger(__name__)
 
 
 EPOCH = timezone.datetime(1970, 1, 1)
+
+
+def _to_int(val):
+    """Convert value to int if it isn't None."""
+    return int(val) if val is not None else val
+
+
+def _to_ast(val):
+    """Call `ast.literal_eval` if value isn't None."""
+    return ast.literal_eval(val) if val is not None else val
 
 
 class TimingSessionViewSet(viewsets.ModelViewSet):
@@ -207,6 +215,12 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             type: string
             paramType: query
             allowMultiple: true
+          - name: athletes
+            description: Get results for these athletes only
+            required: false
+            type: string
+            paramType: query
+            allowMultiple: true
         omit_parameters:
           - form
         parameters_strategy:
@@ -234,19 +248,32 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             required: true
             type: boolean
         """
-        to_int = lambda x: int(x) if x is not None else x
         gender = request.query_params.get('gender', None)
-        age_lte = to_int(request.query_params.get('age_lte', None))
-        age_gte = to_int(request.query_params.get('age_gte', None))
+        age_lte = _to_int(request.query_params.get('age_lte', None))
+        age_gte = _to_int(request.query_params.get('age_gte', None))
         teams = request.query_params.get('teams', None)
         limit = int(request.query_params.get('limit', 25))
         offset = int(request.query_params.get('offset', 0))
         all_athletes = bool(request.query_params.get('all_athletes', False))
 
+        athletes = _to_ast(request.query_params.get('athletes', None))
+        if athletes is not None:
+            if not isinstance(athletes, Iterable):
+                athletes = [athletes]
+            # Filter out IDs that do not belong to valid athletes.
+            athletes = Athlete.objects.filter(pk__in=athletes).values_list(
+                'id', flat=True)
+            all_athletes = False
+
         session = self.get_object()
-        raw_results = session.individual_results(limit, offset, gender=gender,
-                                                 age_lte=age_lte, age_gte=age_gte,
-                                                 teams=teams)
+        raw_results = session.individual_results(limit,
+                                                 offset,
+                                                 gender=gender,
+                                                 age_lte=age_lte,
+                                                 age_gte=age_gte,
+                                                 teams=teams,
+                                                 athlete_ids=athletes)
+
         extra_results = []
         distinct_ids = set(session.splits.values_list('athlete_id',
                                                       flat=True).distinct())
