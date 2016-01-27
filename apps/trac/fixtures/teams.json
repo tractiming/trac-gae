@@ -1,0 +1,778 @@
+[
+{
+    "pk": 101,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Alberto",
+        "last_name": "Salazar",
+        "username": "alsal1"
+    }
+},
+{
+    "pk": 102,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Jerry",
+        "last_name": "Schumacher",
+        "username": "jschumacher"
+    }
+},
+{
+    "pk": 103,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Francis",
+        "last_name": "Gagliano",
+        "username": "fgagliano"
+    }
+},
+{
+    "pk": 104,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Galen",
+        "last_name": "Rupp",
+        "username": "grupp1"
+    }
+},
+{
+    "pk": 105,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Mo",
+        "last_name": "Farah",
+        "username": "mfarah"
+    }
+},
+{
+    "pk": 106,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Matt",
+        "last_name": "Centrowitz",
+        "username": "mcentro"
+    }
+},
+{
+    "pk": 107,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Cam",
+        "last_name": "Levins",
+        "username": "clevins1"
+    }
+},
+{
+    "pk": 108,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Eric",
+        "last_name": "Jenkins",
+        "username": "ejenkins"
+    }
+},
+{
+    "pk": 109,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Suguru",
+        "last_name": "Osaka",
+        "username": "sosaka"
+    }
+},
+{
+    "pk": 110,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Mary",
+        "last_name": "Cain",
+        "username": "mcain"
+    }
+},
+{
+    "pk": 111,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Chris",
+        "last_name": "Derrick",
+        "username": "cderrick"
+    }
+},
+{
+    "pk": 112,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Evan",
+        "last_name": "Jager",
+        "username": "ejager"
+    }
+},
+{
+    "pk": 113,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Lopez",
+        "last_name": "Lamong",
+        "username": "llamong"
+    }
+},
+{
+    "pk": 114,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "German",
+        "last_name": "Fernandez",
+        "username": "gfernandez"
+    }
+},
+{
+    "pk": 115,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Elliott",
+        "last_name": "Heath",
+        "username": "eheath"
+    }
+},
+{
+    "pk": 116,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Chris",
+        "last_name": "Solinsky",
+        "username": "csolinsky"
+    }
+},
+{
+    "pk": 117,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Matt",
+        "last_name": "Tegenkamp",
+        "username": "mtegenkamp"
+    }
+},
+{
+    "pk": 118,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Kyle",
+        "last_name": "Merber",
+        "username": "kmerber"
+    }
+},
+{
+    "pk": 119,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Jake",
+        "last_name": "Hurysz",
+        "username": "jhurysz"
+    }
+},
+{
+    "pk": 120,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Donn",
+        "last_name": "Cabral",
+        "username": "dcabral"
+    }
+},
+{
+    "pk": 121,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Reed",
+        "last_name": "Connor",
+        "username": "rconner"
+    }
+},
+{
+    "pk": 122,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Mike",
+        "last_name": "Atchoo",
+        "username": "matchoo"
+    }
+},
+{
+    "pk": 123,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Mike",
+        "last_name": "Rutt",
+        "username": "mrutt"
+    }
+},
+{
+    "pk": 124,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Andrew",
+        "last_name": "Springer",
+        "username": "aspringer"
+    }
+},
+{
+    "pk": 101,
+    "model": "trac.coach",
+    "fields": {
+        "user": 101,
+        "payment": null
+    }
+},
+{
+    "pk": 102,
+    "model": "trac.coach",
+    "fields": {
+        "user": 102,
+        "payment": null
+    }
+},
+{
+    "pk": 103,
+    "model": "trac.coach",
+    "fields": {
+        "user": 103,
+        "payment": null
+    }
+},
+{
+    "pk": 101,
+    "model": "trac.team",
+    "fields": {
+        "tfrrs_code": "101",
+        "coach": 101,
+        "name": "Nike",
+        "primary_team": true
+    }
+},
+{
+    "pk": 102,
+    "model": "trac.team",
+    "fields": {
+        "tfrrs_code": "102",
+        "coach": 102,
+        "name": "Bowerman Track Club",
+        "primary_team": true
+    }
+},
+{
+    "pk": 103,
+    "model": "trac.team",
+    "fields": {
+        "tfrrs_code": "103",
+        "coach": 103,
+        "name": "NJNY TC",
+        "primary_team": true
+    }
+},
+{
+    "pk": 101,
+    "model": "trac.athlete",
+    "fields": {
+        "gender": null,
+        "team": 101,
+        "user": 104,
+        "year": null,
+        "birth_date": null,
+        "tfrrs_id": null
+    }
+},
+{
+    "pk": 102,
+    "model": "trac.athlete",
+    "fields": {
+        "gender": null,
+        "team": 101,
+        "user": 105,
+        "year": null,
+        "birth_date": null,
+        "tfrrs_id": null
+    }
+},
+{
+    "pk": 103,
+    "model": "trac.athlete",
+    "fields": {
+        "gender": null,
+        "team": 101,
+        "user": 106,
+        "year": null,
+        "birth_date": null,
+        "tfrrs_id": null
+    }
+},
+{
+    "pk": 104,
+    "model": "trac.athlete",
+    "fields": {
+        "gender": null,
+        "team": 101,
+        "user": 107,
+        "year": null,
+        "birth_date": null,
+        "tfrrs_id": null
+    }
+},
+{
+    "pk": 105,
+    "model": "trac.athlete",
+    "fields": {
+        "gender": null,
+        "team": 101,
+        "user": 108,
+        "year": null,
+        "birth_date": null,
+        "tfrrs_id": null
+    }
+},
+{
+    "pk": 106,
+    "model": "trac.athlete",
+    "fields": {
+        "gender": null,
+        "team": 101,
+        "user": 109,
+        "year": null,
+        "birth_date": null,
+        "tfrrs_id": null
+    }
+},
+{
+    "pk": 107,
+    "model": "trac.athlete",
+    "fields": {
+        "gender": null,
+        "team": 101,
+        "user": 110,
+        "year": null,
+        "birth_date": null,
+        "tfrrs_id": null
+    }
+},
+{
+    "pk": 108,
+    "model": "trac.athlete",
+    "fields": {
+        "gender": null,
+        "team": 102,
+        "user": 111,
+        "year": null,
+        "birth_date": null,
+        "tfrrs_id": null
+    }
+},
+{
+    "pk": 109,
+    "model": "trac.athlete",
+    "fields": {
+        "gender": null,
+        "team": 102,
+        "user": 112,
+        "year": null,
+        "birth_date": null,
+        "tfrrs_id": null
+    }
+},
+{
+    "pk": 110,
+    "model": "trac.athlete",
+    "fields": {
+        "gender": null,
+        "team": 102,
+        "user": 113,
+        "year": null,
+        "birth_date": null,
+        "tfrrs_id": null
+    }
+},
+{
+    "pk": 111,
+    "model": "trac.athlete",
+    "fields": {
+        "gender": null,
+        "team": 102,
+        "user": 114,
+        "year": null,
+        "birth_date": null,
+        "tfrrs_id": null
+    }
+},
+{
+    "pk": 112,
+    "model": "trac.athlete",
+    "fields": {
+        "gender": null,
+        "team": 102,
+        "user": 115,
+        "year": null,
+        "birth_date": null,
+        "tfrrs_id": null
+    }
+},
+{
+    "pk": 113,
+    "model": "trac.athlete",
+    "fields": {
+        "gender": null,
+        "team": 102,
+        "user": 116,
+        "year": null,
+        "birth_date": null,
+        "tfrrs_id": null
+    }
+},
+{
+    "pk": 114,
+    "model": "trac.athlete",
+    "fields": {
+        "gender": null,
+        "team": 102,
+        "user": 117,
+        "year": null,
+        "birth_date": null,
+        "tfrrs_id": null
+    }
+},
+{
+    "pk": 115,
+    "model": "trac.athlete",
+    "fields": {
+        "gender": null,
+        "team": 103,
+        "user": 118,
+        "year": null,
+        "birth_date": null,
+        "tfrrs_id": null
+    }
+},
+{
+    "pk": 116,
+    "model": "trac.athlete",
+    "fields": {
+        "gender": null,
+        "team": 103,
+        "user": 119,
+        "year": null,
+        "birth_date": null,
+        "tfrrs_id": null
+    }
+},
+{
+    "pk": 117,
+    "model": "trac.athlete",
+    "fields": {
+        "gender": null,
+        "team": 103,
+        "user": 120,
+        "year": null,
+        "birth_date": null,
+        "tfrrs_id": null
+    }
+},
+{
+    "pk": 118,
+    "model": "trac.athlete",
+    "fields": {
+        "gender": null,
+        "team": 103,
+        "user": 121,
+        "year": null,
+        "birth_date": null,
+        "tfrrs_id": null
+    }
+},
+{
+    "pk": 119,
+    "model": "trac.athlete",
+    "fields": {
+        "gender": null,
+        "team": 103,
+        "user": 122,
+        "year": null,
+        "birth_date": null,
+        "tfrrs_id": null
+    }
+},
+{
+    "pk": 120,
+    "model": "trac.athlete",
+    "fields": {
+        "gender": null,
+        "team": 103,
+        "user": 123,
+        "year": null,
+        "birth_date": null,
+        "tfrrs_id": null
+    }
+},
+{
+    "pk": 121,
+    "model": "trac.athlete",
+    "fields": {
+        "gender": null,
+        "team": 103,
+        "user": 124,
+        "year": null,
+        "birth_date": null,
+        "tfrrs_id": null
+    }
+},
+{
+    "pk": 101,
+    "model": "trac.split",
+    "fields": {
+        "athlete": 101,
+        "tag": null,
+        "time": 1440648122000,
+        "reader": null
+    }
+},
+{
+    "pk": 102,
+    "model": "trac.split",
+    "fields": {
+        "athlete": 102,
+        "tag": null,
+        "time": 1440648126000,
+        "reader": null
+    }
+},
+{
+    "pk": 103,
+    "model": "trac.split",
+    "fields": {
+        "athlete": 103,
+        "tag": null,
+        "time": 1440648129000,
+        "reader": null
+    }
+},
+{
+    "pk": 104,
+    "model": "trac.split",
+    "fields": {
+        "athlete": 104,
+        "tag": null,
+        "time": 1440648139000,
+        "reader": null
+    }
+},
+{
+    "pk": 105,
+    "model": "trac.split",
+    "fields": {
+        "athlete": 105,
+        "tag": null,
+        "time": 1440648146000,
+        "reader": null
+    }
+},
+{
+    "pk": 106,
+    "model": "trac.split",
+    "fields": {
+        "athlete": 106,
+        "tag": null,
+        "time": 1440648148000,
+        "reader": null
+    }
+},
+{
+    "pk": 107,
+    "model": "trac.split",
+    "fields": {
+        "athlete": 107,
+        "tag": null,
+        "time": 1440648152000,
+        "reader": null
+    }
+},
+{
+    "pk": 108,
+    "model": "trac.split",
+    "fields": {
+        "athlete": 108,
+        "tag": null,
+        "time": 1440648124000,
+        "reader": null
+    }
+},
+{
+    "pk": 109,
+    "model": "trac.split",
+    "fields": {
+        "athlete": 109,
+        "tag": null,
+        "time": 1440648127000,
+        "reader": null
+    }
+},
+{
+    "pk": 110,
+    "model": "trac.split",
+    "fields": {
+        "athlete": 110,
+        "tag": null,
+        "time": 1440648136000,
+        "reader": null
+    }
+},
+{
+    "pk": 111,
+    "model": "trac.split",
+    "fields": {
+        "athlete": 111,
+        "tag": null,
+        "time": 1440648143000,
+        "reader": null
+    }
+},
+{
+    "pk": 112,
+    "model": "trac.split",
+    "fields": {
+        "athlete": 112,
+        "tag": null,
+        "time": 1440648158000,
+        "reader": null
+    }
+},
+{
+    "pk": 113,
+    "model": "trac.split",
+    "fields": {
+        "athlete": 113,
+        "tag": null,
+        "time": 1440648159000,
+        "reader": null
+    }
+},
+{
+    "pk": 114,
+    "model": "trac.split",
+    "fields": {
+        "athlete": 114,
+        "tag": null,
+        "time": 1440648161000,
+        "reader": null
+    }
+},
+{
+    "pk": 115,
+    "model": "trac.split",
+    "fields": {
+        "athlete": 115,
+        "tag": null,
+        "time": 1440648135000,
+        "reader": null
+    }
+},
+{
+    "pk": 116,
+    "model": "trac.split",
+    "fields": {
+        "athlete": 116,
+        "tag": null,
+        "time": 1440648138000,
+        "reader": null
+    }
+},
+{
+    "pk": 117,
+    "model": "trac.split",
+    "fields": {
+        "athlete": 117,
+        "tag": null,
+        "time": 1440648141000,
+        "reader": null
+    }
+},
+{
+    "pk": 118,
+    "model": "trac.split",
+    "fields": {
+        "athlete": 118,
+        "tag": null,
+        "time": 1440648147000,
+        "reader": null
+    }
+},
+{
+    "pk": 119,
+    "model": "trac.split",
+    "fields": {
+        "athlete": 119,
+        "tag": null,
+        "time": 1440648150000,
+        "reader": null
+    }
+},
+{
+    "pk": 120,
+    "model": "trac.split",
+    "fields": {
+        "athlete": 120,
+        "tag": null,
+        "time": 1440648156000,
+        "reader": null
+    }
+},
+{
+    "pk": 121,
+    "model": "trac.split",
+    "fields": {
+        "athlete": 121,
+        "tag": null,
+        "time": 1440648163000,
+        "reader": null
+    }
+},
+{
+    "pk": 101,
+    "model": "trac.timingsession",
+    "fields": {
+        "comment": "",
+        "coach": 1,
+        "name": "5k",
+        "readers": [],
+        "use_registered_athletes_only": false,
+        "start_time": "2015-08-27T03:47:28Z",
+        "registered_athletes": [],
+        "private": false,
+        "filter_choice": false,
+        "interval_distance": 400,
+        "start_button_time": 1440647312000,
+        "stop_time": "2015-08-28T03:47:28Z",
+        "rest_time": 0,
+        "track_size": 400,
+        "interval_number": 0,
+        "splits": [
+            101,
+            102,
+            103,
+            104,
+            105,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112,
+            113,
+            114,
+            115,
+            116,
+            117,
+            118,
+            119,
+            120,
+            121
+        ]
+    }
+}
+]
