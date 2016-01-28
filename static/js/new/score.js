@@ -369,13 +369,13 @@ $(function() {
     			return;
     		}
     	});
-    	
+
     	$("#searchinput").on('input', function(){
     		drawIndividualSearch();
     	});
 
 		function drawIndividualSearch() {
-			$('#individual-table-canvas').empty();
+			$('#results-table').empty();
 			$('.notification.select-group').hide();
 
 			$('#spinner').css('height', 150);
@@ -398,7 +398,7 @@ $(function() {
 					} else {
 						$('.notification').hide();
 
-						$('#individual-table-canvas').append(
+						$('#results-table').append(
 							'<thead>' +
 								'<tr>' +
 									'<th>Name</th>' +
@@ -412,7 +412,7 @@ $(function() {
 						var runner = {};
 						for (var i=0; i < results.length; i++) {
 							runner = results[i];
-							$('#individual-table-canvas>tbody').append(
+							$('#results-table>tbody').append(
 								'<tr id="results-'+runner.id+'" class="accordion-toggle" data-toggle="collapse" data-parent="#table-canvas" data-target="#collapse-'+runner.id+'" aria-expanded="false" aria-controls="collapse-'+runner.id+'">' + 
 									'<td>' + runner.first_name +' '+ runner.last_name  + '</td>' + 
 									'<td id="total-time-'+runner.id+'">'+ '<a id="resultsLink-'+runner.id+'" style="cursor:pointer">See Results</a>' +'</td>' + 
