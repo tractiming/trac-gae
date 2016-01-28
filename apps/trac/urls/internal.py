@@ -19,7 +19,6 @@ urlpatterns = [
     url(r'^api-auth/', include('rest_framework.urls',
                                namespace='rest_framework')),
 
-    url(r'^edit_athletes/$', user_views.edit_athletes),
     url(r'^edit_split/$', session_views.edit_split),
     url(r'^raceregistration/$', session_views.create_race, name='racereg'),
     url(r'^upload_workouts/$', session_views.upload_workouts),
