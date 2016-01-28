@@ -37,6 +37,7 @@ class Team(models.Model):
     tfrrs_code = models.CharField(max_length=20, unique=True, null=True,
                                   blank=True)
     primary_team = models.BooleanField(default=False)
+    public_team = models.BooleanField(default=False)
     logo = models.ImageField(upload_to=_upload_to, blank=True, null=True)
 
     class Meta:

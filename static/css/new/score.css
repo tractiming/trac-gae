@@ -45,3 +45,36 @@ tr.team-runners {
 		padding: 0 !important; 
 		border-style: none !important;
 }
+
+#searchinput{
+	width:0;
+	padding-right:0;
+	padding-left:0;
+}
+
+#searchclear {
+    position: absolute;
+    right: 5px;
+    top: 0;
+    bottom: 0;
+    height: 14px;
+    margin: auto;
+    font-size: 14px;
+    cursor: pointer;
+    color: #ccc;
+}
+.fade{
+  opacity:0;
+}
+
+tr.splits { 
+	color: #888;
+	font-weight: lighter; }
+	tr.splits:hover {
+		background-color: inherit !important; }
+	tr.splits>td {
+		padding: 0 !important; 
+		border-style: none !important; }
+		tr.splits table td {
+			vertical-align: middle !important; }
+			

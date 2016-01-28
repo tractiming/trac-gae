@@ -16,6 +16,7 @@ $(function() {
 			sessionData, ajaxRequest,
 			resultOffset = 0, currentPage = 1,
 			spinner, target;
+	var searching = false;
 
 		// initialize spinner
 		var opts = {
@@ -67,18 +68,21 @@ $(function() {
 	}
 
 	function stopUpdates() {
+		console.log('sotp updates');
 		clearInterval(updateHandler);
 		clearTimeout(idleHandler);
 	}
 
 	// update wrapper function
 	function lastSelected() {
+		if(searching)
+			return
 		update(currentID,currentView);
 	}
 
 	function getScores(team){
 		getSessions(team);
-
+		console.log('start updates');
 		stopUpdates();
 		startUpdates();
 	}
@@ -167,11 +171,13 @@ $(function() {
 					$('#notifications .notification-default').hide();
 					$('.results-navigate-container').show();
 					//$('.button-container').show();
+					$('#results-table').show();
 					$('#results-table').empty();
 					$('#results-individual').show();
 					$('#results-table').append(
 						'<thead>' + 
 							'<tr>' +
+								'<th>Place</th>' +
 								'<th>Name</th>' +
 								'<th>Final Time</th>' +
 							'</tr>' +
@@ -186,7 +192,8 @@ $(function() {
 						var time = formatTime(Number(runner.total));
 
 						$('#results-table tbody').append(
-							'<tr>' + 
+							'<tr>' +
+								'<td>' + parseInt(resultOffset + (i+1), 10) + '</td>' +  
 								'<td>' + runner.name + '</td>' + 
 								'<td>' + time + '</td>' + 
 							'</tr>'
@@ -334,6 +341,164 @@ $(function() {
 			});
 		}
 
+		//=========================== SEARCH FUNCTIONS ================================================
+
+		var bool = 1;
+    	$("#basic-search").click(function(){
+    		if(bool==0){
+        		$( "#searchinput" ).animate({
+        			width:'0',
+        			marginLeft:'100%',
+        			paddingRight:0,
+        			paddingLeft:0,
+        		},1000);
+        		$( "#searchclear" ).animate({
+        			opacity:0
+        		},1000);
+    			bool = 1;
+    			return;
+    		}
+    		else(bool==1)
+    		{
+    			$( "#searchinput" ).animate({
+    				width:'100%',
+    				marginLeft:0,
+    				paddingRight:'12px',
+    				paddingLeft:'12px',
+    			},1000);
+    			$( "#searchclear" ).animate({
+    				opacity:1
+    			},1000);
+    			bool=0;
+    			return;
+    		}
+    	});
+
+    	$("#searchinput").on('input', function(){
+    		if ($('#searchinput').val() == ''){
+    			searching = false;
+    			return
+    		} 
+    		stopUpdates();
+    		drawIndividualSearch();
+
+    	});
+
+    	$("#searchclear").on('click', function (){
+    		$('#searchinput').val('');
+    		searching = false;
+    	});
+
+		function drawIndividualSearch() {
+			searching = true;
+
+			$('#results-table').empty();
+			$('.notification.select-group').hide();
+
+			$('#spinner').css('height', 150);
+			spinner.spin(target);
+
+			searchTerm = $('#searchinput').val();
+
+			$.ajax({
+				url: '/api/athletes/?session='+ currentID + '&search='+searchTerm,
+				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				dataType: 'text',
+				success: function(data) {
+					var results = $.parseJSON(data);
+					if (results.length === 0) {
+						spinner.stop();
+						$('#spinner').css('height', '');
+						$('#individual-table-canvas').empty();
+						$('.notification.no-individual-data').show();
+						$('#download-container').hide();
+					} else {
+						$('.notification').hide();
+
+						$('#results-table').append(
+							'<thead>' +
+								'<tr>' +
+									'<th>Name</th>' +
+									'<th></th>' +
+								'</tr>' +
+							'</thead>' +
+							'<tbody>' +
+							'</tbody>'
+						);
+
+						var runner = {};
+						for (var i=0; i < results.length; i++) {
+							runner = results[i];
+							$('#results-table>tbody').append(
+								'<tr id="results-'+runner.id+'" class="accordion-toggle" data-toggle="collapse" data-parent="#table-canvas" data-target="#collapse-'+runner.id+'" aria-expanded="false" aria-controls="collapse-'+runner.id+'">' + 
+									'<td>' + runner.first_name +' '+ runner.last_name  + '</td>' + 
+									'<td id="total-time-'+runner.id+'">'+ '<a id="resultsLink-'+runner.id+'" style="cursor:pointer">See Splits</a>' +'</td>' + 
+										'<div class="modify-total-time pull-right" style="display:none;">' +
+											'<div class="edit-total"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
+										'</div>' +
+									'</td>' +
+								'</tr>' + 
+								'<tr></tr>'	+		// for correct stripes 
+								'<tr class="splits">' +
+									'<td colspan="4">' +
+										'<div id="collapse-'+runner.id+'" class="accordion-body collapse" aria-labelledby="results-'+runner.id+'">' + 
+											'<table id="splits-'+runner.id+'" class="table" style="text-align:center; background-color:transparent">' +
+												'<tbody>' +
+												'</tbody>' +
+											'</table>' +
+										'</div>' + 
+									'</td>' +
+								'</tr>'
+							);
+							$("#resultsLink-"+runner.id).on('click', function(){
+				    			//Sent the binder, load the data
+				    			var dynamicID = $(this).attr('id').split('-')[1];
+				    			$('table#splits-'+dynamicID+'>tbody').empty();
+
+				    			$.ajax({
+									url: '/api/sessions/'+ currentID+'/individual_results/?athletes='+dynamicID,
+									headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+									dataType: 'text',
+									success: function(data) {
+										var time = formatTime(Number($.parseJSON(data).results[0].total));
+										var total =0;
+										var splits = $.parseJSON(data).results[0].splits;
+										console.log(splits);
+										$('table#splits-'+dynamicID+'>tbody').append(
+													'<tr>' + 
+														'<td class="split-number">' + 'Final Time' + '</td>' + 
+														'<td class="split-time">' + time + '</td>' + 
+													'</tr>'
+												);
+										for (var j=0; j < splits.length; j++) {
+											console.log(splits[j]);
+											console.log(runner.id);
+											//console.log($'$this')
+											$('table#splits-'+dynamicID+'>tbody').append(
+													'<tr>' + 
+														'<td class="split-number">' + (j+1) + '</td>' + 
+														'<td class="split-time">' + splits[j] + '</td>' + 
+													'</tr>'
+												);
+										}
+									}
+								});
+				    	});
+
+
+						}
+
+						// show results
+						spinner.stop();
+						$('#spinner').css('height', '');
+						$('#individual-table-canvas').show();
+						$('#download-container').show();
+					}
+				}
+			});
+		};
+	//=============================================== END SEARCH FUNCTIONS ====================================================
+
 
 	// register handlers for paginating
 	$('body').on('click', 'button.prev', function(e){
@@ -372,6 +537,7 @@ $(function() {
 
 			// views 0 and 1 = live results updated every 5 secs
 			if (currentView < 1) {
+				searching = false;
 				// stop updates
 				stopUpdates();
 
@@ -382,6 +548,7 @@ $(function() {
 				startUpdates();
 
 			} else {
+				searching = false;
 				// stop updates
 				stopUpdates();
 

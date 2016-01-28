@@ -63,7 +63,8 @@
         "tfrrs_code": "", 
         "coach": 1, 
         "name": "Nike",
-        "primary_team": true
+        "primary_team": true,
+        "public_team": false
     }
 },
 {

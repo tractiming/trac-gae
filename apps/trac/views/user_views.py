@@ -123,7 +123,7 @@ class AthleteViewSet(viewsets.ModelViewSet):
       omit_parameters:
       - query
     """
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     serializer_class = AthleteSerializer
     pagination_class = pagination.LimitOffsetPagination
     filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter,)
@@ -144,7 +144,7 @@ class AthleteViewSet(viewsets.ModelViewSet):
             return Athlete.objects.filter(user=user)
 
         else:
-            return Athlete.objects.none()
+            return Athlete.objects.filter(split__timingsession__private=False).distinct()
 
     def create(self, request, *args, **kwargs):
         # We want to allow for a tag to be created at the same time as an
