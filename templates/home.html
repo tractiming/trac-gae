@@ -205,37 +205,6 @@ function loadworkouts(){
 }
 </script>
 <script>
-  $(document).ready(function(){
-      $("#coachform").on('submit', function(e){
-         e.preventDefault();
-         var form = $(this);  
-         form.parsley().validate();
-         if (form.parsley().isValid()){ 
-            var fname=$('input[id=first_name]').val();
-            var lname=$('input[id=last_name]').val();
-            var tag = $('input[id=id_str]').val();
-        $.ajax({
-           type: "POST",
-           dataType:'json',
-           url: "/api/edit_athletes/",
-           headers: {Authorization: "Bearer " + sessionStorage.access_token},
-           data: {
-               first_name: fname,
-               last_name: lname,
-               username: fname + "" + lname,
-               id_str: tag,
-               submethod: 'Create',
-           }, 
-                      success: function(data) {
-                      $("#coachform")[0].reset();
-                      loadAthletes();
-                    }
-                });
-           }
-      });
-    });
-</script>
-<script>
  
  
 $("body").on('click', '#athletes tr' ,function(){

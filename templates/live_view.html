@@ -341,7 +341,7 @@
 					<div id="results-individual" class="results-tab-content">
 						<div class="container">
 							<div class="row">
-								<div class="col-md-3 col-sm-5 col-xs-6" style="padding-top:15px;">
+								<div class="col-lg-3 col-md-3 col-sm-5 col-xs-6" style="padding-top:15px;">
 									<div class="form-group">
 										<label for="gender-select" class="sr-only">Select list:</label>
 										<select class="form-control" id="gender-select">
@@ -351,13 +351,21 @@
 										</select>
 									</div>
 								</div>
-								<div class="col-md-3 col-sm-5 col-xs-6" style="padding-top:15px;">
+								<div class="col-lg-3 col-md-3 col-sm-5 col-xs-6" style="padding-top:15px;">
 									<div class="form-group">
 										<label for="age-select" class="sr-only">Select list:</label>
 										<input class="form-control" id="age-select" placeholder="Age Range (Min-Max)"/>
 											
 									</div>
 								</div>
+								<div class= "col-lg-offset-1 col-lg-5" style="padding-left:0px !important; padding-top:15px;">
+				                  <div class="input-group">
+									  <span></span>
+									  <span id="searchclear" class="glyphicon glyphicon-remove fade" onclick="$('#searchinput').val('');" style="margin-right:10%;"></span>
+				                      <input type="text" class="form-control" placeholder="Search" aria-describedby="basic-search" style="margin-left:100%; width:0; border-top-left-radius:4px !important; border-bottom-left-radius:4px!important; position:static !important;" type="search" id="searchinput">
+				                      <span class="input-group-addon " id="basic-search"  aria-hidden="true" style="cursor:pointer;"><span class="glyphicon glyphicon-search" onclick="amplitude.logEvent('roster_search');"></span></span>
+									</div>
+				                </div>
 							</div>
 							<div class="row">
 								<table id="individual-table-canvas" class="table table-striped table-hover" style="margin-top:10px;"></table>
@@ -384,7 +392,7 @@
 						<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> No recent events to show.
 					</p>
 					<p class="notification notification-warning select-group" role="alert">
-						<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Please select gender and age group.
+						<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Please select gender and age group or search term.
 					</p>
 					<p class="notification notification-error no-individual-data" role="alert">
 						<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> There is currently no data for this group.

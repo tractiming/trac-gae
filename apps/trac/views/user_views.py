@@ -241,69 +241,7 @@ class AthleteViewSet(viewsets.ModelViewSet):
             results['sessions'].append(session_info)
 
         return Response(results)
-
-
-# TODO: Move to AthleteViewSet
-@api_view(['POST'])
-@permission_classes((permissions.IsAuthenticated,))
-def edit_athletes(request):
-    """
-    Update and remove athlete profiles from coach.athletes.all() but keeps the
-    athlete's user account.
-    """
-    i_user = request.user
-    if not is_coach(i_user):
-        return Response({}, status.HTTP_403_FORBIDDEN)
-    else:
-        # Removes the link with coach account
-        if request.POST.get('submethod') == 'Delete':
-            #cp = Coach.objects.get(user = i_user) #deletes entire user
-            atl = Athlete.objects.get(id=request.POST.get('id'))
-            atl.delete()
-
-        #Change user's first and last names. Not change username.
-        elif request.POST.get('submethod') == 'Update':
-            cp = Coach.objects.get(user = i_user)
-            atl = Athlete.objects.get(id=request.POST.get('id'))
-            atl.user.first_name = request.POST.get('first_name')
-            atl.user.last_name = request.POST.get('last_name')
-            atl.user.save()
-            try:  #if tag exists update user. Or create tag.
-                tag = Tag.objects.get(id_str = request.POST.get('id_str'))
-                tag.athlete = atl
-                tag.save()
-            except ObjectDoesNotExist:
-                try:
-                    tag = Tag.objects.get(athlete = atl)
-                    tag.id_str = request.POST.get('id_str')
-                    tag.save()
-                except ObjectDoesNotExist:
-                    tag = Tag.objects.create(id_str=request.POST.get('id_str'),
-                                             athlete=atl)
-            return Response({}, status.HTTP_200_OK)
-
-        elif request.POST.get('submethod') == 'Create':
-            cp = Coach.objects.get(user = i_user)
-            user, _ = User.objects.get_or_create(
-                          username=request.POST.get('username'),
-                          first_name=request.POST.get('first_name'),
-                          last_name=request.POST.get('last_name'),last_login=timezone.now())
-            atl, created = Athlete.objects.get_or_create(user = user)
-            atl.team = cp.team_set.all()[0]
-
-            try:
-                tag = Tag.objects.get(id_str = request.POST.get('id_str'))
-                tag.athlete = atl
-            except ObjectDoesNotExist:
-                tag = Tag.objects.create(athlete=atl,
-                                         id_str=request.POST.get('id_str'))
-
-            tag.save()
-            atl.save()
-            user.save()
-
-        return Response({}, status.HTTP_200_OK)
-
+        
 
 @csrf_exempt
 @permission_classes((permissions.AllowAny,))
