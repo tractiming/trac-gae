@@ -12,6 +12,10 @@ from oauth2_provider.models import Application
 from trac.utils.filter_util import get_filter_constant
 
 
+def _upload_to(instance, filename):
+    return '/'.join(('team-logo', str(instance.id), filename))
+
+
 class Coach(models.Model):
     """
     A coach is a type of user who has a team of athletes, creates workouts,
@@ -34,6 +38,7 @@ class Team(models.Model):
                                   blank=True)
     primary_team = models.BooleanField(default=False)
     public_team = models.BooleanField(default=False)
+    logo = models.ImageField(upload_to=_upload_to, blank=True, null=True)
 
     class Meta:
         unique_together = ("name", "coach",)

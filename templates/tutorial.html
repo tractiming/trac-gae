@@ -1,9 +1,16 @@
 {% extends "base_new.html" %}
 
+    <title>
+        {% block title %}
+        Tutorial
+        {% endblock %}
+    </title>
+
 {% load static %}
 
 <!-- Head -->
 {% block stylesheets %}
+<meta name="description"  content="Learn how to use the app and find solutions to common problems."> 
   <link href="{% static "css/new/main.css" %}" rel="stylesheet" type="text/css">
   <link href="{% static "css/new/score.css" %}" rel='stylesheet' type='text/css'>
 {% endblock %}

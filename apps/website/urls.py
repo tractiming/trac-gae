@@ -1,9 +1,15 @@
 from django.conf.urls import url, include, patterns, handler404, handler500
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.views.generic import TemplateView
+from django.contrib.sitemaps.views import sitemap
 
 from website import views
+from website.sitemaps import StaticViewSitemap
 
+
+sitemaps = {
+    'static': StaticViewSitemap,
+}
 
 urlpatterns = patterns('',
     url(r'^$', TemplateView.as_view(template_name='index.html'),
@@ -49,6 +55,9 @@ urlpatterns = patterns('',
     url(r'^Tutorial/(?P<page>.+)/$', views.tutorial, name='tutorial'),
     url(r'^UserSettings/(?P<pk>.+)/(?P<token>.+)/$', views.usersettings,
         name="UserSettings"),
+
+    url(r'^sitemap\.xml$', sitemap, {'sitemaps': sitemaps},
+        name='django.contrib.sitemaps.views.sitemap')
 )
 
 handler404 = TemplateView.as_view(template_name='404.html')
