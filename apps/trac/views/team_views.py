@@ -35,7 +35,7 @@ class TeamViewSet(viewsets.ModelViewSet):
       omit_parameters:
       - query
     """
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     serializer_class = TeamSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = TeamFilter
@@ -55,7 +55,7 @@ class TeamViewSet(viewsets.ModelViewSet):
             return Team.objects.filter(athlete__in=[user.athlete.pk],
                                        primary_team=True)
         else:
-            return Team.objects.filter(public_team=False, primary_team=True)
+            return Team.objects.filter(public_team=True, primary_team=True)
 
     @detail_route(methods=['post'], parser_classes=(FileUploadParser,))
     def upload_roster(self, request, *args, **kwargs):
