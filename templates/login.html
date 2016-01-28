@@ -1,10 +1,17 @@
 {% extends "base_new.html" %}
 
-{% load static %}
 
+	<title>
+		{% block title %}
+		Login
+		{% endblock %}
+	</title>
+
+{% load static %}
 <!-- Head -->
 {% block stylesheets %}
   <!--<link href="{% static "css/new/login.css" %}" rel="stylesheet" type="text/css">-->
+  <meta name="description"  content="Login to begin using our timing apps for your next practice or race."> 
 {% endblock %}
 
 {% block js_scripts %}

@@ -1,9 +1,18 @@
 {% extends "base_new.html" %}
 
+	<title>
+		{% block title %}
+		Live Results
+		{% endblock %}
+	</title>
+
+
+
 {% load static %}
 
 <!-- Head -->
 {% block stylesheets %}
+  	<meta name="description"  content="Watch results as they update in real time."> 
 	<link href="{% static "css/new/score.css" %}" rel='stylesheet' type='text/css'>
 {% endblock %}
 

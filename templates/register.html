@@ -1,10 +1,17 @@
 {% extends "base_new.html" %}
 
+<title>
+    {% block title %}
+    Register
+    {% endblock %}
+  </title>
+
 {% load static %}
 
 <!-- Head -->
 {% block stylesheets %}
   <!--<link href="{% static "css/new/register.css" %}" rel="stylesheet" type="text/css">-->
+    <meta name="description"  content="Register to begin using our apps on iOS, Android, and Web."> 
 {% endblock %}
 
 {% block js_scripts %}
