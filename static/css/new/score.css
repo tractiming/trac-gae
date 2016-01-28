@@ -66,3 +66,15 @@ tr.team-runners {
 .fade{
   opacity:0;
 }
+
+tr.splits { 
+	color: #888;
+	font-weight: lighter; }
+	tr.splits:hover {
+		background-color: inherit !important; }
+	tr.splits>td {
+		padding: 0 !important; 
+		border-style: none !important; }
+		tr.splits table td {
+			vertical-align: middle !important; }
+			

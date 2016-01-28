@@ -16,6 +16,7 @@ $(function() {
 			sessionData, ajaxRequest,
 			resultOffset = 0, currentPage = 1,
 			spinner, target;
+	var searching = false;
 
 		// initialize spinner
 		var opts = {
@@ -67,18 +68,21 @@ $(function() {
 	}
 
 	function stopUpdates() {
+		console.log('sotp updates');
 		clearInterval(updateHandler);
 		clearTimeout(idleHandler);
 	}
 
 	// update wrapper function
 	function lastSelected() {
+		if(searching)
+			return
 		update(currentID,currentView);
 	}
 
 	function getScores(team){
 		getSessions(team);
-
+		console.log('start updates');
 		stopUpdates();
 		startUpdates();
 	}
@@ -371,10 +375,23 @@ $(function() {
     	});
 
     	$("#searchinput").on('input', function(){
+    		if ($('#searchinput').val() == ''){
+    			searching = false;
+    			return
+    		} 
+    		stopUpdates();
     		drawIndividualSearch();
+
+    	});
+
+    	$("#searchclear").on('click', function (){
+    		$('#searchinput').val('');
+    		searching = false;
     	});
 
 		function drawIndividualSearch() {
+			searching = true;
+
 			$('#results-table').empty();
 			$('.notification.select-group').hide();
 
@@ -415,7 +432,7 @@ $(function() {
 							$('#results-table>tbody').append(
 								'<tr id="results-'+runner.id+'" class="accordion-toggle" data-toggle="collapse" data-parent="#table-canvas" data-target="#collapse-'+runner.id+'" aria-expanded="false" aria-controls="collapse-'+runner.id+'">' + 
 									'<td>' + runner.first_name +' '+ runner.last_name  + '</td>' + 
-									'<td id="total-time-'+runner.id+'">'+ '<a id="resultsLink-'+runner.id+'" style="cursor:pointer">See Results</a>' +'</td>' + 
+									'<td id="total-time-'+runner.id+'">'+ '<a id="resultsLink-'+runner.id+'" style="cursor:pointer">See Splits</a>' +'</td>' + 
 										'<div class="modify-total-time pull-right" style="display:none;">' +
 											'<div class="edit-total"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
 										'</div>' +
@@ -443,9 +460,16 @@ $(function() {
 									headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 									dataType: 'text',
 									success: function(data) {
+										var time = formatTime(Number($.parseJSON(data).results[0].total));
 										var total =0;
 										var splits = $.parseJSON(data).results[0].splits;
 										console.log(splits);
+										$('table#splits-'+dynamicID+'>tbody').append(
+													'<tr>' + 
+														'<td class="split-number">' + 'Final Time' + '</td>' + 
+														'<td class="split-time">' + time + '</td>' + 
+													'</tr>'
+												);
 										for (var j=0; j < splits.length; j++) {
 											console.log(splits[j]);
 											console.log(runner.id);
@@ -454,14 +478,6 @@ $(function() {
 													'<tr>' + 
 														'<td class="split-number">' + (j+1) + '</td>' + 
 														'<td class="split-time">' + splits[j] + '</td>' + 
-														'<td class="split-edit-options hidden-xs">' +
-															'<div class="modify-splits modify-splits-'+runner.id+' pull-right" style="display:none;">' +
-																'<div class="insert-split"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></div>' +
-																'<div class="insert-split"><span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span></div>' +
-																'<div class="edit-split"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
-																'<div class="delete-split"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></div>' +
-															'</div>' +
-														'</td>' + 
 													'</tr>'
 												);
 										}
@@ -521,6 +537,7 @@ $(function() {
 
 			// views 0 and 1 = live results updated every 5 secs
 			if (currentView < 1) {
+				searching = false;
 				// stop updates
 				stopUpdates();
 
@@ -531,6 +548,7 @@ $(function() {
 				startUpdates();
 
 			} else {
+				searching = false;
 				// stop updates
 				stopUpdates();
 
