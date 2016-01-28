@@ -24,10 +24,11 @@ class GCSStorage(Storage):
         Root bucket in which to store objects. Defaults to the
         `GCS_DEFAULT_BUCKET` defined in the settings file.
     """
-    def __init__(self, bucket=None):
+    def __init__(self, bucket=None, make_public=True):
         if bucket is None:
             bucket = settings.GCS_DEFAULT_BUCKET
         self._bucket = bucket
+        self._make_public = make_public
 
     def _open(self, name, mode='rb'):
         temp = tempfile.TemporaryFile()
@@ -41,6 +42,8 @@ class GCSStorage(Storage):
         size = content.tell()
         blob = _gcs._make_blob(self._bucket, name)
         blob.upload_from_file(content, rewind=True, size=size)
+        if self._make_public:
+            blob.make_public()
         return blob.name
 
     def delete(self, name):
@@ -75,6 +78,6 @@ class GCSStorage(Storage):
             return blob.size
 
     def url(self, name):
-        blob = _gcs.get_blob(self._bucket, name)
+        blob = _gcs._get_blob(self._bucket, name)
         if blob is not None:
             return blob.public_url

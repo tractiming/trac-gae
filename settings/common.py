@@ -279,6 +279,7 @@ STATICFILES_DIRS = (
 
 ########### STORAGE CONFIGURATION ###########
 DEFAULT_FILE_STORAGE = 'backends.gae_storage.GCSStorage'
+MEDIA_ROOT = 'media'
 #############################################
 
 ########## TEMPLATE CONFIGURATION ##########

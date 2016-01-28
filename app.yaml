@@ -24,6 +24,9 @@ libraries:
 - name: yaml
   version: "latest"
 
+- name: PIL
+  version: "latest"
+
 builtins:
 - remote_api: on
 - appstats: on
