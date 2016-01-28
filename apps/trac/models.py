@@ -33,6 +33,7 @@ class Team(models.Model):
     tfrrs_code = models.CharField(max_length=20, unique=True, null=True,
                                   blank=True)
     primary_team = models.BooleanField(default=False)
+    public_team = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ("name", "coach",)

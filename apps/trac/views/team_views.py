@@ -44,8 +44,8 @@ class TeamViewSet(viewsets.ModelViewSet):
         """Filter teams based on current user.
 
         A coach can see all of the teams he owns, an athlete can see
-        all of the teams he belongs to, an anonymous user cannot see
-        any teams.
+        all of the teams he belongs to, an anonymous user can see 
+        teams that are designated public and primary.
         """
         user = self.request.user
 
@@ -55,7 +55,7 @@ class TeamViewSet(viewsets.ModelViewSet):
             return Team.objects.filter(athlete__in=[user.athlete.pk],
                                        primary_team=True)
         else:
-            return Team.objects.none()
+            return Team.objects.filter(public_team=False, primary_team=True)
 
     @detail_route(methods=['post'], parser_classes=(FileUploadParser,))
     def upload_roster(self, request, *args, **kwargs):
