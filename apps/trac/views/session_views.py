@@ -4,21 +4,27 @@ import datetime
 import json
 import logging
 import uuid
+import csv
+
 from collections import OrderedDict
 
 import dateutil.parser
-from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.mail import send_mass_mail
+from django.db.models import Q
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
+from django.template import loader
 from rest_framework import viewsets, permissions, status, pagination, filters
 from rest_framework.decorators import api_view, permission_classes, detail_route
 from rest_framework.response import Response
+from rest_framework.parsers import FileUploadParser
 
 from trac.filters import TimingSessionFilter
 from trac.models import TimingSession, Reader, Tag, Split, Team, Athlete
-from trac.serializers import TimingSessionSerializer
+from trac.serializers import TimingSessionSerializer, AthleteSerializer
 from trac.utils.integrations import tfrrs
 from trac.utils.phone_split_util import create_phone_split
 from trac.utils.gcs_util import gcs_writer, get_public_link
@@ -497,6 +503,104 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
         return Response({'uri': get_public_link(settings.GCS_RESULTS_BUCKET,
                                                 storage_path)})
+
+    @detail_route(methods=['post'],
+                  permission_classes=(permissions.IsAuthenticated,))
+    def email_results(self, request, pk=None):
+        """Email all users in a workout with attachment link of workout.
+
+        Will attach a CSV file to an email at all users that have an email
+        associated with them. If they do not have an email, it will not
+        include them.
+        """
+        session = self.get_object()
+        athletes = Athlete.objects.filter(
+            Q(split__timingsession=session) & ~Q(user__email='')).distinct()
+        full_results = (request.POST.get('full_results', 1) in
+                        ('true', 'True', 1))
+
+        email_template = '../templates/email_templates/{}'.format(
+            'results_email.txt' if full_results else
+            'results_email_single.txt')
+        if full_results:
+            resp = self.export_results(request)
+            if resp.status_code != 200:
+                return Response(status=status.HTTP_404_BAD_REQUEST)
+            download_link = resp.data['uri']
+        else:
+            download_link = None
+
+        email_list = []
+        for athlete in athletes:
+            athlete_email = athlete.user.email
+            context = {
+                'name': athlete.user.first_name,
+                'date': session.start_time
+            }
+            if full_results:
+                context.update({'link': download_link})
+            else:
+                context.update({
+                    'workout_name': session.name,
+                    'splits': session._calc_athlete_splits(athlete.id).splits
+                })
+            message = (
+                session.name,
+                loader.render_to_string(email_template, context),
+                'tracchicago@gmail.com',
+                [athlete_email]
+            )
+            email_list.append(message)
+
+        send_mass_mail(email_list, fail_silently=False)
+        return Response(status=status.HTTP_200_OK)
+
+    @detail_route(methods=['post'], parser_classes=(FileUploadParser,))
+    def upload_runners(self, request, *args, **kwargs):
+        """Upload a CSV file for athletes to be registered into a workout
+
+        The uploaded file must have a header row that contains the
+        fields "first_name" and "last_name" and may additionally
+        contain any of the fields "gender" or "birth_date".
+
+        A new athlete will be created for each row in the file and that
+        athlete will be added to the selected session
+        """
+        session = self.get_object()
+        user = request.user
+
+        file_obj = request.data.pop('file', None)
+
+        if not file_obj:
+            return Response("No file uploaded",
+                            status=status.HTTP_400_BAD_REQUEST)
+        file_obj = file_obj[0]
+
+        roster = csv.DictReader(file_obj)
+        if not all(field in roster.fieldnames for field in
+                   ('first_name', 'last_name')):
+            return Response('File does not contain "first_name" and '
+                            '"last_name" in header',
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        new_athletes = list()
+
+        for athlete in roster:
+            team, created = Team.objects.get_or_create(name=athlete.get('team',None),coach_id=user.coach.id)
+            athlete_data = {
+                'username': uuid.uuid4().hex[:30],  # Assign random username
+                'first_name': athlete['first_name'],
+                'last_name': athlete['last_name'],
+                'gender': athlete.get('gender', None),
+                'birth_date': athlete.get('birth_date', None),
+                'team': team.id
+            }
+            serializer = AthleteSerializer(data=athlete_data)
+            serializer.is_valid(raise_exception=True)
+            new_athlete = serializer.create(serializer.validated_data)
+            session.registered_athletes.add(new_athlete.pk)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @api_view(['POST'])

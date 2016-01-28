@@ -31,8 +31,6 @@ urlpatterns = patterns('',
 
     url(r'^liveview', TemplateView.as_view(template_name='live_view.html'),
         name='liveview'),
-    url(r'^calendar', TemplateView.as_view(template_name='calendar.html'),
-        name='calendar'),
     url(r'^create', TemplateView.as_view(template_name='create.html'),
         name='create'),
     url(r'^roster', TemplateView.as_view(template_name='roster.html'),

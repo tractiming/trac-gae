@@ -33,7 +33,7 @@
           }
           else {
           usSpinnerService.spin('roster-spinner');
-          var url = '/api/athletes/?team=' + id + '&limit=100';
+          var url = '/api/athletes/?team=' + id + '&limit=10';
             $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
             .success(function (response) { 
 

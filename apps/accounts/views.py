@@ -23,6 +23,8 @@ from decimal import Decimal
 
 from djstripe.models import Customer
 
+import stripe
+
 _TOKENINFO_URL = 'https://www.googleapis.com/oauth2/v3/tokeninfo'
 
 
@@ -110,18 +112,57 @@ def google_auth(request):
 @api_view(['post'])
 @permission_classes((permissions.AllowAny,))
 def stripeSingleCharge(request):
-    """Create a single payment charge for a user via Stripe.
+    """Create a single one-time payment charge for an anonymous user via Stripe.
 
-    Send the amount you want to charge them, and user ID if
+    Send the stripeID, amount you want to charge them, and user ID if
     applicable.
     """
-    user = request.user
-    print(user)
-    charge_amount = request.data['amount']
-    print(charge_amount)
+    stripe.api_key = "sk_test_8dwmRwbSMzZNticzW7fQaKu0"
 
-    customer, created = Customer.get_or_create(subscriber=user)
-    amount = Decimal(charge_amount)
-    customer.charge(amount)
+    # Get the credit card details submitted by the form
+    token = request.POST['stripeToken']
+    price = request.POST['price']
+
+    # Create the charge on Stripe's servers - this will charge the user's card
+    try:
+      charge = stripe.Charge.create(
+          amount=price, # amount in cents, again
+          currency="usd",
+          source=token,
+          description="TRAC Timing"
+      )
+    except stripe.error.CardError, e:
+      # The card has been declined
+      pass
 
     return Response(201, status.HTTP_201_CREATED)
+
+@api_view(['post'])
+@permission_classes((permissions.IsAuthenticated,))
+def stripe_CustomerPayment(request):
+    """Create a single payment charge for a registered user via Stripe.
+
+    Send the stripeID, amount you want to charge them, and user ID if
+    applicable.
+    """
+    stripe.api_key = "sk_test_8dwmRwbSMzZNticzW7fQaKu0"
+    user = request.user
+    # Get the credit card details submitted by the form
+    price = request.POST['price']
+
+    customer, created = Customer.get_or_create(subscriber=user)
+
+    # Create the charge on Stripe's servers - this will charge the user's card
+    try:
+      charge = stripe.Charge.create(
+          amount=price, # amount in cents, again
+          currency="usd",
+          description="TRAC Timing",
+          customer=customer.id
+      )
+    except stripe.error.CardError, e:
+      # The card has been declined
+      pass
+
+    return Response(201, status.HTTP_201_CREATED)
+
