@@ -13,7 +13,7 @@ from trac.utils.filter_util import get_filter_constant
 
 
 def _upload_to(instance, filename):
-    return '/'.join(('team-logo', instance.id, filename))
+    return '/'.join(('team-logo', str(instance.id), filename))
 
 
 class Coach(models.Model):

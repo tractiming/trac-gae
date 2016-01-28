@@ -75,6 +75,6 @@ class GCSStorage(Storage):
             return blob.size
 
     def url(self, name):
-        blob = _gcs.get_blob(self._bucket, name)
+        blob = _gcs._get_blob(self._bucket, name)
         if blob is not None:
             return blob.public_url
