@@ -360,10 +360,10 @@
 								</div>
 								<div class= "col-lg-offset-1 col-lg-5" style="padding-left:0px !important; padding-top:15px;">
 				                  <div class="input-group">
-									  <span class="input-group-addon " id="basic-search"  aria-hidden="true" style="cursor:pointer;"><span class="glyphicon glyphicon-search" onclick="amplitude.logEvent('roster_search');"></span></span>
-									  <input type="text" class="form-control" placeholder="Search" aria-describedby="basic-search" style="border-top-right-radius:4px !important; border-bottom-right-radius:4px !important; position:static !important;" type="search" id="searchinput">
-									  <span id="searchclear" class="glyphicon glyphicon-remove fade" onclick="$('#searchinput').val('');"></span>
-				                      <span></span>
+									  <span></span>
+									  <span id="searchclear" class="glyphicon glyphicon-remove fade" onclick="$('#searchinput').val('');" style="margin-right:10%;"></span>
+				                      <input type="text" class="form-control" placeholder="Search" aria-describedby="basic-search" style="margin-left:100%; width:0; border-top-left-radius:4px !important; border-bottom-left-radius:4px!important; position:static !important;" type="search" id="searchinput">
+				                      <span class="input-group-addon " id="basic-search"  aria-hidden="true" style="cursor:pointer;"><span class="glyphicon glyphicon-search" onclick="amplitude.logEvent('roster_search');"></span></span>
 									</div>
 				                </div>
 							</div>

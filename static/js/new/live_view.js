@@ -2179,6 +2179,7 @@ google.setOnLoadCallback(function(){
     		if(bool==0){
         		$( "#searchinput" ).animate({
         			width:'0',
+        			marginLeft:'100%',
         			paddingRight:0,
         			paddingLeft:0,
         		},1000);
@@ -2192,6 +2193,7 @@ google.setOnLoadCallback(function(){
     		{
     			$( "#searchinput" ).animate({
     				width:'100%',
+    				marginLeft:0,
     				paddingRight:'12px',
     				paddingLeft:'12px',
     			},1000);
@@ -2268,6 +2270,7 @@ google.setOnLoadCallback(function(){
 							$("#resultsLink-"+runner.id).on('click', function(){
 				    			//Sent the binder, load the data
 				    			var dynamicID = $(this).attr('id').split('-')[1];
+				    			$('table#splits-'+dynamicID+'>tbody').empty();
 
 				    			$.ajax({
 									url: '/api/sessions/'+ currentID+'/individual_results/?athletes='+dynamicID,
