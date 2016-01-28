@@ -52,7 +52,7 @@ urlpatterns = patterns('',
     url(r'^score/$', views.score, name='score'),
     url(r'^score/(?P<org>.+)/$', views.score, name='score'),
     url(r'^individual/(?P<id>.+)/$', views.individual, name='individual_splits'),
-    url(r'^tutorial/(?P<page>.+)/$', views.tutorial, name='tutorial'),
+    url(r'^Tutorial/(?P<page>.+)/$', views.tutorial, name='tutorial'),
     url(r'^UserSettings/(?P<pk>.+)/(?P<token>.+)/$', views.usersettings,
         name="UserSettings"),
 
