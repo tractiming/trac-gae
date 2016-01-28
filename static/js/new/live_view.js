@@ -2209,7 +2209,7 @@ google.setOnLoadCallback(function(){
 				    			var dynamicID = $(this).attr('id').split('-')[1];
 
 				    			$.ajax({
-									url: '/api/sessions/'+ currentID+'/individual_results/' ,
+									url: '/api/sessions/'+ currentID+'/individual_results/?athletes='+dynamicID,
 									headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 									dataType: 'text',
 									success: function(data) {
