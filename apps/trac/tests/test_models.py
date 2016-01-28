@@ -64,7 +64,7 @@ class CoachTestCase(TestCase):
 
 class TimingSessionTestCase(TestCase):
 
-    fixtures = ['trac_min.json']
+    fixtures = ['trac_min.json', 'teams.json']
 
     def setUp(self):
         self.session = TimingSession.objects.get(pk=1)
@@ -81,7 +81,7 @@ class TimingSessionTestCase(TestCase):
             list(self.session._sorted_athlete_list(1, 0)), [2])
         self.assertListEqual(
             list(self.session._sorted_athlete_list(10, 1)), [1])
-    
+
     def test_sorted_athletes_without_start_button(self):
         """Test sorting times with no start button."""
         self.session.start_button_time = None
@@ -92,7 +92,7 @@ class TimingSessionTestCase(TestCase):
             list(self.session._sorted_athlete_list(1, 0)), [2])
         self.assertListEqual(
             list(self.session._sorted_athlete_list(10, 1)), [1])
-    
+
     @mock.patch('trac.models.cache')
     def test_clear_results(self, mock_cache):
         """Test clearing the results from a session."""
@@ -116,7 +116,8 @@ class TimingSessionTestCase(TestCase):
         # Clear the split from session two. It no longer belongs to any session
         # and should be deleted.
         session2.clear_results()
-        self.assertEqual(Split.objects.all().count(), 2)
+        self.assertEqual(
+            Split.objects.filter(timingsession=session2.pk).count(), 0)
         mock_cache.delete.assert_called_with('ts_{}_athlete_1_results'.format(
             session2.id))
 
@@ -138,14 +139,14 @@ class TimingSessionTestCase(TestCase):
         """Test calculating results for each athlete."""
         # Mock calls to the cache.
         mock_cache.get.return_value = None
-        
+
         res_1 = self.session._calc_athlete_splits(1)
         mock_cache.get.assert_called_with('ts_1_athlete_1_results')
         mock_cache.set.assert_called_with('ts_1_athlete_1_results',
                 (res_1.user_id, res_1.name, res_1.team, res_1.splits))
         self.assertListEqual(res_1.splits, [122.003, 197.237, 69.805])
         self.assertEqual(sum(res_1.splits), res_1.total)
-        
+
         res_2 = self.session._calc_athlete_splits(2)
         mock_cache.get.assert_called_with('ts_1_athlete_2_results')
         mock_cache.set.assert_called_with('ts_1_athlete_2_results',
@@ -165,9 +166,18 @@ class TimingSessionTestCase(TestCase):
         """Test calculating individual results."""
         pass
 
+    def test_individual_results_athlete_list(self):
+        """Test calculating results given a list of athlete IDs."""
+        session = TimingSession.objects.get(pk=1)
+        results = session.individual_results(athlete_ids=[1, 1])
+        self.assertEqual([1], [result.user_id for result in results])
+
     def test_team_results(self):
         """Test calculating team results."""
-        pass
+        session = TimingSession.objects.get(pk=101)
+        results = session.team_results()
+        scores = [(team['id'], team['score']) for team in results]
+        self.assertEqual(scores, [(101, 30), (102, 42), (103, 52)])
 
     def test_archive(self):
         """Test results remain after tag is reassigned."""

@@ -43,8 +43,7 @@ def _get_http_auth():
     else:
         # Look for credentials in a file named "gcs_credentials.json"
         # in the project's root directory.
-        cred_dir = os.path.abspath(os.path.join(*(_LOCATION,
-            os.path.pardir, os.path.pardir, os.path.pardir)))
+        cred_dir = os.path.abspath(os.path.join(*(_LOCATION, os.path.pardir)))
         with open(os.path.join(cred_dir, 'gcs_credentials.json')) as _infile:
             creds = json.load(_infile)
         credentials = SignedJwtAssertionCredentials(creds['client_email'],

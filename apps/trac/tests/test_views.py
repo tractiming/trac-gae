@@ -480,6 +480,16 @@ class TimingSessionViewSetTest(APITestCase):
                                       ['grupp@nike.com'])],
                                      fail_silently=False)
 
+    def test_individual_results_athletes(self):
+        """Test getting results only for certain athletes."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.get('/api/sessions/1/individual_results/?'
+                               'athletes=1,2112', format='json')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['num_returned'], 1)
+        self.assertEqual(resp.data['results'][0]['id'], 1)
+
 
 class PostSplitsTest(APITestCase):
 

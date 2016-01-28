@@ -162,29 +162,35 @@
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h4 class="modal-title">Download Results</h4>
+					<h4 class="modal-title">Download Results<button id="cl" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button></h4> 
 				</div>
 				<div class="modal-body">
 					<div id="spinner-download-results"></div>
 					<div id="download-results-body">
 					    <div class="center" style="margin-bottom:15px;">
-                            <label for="download-format">Results Format</label>
+                            <label for="download-format">Results Format:</label>
                             <div style="padding-left:5px; border-radius:4px;">
-                                <input type="radio"
-                                       name="download-format"
-                                       id="download-format-csv"
-                                       value="csv"
-                                       checked="checked" required> CSV
-                                <input type="radio"
-                                       name="download-format"
-                                       id="download-format-pdf"
-                                       value="pdf"
-                                       style="margin-left:10px" required> PDF
-                                <input type="radio"
-                                       name="download-format"
-                                       id="download-format-tfrrs"
-                                       value="tfrrs"
-                                       style="margin-left:10px;" required> CSV (TFRRS)
+                            	<label class="btn btn-default">
+	                                <input type="radio"
+	                                       name="download-format"
+	                                       id="download-format-csv"
+	                                       value="csv"
+	                                       checked="checked" required> CSV
+	                            </label>
+	                            <label class="btn btn-default">
+	                                <input type="radio"
+	                                       name="download-format"
+	                                       id="download-format-pdf"
+	                                       value="pdf"
+	                                       style="margin-left:10px" required> PDF
+	                            </label>
+	                            <label class="btn btn-default">
+	                                <input type="radio"
+	                                       name="download-format"
+	                                       id="download-format-tfrrs"
+	                                       value="tfrrs"
+	                                       style="margin-left:10px;" required> CSV (TFRRS) 
+	                            </label>
                             </div>
 						</div>
 						<div class="center">
@@ -192,6 +198,58 @@
 							<button id="download-results-cancel" class="btn btn-danger btn-md">Cancel</button>
 						</div>
 					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="email-results-modal" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Email Athletes: <button id="cl" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button></h4>
+				</div>
+				<div class="modal-body">
+					<div id="spinner-email-results"></div>
+					<div id="email-body">
+					    <div class="center" style="margin-bottom:15px;">
+                            <div style="padding-left:5px; border-radius:4px;">
+	                            <label class="btn btn-default">
+	                                <input type="radio"
+	                                       name="email-format"
+	                                       id="email-format-whole"
+	                                       value="true"
+	                                       style="margin-left:10px" required> Entire Workout
+	                            </label>
+	                            <label class="btn btn-default">
+	                                <input type="radio"
+	                                       name="email-format"
+	                                       id="email-format-single"
+	                                       value="false"
+	                                       style="margin-left:10px;" required> Only Their Times
+	                            </label>
+                            </div>
+						</div>
+						<div class="center">
+							<button id="email-results-confirm" class="btn btn-primary btn-md" style="margin-right: 10px;">Confirm</button>
+							<button id="email-results-cancel" class="btn btn-danger btn-md">Cancel</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class = "modal fade" id="email-success" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-body">
+					<p class="notification notification-success center" id="email-success-message" role="alert">
+						<span class="glyphicon glyphicon-info-sign"></span> You have successfully send an email.
+					</p>
+					<p class="notification notification-error select-group center" id="email-failure-message" role="alert">
+						<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Internal Server Error. 
+					</p>
 				</div>
 			</div>
 		</div>
@@ -349,7 +407,8 @@
 				<p>Currently downloading. Please wait...</p>
 			</div>
 			<div id="download-container" class="center" style="display:none;">
-			  <button id="download" class="btn btn-primary btn-md" style="margin-right:10px">Download</button>
+				<button id="email" class="btn btn-default btn-md" style="margin-right:10px">Email</button>
+			  	<button id="download" class="btn btn-primary btn-md" style="margin-right:10px">Download</button>
 			</div>
 		</div>
 	</div>

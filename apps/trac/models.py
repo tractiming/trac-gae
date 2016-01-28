@@ -262,18 +262,28 @@ class TimingSession(models.Model):
 
     def individual_results(self, limit=None, offset=None, gender=None,
                            age_lte=None, age_gte=None, teams=None,
-                           apply_filter=None):
+                           apply_filter=None, athlete_ids=None):
         """Calculate individual results for a session.
 
         First call `_sorted_athlete_list` for a list of tag IDs that are
         presorted by total time. Splice based on limit/offset and calc
         results one ID at a time.
 
+        If `athlete_ids` is given explicitly, calculate results for those
+        athletes only. This option overrides any other filters or
+        limit/offset.
+
         Individual results can also be filtered by age, gender, etc.
         """
-        athletes = self._sorted_athlete_list(limit=limit, offset=offset,
-                                             gender=gender, age_lte=age_lte,
-                                             age_gte=age_gte, teams=teams)
+        if athlete_ids is not None:
+            athletes = list(set(athlete_ids))
+        else:
+            athletes = self._sorted_athlete_list(limit=limit,
+                                                 offset=offset,
+                                                 gender=gender,
+                                                 age_lte=age_lte,
+                                                 age_gte=age_gte,
+                                                 teams=teams)
 
         if apply_filter is None:
             apply_filter = self.filter_choice
