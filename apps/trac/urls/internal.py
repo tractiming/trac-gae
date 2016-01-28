@@ -24,7 +24,6 @@ urlpatterns = [
     url(r'^upload_workouts/$', session_views.upload_workouts),
 
     url(r'^give_athlete_password/$', user_views.give_athlete_password),
-    url(r'^individual_splits/$', session_views.add_individual_splits),
     url(r'^reset_password/$', auth_views.reset_password),
     url(r'^send_email/$', user_views.send_email),
     url(r'^stripe/$', user_views.subscribe),
