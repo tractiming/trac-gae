@@ -128,7 +128,7 @@ class ScoringViewSet(viewsets.ModelViewSet):
                                                     coach__in=coaches)
         elif team is not None:
             # return sessions belonging to users under requested organization
-            coach = Team.objects.get(name=team).coach
+            coach = Team.objects.get(id=team).coach
             sessions = TimingSession.objects.filter(private=False, coach=coach)
         else:
             # return all public sessions
