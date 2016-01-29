@@ -45,15 +45,6 @@ def register(request):
                             coach=new_user,
                             primary_team=True)
 
-    # Send email about app availability after sign up.
-    context = {}
-    send_mail(
-        'TRAC Update',
-        loader.render_to_string('../templates/noAppAlert.txt', context),
-        'tracchicago@gmail.com',
-        [request.data['email']],
-        fail_silently=False)
-
     return Response(_serializer_lookup[utype](new_user).data,
                     status=status.HTTP_201_CREATED)
 
