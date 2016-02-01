@@ -60,15 +60,24 @@ $(function() {
 					// sort all teams
 					var teams = [];
 					for (var i=0; i<data.length; i++){
-						teams.push(data[i].name);
+						teams.push({'name': data[i].name, 'id': data[i].id});
 					}
-					teams.sort();
+					teams.sort(function (a, b) {
+						  if (a.name > b.name) {
+						    return 1;
+						  }
+						  if (a.name < b.name) {
+						    return -1;
+						  }
+						  // a must be equal to b
+						  return 0;
+						});
 
 					// now add to team select dropdown
 					for (var i=0; i < teams.length; i++){
 						$('#results-table tbody').append(
-							'<tr id="'+teams[i]+'" onclick="document.location = \'/score/'+teams[i]+'\';" style="cursor:pointer;">' + 
-								'<td>'+teams[i]+'</td>' +
+							'<tr id="'+teams[i].id+'" onclick="document.location = \'/score/'+teams[i].id+'\';" style="cursor:pointer;">' + 
+								'<td>'+teams[i].name+'</td>' +
 							'</tr>');
 					}
 

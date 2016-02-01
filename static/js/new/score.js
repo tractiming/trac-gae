@@ -52,6 +52,7 @@ $(function() {
 
 		// team is defined in score.html through django templating engine
 		getScores(team);
+		getLogo(team);
 		startUpdates();
 
 	//======================================== score functions ========================================
@@ -79,6 +80,21 @@ $(function() {
 			return
 		update(currentID,currentView);
 	}
+
+	 function getLogo(team){
+      var url = "/api/teams/"+team;
+      $.ajax({
+       headers: {Authorization: "Bearer " + sessionStorage.access_token},
+       url : url,
+       type : 'GET',
+       success : function(data) {
+          var image =  data[0].logo;
+          teamID = data[0].id;
+          $('#logoImage').attr('src', image);
+          
+        }
+      });
+    }
 
 	function getScores(team){
 		getSessions(team);

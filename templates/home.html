@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block js_scripts %}
-
+<script type="text/javascript" src="{% static "js/new/roster_jquery.js" %}"></script>
 <script>
 var instanceFirst = 1;
 var instanceLast = 3;
@@ -64,17 +64,42 @@ else{
       }
       loadAthletes();
       loadworkouts();
+      getLogo();
+  });
+
+  var RESULTS_PER_PAGE = 5, currentPage = 1, resultOffset = 0, teamID; 
+
+  $('body').on('click', 'button.prev', function(e){
+    e.preventDefault();
+
+    if (currentPage != 1) {
+      resultOffset -= RESULTS_PER_PAGE;
+      currentPage--;
+    }
+
+    loadAthletes();
+  });
+
+  $('body').on('click', 'button.next', function(e){
+    e.preventDefault();
+
+    resultOffset += RESULTS_PER_PAGE;
+    currentPage++;
+
+    loadAthletes();
   });
 
   function loadAthletes(){
     $('#athletes').empty();
+    data = {'limit': RESULTS_PER_PAGE, 'offset': resultOffset};
         $.ajax({
                     url: "api/athletes/",
                     headers: {Authorization: "Bearer " + sessionStorage.access_token},
+                    data: data,
                     dataType: 'text',
                     success: function(data){
-                          var json = $.parseJSON(data);
-                          json = json.reverse();
+                          var json = $.parseJSON(data).results;
+                          //json = json.reverse();
                           if (json == ""){
                             $('#athletes').append("<center><a href='/Tutorial/8/' style='center'>Click Here for Quick Setup</a></center>");
 
@@ -87,14 +112,14 @@ else{
                                                     '<th class="hidden-xs hidden-sm hidden-md hidden-lg">id</th>'+
                                                     '<th>First Name</th>'+
                                                     '<th>Last Name</th>' + 
-                                                    '<th>Username</th>' + 
+                                                   // '<th>Username</th>' + 
                                               '</tr>'+
                                         '</thead>'+
                                         '<tbody>'+
                                         '</tbody>' +
                                   '</table>');
                           $('#athletes').addClass('col-md-6 col-md-offset-0 colr-sm-8 col-sm-offset-0');
-                          for (var ii=0;ii < json.length;ii++){
+                          for (var ii=0;ii < json.length ;ii++){
                //alert(ii);
                                 id = json[ii].id;
                                 fname = json[ii].first_name;
@@ -105,9 +130,28 @@ else{
                                           '<td class="hidden-xs hidden-sm hidden-md hidden-lg">' + id + '</td>' +
                                           '<td>'+fname+'</td>'+
                                           '<td>'+lname+'</td>'+
-                                          '<td>'+uname+'</td>' +
+                                          //'<td>'+uname+'</td>' +
                                       '</tr>');
                           }
+                          var numResults = json.count;
+                          var numReturned = 5;
+
+                          if (numResults < RESULTS_PER_PAGE) {
+                            $('button.prev').attr('disabled', true);
+                            $('button.next').attr('disabled', true);
+                          } else {
+                            if ((numReturned < RESULTS_PER_PAGE) || (numReturned * currentPage == numResults))
+                              $('button.next').attr('disabled', true);
+                            else
+                              $('button.next').attr('disabled', false);
+
+                            if (currentPage == 1)
+                              $('button.prev').attr('disabled', true);
+                            else
+                              $('button.prev').attr('disabled', false);
+                          }
+
+                          $('.results-page-number').html(currentPage);
                     }
                   }
               });
@@ -203,6 +247,50 @@ function loadworkouts(){
                     });
        
 }
+    function getLogo(){
+      var url = "/api/teams/?primary_team=True";
+      $.ajax({
+       headers: {Authorization: "Bearer " + sessionStorage.access_token},
+       url : url,
+       type : 'GET',
+       success : function(data) {
+          var image =  data[0].logo;
+          teamID = data[0].id;
+          if (image !== null){
+            $('#imageForm').hide();
+            $('#logoImage').attr('src', image);
+          }
+          else
+            $('#logoImage').attr('src', image);
+          
+        }
+      });
+    }
+
+
+    function uploadImage(){
+      var fd = new FormData($('#imageForm')[0]);
+      var url = "/api/teams/" + teamID +"/";
+      $.ajax({
+       headers: {Authorization: "Bearer " + sessionStorage.access_token},
+       url : url,
+       type : 'PATCH',
+       data : fd,
+       processData: false,  // tell jQuery not to process the data
+       contentType: false,
+       cache: false, 
+       success : function(data) {
+           console.log(data);
+           getLogo();
+        }
+      });
+    }
+
+    $("body").on('click', '#uploadLogo' ,function(e){
+      e.preventDefault();
+      uploadImage();
+    });
+
 </script>
 <script>
  
@@ -430,16 +518,46 @@ $("body").on('click', 'button#cl', function(e){
                   </ul>
                 </div>
               </div>
-              <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
-              <h1 id="score-title">Roster</h1>
-              <div id="athletes" class="table">
+              <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5" style="padding-bottom:7%">
+                <img class="center" id="logoImage" style="padding-top:7%; max-width: 100%"/>
+                <form id="imageForm">
+                  <div class="form-group">
+                    <label for="file">Upload Logo:</label>
+                    <div class="input-group">
+                        <span class="input-group-btn">
+                          <span class="btn btn-default btn-file">
+                            Browse&hellip; <input type="file" id="file" name="logo" data-parsley-errors-container="#csv-parsley-errors">
+                          </span>
+                        </span>
+                        <input type="text" class="form-control" readonly required data-parsley-errors-container="#csv-parsley-errors" style="width:55%; border-top-right-radius:4px !important; border-bottom-right-radius:4px !important;">
+                        <div class="pull-right" style="width:40%"> 
+                          <button name="" class="btn btn-primary" id="uploadLogo">Upload</button>
+                        </div>
+                    </div>
+                    <div id="csv-parsley-errors"></div>
+                  </div>
+                </form>
+
+
+                <div id="athletes" class="table">
+                </div>
+                <div class="center">
+                  <div id="results-navigate-footer" class="results-navigate">
+                    <button type="button" class="prev btn btn-default">
+                      <span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span>
+                    </button>
+                    <span class="results-page-number"></span>
+                    <button type="button" class="next btn btn-default">
+                      <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7 hidden-sm hidden-xs">
-              <h1 id="score-title">Recent Workouts</h1>
-              <div id="workouts" class="table">
+              <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7 hidden-sm hidden-xs">
+                <h1 id="score-title">Recent Workouts</h1>
+                <div id="workouts" class="table">
+                </div>
               </div>
-            </div>
             </div>
           </div>
         </div>
