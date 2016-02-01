@@ -36,7 +36,7 @@ $(document).ready(function(){
           $('#athletes').fadeIn(500);       
           $('#edit-password').hide();
           $.ajax({
-              url: '/api/athletes/',
+              url: '/api/athletes/?primary_team=True',
               headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
               dataType: 'text',
               success: function(data){
