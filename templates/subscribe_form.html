@@ -1,0 +1,168 @@
+{% extends "djstripe/base.html" %}
+{% load static %}
+
+{% block title %}Choose a Subscription{% endblock title %}
+
+{% block content %}
+{{ block.super }}
+<div id="content" class="container-fluid">
+    <div class="container">
+    <div class="alert alert-error"></div>
+      <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3 pull-left" >
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title" style="text-align:left">Settings</h3>
+        </div>
+          <div class="panel-body">
+            <a href="/account_settings/1/" id="e_profile"><img src="{% static "img/general.png" %}" width="20px"> General</a><br>
+            <a href="/account_settings/2/" id="e_password"><img src="{% static "img/security.png" %}" width="20px"> Security</a><br>
+            <a href="/account_settings/3/" id="e_roster"><img src="{% static "img/peopleicon.png" %}" width="20px"> Team</a><br>
+            <a href="/payments/change_card/" id="e_payment"><img src="{% static "img/payment.png" %}" width="20px"> Payments</a><br>
+            <a href="/payments/subscribe/" id=""><span class="glyphicon glyphicon-retweet"></span> Subscription</a><br>
+            <a href="/payments/history/" id=""><span class="glyphicon glyphicon-book"></span> History</a><br>
+          </div>
+      </div>
+    </div>
+    <div class = "col-lg-9 col-md-9 col-sm-9 col-xs-9">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title" id="display-title">Subscription</h3>
+        </div>
+          <div class="panel-body">
+            <div class="row" id="plan-options">
+                    <form class="djstripe-subscribe col-lg-3" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="plan" value="monthly" />
+
+                        <button type="submit" class="btn btn-primary" id="monthly-button" style="display:none">
+                          <h3>$99.99</h3>
+                          <p>Monthly</p>
+                        </button>
+                        <h4 id="upgrade-downgrade-monthly"></h4>
+                    </form>
+                    <form class="djstripe-subscribe col-lg-3" method="POST" id='educator' style="display:none">
+                        {% csrf_token %}
+                        <input type="hidden" name="plan" value="yearly" />
+
+                        <button type="submit" class="btn btn-primary" id="yearly-button">
+                          <h3>$1000</h3>
+                          <p>Yearly</p>
+                        </button>
+                        <h4 id="upgrade-downgrade-yearly"></h4>
+                    </form>
+                     <form class="djstripe-subscribe col-lg-3" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="plan" value="quarterly" />
+
+                        <button type="submit" class="btn btn-primary" id="quarterly-button">
+                          <h3>$525</h3>
+                          <p>Quarterly</p>
+                        </button>
+                        <h4 id="upgrade-downgrade-quarterly"></h4>
+                    </form>
+                    <form class="djstripe-subscribe col-lg-3" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="plan" value="yearly-plan" />
+
+                        <button type="submit" class="btn btn-primary" id="yearly-plan-button">
+                          <h3>$1600</h3>
+                          <p>Yearly</p>
+                        </button>
+                        <h4 id="upgrade-downgrade-yearly-plan"></h4>
+                    </form>
+            </div>
+            
+        </div>
+      </div>
+      </div>
+
+            <div class="row">
+              <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4" style="padding-top:2%">
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h3 class="panel-title" id="display-title">Single Event Orders</h3>
+                  </div>
+                  <div class="panel-body">
+                  <div class="form-group">
+
+                    <label >Number of Tags</label><br>
+                    <input type="text" id="tags" name="organization" class="form-group form-control" placeholder="25">
+                    <label class="btn btn-default">
+                    <input type="radio" id="tag_type" name="tag_type" value="4"/> Durable
+                    </label>
+                    <label class="btn btn-default">
+                    <input type="radio" id="tag_type" name="tag_type" value="1" checked="checked"/> Disposable
+                    </label>
+
+                    <label >Number of Systems</label><br>
+                    <input type="text" id="systems" class="form-group form-control" placeholder="0">
+
+                      <div class="btn-group" role="group">
+
+                          <button  type="submit" id="customButton" class="btn btn-success form-control">Purchase</button>
+
+                      </div>
+                      <label class="col-lg-offset-4" id="pricing">Price: $25.00</label>
+
+                  </div>
+              </div>
+            </div>
+          </div>
+            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4" style="padding-top:2%">
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h3 class="panel-title" id="display-title">Apply Coupons</h3>
+                  </div>
+                  <div class="panel-body">
+
+                  <div class="form-group">
+                    <label >Coupon Code:</label><br>
+                    <input type="text" id="coupon" name="organization" class="form-group form-control">
+
+                      <div class="btn-group" role="group">
+                          <button  type="submit" id="couponButton" class="btn btn-success form-control">Apply</button>
+                      </div>
+                      <div class="spinner-container">
+                      <div id="spinner"></div>
+                    </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        
+        </div>
+    </div>
+
+    <div class="modal fade" id="payment-modal" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header" style="color:black">
+            Success!<button id="cl" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button>
+        </div>
+        <div class="modal-body" style="color:black">
+          <div id="success_reference">
+            Thanks for ordering. We will notify you when your equipment ships. Please visit the history page for more information or email <a href="mailto:info@trac-us.com" style="color:#3577A8 !important;">info@trac-us.com</a>
+            <!-- TODO: Take info, create account as necessary
+            <br><br>
+            To manage your event, and stay updated with your order please create an account: <br><center><button type="submit" id="submit" class="btn btn-primary" style="margin-left:2%; width:250px;" onclick="location.href='/register';" onclick="amplitude.logEvent('Create_Account_Payment_Popup');">Register</button> </center>-->
+            <br><br>
+            </div>
+         </div>
+        <div class="modal-footer">
+          <div class="btn-group pull-right" role="group">
+            <button type="submit" data-dismiss="modal" class="btn btn-primary" style="margin-left:2%">Close</button>
+          </div>
+          <div id="spinner-form"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}
+
+{% block js_scripts %}
+{{ block.super }}
+<script type="text/javascript" src="{% static "js/new/subscribe.js" %}"></script>
+<script src="https://checkout.stripe.com/v2/checkout.js"></script>
+
+
+{% endblock js_scripts %}

@@ -30,7 +30,7 @@ class TagViewSetTest(APITestCase):
         self.assertEqual(resp.data[0]['id'], 1)
         self.assertEqual(resp.data[1]['id'], 2)
         self.assertEqual(resp.status_code, 200)
-    
+
     def test_get_tags_athlete(self):
         """Test an athlete can only view his tags."""
         user = User.objects.get(username='grupp')
@@ -265,7 +265,7 @@ class TimingSessionViewSetTest(APITestCase):
         self.assertIsNotNone(session.start_time)
         self.assertIsNotNone(session.stop_time)
         self.assertEqual(resp.status_code, 201)
-    
+
     def test_post_save(self):
         """Test that readers are automatically added to session."""
         user = User.objects.get(username='alsal')
@@ -283,7 +283,7 @@ class TimingSessionViewSetTest(APITestCase):
         resp = self.client.post('/api/sessions/1/reset/')
         self.assertEqual(resp.status_code, 202)
         self.assertEqual(TimingSession.objects.get(pk=1).splits.count(), 0)
-    
+
     @mock.patch('trac.models.TimingSession')
     def test_individual_results(self, mock_session):
         """Test retrieving individual results."""
@@ -291,6 +291,12 @@ class TimingSessionViewSetTest(APITestCase):
         self.client.force_authenticate(user=user)
         resp = self.client.get('/api/sessions/1/individual_results/', format='json')
         self.assertEqual(resp.status_code, 200)
+
+    def test_edit_denied_public_session(self):
+        """Test that unauthenticated users can't edit a session."""
+        resp = self.client.patch('/api/sessions/1/',
+                                 data={'name': 'edited name'})
+        self.assertEqual(resp.status_code, 401)
 
     @mock.patch.object(trac.views.session_views, 'timezone')
     def test_open(self, mock_timezone):
@@ -323,8 +329,8 @@ class TimingSessionViewSetTest(APITestCase):
         """Test triggering the start button for a session."""
         now = datetime.datetime.utcnow().replace(microsecond=0)
         mock_datetime.datetime.utcnow.return_value = now
-        mock_datetime.timedelta.return_value = datetime.timedelta(seconds=8)
-        current_time = now-datetime.timedelta(seconds=8)
+        mock_datetime.timedelta.return_value = datetime.timedelta(seconds=0)
+        current_time = now
         timestamp = int((current_time-
             timezone.datetime(1970, 1, 1)).total_seconds()*1000)
         user = User.objects.get(username='alsal')
@@ -340,7 +346,7 @@ class TimingSessionViewSetTest(APITestCase):
         self.client.force_authenticate(user=user)
         resp = self.client.get('/api/sessions/')
         session_ids = TimingSession.objects.all().order_by(
-            '-start_time').values_list('id', flat=True) 
+            '-start_time').values_list('id', flat=True)
         self.assertEqual(
             [session['id'] for session in resp.data],
             list(session_ids))
@@ -500,7 +506,7 @@ class PostSplitsTest(APITestCase):
         mock_create_split.return_value = 0
         reader = 'A1010'
         tag = 'A0C3 0001'
-        stime = timezone.now().strftime("%Y/%m/%d %H:%M:%S.%f") 
+        stime = timezone.now().strftime("%Y/%m/%d %H:%M:%S.%f")
         resp = self.client.post('/api/updates/',
                                 data={'r': reader,
                                       's': "[['{}', '{}'],]".format(tag, stime)})
@@ -510,8 +516,9 @@ class PostSplitsTest(APITestCase):
     @mock.patch.object(trac.views.reader_views, 'timezone')
     def test_get_server_time(self, mock_timezone):
         """Test sending the current time to the readers."""
-        now = timezone.now()
+        now = timezone.now() + timezone.timedelta(seconds=8)
         mock_timezone.now.return_value = now
+        mock_timezone.timedelta.return_value = timezone.timedelta(seconds=0)
         resp = self.client.get('/api/updates/')
         self.assertEqual(list(resp.data)[0], str(now))
 
@@ -526,7 +533,7 @@ class SplitViewSetTest(APITestCase):
         self.client.force_authenticate(user=user)
         resp = self.client.get('/api/splits/?session=1', format='json')
         self.assertEqual(resp.status_code, 200)
-        session = TimingSession.objects.get(id=1) 
+        session = TimingSession.objects.get(id=1)
         self.assertEqual([split['id'] for split in resp.data],
                          list(session.splits.values_list('id', flat=True)))
 

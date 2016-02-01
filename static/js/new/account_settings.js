@@ -84,7 +84,7 @@ $(document).ready(function(){
       }
       $('body').on('click', 'a#e_payment', function(e){
           e.preventDefault();
-          location.href='/payments/change/cards/';
+          location.href='/payments/change_card/';
       });
       $('#edit-information').on('submit', function(e){
           e.preventDefault();

@@ -68,4 +68,9 @@ def post_splits(request):
     # To avoid having to navigate between different urls on the readers, we use
     # this same endpoint to retrieve the server time.
     elif request.method == 'GET':
-        return Response({str(timezone.now())}, status.HTTP_200_OK)
+        # FIXME: This is a hack that offsets the delay the reader has in
+        # setting its real time.  Also note that the start time is taken to be
+        # the time the request hits the server, not the time the button is
+        # pressed on the phone, etc.
+        now = timezone.now() + timezone.timedelta(seconds=8)
+        return Response({str(now)}, status.HTTP_200_OK)

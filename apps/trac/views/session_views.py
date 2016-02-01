@@ -71,7 +71,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
       - query
     """
     serializer_class = TimingSessionSerializer
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     pagination_class = pagination.LimitOffsetPagination
     filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter,)
     filter_class = TimingSessionFilter
@@ -126,7 +126,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         - form
         """
         session = self.get_object()
-        session.start_time = timezone.now() - timezone.timedelta(seconds=8)
+        session.start_time = timezone.now()
         session.stop_time = session.start_time + timezone.timedelta(days=1)
         session.save()
         return Response(status=status.HTTP_202_ACCEPTED)
@@ -158,14 +158,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         - query
         - form
         """
-        # FIXME: This is a hack that offsets the delay the reader has in
-        # setting its real time.  Also note that the start time is taken to be
-        # the time the request hits the server, not the time the button is
-        # pressed on the phone, etc.
-        current_time = datetime.datetime.utcnow()-datetime.timedelta(seconds=8)
-        timestamp = int((current_time - timezone.datetime(
-            1970, 1, 1)).total_seconds()*1000)
-
+        current_time = datetime.datetime.utcnow()
+        timestamp = int((current_time - EPOCH).total_seconds()*1000)
         session = self.get_object()
         session.start_button_time = timestamp
         session.save()
@@ -361,7 +355,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
         return Response(results)
 
-    @detail_route(methods=['post'])
+    @detail_route(methods=['post'],
+                  permission_classes=(permissions.IsAuthenticated,))
     def upload_results(self, request, pk=None):
         """
         Upload results to an existing workout. Request body should
@@ -416,7 +411,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         session.save()
         return Response(status=status.HTTP_201_CREATED)
 
-    @detail_route(methods=['post'])
+    @detail_route(methods=['post'],
+                  permission_classes=(permissions.IsAuthenticated,))
     def register_athletes(self, request, pk=None):
         """Append athletes to the list of registered athletes.
 
@@ -442,7 +438,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             new_athletes | existing_athletes)
         return self.partial_update(request)
 
-    @detail_route(methods=['post'])
+    @detail_route(methods=['post'],
+                  permission_classes=(permissions.IsAuthenticated,))
     def remove_athletes(self, request, pk=None):
         """Remove athletes from the list of registered athletes.
 
@@ -582,7 +579,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         send_mass_mail(email_list, fail_silently=False)
         return Response(status=status.HTTP_200_OK)
 
-    @detail_route(methods=['post'], parser_classes=(FileUploadParser,))
+    @detail_route(methods=['post'], parser_classes=(FileUploadParser,),
+                  permission_classes=(permissions.IsAuthenticated,))
     def upload_runners(self, request, *args, **kwargs):
         """Upload a CSV file for athletes to be registered into a workout
 
@@ -613,7 +611,10 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         new_athletes = list()
 
         for athlete in roster:
-            team, created = Team.objects.get_or_create(name=athlete.get('team',None),coach_id=user.coach.id)
+            team, created = Team.objects.get_or_create(
+                name=athlete.get('team',None),
+                coach_id=user.coach.id
+            )
             athlete_data = {
                 'username': uuid.uuid4().hex[:30],  # Assign random username
                 'first_name': athlete['first_name'],

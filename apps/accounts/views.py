@@ -136,33 +136,3 @@ def stripeSingleCharge(request):
       pass
 
     return Response(201, status.HTTP_201_CREATED)
-
-@api_view(['post'])
-@permission_classes((permissions.IsAuthenticated,))
-def stripe_CustomerPayment(request):
-    """Create a single payment charge for a registered user via Stripe.
-
-    Send the stripeID, amount you want to charge them, and user ID if
-    applicable.
-    """
-    stripe.api_key = "sk_test_8dwmRwbSMzZNticzW7fQaKu0"
-    user = request.user
-    # Get the credit card details submitted by the form
-    price = request.POST['price']
-
-    customer, created = Customer.get_or_create(subscriber=user)
-
-    # Create the charge on Stripe's servers - this will charge the user's card
-    try:
-      charge = stripe.Charge.create(
-          amount=price, # amount in cents, again
-          currency="usd",
-          description="TRAC Timing",
-          customer=customer.id
-      )
-    except stripe.error.CardError, e:
-      # The card has been declined
-      pass
-
-    return Response(201, status.HTTP_201_CREATED)
-
