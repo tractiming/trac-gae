@@ -7,7 +7,6 @@
 {{ block.super }}
 <div id="content" class="container-fluid">
     <div class="container">
-
     <div class="alert alert-error"></div>
       <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3 pull-left" >
       <div class="panel panel-default">
@@ -31,35 +30,54 @@
         </div>
           <div class="panel-body">
             <div class="row" id="plan-options">
-                <div class="col-xs-2">
-                    <form class="djstripe-subscribe" method="POST">
+                    <form class="djstripe-subscribe col-lg-3" method="POST">
                         {% csrf_token %}
                         <input type="hidden" name="plan" value="monthly" />
 
-                        <button type="submit" class="btn btn-primary" id="monthly-button">
-                          <h3>($99.99/mon)</h3>
+                        <button type="submit" class="btn btn-primary" id="monthly-button" style="display:none">
+                          <h3>$99.99</h3>
                           <p>Monthly</p>
                         </button>
                         <h4 id="upgrade-downgrade-monthly"></h4>
                     </form>
-                    <form class="djstripe-subscribe" method="POST">
+                    <form class="djstripe-subscribe col-lg-3" method="POST" id='educator' style="display:none">
                         {% csrf_token %}
                         <input type="hidden" name="plan" value="yearly" />
 
                         <button type="submit" class="btn btn-primary" id="yearly-button">
-                          <h3>($1000/yr)</h3>
+                          <h3>$1000</h3>
                           <p>Yearly</p>
                         </button>
                         <h4 id="upgrade-downgrade-yearly"></h4>
                     </form>
-                </div>
+                     <form class="djstripe-subscribe col-lg-3" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="plan" value="quarterly" />
+
+                        <button type="submit" class="btn btn-primary" id="quarterly-button">
+                          <h3>$525</h3>
+                          <p>Quarterly</p>
+                        </button>
+                        <h4 id="upgrade-downgrade-quarterly"></h4>
+                    </form>
+                    <form class="djstripe-subscribe col-lg-3" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="plan" value="yearly-plan" />
+
+                        <button type="submit" class="btn btn-primary" id="yearly-plan-button">
+                          <h3>$1600</h3>
+                          <p>Yearly</p>
+                        </button>
+                        <h4 id="upgrade-downgrade-yearly-plan"></h4>
+                    </form>
             </div>
+            
         </div>
       </div>
       </div>
 
             <div class="row">
-              <div class="col-lg-offset-3 col-md-offset-3 col-sm-offset-3 col-lg-4 col-md-4 col-sm-4 col-xs-4" style="padding-top:2%">
+              <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4" style="padding-top:2%">
                 <div class="panel panel-default">
                   <div class="panel-heading">
                     <h3 class="panel-title" id="display-title">Single Event Orders</h3>
@@ -85,88 +103,33 @@
 
                       </div>
                       <label class="col-lg-offset-4" id="pricing">Price: $25.00</label>
-<script>
-var tag_type=1, num_tags=25, systems=0;
 
-$("#tags").keypress(function (e) {
-//if the letter is not digit then display error and don't type anything
-if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
-return false;
-}
-});
-
-
-//Text Change listeners for dynamic pricing
-$("input[name=tag_type]").on('change', function(){
-  tag_type = $("input[name=tag_type]:checked").val();
-  changePricing(tag_type,num_tags,systems);
-})
-
-$("#tags").on('input', function(){
-  num_tags = $('#tags').val();
-  changePricing(tag_type,num_tags,systems);
-});
-
-$("#systems").on('input', function(){
-  systems = $('#systems').val();
-  changePricing(tag_type,num_tags,systems);
-});
-
-function changePricing(tag_type,num_tags,systems){
-  price = (tag_type * num_tags) + (systems * 350);
-  $('#pricing').text('Price: $' + price+'.00');
-
-};
-
-$('#customButton').on('click', function(e) {
-    // Open Checkout with further options
-    var stripePrice = price*100;
-    $.ajax({
-        type: 'POST',
-        dataType:'json',
-        url: '/payments/charges/',
-        headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
-        data: {
-            amount: stripePrice
-        },
-        success: function(data) {
-            $('#payment-modal').modal('show');
-        },
-        error: function(xhr, errmsg, err) {
-            $('#payment-modal').modal('show');
-            $('#success_reference').text('Error. We are unable to process your request');
-        }
-    });
-
-    e.preventDefault();
-});
-
-</script>
                   </div>
               </div>
             </div>
           </div>
-         <!-- <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4" style="padding-top:2%">
+            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4" style="padding-top:2%">
                 <div class="panel panel-default">
                   <div class="panel-heading">
                     <h3 class="panel-title" id="display-title">Apply Coupons</h3>
                   </div>
                   <div class="panel-body">
+
                   <div class="form-group">
                     <label >Coupon Code:</label><br>
-                    <input type="text" id="tags" name="organization" class="form-group form-control">
+                    <input type="text" id="coupon" name="organization" class="form-group form-control">
 
                       <div class="btn-group" role="group">
-
-                          <button  type="submit" id="customButton" class="btn btn-success form-control">Apply</button>
-
+                          <button  type="submit" id="couponButton" class="btn btn-success form-control">Apply</button>
                       </div>
-                      <label class="col-lg-offset-4" id="pricing">Discount: $25.00</label>
-                      </div>
+                      <div class="spinner-container">
+                      <div id="spinner"></div>
+                    </div>
+                </div>
               </div>
             </div>
           </div>
-        -->
+        
         </div>
     </div>
 
@@ -198,76 +161,8 @@ $('#customButton').on('click', function(e) {
 
 {% block js_scripts %}
 {{ block.super }}
+<script type="text/javascript" src="{% static "js/new/subscribe.js" %}"></script>
 <script src="https://checkout.stripe.com/v2/checkout.js"></script>
-<script text="text/javascript">
-    $(function() {
-
-        loadSubscription();
-
-        $('#monthly-button').on('click', function(e) {
-            e.preventDefault();
-            subscribe('monthly');
-        });
-
-        $('#yearly-button').on('click', function(e) {
-            e.preventDefault();
-            subscribe('yearly');
-        });
-
-        function subscribe(plan) {
-            $.ajax({
-                type: 'POST',
-                dataType: 'json',
-                url: '/payments/subscription/',
-                data: {
-                    stripe_plan: plan
-                },
-                headers: {
-                    Authorization: 'Bearer ' + sessionStorage.access_token
-                },
-                success: function(data) {
-                    $('#payment-modal').on('hidden.bs.modal', function() {
-                        location.reload(true);
-                    });
-                    $('#payment-modal').modal('show');
-                },
-                error: function(xhr, errmsg, err) {
-                    $('#payment-modal').modal('show');
-                    $('#success_reference').text(
-                        'Error. We are unable to process your request');
-                }
-            });
-        }
-
-        function loadSubscription() {
-            $.ajax({
-                type: 'GET',
-                dataType: 'json',
-                url: '/payments/subscription/',
-                headers: {
-                    Authorization: 'Bearer ' + sessionStorage.access_token
-                },
-                success: function(data) {
-                    if (data.plan == "yearly") {
-                        document.getElementById('upgrade-downgrade-monthly')
-                            .innerHTML = 'Downgrade';
-                        document.getElementById('upgrade-downgrade-yearly')
-                            .innerHTML = 'Your current plan';
-                        document.getElementById('yearly-button').disabled = true;
-                    } else if (data.plan == "monthly") {
-                        document.getElementById('upgrade-downgrade-yearly')
-                            .innerHTML = 'Upgrade';
-                        document.getElementById('upgrade-downgrade-monthly')
-                            .innerHTML = 'Your current plan';
-                        document.getElementById('monthly-button').disabled = true;
-                    }
-                },
-                error: function(xhr, errmsg, err) {
-                }
-            });
-        }
-    });
-</script>
 
 
 {% endblock js_scripts %}
