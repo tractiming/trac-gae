@@ -1,9 +1,10 @@
-from trac.models import TimingSession, Coach
-from trac.utils.user_util import is_athlete, is_athlete
 from rest_framework import permissions, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-import stats
+
+import stats.stats_calcs as stats
+from trac.models import TimingSession, Coach
+from trac.utils.user_util import is_athlete, is_athlete
 
 
 DEFAULT_DISTANCES = [100, 200, 400, 800, 1000, 1500,
@@ -12,7 +13,6 @@ DEFAULT_TIMES = [14.3, 27.4, 61.7, 144.2, 165, 257.5,
                  278.7, 356.3, 550.8, 946.7, 1971.9, ]
 
 
-# Create your views here.
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))
 def analyze(request):
@@ -26,22 +26,17 @@ def analyze(request):
       required: true
       type: int
     """
-    #SETUP and parse dataList
-    user = request.user
     idx = request.POST.get('id')
-    ts = TimingSession.objects.get(id = idx)
-    run = ts.individual_results()
-    dataList = []
-    for r in run:
-        times = r[3]
-        for index, item in enumerate(times):
-            times[index] = float(item)
-        name = r[0]
-        dataList.append({'name': name, 'times': times})
+    session = TimingSession.objects.get(pk=idx)
+    results = session.individual_results()
 
-    r_dict = stats.investigate(dataList)
+    data = [{
+        'name': result.name,
+        'times': result.splits,
+    } for result in results]
+    analyzed_times = stats.investigate(data)
+    return Response(analyzed_times)
 
-    return Response(r_dict, status.HTTP_200_OK)
 
 @api_view(['GET'])
 @permission_classes((permissions.AllowAny,))
