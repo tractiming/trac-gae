@@ -627,7 +627,7 @@
     $scope.createTeam = function(team){
       var name = team.name;
       var bool = true;
-
+      var url = '/api/teams/';
       $http({method: 'POST', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{
         name: name,
         primary_team: bool,
