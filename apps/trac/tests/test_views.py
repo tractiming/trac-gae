@@ -292,6 +292,12 @@ class TimingSessionViewSetTest(APITestCase):
         resp = self.client.get('/api/sessions/1/individual_results/', format='json')
         self.assertEqual(resp.status_code, 200)
 
+    def test_edit_denied_public_session(self):
+        """Test that unauthenticated users can't edit a session."""
+        resp = self.client.patch('/api/sessions/1/',
+                                 data={'name': 'edited name'})
+        self.assertEqual(resp.status_code, 401)
+
     @mock.patch.object(trac.views.session_views, 'timezone')
     def test_open(self, mock_timezone):
         """Test opening a session."""
