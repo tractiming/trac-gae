@@ -217,15 +217,25 @@ p {
                 <div class="row">
                     <div class="col-lg-9">
                          <p><b>This is done in the app.</b> Notice how there is no 'Stop' button. This is because at TRAC we believe every time is important including that rest split. This allows us to do powerful data analysis.<p>
+                        <p>Anytime that the reset button is hit, its only a reset on the running clock within the phone. You can view this time by long-pressing on a specific athlete. Anytime the split button is hit, the time is then recorded.</p>
+                        <p>On the controls page, most of the buttons are self explanatory aside from calibrate and stop. These buttons help the readers determine where to put new split information. If a workout is not calibrated, new times may not appear. Stop a workout when it is finished to prevent new times being added. </p> 
+                        <p>Go! is a mass start button when splitting every athlete to start is difficult. Its best used in races when you have a big mass start.</p>
                     </div>
                     <div class="col-lg-3">
                         <a type="button" class="btn btn-warning" href="/tutorial/7/">I started my workout ></a>
                     </div>
                 </div>
-                <div class="panel panel-default" style="margin-top:2%;">
-                  <div class="panel-body">
-                    <img src="{% static "img/register_athlete.png" %}" style="max-width:100%; border-radius:4px">
-                  </div>
+                <div class="row">
+                    <div class="panel panel-default col-lg-4" style="margin-top:2%;">
+                      <div class="panel-body">
+                        <img src="{% static "img/ios_timer.png" %}" style="max-width:100%; border-radius:4px">
+                      </div>
+                    </div>
+                    <div class="panel panel-default col-lg-offset-2 col-lg-4" style="margin-top:2%;">
+                      <div class="panel-body">
+                        <img src="{% static "img/ios_controls.png" %}" style="max-width:100%; border-radius:4px">
+                      </div>
+                    </div>
                 </div>
             </div>
             <div class="tutorial" id="tutorial-7">
@@ -249,10 +259,11 @@ p {
                 <div class="row">
                     <div class="col-lg-9">
                        <p><b>Compare two the results of two athletes head to head, or the same runner over two different workouts.</b> Drill down and see each individual split, or graph the two side by side.<p>
-                        <p>In the future new analytics features can be expected on this page.</p> 
+                        <p>In the future new analytics features can be expected on this page. If you're a developer or just a data junkie, contact us for more details about using our API.</p> 
                     </div>
                     <div class="col-lg-3">
-                        <a type="button" class="btn btn-success" href="/tutorial/7/">To FAQs ></a>
+                        <a type="button" class="btn btn-success" href="/faqs/">To FAQs ></a>
+                        <a type="button" class="btn btn-primary" href="mailto:founders@tracchicago.com" style="margin-top:5%">Developer? Contact us!</a>
                     </div>
                 </div>
                 <div class="panel panel-default" style="margin-top:2%;">
@@ -264,21 +275,4 @@ p {
         </div>
     </div>
 </div>
-<!--<div class="container fluid content">
-    <div class="content" id="content">
-          <div id="step1" class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
-          </div>
-          <div id="articles" class="pull-right" style="border-left: 1px solid #eee; padding-left: 2%;">
-            <h2 style="text-align: left;">Articles</h2>
-            <a id="a" href="/tutorial/1">Quick Start</a></br>
-            <a id="b" href="/tutorial/2">Hardware Guide</a></br>
-            <a id="c" href="/tutorial/3">Reader Setup</a></br>
-            <a id="d" href="/tutorial/4">Create Workout</a></br>
-            <a id="e" href="/tutorial/5">Manage Race</a></br>
-            <a id="f" href="/tutorial/6">Advanced Features</a></br>
-            <a id="g" href="/tutorial/7">Mobile Applications</a></br>
-            <a id="h" href="/tutorial/8">Frequently Asked Questions</a></br>
-          </div>
-    </div>
-</div>-->
 {% endblock %}

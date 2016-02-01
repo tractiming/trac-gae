@@ -10,9 +10,6 @@ def score(request, org = None):
 def individual(request, id = 0):
     return render(request, 'individual.html', {'id': id})
 
-def tutorial(request, page = 1):
-    return render(request, 'tutorial.html', {'page': page})
-
 def tutorial2(request, page = 1):
     return render(request, 'tutorial2.html', {'page': page})
 
