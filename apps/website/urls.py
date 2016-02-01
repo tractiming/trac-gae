@@ -47,6 +47,8 @@ urlpatterns = patterns('',
         name='readers'),
     url(r'^tags', TemplateView.as_view(template_name='tags.html'),
         name='tags'),
+    url(r'^faqs', TemplateView.as_view(template_name='faqs.html'),
+        name='faqs'),
 
     url(r'^payments/change_card',
         TemplateView.as_view(template_name='change_card.html'),
@@ -57,12 +59,12 @@ urlpatterns = patterns('',
     url(r'^payments/subscribe',
         TemplateView.as_view(template_name='subscribe_form.html'),
         name='subscribe'),
-    
+
     url(r'^account_settings/(?P<page>.+)/$', views.account_settings, name='account_settings'),
     url(r'^score/$', views.score, name='score'),
     url(r'^score/(?P<org>.+)/$', views.score, name='score'),
     url(r'^individual/(?P<id>.+)/$', views.individual, name='individual_splits'),
-    url(r'^Tutorial/(?P<page>.+)/$', views.tutorial, name='tutorial'),
+    url(r'^tutorial/(?P<page>.+)/$', views.tutorial2, name='tutorial2'),
     url(r'^UserSettings/(?P<pk>.+)/(?P<token>.+)/$', views.usersettings,
         name="UserSettings"),
 
