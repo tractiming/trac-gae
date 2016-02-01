@@ -1,5 +1,6 @@
 #!/bin/bash
 
+pip uninstall django-rest-framework-stripe
 pip freeze | xargs pip uninstall -y
 pip install \
     --no-deps \
