@@ -28,6 +28,7 @@ p {
 }
 
 </style>
+
 {% endblock %}
 
 {% block js_scripts %}
@@ -87,7 +88,7 @@ p {
         window.location.href = "/tutorial/8/"
 
 
-    $('body').on('click', function (){
+    $('.next-button').on('click', function (){
         if (page>7)
         {
             return;
@@ -99,7 +100,15 @@ p {
 });
   </script>
   <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-
+  <link href="{% static "css/colorbox.css" %}" rel="stylesheet" type="text/css">
+  <script src="{% static "js/new/jquery.colorbox.js" %}" type="text/javascript"></script>
+<script>
+    $(document).ready(function(){
+        //$(".youtube").colorbox({iframe:true, innerWidth:640, innerHeight:390});   
+        $(".youtube").colorbox({iframe:true, width:"90%", height:"95%"});   
+        $(".iframe").colorbox({iframe:true, width:"50%", height:"65%"}); 
+    });
+</script>
 {% endblock %}
 <!-- Body -->
 {% block nav-items %}
@@ -173,7 +182,7 @@ p {
                     </div>
                     <div class="col-lg-3">
                         <a type="button" class="btn btn-warning" href="/tutorial/3/">I created my roster ></a>
-                        <!--<a type="button" class="btn btn-primary" style="margin-top:5%"href="youtube.com/video">Video Walkthrough</a>-->
+                        <a type="button" class="btn btn-primary youtube" style="margin-top:5%"href="https://www.youtube.com/embed/IQwq-yW5TfM">Video Walkthrough</a>
                     </div>
                 </div>
                 <div class="panel panel-default" style="margin-top:2%;">
@@ -192,7 +201,7 @@ p {
                     <div class="col-lg-3">
                         <a type="button" class="btn btn-success" href="/tutorial/4/">I set it up ></a>
                         <a style="margin-top:5%" type="button" class="btn btn-warning" href="/tutorial/4/">I don't have a reader ></a>
-                        <!--<a type="button" class="btn btn-primary" style="margin-top:5%"href="youtube.com/video">Video Walkthrough</a>-->
+                        <a type="button" class="btn btn-primary youtube" style="margin-top:5%" href="https://www.youtube.com/embed/z1wQ4rWaScI">Video Walkthrough</a>
                     </div>
                 </div>
                 <div class="panel panel-default" style="margin-top:2%;">
@@ -210,7 +219,7 @@ p {
                     </div>
                     <div class="col-lg-3">
                         <a type="button" class="btn btn-warning" href="/tutorial/5/">I created a workout ></a>
-                        <!--<a type="button" class="btn btn-primary" style="margin-top:5%"href="youtube.com/video">Video Walkthrough</a>-->
+                        <a type="button" class="btn btn-primary youtube" style="margin-top:5%" href="https://www.youtube.com/embed/eF-uVeQpWwA">Video Walkthrough</a>
                     </div>
                 </div>
                 <div class="panel panel-default" style="margin-top:2%;">
@@ -228,7 +237,7 @@ p {
                     </div>
                     <div class="col-lg-3">
                         <a type="button" class="btn btn-warning" href="/tutorial/6/">I imported my athletes ></a>
-                        <!--<a type="button" class="btn btn-primary" style="margin-top:5%"href="youtube.com/video">Video Walkthrough</a>-->
+                        <a type="button" class="btn btn-primary youtube" style="margin-top:5%" href="https://www.youtube.com/embed/_QwP85lTNFg">Video Walkthrough</a>
                     </div>
                 </div>
                 <div class="panel panel-default" style="margin-top:2%;">
@@ -242,12 +251,12 @@ p {
                     <div class="col-lg-9">
                          <p><b>This is done in the app.</b> Notice how there is no 'Stop' button. This is because at TRAC we believe every time is important including that rest split. This allows us to do powerful data analysis.<p>
                         <p>Anytime that the reset button is hit, its only a reset on the running clock within the phone. You can view this time by long-pressing on a specific athlete. Anytime the split button is hit, the time is then recorded.</p>
-                        <p>On the controls page, most of the buttons are self explanatory aside from calibrate and stop. These buttons help the readers determine where to put new split information. If a workout is not calibrated, new times may not appear. Stop a workout when it is finished to prevent new times being added. </p> 
+                        <p>On the controls page, most of the buttons are self explanatory aside from calibrate and stop. These buttons help the readers determine where to put new split information. If a workout is not calibrated, new times may not appear. Its not necessary to use these buttons if you recorded the correct start and stop times of the workout when you created it. Stop a workout when it is finished to prevent new times being added. </p> 
                         <p>Go! is a mass start button when splitting every athlete to start is difficult. Its best used in races when you have a big mass start.</p>
                     </div>
                     <div class="col-lg-3">
                         <a type="button" class="btn btn-warning" href="/tutorial/7/">I started my workout ></a>
-                        <!--<a type="button" class="btn btn-primary" style="margin-top:5%"href="youtube.com/video">Video Walkthrough</a>-->
+                        <a type="button" class="btn btn-primary youtube" style="margin-top:5%" href="https://www.youtube.com/embed/NXP5zxKa0D8">Video Walkthrough</a>
                     </div>
                 </div>
                 <div class="row">
