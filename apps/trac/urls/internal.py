@@ -26,7 +26,6 @@ urlpatterns = [
     url(r'^give_athlete_password/$', user_views.give_athlete_password),
     url(r'^reset_password/$', auth_views.reset_password),
     url(r'^send_email/$', user_views.send_email),
-    url(r'^stripe/$', user_views.subscribe),
     url(r'^verifyLogin/$', auth_views.verify_login),
     url(r'^request_quote/$', user_views.request_quote),
 

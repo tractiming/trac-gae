@@ -4,35 +4,77 @@
 
 <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
 <script type="text/javascript">
-  // This identifies your website in the createToken call below
+jQuery(function($) {
+    if (sessionStorage.access_token == null) {
+        location.href="/login";
+    }
+    $(document).ready(function() {
+        $("li a.logout").click(function(){
+            sessionStorage.clear();
+            location.href="/login";
+        });
+    });
 
-  Stripe.setPublishableKey('{{ STRIPE_PUBLIC_KEY }}');
-  
-      var stripeResponseHandler = function(status, response) {
-      var $form = $('#change-card-form');
+    loadCard();
 
-      if (response.error) {
-        // Show the errors on the form
-        $form.find('.payment-errors').text(response.error.message);
-        $form.find('button').prop('disabled', false);
-      } else {
-        // token contains id, last4, and card type
-        var token = response.id;
-        // Insert the token into the form so it gets submitted to the server
-        $form.append($('<input type="hidden" name="stripe_token" />').val(token));
-        // and submit
-        $form.get(0).submit();
-      }
+    function loadCard() {
+        $.ajax({
+            type: 'GET',
+            dataType: 'json',
+            url: '/payments/current-user/',
+            headers: {
+                Authorization: 'Bearer ' + sessionStorage.access_token
+            },
+            success: function(data) {
+                if (data.card_last_4) {
+                    document.getElementById('current-card-info').innerHTML =
+                        'Current card on file is a <strong>' + data.card_kind +
+                        '</strong> ending in the digits <strong>' +
+                        data.card_last_4 + '</strong>.';
+                } else {
+                    document.getElementById('current-card-info').innerHTML =
+                        'You do not currently have a card on file.';
+                }
+            },
+            error: function(xhr, errmsg, err) {
+                document.getElementById('current-card-info').innerHTML =
+                    'Error retrieving card information.';
+            }
+        });
     };
-  
-  jQuery(function($) {
+
     $('#change-card-form').submit(function(event) {
-        var $form = $(this);
+		var cardNumber = $('input#card_number').val();
+		var cvv = $('input#cvv').val();
+		var name = $('input#name_on_card').val();
+		var expiryMonth = $('input#expiry_month').val();
+		var expiryYear = $('input#expiry_year').val();
+		var email = $('input#email').val();
+
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '/payments/change-card/',
+            headers: {
+                Authorization: 'Bearer ' + sessionStorage.access_token
+            },
+            data: {
+                number: cardNumber,
+                exp_month: expiryMonth,
+                exp_year: expiryYear,
+                cvc: cvv
+            },
+            success: function(data) {
+                window.location.reload(true);
+            },
+            error: function(xhr, errmsg, err) {
+                alert('Error setting card info');
+            }
+        });
 
         // Disable the submit button to prevent repeated clicks
+        var $form = $(this);
         $form.find('button').prop('disabled', true);
-
-        Stripe.card.createToken($form, stripeResponseHandler);
 
         // Prevent the form from submitting with the default action
         return false;
@@ -40,6 +82,7 @@
 });
 </script>
 <script type="text/javascript" src="{% static "js/demo.js" %}" />
+<script src="{% static "js/trac-ajax.js" %}" type="text/javascript"></script>
 
 {% endblock js_scripts %}
 {% block stylesheets %}
@@ -59,7 +102,7 @@
                 <a href="/account_settings/1/" id="e_profile"><img src="{% static "img/general.png" %}" width="20px"> General</a><br>
                 <a href="/account_settings/2/" id="e_password"><img src="{% static "img/security.png" %}" width="20px"> Security</a><br>
                 <a href="/account_settings/3/" id="e_roster"><img src="{% static "img/peopleicon.png" %}" width="20px"> Team</a><br>
-                <a href="/payments/change/cards/" id="e_payment"><img src="{% static "img/payment.png" %}" width="20px"> Payments</a><br>
+                <a href="/payments/change_card/" id="e_payment"><img src="{% static "img/payment.png" %}" width="20px"> Payments</a><br>
                 <a href="/payments/subscribe/" id="e_payment"><span class="glyphicon glyphicon-retweet"></span> Subscription</a><br>
                 <a href="/payments/history/" id="e_payment"><span class="glyphicon glyphicon-book"></span> History</a><br>
               </div>
@@ -72,22 +115,10 @@
             </div>
               <div class="panel-body">
             <div class="row" style="margin-left:2%; margin-top:2%; margin-bottom:4%">
-                <p style="font-size:18px" >
-                        {% if customer.card_kind and customer.card_last_4 %}
-                            Current card on file is a <strong>{{ customer.card_kind }}</strong>
-                            ending in the digits <strong>{{ customer.card_last_4 }}</strong>.
-                        {% else %}
-                            You do not currently have a card on file.
-                        {% endif %}
-                    </p>
-                    
-                    {% if stripe_error %}
-                        <div class="alert alert-error">{{ stripe_error }}</div>
-                    {% endif %}
+                <p style="font-size:18px" id="current-card-info"></p>
 
                 <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12"> 
-                        
-                    <form action="/api/stripe/" method="POST" id="change-card-form" class="form-group">
+                    <form method="POST" id="change-card-form" class="form-group">
                             {% csrf_token %}
                             <span class="payment-errors"></span>
                                 <ul>
@@ -96,17 +127,18 @@
                                         <label for="card_number">Card number </label>
                                         <input type="text" id="card_number" placeholder="1234 5678 9012 3456" data-stripe="number">
                                       </div>
-                                       
                                     </div>
 
                                     <div class="row span 6">
                                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
-                                                <label for="expiry_date">Expiry Month</label>
-                                                <input class="col-lg-4 col-md-4 col-sm-4 col-xs-4" type="text" id="expiry_date" maxlength="2" placeholder="mm" data-stripe="exp_month">
+                                                <label for="expiry_month">Expiry Month</label>
+                                                <input class="col-lg-4 col-md-4
+                                                col-sm-4 col-xs-4" type="text" id="expiry_month" maxlength="2" placeholder="mm" data-stripe="exp_month">
                                         </div>
                                         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
-                                                <label for="expiry_date">Expiry Year</label>
-                                                <input  class="col-lg-4 col-md-4 col-sm-4 col-xs-4" type="text" id="expiry_date" maxlength="2" placeholder="yy" data-stripe="exp_year">
+                                                <label for="expiry_year">Expiry Year</label>
+                                                <input  class="col-lg-4
+                                                col-md-4 col-sm-4 col-xs-4" type="text" id="expiry_year" maxlength="2" placeholder="yy" data-stripe="exp_year">
                                             </div>
                                     </div>
                                     <div class="row">
@@ -115,7 +147,6 @@
                                                 <input class="col-lg-4 col-md-4 col-sm-4 col-xs-4" type="text" id="cvv" maxlength="3" placeholder="123" data-stripe="cvc">
                                         </div>
                                     </div>
-                                    
 
                                    <li class="vertical maestro">
                                         <ul>
@@ -148,8 +179,7 @@
                                 <div class="row">
                                      <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7" style="display:table; margin:0 auto">
                                          <button class="btn btn-primary change-card " type="submit" style="float:right; margin-left:5%;">Change Card</button>
-                                         <a class="btn btn-default" href="{% url 'djstripe:account' %}" style="float:right">Cancel</a>
-                                        
+                                         <a class="btn btn-default" style="float:right">Cancel</a>
                                     </div>
                                 </div>
                             </form>
