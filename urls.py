@@ -15,6 +15,6 @@ urlpatterns = patterns('',
     url(r'^oauth2/', include('oauth2_provider.urls', app_name='oauth2',
                              namespace='oauth2_provider')),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^payments/', include('djstripe.urls', namespace='djstripe')),
+    url(r'^payments/', include('payments.api.urls')),
     url(r'^docs/', include('rest_framework_swagger.urls'))
 )
