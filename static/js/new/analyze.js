@@ -86,7 +86,7 @@ google.setOnLoadCallback(function(){
 
 			$.ajax({
 				type: 'GET',
-				url: '/api/athletes/',
+				url: '/api/athletes/?primary_team=True',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'json',
 				success: function(data) {
