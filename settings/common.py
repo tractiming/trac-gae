@@ -62,14 +62,15 @@ DJANGO_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sitemaps'
+    'django.contrib.sitemaps',
+    'django.contrib.sites',
 )
 
 THIRD_PARTY_APPS = (
     'rest_framework',
     'oauth2_provider',
     'rest_framework_swagger',
-    'djstripe',
+    'payments',
 )
 
 
@@ -110,7 +111,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-   # 'djstripe.middleware.SubscriptionPaymentMiddleware',
 )
 
 # If running on appengine, include appstats.
@@ -297,6 +297,7 @@ EMAIL_HOST_PASSWORD = 'bwemkibrtyxrksed'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+SITE_ID = 1
 ############################################
 
 ############### STRIPE API ################
@@ -309,7 +310,7 @@ STRIPE_SECRET_KEY = os.environ.get(
     "sk_test_8dwmRwbSMzZNticzW7fQaKu0"
 )
 
-DJSTRIPE_PLANS = {
+PAYMENTS_PLANS = {
     "monthly": {
         "stripe_plan_id": "Monthly",
         "name": "($99.99/month)",
@@ -327,26 +328,8 @@ DJSTRIPE_PLANS = {
         "interval": "year"
     }
 }
-
-DJSTRIPE_SUBSCRIPTION_REQUIRED_EXCEPTION_URLS = (
-    'home',
-    'index',
-    'readers',
-    'payments',
-    'login',
-    'register',
-    'about',
-    'score',
-    'demo',
-    'tutorial',
-    'account_settings',
-    'mile_demo',
-    'cinci_demo',
-    '(trac)',
-    '(oauth2)',
-)
-
-DJSTRIPE_SEND_INVOICE_RECEIPT_EMAILS = True
+STRIPE_API_VERSION = '2015-10-16'
+SEND_EMAIL_RECEIPTS = False
 
 ###########################################
 

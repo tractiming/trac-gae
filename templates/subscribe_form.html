@@ -1,5 +1,5 @@
 {% extends "djstripe/base.html" %}
-{% load static djstripe_tags %}
+{% load static %}
 
 {% block title %}Choose a Subscription{% endblock title %}
 
@@ -8,12 +8,7 @@
 <div id="content" class="container-fluid">
     <div class="container">
 
-{% if error %}
-    <div class="alert alert-error">{{ error }}</div>
-{% endif %}
-{% if view.error %}
-    <div class="alert alert-error">{{ view.error }}</div>
-{% endif %}
+    <div class="alert alert-error"></div>
       <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3 pull-left" >
       <div class="panel panel-default">
         <div class="panel-heading">
@@ -23,10 +18,9 @@
             <a href="/account_settings/1/" id="e_profile"><img src="{% static "img/general.png" %}" width="20px"> General</a><br>
             <a href="/account_settings/2/" id="e_password"><img src="{% static "img/security.png" %}" width="20px"> Security</a><br>
             <a href="/account_settings/3/" id="e_roster"><img src="{% static "img/peopleicon.png" %}" width="20px"> Team</a><br>
-            <a href="/payments/change/cards/" id="e_payment"><img src="{% static "img/payment.png" %}" width="20px"> Payments</a><br>
+            <a href="/payments/change_card/" id="e_payment"><img src="{% static "img/payment.png" %}" width="20px"> Payments</a><br>
             <a href="/payments/subscribe/" id=""><span class="glyphicon glyphicon-retweet"></span> Subscription</a><br>
             <a href="/payments/history/" id=""><span class="glyphicon glyphicon-book"></span> History</a><br>
-            
           </div>
       </div>
     </div>
@@ -36,51 +30,29 @@
           <h3 class="panel-title" id="display-title">Subscription</h3>
         </div>
           <div class="panel-body">
-            <div class="row">
-                {% for plan in PLAN_LIST %}
-                  {% with plan_count=PLAN_LIST|length %}
-                    <div class="col-xs-{{ 12|djdiv:plan_count|floatformat }}">
-                  {% endwith %}
-                        <form
-                          {% if not customer.current_subscription or customer.current_subscription.status == CurrentSubscription.STATUS_CANCELLED %}
-                              action="{% url 'djstripe:subscribe' %}" class="djstripe-subscribe"  
-                              data-key="{{ STRIPE_PUBLIC_KEY }}"
-                              data-amount="{{ plan.price }}"
-                              data-name="{{ plan.name }}"
-                              data-description="{{ plan.description }}"
-                          {% else %}
-                              data-stripe-key="{{ STRIPE_PUBLIC_KEY }}" 
-                              action="{% url 'djstripe:change_plan' %}" class="djstripe-change-plan"
-                          {% endif %}
-                        method="POST">
+            <div class="row" id="plan-options">
+                <div class="col-xs-2">
+                    <form class="djstripe-subscribe" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="plan" value="monthly" />
 
-                           
-                            {% csrf_token %}
-                            <input type="hidden" name="plan" value="{{ plan.plan }}" />
-                            <input name="stripe_token" type="hidden" /> 
+                        <button type="submit" class="btn btn-primary" id="monthly-button">
+                          <h3>($99.99/mon)</h3>
+                          <p>Monthly</p>
+                        </button>
+                        <h4 id="upgrade-downgrade-monthly"></h4>
+                    </form>
+                    <form class="djstripe-subscribe" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="plan" value="yearly" />
 
-                            <!-- disable this when clicked -->
-                            <button
-                              {% if customer.current_subscription.plan == plan.plan and customer.current_subscription.status != CurrentSubscription.STATUS_CANCELLED %}
-                                disabled="true"
-                              {% endif %}
-                             type="submit" class="btn btn-primary">
-                              <h3>{{ plan.name }}</h3>
-                              <p>{{ plan.description }}</p>
-                            </button>
-
-                          {% if not customer.current_subscription or customer.current_subscription.status == CurrentSubscription.STATUS_CANCELLED %}
-                            <!-- do nothing -->
-                          {% elif customer.current_subscription.plan == plan.plan %}
-                            <h4>Your Current Plan</h4>
-                          {% elif customer.current_subscription.amount < plan.price|djdiv:100 %}
-                            <h4>Upgrade</h4>
-                          {% elif customer.current_subscription.amount > plan.price|djdiv:100 %}
-                            <h4>Downgrade</h4>
-                          {% endif %}
-                        </form>
-                    </div>
-                {% endfor %}
+                        <button type="submit" class="btn btn-primary" id="yearly-button">
+                          <h3>($1000/yr)</h3>
+                          <p>Yearly</p>
+                        </button>
+                        <h4 id="upgrade-downgrade-yearly"></h4>
+                    </form>
+                </div>
             </div>
         </div>
       </div>
@@ -94,7 +66,7 @@
                   </div>
                   <div class="panel-body">
                   <div class="form-group">
-                    
+
                     <label >Number of Tags</label><br>
                     <input type="text" id="tags" name="organization" class="form-group form-control" placeholder="25">
                     <label class="btn btn-default">
@@ -146,32 +118,28 @@ function changePricing(tag_type,num_tags,systems){
 
 };
 
-
-  $('#customButton').on('click', function(e) {
-  // Open Checkout with further options
-  var stripePrice = price *100;
-  $.ajax({
-          type: 'POST',
-          dataType:'json',
-          url: '/stripe-Customer/',
-          headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
-          data: {
-            price: stripePrice
-                    
-          },
-          success: function(data) {
-           $('#payment-modal').modal('show');
-          },
-          error: function(xhr, errmsg, err) {
+$('#customButton').on('click', function(e) {
+    // Open Checkout with further options
+    var stripePrice = price*100;
+    $.ajax({
+        type: 'POST',
+        dataType:'json',
+        url: '/payments/charges/',
+        headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+        data: {
+            amount: stripePrice
+        },
+        success: function(data) {
+            $('#payment-modal').modal('show');
+        },
+        error: function(xhr, errmsg, err) {
             $('#payment-modal').modal('show');
             $('#success_reference').text('Error. We are unable to process your request');
-          }
-        });
+        }
+    });
 
-  e.preventDefault();
-  });
-
- 
+    e.preventDefault();
+});
 
 </script>
                   </div>
@@ -185,7 +153,6 @@ function changePricing(tag_type,num_tags,systems){
                   </div>
                   <div class="panel-body">
                   <div class="form-group">
-                    
                     <label >Coupon Code:</label><br>
                     <input type="text" id="tags" name="organization" class="form-group form-control">
 
@@ -234,37 +201,71 @@ function changePricing(tag_type,num_tags,systems){
 <script src="https://checkout.stripe.com/v2/checkout.js"></script>
 <script text="text/javascript">
     $(function() {
-        
-        $('body').on("click", '.djstripe-subscribe button[type=submit]', function(e) {
-          e.preventDefault();
-          // retrieve current $(".djstripe-subscribe")
-          var $form = $(e.target).parents('form'),
-              token = function(res) {
-                $form.find("input[name=stripe_token]").val(res.id);
-                $("button[type=submit]").attr("disabled", "true");
-                $('#in-progress').modal({"keyboard": false})
-                $('.progress-bar').animate({width:'+=100%'}, 2000);
-                $form.trigger("submit");
-              };
-          StripeCheckout.open({
-            key:         "{{ STRIPE_PUBLIC_KEY }}",
-            name:        'Payment Method',
-            panelLabel:  'Add Payment Method',
-            token:       token
-          });
 
-          return false;
+        loadSubscription();
+
+        $('#monthly-button').on('click', function(e) {
+            e.preventDefault();
+            subscribe('monthly');
         });
-        {% if PLAN_LIST|length > 1 %}
-          $('.djstripe-change-plan').click(function(e){
-              $("button[type=submit]").attr("disabled", "true");
-              $('#in-progress').modal({"keyboard": false})
-              $('.progress-bar').animate({width:'+=100%'}, 2000);
-              var $form = $(this);
-              $form.trigger("submit");
-          });
-        {% endif %}
 
+        $('#yearly-button').on('click', function(e) {
+            e.preventDefault();
+            subscribe('yearly');
+        });
+
+        function subscribe(plan) {
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                url: '/payments/subscription/',
+                data: {
+                    stripe_plan: plan
+                },
+                headers: {
+                    Authorization: 'Bearer ' + sessionStorage.access_token
+                },
+                success: function(data) {
+                    $('#payment-modal').on('hidden.bs.modal', function() {
+                        location.reload(true);
+                    });
+                    $('#payment-modal').modal('show');
+                },
+                error: function(xhr, errmsg, err) {
+                    $('#payment-modal').modal('show');
+                    $('#success_reference').text(
+                        'Error. We are unable to process your request');
+                }
+            });
+        }
+
+        function loadSubscription() {
+            $.ajax({
+                type: 'GET',
+                dataType: 'json',
+                url: '/payments/subscription/',
+                headers: {
+                    Authorization: 'Bearer ' + sessionStorage.access_token
+                },
+                success: function(data) {
+                    if (data.plan == "yearly") {
+                        document.getElementById('upgrade-downgrade-monthly')
+                            .innerHTML = 'Downgrade';
+                        document.getElementById('upgrade-downgrade-yearly')
+                            .innerHTML = 'Your current plan';
+                        document.getElementById('yearly-button').disabled = true;
+                    } else if (data.plan == "monthly") {
+                        document.getElementById('upgrade-downgrade-yearly')
+                            .innerHTML = 'Upgrade';
+                        document.getElementById('upgrade-downgrade-monthly')
+                            .innerHTML = 'Your current plan';
+                        document.getElementById('monthly-button').disabled = true;
+                    }
+                },
+                error: function(xhr, errmsg, err) {
+                }
+            });
+        }
     });
 </script>
 

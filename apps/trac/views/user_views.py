@@ -13,7 +13,6 @@ from django.template import loader
 from django.utils import timezone
 from django.utils.encoding import force_bytes
 from django.views.decorators.csrf import csrf_exempt
-from djstripe.models import Customer
 from oauth2_provider.models import Application, AccessToken
 from oauthlib.common import generate_token
 from rest_framework import (
@@ -361,21 +360,3 @@ def give_athlete_password(request):
         return HttpResponse(status.HTTP_200_OK)
     else:
         return HttpResponse(status.HTTP_403_FORBIDDEN)
-
-
-def subscribe(request, **kwargs):
-	data = request.POST
-	print data
-	user = request.user
-	print user
-	try:
-		customer = user.customer
-	except:
-		customer = Customer.create(user)
-	print request.POST.get('stripe_token')
-	customer.update_card(request.POST.get('stripe_token'))
-	customer.subscribe('monthly')
-
-	stripe.api_key = settings.STRIPE_SECRET_KEY
-
-	return redirect('/payments')
