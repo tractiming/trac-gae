@@ -37,44 +37,64 @@ p {
     var page = "{{ page }}";
     if (page == 1)
     {
+        $('#nav-1').addClass('active');
         $('#header-1').show();
         $('#tutorial-1').show();
     }
     else if (page ==2)
     {
+        $('#nav-2').addClass('active');
         $('#header-2').show();
         $('#tutorial-2').show();
     }
     else if (page ==3)
     {
+        $('#nav-3').addClass('active');
         $('#header-3').show();
         $('#tutorial-3').show();
     }
     else if (page ==4)
     {
+        $('#nav-4').addClass('active');
         $('#header-4').show();
         $('#tutorial-4').show();
     }
     else if (page ==5)
     {
+        $('#nav-5').addClass('active');
         $('#header-5').show();
         $('#tutorial-5').show();
     }
     else if (page ==6)
     {
+        $('#nav-6').addClass('active');
         $('#header-6').show();
         $('#tutorial-6').show();
     }
     else if (page ==7)
     {
+        $('#nav-7').addClass('active');
         $('#header-7').show();
         $('#tutorial-7').show();
     }
     else if (page ==8)
     {
+        $('#nav-8').addClass('active');
         $('#header-8').show();
         $('#tutorial-8').show();
     }
+    else
+        window.location.href = "/tutorial/8/"
+
+
+    $('body').on('click', function (){
+        if (page>7)
+        {
+            return;
+        }
+        page = Number(page)+1;
+        window.location.href = "/tutorial/"+page;
+    });
 
 });
   </script>
@@ -108,16 +128,16 @@ p {
             <div id="paginate">
                 <nav class="pull-right" >
                   <ul class="pagination pagination-lg">
-                    <li><a href="/tutorial/1/">1</a></li>
-                    <li><a href="/tutorial/2/">2</a></li>
-                    <li><a href="/tutorial/3/">3</a></li>
-                    <li><a href="/tutorial/4/">4</a></li>
-                    <li><a href="/tutorial/5">5</a></li>
-                    <li><a href="/tutorial/6/">6</a></li>
-                    <li><a href="/tutorial/7/">7</a></li>
-                    <li><a href="/tutorial/8/">8</a></li>
+                    <li id="nav-1"><a href="/tutorial/1/">1</a></li>
+                    <li id="nav-2"><a href="/tutorial/2/">2</a></li>
+                    <li id="nav-3"><a href="/tutorial/3/">3</a></li>
+                    <li id="nav-4"><a href="/tutorial/4/">4</a></li>
+                    <li id="nav-5"><a href="/tutorial/5">5</a></li>
+                    <li id="nav-6"><a href="/tutorial/6/">6</a></li>
+                    <li id="nav-7"><a href="/tutorial/7/">7</a></li>
+                    <li id="nav-8"><a href="/tutorial/8/">8</a></li>
                     <li>
-                      <a href="#" aria-label="Next">
+                      <a style="cursor:pointer" class="next-button" aria-label="Next">
                         <span aria-hidden="true">&raquo;</span>
                       </a>
                     </li>
@@ -132,7 +152,7 @@ p {
                         <p><b>TRAC relies on its mobile applications in order to fully utilize our website. </b> These apps can be found on the App Store for iOS and PlayStore for Android. </p>
                         <center><a href="https://play.google.com/store/apps/details?id=com.trac.tracdroid"><img src={% static "img/android_googleplay.png" %} style='height:38px' /></a>
                         <a href="https://itunes.apple.com/us/app/t.r.a.c./id1011232830?ls=1&mt=8"><img src={% static "img/appleicon.svg" %} style='height:38px' /></a></center>
-                        <p>Once downloaded, create an account and get timing! </p>
+                        <p style="margin-top:2%">Once downloaded, create an account and get timing! </p>
                     </div>
                     <div class="col-lg-3">
                         <a type="button" class="btn btn-warning" href="/tutorial/2/">I downloaded the app ></a>
@@ -153,6 +173,7 @@ p {
                     </div>
                     <div class="col-lg-3">
                         <a type="button" class="btn btn-warning" href="/tutorial/3/">I created my roster ></a>
+                        <!--<a type="button" class="btn btn-primary" style="margin-top:5%"href="youtube.com/video">Video Walkthrough</a>-->
                     </div>
                 </div>
                 <div class="panel panel-default" style="margin-top:2%;">
@@ -171,6 +192,7 @@ p {
                     <div class="col-lg-3">
                         <a type="button" class="btn btn-success" href="/tutorial/4/">I set it up ></a>
                         <a style="margin-top:5%" type="button" class="btn btn-warning" href="/tutorial/4/">I don't have a reader ></a>
+                        <!--<a type="button" class="btn btn-primary" style="margin-top:5%"href="youtube.com/video">Video Walkthrough</a>-->
                     </div>
                 </div>
                 <div class="panel panel-default" style="margin-top:2%;">
@@ -188,6 +210,7 @@ p {
                     </div>
                     <div class="col-lg-3">
                         <a type="button" class="btn btn-warning" href="/tutorial/5/">I created a workout ></a>
+                        <!--<a type="button" class="btn btn-primary" style="margin-top:5%"href="youtube.com/video">Video Walkthrough</a>-->
                     </div>
                 </div>
                 <div class="panel panel-default" style="margin-top:2%;">
@@ -205,6 +228,7 @@ p {
                     </div>
                     <div class="col-lg-3">
                         <a type="button" class="btn btn-warning" href="/tutorial/6/">I imported my athletes ></a>
+                        <!--<a type="button" class="btn btn-primary" style="margin-top:5%"href="youtube.com/video">Video Walkthrough</a>-->
                     </div>
                 </div>
                 <div class="panel panel-default" style="margin-top:2%;">
@@ -223,6 +247,7 @@ p {
                     </div>
                     <div class="col-lg-3">
                         <a type="button" class="btn btn-warning" href="/tutorial/7/">I started my workout ></a>
+                        <!--<a type="button" class="btn btn-primary" style="margin-top:5%"href="youtube.com/video">Video Walkthrough</a>-->
                     </div>
                 </div>
                 <div class="row">
@@ -247,6 +272,7 @@ p {
                     </div>
                     <div class="col-lg-3">
                         <a type="button" class="btn btn-warning" href="/tutorial/7/">I see my results ></a>
+                        <!--<a type="button" class="btn btn-primary" style="margin-top:5%"href="youtube.com/video">Video Walkthrough</a>-->
                     </div>
                 </div>
                 <div class="panel panel-default" style="margin-top:2%;">
@@ -264,6 +290,7 @@ p {
                     <div class="col-lg-3">
                         <a type="button" class="btn btn-success" href="/faqs/">To FAQs ></a>
                         <a type="button" class="btn btn-primary" href="mailto:founders@tracchicago.com" style="margin-top:5%">Developer? Contact us!</a>
+                        <!--<a type="button" class="btn btn-primary" style="margin-top:5%"href="youtube.com/video">Video Walkthrough</a>-->
                     </div>
                 </div>
                 <div class="panel panel-default" style="margin-top:2%;">
