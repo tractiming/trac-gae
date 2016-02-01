@@ -126,7 +126,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         - form
         """
         session = self.get_object()
-        session.start_time = timezone.now() - timezone.timedelta(seconds=8)
+        session.start_time = timezone.now()
         session.stop_time = session.start_time + timezone.timedelta(days=1)
         session.save()
         return Response(status=status.HTTP_202_ACCEPTED)
@@ -158,14 +158,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         - query
         - form
         """
-        # FIXME: This is a hack that offsets the delay the reader has in
-        # setting its real time.  Also note that the start time is taken to be
-        # the time the request hits the server, not the time the button is
-        # pressed on the phone, etc.
-        current_time = datetime.datetime.utcnow()-datetime.timedelta(seconds=8)
-        timestamp = int((current_time - timezone.datetime(
-            1970, 1, 1)).total_seconds()*1000)
-
+        current_time = datetime.datetime.utcnow()
+        timestamp = int((current_time - EPOCH).total_seconds()*1000)
         session = self.get_object()
         session.start_button_time = timestamp
         session.save()
