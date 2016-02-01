@@ -315,7 +315,7 @@ PAYMENTS_PLANS = {
         "stripe_plan_id": "Monthly",
         "name": "($99.99/month)",
         "description": "Educators only",
-        "price": 9999,  # $9.99
+        "price": 9999,  # $99.99
         "currency": "usd",
         "interval": "month"
     },
@@ -323,7 +323,24 @@ PAYMENTS_PLANS = {
         "stripe_plan_id": "Yearly",
         "name": "($1000/year)",
         "description": "Yearly educators discount",
-        "price": 10000,  # $109.99
+        "price": 10000,  # $1000.00
+        "currency": "usd",
+        "interval": "year"
+    },
+    "quarterly": {
+        "stripe_plan_id": "Quarterly",
+        "name": "($595/quarter)",
+        "description": "Quarterly plan",
+        "price": 59500,  # $595.00
+        "currency": "usd",
+        "interval": "month",
+        "interval_count": 3
+    },
+    "yearly-plan": {
+        "stripe_plan_id": "Yearly Plan",
+        "name": "($1600/year)",
+        "description": "Yearly plan",
+        "price": 160000,  # $1600.00
         "currency": "usd",
         "interval": "year"
     }
