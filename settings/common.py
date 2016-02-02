@@ -301,13 +301,25 @@ SITE_ID = 1
 ############################################
 
 ############### STRIPE API ################
+STRIPE_KEYS = {
+    'live': {
+        'public': 'pk_live_3nKm6N41EIJ2QyGxB16dyoGj',
+        'secret': 'sk_live_TBdkrxd80w7GAiAxMIKCqsda'
+    },
+    'test': {
+        'public': 'pk_test_CDTkwilGwFbGM1v30Sw46FtO',
+        'secret': 'sk_test_8dwmRwbSMzZNticzW7fQaKu0'
+    }
+}
+_stripe_mode = 'live' if APP_ENGINE else 'test'
+
 STRIPE_PUBLIC_KEY = os.environ.get(
-    "STRIPE_PUBLIC_KEY",
-    "pk_test_CDTkwilGwFbGM1v30Sw46FtO"
+    'STRIPE_PUBLIC_KEY',
+    STRIPE_KEYS[_stripe_mode]['public']
 )
 STRIPE_SECRET_KEY = os.environ.get(
-    "STRIPE_SECRET_KEY",
-    "sk_test_8dwmRwbSMzZNticzW7fQaKu0"
+    'STRIPE_SECRET_KEY',
+    STRIPE_KEYS[_stripe_mode]['secret']
 )
 
 PAYMENTS_PLANS = {
@@ -347,7 +359,7 @@ PAYMENTS_PLANS = {
 }
 STRIPE_API_VERSION = '2015-10-16'
 SEND_EMAIL_RECEIPTS = False
-
+STRIPE_ENSURE_TEST = True
 ###########################################
 
 SWAGGER_SETTINGS = {
