@@ -301,13 +301,25 @@ SITE_ID = 1
 ############################################
 
 ############### STRIPE API ################
+STRIPE_KEYS = {
+    'live': {
+        'public': 'pk_live_3nKm6N41EIJ2QyGxB16dyoGj',
+        'secret': 'sk_live_TBdkrxd80w7GAiAxMIKCqsda'
+    },
+    'test': {
+        'public': 'pk_test_CDTkwilGwFbGM1v30Sw46FtO',
+        'secret': 'sk_test_8dwmRwbSMzZNticzW7fQaKu0'
+    }
+}
+_stripe_mode = 'live' if APP_ENGINE else 'test'
+
 STRIPE_PUBLIC_KEY = os.environ.get(
-    "STRIPE_PUBLIC_KEY",
-    "pk_test_CDTkwilGwFbGM1v30Sw46FtO"
+    'STRIPE_PUBLIC_KEY',
+    STRIPE_KEYS[_stripe_mode]['public']
 )
 STRIPE_SECRET_KEY = os.environ.get(
-    "STRIPE_SECRET_KEY",
-    "sk_test_8dwmRwbSMzZNticzW7fQaKu0"
+    'STRIPE_SECRET_KEY',
+    STRIPE_KEYS[_stripe_mode]['secret']
 )
 
 PAYMENTS_PLANS = {
@@ -315,7 +327,7 @@ PAYMENTS_PLANS = {
         "stripe_plan_id": "Monthly",
         "name": "($99.99/month)",
         "description": "Educators only",
-        "price": 9999,  # $9.99
+        "price": 9999,  # $99.99
         "currency": "usd",
         "interval": "month"
     },
@@ -323,14 +335,31 @@ PAYMENTS_PLANS = {
         "stripe_plan_id": "Yearly",
         "name": "($1000/year)",
         "description": "Yearly educators discount",
-        "price": 10000,  # $109.99
+        "price": 10000,  # $1000.00
+        "currency": "usd",
+        "interval": "year"
+    },
+    "quarterly": {
+        "stripe_plan_id": "Quarterly",
+        "name": "($595/quarter)",
+        "description": "Quarterly plan",
+        "price": 59500,  # $595.00
+        "currency": "usd",
+        "interval": "month",
+        "interval_count": 3
+    },
+    "yearly-plan": {
+        "stripe_plan_id": "Yearly Plan",
+        "name": "($1600/year)",
+        "description": "Yearly plan",
+        "price": 160000,  # $1600.00
         "currency": "usd",
         "interval": "year"
     }
 }
 STRIPE_API_VERSION = '2015-10-16'
 SEND_EMAIL_RECEIPTS = False
-
+STRIPE_ENSURE_TEST = False
 ###########################################
 
 SWAGGER_SETTINGS = {
