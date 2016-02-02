@@ -50,7 +50,7 @@ $(function() {
 
 
 	var handler = StripeCheckout.configure({
-	  key:  'pk_test_CDTkwilGwFbGM1v30Sw46FtO',
+	  key:  'pk_live_3nKm6N41EIJ2QyGxB16dyoGj',
 	  image: '../../static/img/trac_stripe.png',
 	  locale: 'auto',
 	  token: function(token) {

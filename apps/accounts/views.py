@@ -117,7 +117,7 @@ def stripeSingleCharge(request):
     Send the stripeID, amount you want to charge them, and user ID if
     applicable.
     """
-    stripe.api_key = "sk_test_8dwmRwbSMzZNticzW7fQaKu0"
+    stripe.api_key = "sk_live_TBdkrxd80w7GAiAxMIKCqsda"
 
     # Get the credit card details submitted by the form
     token = request.POST['stripeToken']
