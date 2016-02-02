@@ -359,7 +359,7 @@ PAYMENTS_PLANS = {
 }
 STRIPE_API_VERSION = '2015-10-16'
 SEND_EMAIL_RECEIPTS = False
-STRIPE_ENSURE_TEST = True
+STRIPE_ENSURE_TEST = False
 ###########################################
 
 SWAGGER_SETTINGS = {
