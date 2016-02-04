@@ -81,7 +81,7 @@ class TeamViewSet(viewsets.ModelViewSet):
         team = self.get_object()
         file_obj = request.data.pop('file', None)
         if not file_obj:
-            return Response("No file uploaded",
+            return Response({'errors': ["No file uploaded"]},
                             status=status.HTTP_400_BAD_REQUEST)
         file_obj = file_obj[0]
 
@@ -93,14 +93,14 @@ class TeamViewSet(viewsets.ModelViewSet):
             roster = xls_to_dictreader(file_obj.read())
             fieldnames = roster[0].keys() if roster else []
         else:
-            return Response('File format not recognized. Please upload in '
-                            '.csv or .xls(x) format.',
+            return Response({'errors': ['File format not recognized. Please '
+                                        'upload in .csv or .xls(x) format.']},
                             status=status.HTTP_400_BAD_REQUEST)
 
         if not all(field in fieldnames for field in
                    ('first_name', 'last_name')):
-            return Response('File does not contain "first_name" and '
-                            '"last_name" in header',
+            return Response({'errors': ['File does not contain "first_name" '
+                                        'and "last_name" in header']},
                             status=status.HTTP_400_BAD_REQUEST)
 
         for athlete in roster:
