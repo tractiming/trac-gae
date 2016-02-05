@@ -1,5 +1,6 @@
 import datetime
 import json
+import tempfile
 from collections import OrderedDict
 
 import mock
@@ -81,6 +82,23 @@ class TeamViewSetTest(APITestCase):
         self.assertEqual(resp.status_code, 201)
         team = Team.objects.get(pk=resp.data['id'])
         self.assertEqual(team.coach.user.username, 'alsal')
+
+    def test_roster_upload_no_birthdate(self):
+        """Test uploading a roster with a blank "birth_date" column."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        with tempfile.NamedTemporaryFile(suffix='.csv', mode='r+w') \
+                as _roster:
+            _roster.write('first_name,last_name,birth_date\n'
+                          'Ryan,Hall,')
+            _roster.seek(0)
+            resp = self.client.post('/api/teams/1/upload_roster/',
+                                    data={'file': [_roster]})
+            self.assertEqual(resp.status_code, 204)
+        team = Team.objects.get(pk=1)
+        self.assertTrue(team.athlete_set.filter(
+            user__first_name='Ryan',
+            user__last_name='Hall').exists())
 
 
 class AthleteViewSetTest(APITestCase):
