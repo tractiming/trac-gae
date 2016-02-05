@@ -29,6 +29,7 @@ from trac.utils.phone_split_util import create_phone_split
 from trac.utils.pdf_util import write_pdf_results
 from trac.utils.split_util import format_total_seconds
 from trac.utils.user_util import is_athlete, is_coach
+from trac.validators import roster_upload_validator
 
 
 log = logging.getLogger(__name__)
@@ -593,22 +594,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         """
         session = self.get_object()
         user = request.user
-
-        file_obj = request.data.pop('file', None)
-
-        if not file_obj:
-            return Response("No file uploaded",
-                            status=status.HTTP_400_BAD_REQUEST)
-        file_obj = file_obj[0]
-
-        roster = csv.DictReader(file_obj)
-        if not all(field in roster.fieldnames for field in
-                   ('first_name', 'last_name')):
-            return Response('File does not contain "first_name" and '
-                            '"last_name" in header',
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        new_athletes = list()
+        roster = roster_upload_validator(request)
 
         for athlete in roster:
             team, created = Team.objects.get_or_create(
