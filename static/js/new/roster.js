@@ -164,7 +164,14 @@
           if (holdTilFinish) return;
           else if (busy) return;
           busy = true;
-          var last = $scope.rosterAthletes.length;
+          try{
+            var last = $scope.rosterAthletes.length;
+          }
+          catch(err)
+          {
+            busy = false;
+            return;
+          }
           var url = '/api/athletes/?team=' + $scope.rosterID;
             $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:last, limit: 2} })
             .success(function (response) { 
