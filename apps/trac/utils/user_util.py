@@ -1,6 +1,5 @@
 import uuid
 
-from django.utils import timezone
 
 def is_athlete(user):
     """

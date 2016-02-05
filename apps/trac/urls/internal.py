@@ -2,8 +2,7 @@ from django.conf.urls import url, include
 from rest_framework import routers
 
 from trac.views import (
-    user_views, session_views, tag_views, reader_views, team_views,
-    split_views, auth_views
+    user_views, session_views, reader_views, team_views, auth_views
 )
 
 

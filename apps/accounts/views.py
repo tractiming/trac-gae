@@ -1,29 +1,22 @@
 import uuid
 
 import requests
+import stripe
 from django.conf import settings
-from django.core import serializers
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from django.contrib.auth.models import User
 from oauth2_provider.models import Application, AccessToken
 from oauth2client import client, crypt
 from oauthlib.common import generate_token
 from rest_framework import permissions, status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.request import Request
 from rest_framework.response import Response
 
 from accounts.models import GoogleSignIn
 from trac.serializers import UserSerializer
 from trac.views.auth_views import create_user
 
-from decimal import Decimal
-
-from djstripe.models import Customer
-
-import stripe
 
 _TOKENINFO_URL = 'https://www.googleapis.com/oauth2/v3/tokeninfo'
 

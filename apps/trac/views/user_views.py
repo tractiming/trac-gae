@@ -1,14 +1,10 @@
 import base64
 import datetime
 
-import stripe
-from django.conf import settings
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
 from django.http import HttpResponse
-from django.shortcuts import redirect, get_object_or_404
 from django.template import loader
 from django.utils import timezone
 from django.utils.encoding import force_bytes
@@ -16,11 +12,9 @@ from django.views.decorators.csrf import csrf_exempt
 from oauth2_provider.models import Application, AccessToken
 from oauthlib.common import generate_token
 from rest_framework import (
-    viewsets, permissions, status, views, pagination, filters
+    viewsets, permissions, status, pagination, filters
 )
-from rest_framework.decorators import (
-    api_view, permission_classes, detail_route
-)
+from rest_framework.decorators import permission_classes, detail_route
 from rest_framework.response import Response
 
 from trac.filters import AthleteFilter, CoachFilter

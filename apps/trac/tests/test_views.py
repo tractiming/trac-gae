@@ -9,7 +9,7 @@ from django.test import TestCase
 from django.utils import timezone
 from django.contrib.auth.models import User
 from oauth2_provider.models import AccessToken, Application
-from rest_framework.test import APITestCase, force_authenticate
+from rest_framework.test import APITestCase
 
 from trac.models import (
     TimingSession, Reader, Split, Athlete, Coach, Team, Tag
@@ -754,8 +754,7 @@ class AuthTestCase(TestCase):
             'user_type': None
         }
 
-    @mock.patch.object(trac.views.auth_views, 'send_mail')
-    def test_register_athlete(self, mock_mail):
+    def test_register_athlete(self):
         """Test registering an athlete."""
         self.user_data['user_type'] = 'athlete'
         resp = self.client.post('/api/register/',
@@ -764,8 +763,7 @@ class AuthTestCase(TestCase):
         self.assertTrue(Athlete.objects.get(user__username="newuser"))
         self.assertEqual(resp.status_code, 201)
 
-    @mock.patch.object(trac.views.auth_views, 'send_mail')
-    def test_register_coach(self, mock_mail):
+    def test_register_coach(self):
         """Test registering a coach."""
         self.user_data['user_type'] = 'coach'
         resp = self.client.post('/api/register/',
@@ -774,8 +772,7 @@ class AuthTestCase(TestCase):
         self.assertTrue(Coach.objects.get(user__username="newuser"))
         self.assertEqual(resp.status_code, 201)
 
-    @mock.patch.object(trac.views.auth_views, 'send_mail')
-    def test_register_coach_team(self, mock_mail):
+    def test_register_coach_team(self):
         """Test creating a team when the coach is created."""
         self.user_data['user_type'] = 'coach'
         self.user_data['organization'] = 'My Team'

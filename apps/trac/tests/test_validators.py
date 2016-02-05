@@ -1,10 +1,8 @@
 import tempfile
 
-import xlrd
 import xlwt
 from django.test import TestCase
 from rest_framework.serializers import ValidationError
-from rest_framework.test import APIRequestFactory
 
 from trac.validators import roster_upload_validator
 

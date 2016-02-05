@@ -3,11 +3,10 @@ import datetime
 
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.db import models, connection
-from django.db.models.signals import pre_delete, post_save, post_delete
+from django.db import models
+from django.db.models.signals import pre_delete, post_delete
 from django.dispatch import receiver
 from django.utils import timezone
-from oauth2_provider.models import Application
 
 from trac.utils.filter_util import get_filter_constant
 

@@ -1,10 +1,8 @@
 import base64
 import json
 
-from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.template import loader
 from django.utils import timezone
 from oauth2_provider.models import AccessToken
 from oauth2_provider.views import TokenView as _TokenView
