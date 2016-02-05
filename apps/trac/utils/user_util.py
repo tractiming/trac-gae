@@ -1,3 +1,5 @@
+import uuid
+
 from django.utils import timezone
 
 def is_athlete(user):
@@ -31,3 +33,6 @@ def user_type(user):
     else:
         return 'user'
 
+def random_username():
+    """Generate a random username."""
+    return uuid.uuid4().hex[:30]  # Max 30 characters

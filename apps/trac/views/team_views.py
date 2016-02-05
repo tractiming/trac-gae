@@ -1,6 +1,3 @@
-import csv
-import uuid
-
 from rest_framework import viewsets, permissions, filters, status
 from rest_framework.decorators import detail_route
 from rest_framework.parsers import FileUploadParser
@@ -84,7 +81,6 @@ class TeamViewSet(viewsets.ModelViewSet):
 
         for athlete in roster:
             athlete_data = {
-                'username': uuid.uuid4().hex[:30],  # Assign random username
                 'first_name': athlete['first_name'],
                 'last_name': athlete['last_name'],
                 'gender': athlete.get('gender', None),

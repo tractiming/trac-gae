@@ -193,6 +193,23 @@ class AthleteViewSetTest(APITestCase):
             content_type='application/json')
         self.assertEqual(resp.status_code, 400)
 
+    @mock.patch.object(trac.serializers, 'random_username')
+    def test_create_without_username(self, mock_name):
+        """Test that random username is generated if no username given."""
+        mock_name.return_value = 'superrandomname'
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.post(
+            '/api/athletes/',
+            data=json.dumps({
+                'first_name': 'Sam',
+                'last_name': 'Chelenga',
+            }), content_type='application/json')
+        self.assertEqual(resp.status_code, 201)
+        self.assertTrue(mock_name.called)
+        self.assertTrue(Athlete.objects.filter(
+            user__username='superrandomname').exists())
+
 
 class ReaderViewSetTest(APITestCase):
 
