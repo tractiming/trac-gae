@@ -602,7 +602,6 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                 coach_id=user.coach.id
             )
             athlete_data = {
-                'username': uuid.uuid4().hex[:30],  # Assign random username
                 'first_name': athlete['first_name'],
                 'last_name': athlete['last_name'],
                 'gender': athlete.get('gender', None),

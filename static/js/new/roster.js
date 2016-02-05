@@ -312,13 +312,11 @@
       $http({method: 'PATCH', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{
         first_name: runner.first_name,
         last_name: runner.last_name,
-        username: runner.username,
         tag: runner.tag,
         team: runner.team,
         birth_date: runner.birth_date,
         gender: runner.gender,
-
-       } 
+       }
       })
         .success(function (response) { 
           $scope.universalEdit = false;
@@ -513,12 +511,10 @@
       $http({method: 'POST', url: '/api/athletes/', headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{
         first_name: regForm.first_name,
         last_name: regForm.last_name,
-        username: regForm.first_name+regForm.last_name,
         tag: regForm.tag,
         birth_date : regForm.birth_date,
         team: $scope.rosterID,
-
-       } 
+       }
       })
         .success(function (response) {
 

@@ -8,7 +8,9 @@ from rest_framework.exceptions import ValidationError
 from trac.models import (
     TimingSession, Tag, Reader, Athlete, Coach, Team, Split
 )
-from trac.utils.user_util import is_coach, is_athlete, user_type
+from trac.utils.user_util import (
+    is_coach, is_athlete, user_type, random_username,
+)
 
 
 class FilterRelatedMixin(object):
@@ -95,6 +97,8 @@ class SaveUserMixin(object):
         higher-level object.
         """
         user_data = validated_data.pop('user')
+        if 'username' not in user_data:
+            user_data['username'] = random_username()
         user_serializer = UserSerializer(data=user_data)
         user_serializer.is_valid(raise_exception=True)
         user = user_serializer.create(user_serializer.validated_data)
@@ -129,7 +133,7 @@ class AthleteSerializer(SaveUserMixin,
     tag = serializers.SlugRelatedField(
         queryset=Tag.objects.all(), slug_field='id_str', allow_null=True,
         required=False)
-    username = serializers.CharField(source='user.username')
+    username = serializers.CharField(source='user.username', required=False)
     first_name = serializers.CharField(source='user.first_name',
                                        required=False)
     last_name = serializers.CharField(source='user.last_name', required=False)
