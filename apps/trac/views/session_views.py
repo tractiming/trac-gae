@@ -604,7 +604,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                 'first_name': athlete['first_name'],
                 'last_name': athlete['last_name'],
                 'gender': athlete.get('gender', None),
-                'birth_date': athlete.get('birth_date', None),
+                'birth_date': athlete.get('birth_date', '').strip() or None,
                 'team': team.id
             }
             serializer = AthleteSerializer(data=athlete_data)
