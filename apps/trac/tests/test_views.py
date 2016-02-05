@@ -262,6 +262,15 @@ class ReaderViewSetTest(APITestCase):
         self.assertEqual(num_readers_before+1, num_readers_after)
         self.assertEqual(resp.status_code, 201)
 
+    @mock.patch.object(trac.views.reader_views, 'timezone')
+    def test_get_current_time(self, mock_timezone):
+        """Test sending the current time to the readers."""
+        now = timezone.now() + timezone.timedelta(seconds=8)
+        mock_timezone.now.return_value = now
+        mock_timezone.timedelta.return_value = timezone.timedelta(seconds=0)
+        resp = self.client.get('/api/time/')
+        self.assertEqual(resp.data, now)
+
 
 class ScoringViewSetTest(APITestCase):
     pass
