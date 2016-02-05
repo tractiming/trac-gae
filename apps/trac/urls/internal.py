@@ -28,6 +28,5 @@ urlpatterns = [
     url(r'^verifyLogin/$', auth_views.verify_login),
     url(r'^request_quote/$', user_views.request_quote),
 
-    url(r'^updates/$', reader_views.post_splits, name='updates'),
     url(r'^time/$', reader_views.current_time, name='time')
 ]
