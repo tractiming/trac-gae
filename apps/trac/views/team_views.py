@@ -80,7 +80,7 @@ class TeamViewSet(viewsets.ModelViewSet):
           type: file
         """
         team = self.get_object()
-        roster = roster_upload_validator(request)
+        roster = roster_upload_validator(request.data)
 
         for athlete in roster:
             athlete_data = {

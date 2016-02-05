@@ -8,7 +8,7 @@ from trac.utils.file_util import xls_to_dictreader
 _REQUIRED_COLS = ('first_name', 'last_name')
 
 
-def roster_upload_validator(request, file_field='file',
+def roster_upload_validator(data, file_field='file',
                             required_fields=_REQUIRED_COLS):
     """Validate an uploaded roster.
 
@@ -24,7 +24,7 @@ def roster_upload_validator(request, file_field='file',
     ValidationError
         For incorrect file types/contents.
     """
-    file_obj = request.data.pop('file', None)
+    file_obj = data.pop('file', None)
     if not file_obj:
         raise ValidationError(['No file uploaded'])
     file_obj = file_obj[0]

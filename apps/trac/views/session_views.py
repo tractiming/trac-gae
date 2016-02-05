@@ -594,7 +594,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         """
         session = self.get_object()
         user = request.user
-        roster = roster_upload_validator(request)
+        roster = roster_upload_validator(request.data)
 
         for athlete in roster:
             team, created = Team.objects.get_or_create(
