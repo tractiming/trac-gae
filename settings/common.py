@@ -142,7 +142,10 @@ REST_FRAMEWORK = {
         'anon': '1000/hour',
         'user': '3600/hour',
         'splits': '100/minute'
-    }
+    },
+    'DATE_INPUT_FORMATS': [
+        'iso-8601', '%m/%d/%Y', '%m-%d-%Y', '%m/%d/%y', '%m-%d-%y'
+    ]
 }
 OAUTH2_PROVIDER = {
     'SCOPES': {'read': 'Read scope', 'write': 'Write scope'}
