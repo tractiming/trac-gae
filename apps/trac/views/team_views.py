@@ -11,7 +11,9 @@ from trac.models import Team, TimingSession, Coach
 from trac.serializers import (
     TeamSerializer, ScoringSerializer, AthleteSerializer
 )
+from trac.utils.file_util import xls_to_dictreader
 from trac.utils.user_util import is_athlete, is_coach
+from trac.validators import roster_upload_validator
 
 
 class TeamViewSet(viewsets.ModelViewSet):
@@ -78,19 +80,7 @@ class TeamViewSet(viewsets.ModelViewSet):
           type: file
         """
         team = self.get_object()
-        file_obj = request.data.pop('file', None)
-        print(request.data)
-        if not file_obj:
-            return Response("No file uploaded",
-                            status=status.HTTP_400_BAD_REQUEST)
-        file_obj = file_obj[0]
-
-        roster = csv.DictReader(file_obj)
-        if not all(field in roster.fieldnames for field in
-                   ('first_name', 'last_name')):
-            return Response('File does not contain "first_name" and '
-                            '"last_name" in header',
-                            status=status.HTTP_400_BAD_REQUEST)
+        roster = roster_upload_validator(request.data)
 
         for athlete in roster:
             athlete_data = {

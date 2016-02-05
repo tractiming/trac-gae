@@ -468,6 +468,13 @@
               $scope.rosterAthletes = response.results;
               usSpinnerService.stop('roster-spinner');
               });
+            })
+            .error(function (response) {
+              $('#rosterModal').modal('hide');
+              usSpinnerService.stop('main-spinner');
+              $('.notification').hide();
+              $('.notification.input-error').show();
+              $('#notificationModal').modal('show');
             });
     }
 
@@ -491,9 +498,15 @@
                 }
                 $('#csvModal').modal('hide');
                 usSpinnerService.stop('main-spinner');
+              });
+            })
+            .error(function (response) {
+              $('#csvModal').modal('hide');
+              usSpinnerService.stop('main-spinner');
+              $('.notification').hide();
+              $('.notification.input-error').show();
+              $('#notificationModal').modal('show');
             });
-          });
-
     }
 
     $scope.saveHeader = function(regForm){
