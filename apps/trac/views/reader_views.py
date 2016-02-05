@@ -39,6 +39,18 @@ class ReaderViewSet(viewsets.ModelViewSet):
             return Reader.objects.none()
 
 
+@api_view(['get'])
+@permission_classes((permissions.AllowAny,))
+def current_time(request):
+    """Get the current time on the server.
+
+    Used to sync the time on remote devices - phone, reader,
+    etc.
+    """
+    now = timezone.now() + timezone.timedelta(seconds=8)
+    return Response(now)
+
+
 @csrf_exempt
 @api_view(['POST','GET'])
 @permission_classes((permissions.AllowAny,))
