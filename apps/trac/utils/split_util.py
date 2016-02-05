@@ -1,9 +1,8 @@
 import datetime
 
-from django.core.cache import cache
 from django.utils import timezone
 
-from trac.models import TimingSession, Split, Tag, Reader
+from trac.models import Split, Tag, Reader
 
 
 _EPOCH = datetime.datetime.utcfromtimestamp(0)

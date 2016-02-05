@@ -3,7 +3,7 @@ import json
 import mock
 from django.contrib.auth.models import User
 from oauth2_provider.models import Application
-from rest_framework.test import APITestCase, force_authenticate
+from rest_framework.test import APITestCase
 
 from accounts import views
 from accounts.models import GoogleSignIn

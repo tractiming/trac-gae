@@ -1,9 +1,13 @@
+import datetime
+
+import mock
 from django.test import TestCase
 from django.utils import timezone
-import datetime
-import mock
-from trac.models import Athlete, Coach, User, Reader, TimingSession, Split, Tag
+
 import trac.models
+from trac.models import (
+    Athlete, Coach, User, Reader, TimingSession, Split, Tag
+)
 
 class ReaderTestCase(TestCase):
 

@@ -8,7 +8,6 @@ from trac.models import Team, TimingSession, Coach
 from trac.serializers import (
     TeamSerializer, ScoringSerializer, AthleteSerializer
 )
-from trac.utils.file_util import xls_to_dictreader
 from trac.utils.user_util import is_athlete, is_coach
 from trac.validators import roster_upload_validator
 

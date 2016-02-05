@@ -25,7 +25,6 @@ from trac.filters import TimingSessionFilter
 from trac.models import TimingSession, Reader, Tag, Split, Team, Athlete
 from trac.serializers import TimingSessionSerializer, AthleteSerializer
 from trac.utils.integrations import tfrrs
-from trac.utils.phone_split_util import create_phone_split
 from trac.utils.pdf_util import write_pdf_results
 from trac.utils.split_util import format_total_seconds
 from trac.utils.user_util import is_athlete, is_coach
