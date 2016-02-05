@@ -13,6 +13,7 @@ from trac.serializers import (
 )
 from trac.utils.file_util import xls_to_dictreader
 from trac.utils.user_util import is_athlete, is_coach
+from trac.validators import roster_upload_validator
 
 
 class TeamViewSet(viewsets.ModelViewSet):
@@ -79,29 +80,7 @@ class TeamViewSet(viewsets.ModelViewSet):
           type: file
         """
         team = self.get_object()
-        file_obj = request.data.pop('file', None)
-        if not file_obj:
-            return Response({'errors': ["No file uploaded"]},
-                            status=status.HTTP_400_BAD_REQUEST)
-        file_obj = file_obj[0]
-
-        if file_obj.name.endswith('.csv'):
-            roster = csv.DictReader(file_obj)
-            fieldnames = roster.fieldnames
-        elif (file_obj.name.endswith('.xls') or
-              file_obj.name.endswith('.xlsx')):
-            roster = xls_to_dictreader(file_obj.read())
-            fieldnames = roster[0].keys() if roster else []
-        else:
-            return Response({'errors': ['File format not recognized. Please '
-                                        'upload in .csv or .xls(x) format.']},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        if not all(field in fieldnames for field in
-                   ('first_name', 'last_name')):
-            return Response({'errors': ['File does not contain "first_name" '
-                                        'and "last_name" in header']},
-                            status=status.HTTP_400_BAD_REQUEST)
+        roster = roster_upload_validator(request)
 
         for athlete in roster:
             athlete_data = {
