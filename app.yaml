@@ -39,10 +39,6 @@ handlers:
   static_dir: static
   secure: always
 
-- url: /api/updates/.*
-  script: main.application
-  secure: optional
-
 - url: /.*
   script: main.application
   secure: always
