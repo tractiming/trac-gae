@@ -541,32 +541,6 @@ class TimingSessionViewSetTest(APITestCase):
         self.assertEqual(resp.data['results'][0]['id'], 1)
 
 
-class PostSplitsTest(APITestCase):
-
-    @mock.patch.object(trac.views.reader_views, 'create_split')
-    def test_post_splits(self, mock_create_split):
-        """Test creating splits from reader messages."""
-
-        mock_create_split.return_value = 0
-        reader = 'A1010'
-        tag = 'A0C3 0001'
-        stime = timezone.now().strftime("%Y/%m/%d %H:%M:%S.%f")
-        resp = self.client.post('/api/updates/',
-                                data={'r': reader,
-                                      's': "[['{}', '{}'],]".format(tag, stime)})
-        self.assertEqual(resp.status_code, 201)
-        mock_create_split.assert_called_with(reader, tag, stime)
-
-    @mock.patch.object(trac.views.reader_views, 'timezone')
-    def test_get_server_time(self, mock_timezone):
-        """Test sending the current time to the readers."""
-        now = timezone.now() + timezone.timedelta(seconds=8)
-        mock_timezone.now.return_value = now
-        mock_timezone.timedelta.return_value = timezone.timedelta(seconds=0)
-        resp = self.client.get('/api/updates/')
-        self.assertEqual(list(resp.data)[0], str(now))
-
-
 class SplitViewSetTest(APITestCase):
 
     fixtures = ['trac_min.json']
