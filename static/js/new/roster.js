@@ -287,8 +287,34 @@
       });
 
     }
-        //Deleting an athlete off a workout
+        //Deleting an athlete off registration of workout
     $scope.rosterDelete = function(runner){
+      
+      //TODO: Do an ajax call, to actually delete
+       var url = '/api/sessions/'+ $scope.selectedID +'/remove_athletes/';
+       var tempArray = [runner.id];
+       $http({method: 'POST', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{athletes: tempArray}  })
+          .success(function (response) {
+          //Update the Count
+          var url = '/api/athletes/?registered_to_session='+ $scope.selectedID+'&limit=50';
+          $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
+            .success(function (response) { 
+              $scope.athletes = response.results;
+              $scope.count = response.count;
+              $scope.rosterCancel(runner);
+              if (response.results.length == 0){
+                 $scope.regNull = true;
+              }
+              else{
+                $scope.regNull = false;
+              }
+              $scope.hideRemove = false;
+              $scope.universalEdit = false;
+          });
+       });
+    }
+
+    $scope.rosterAthleteDelete = function(runner, index){
       
       //TODO: Do an ajax call, to actually delete
        var url = '/api/athletes/'+runner.id +'/';
@@ -298,6 +324,8 @@
           var url = '/api/athletes/?registered_to_session='+ $scope.selectedID+'&limit=50';
           $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
             .success(function (response) { 
+
+              $scope.rosterAthletes.splice(index, 1);
               $scope.athletes = response.results;
               $scope.count = response.count;
 
