@@ -130,7 +130,6 @@ $(function() {
                 if(xhr.status==400){
                   var error_message = xhr.responseText;
                   var generic = JSON.parse(error_message)
-                  console.log(generic);
                   $('#register-form input').removeClass('parsley-success');
                   $('#register-form #username').addClass('parsley-error');
                   $('p.notification.notification-success').hide();
