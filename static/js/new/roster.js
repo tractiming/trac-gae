@@ -424,6 +424,10 @@
         }
       });
       //Get the pk and data from row and send to server
+      if(typeof $scope.selectedID === 'undefined')
+      {
+        alert('select a workout');
+      }
       var url = '/api/sessions/'+ $scope.selectedID +'/register_athletes/';
       $http({method: 'POST', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{
         athletes: atlList,

@@ -128,13 +128,22 @@ $(function() {
                 $('#submit').show();
 
                 if(xhr.status==400){
+                  var error_message = xhr.responseText;
+                  var generic = JSON.parse(error_message)
+                  console.log(generic);
                   $('#register-form input').removeClass('parsley-success');
                   $('#register-form #username').addClass('parsley-error');
                   $('p.notification.notification-success').hide();
                   $('p.notification.notification-critical').show();
                   $('p.notification.notification-critical2').hide();
                   $('p.notification.notification-critical3').hide();
-
+                  $('p.notification.notification-critical4').hide();
+                  if (generic.password)
+                    $('p.notification.notification-critical').text('Password Not Valid: '+generic.password);
+                  else if (generic.username)
+                    $('p.notification.notification-critical').text('Username: '+generic.username);
+                  else if (generic.email)
+                    $('p.notification.notification-critical').text('Email: '+generic.email);
                 }
                 else if(xhr.status==500){
                   $('#register-form input').removeClass('parsley-success');
