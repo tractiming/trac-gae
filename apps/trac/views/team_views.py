@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions, filters, status
+from rest_framework import viewsets, permissions, filters, status, mixins
 from rest_framework.decorators import detail_route
 from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
@@ -94,7 +94,9 @@ class TeamViewSet(viewsets.ModelViewSet):
 
 
 # TODO: Merge with GET /sessions
-class ScoringViewSet(viewsets.ModelViewSet):
+class ScoringViewSet(mixins.RetrieveModelMixin,
+                     mixins.ListModelMixin,
+                     viewsets.GenericViewSet):
     """
     Resource of publicly scored sessions.
     """
