@@ -273,7 +273,13 @@ class ReaderViewSetTest(APITestCase):
 
 
 class ScoringViewSetTest(APITestCase):
-    pass
+
+    fixtures = ['trac_min.json']
+
+    def test_edit_not_allowed(self):
+        """Test that sessions cannot be edited through the score endpoint."""
+        resp = self.client.patch('/api/score/1/', data={'name': 'can edit'})
+        self.assertEqual(resp.status_code, 405)  # Method not allowed
 
 
 class TimingSessionViewSetTest(APITestCase):
