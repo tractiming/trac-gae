@@ -13,7 +13,6 @@ $(document).ready(function(){
                   url: "/api/users/me/",
                   headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
                   success: function(data){
-                    $('#edit-information #organization').val('org');
                     $('#edit-information #username').val(data['username']);
                     $('#edit-information #email').val(data['email']);
                   },
@@ -227,7 +226,7 @@ $(document).ready(function(){
 
             return;
           } 
-
+          $('#edit-information #organization').val(data[0].name);
           for (var i=0; i<data.length; i++) {
             $('#base-athlete-select').append(
               '<option value="'+data[i].id+'">' +
