@@ -291,10 +291,9 @@
     $scope.rosterDelete = function(runner){
       
       //TODO: Do an ajax call, to actually delete
-       var url = '/api/sessions/'+ $scope.selectedID +'/remove_athletes/';
-       var tempArray = [runner.id];
-       $http({method: 'POST', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{athletes: tempArray}  })
-          .success(function (response) {
+        var url = '/api/athletes/'+runner.id +'/';
+       $http({method: 'DELETE', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}})
+         .success(function (response) {
           //Update the Count
           var url = '/api/athletes/?registered_to_session='+ $scope.selectedID+'&limit=50';
           $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
@@ -311,6 +310,11 @@
               $scope.hideRemove = false;
               $scope.universalEdit = false;
           });
+            var url = '/api/athletes/?team=' + $scope.rosterID + '&limit=10';
+            $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
+            .success(function (response) { 
+              $scope.rosterAthletes = response.results;
+            });
        });
     }
 
