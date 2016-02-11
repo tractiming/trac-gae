@@ -20,15 +20,40 @@ class TeamViewSet(viewsets.ModelViewSet):
     partial_update:
       omit_parameters:
       - query
+      parameters_strategy: replace
+      parameters:
+        - name: logo
+          description: Team logo
+          type: file
+          paramType: form
     create:
       omit_parameters:
       - query
+      parameters_strategy: replace
+      parameters:
+        - name: logo
+          description: Team logo
+          type: file
+          paramType: form
     update:
       omit_parameters:
       - query
+      parameters_strategy: replace
+      parameters:
+        - name: logo
+          description: Team logo
+          type: file
+          paramType: form
     retrieve:
       omit_parameters:
       - query
+    list:
+      parameters_strategy: merge
+      parameters:
+        - name: primary_team
+          paramType: query
+          description: Primary team
+          type: boolean
     destroy:
       omit_parameters:
       - query
@@ -42,7 +67,7 @@ class TeamViewSet(viewsets.ModelViewSet):
         """Filter teams based on current user.
 
         A coach can see all of the teams he owns, an athlete can see
-        all of the teams he belongs to, an anonymous user can see 
+        all of the teams he belongs to, an anonymous user can see
         teams that are designated public and primary.
         """
         user = self.request.user
