@@ -15,6 +15,18 @@
             color: black !important;
         }
     </style>
+    <script type="text/javascript">
+    if (sessionStorage.access_token == null) {
+        //link to login page
+        location.href="/login";
+    }
+    $(document).ready(function() {
+        $("li a.logout").click(function(){
+            sessionStorage.clear();
+            location.href="/login";
+        });
+    });
+    </script>
     {% endblock %}
 {% endblock %}
 
@@ -85,9 +97,11 @@
                 }
             });
 
-            {% if swagger_settings.api_key %}
-                window.authorizations.add('key', new ApiKeyAuthorization('Authorization', '{{ swagger_settings.token_type }} ' + '{{ swagger_settings.api_key }}', 'header'));
-            {% endif %}
+            window.authorizations.add('key',
+                new ApiKeyAuthorization('Authorization',
+                    '{{ swagger_settings.token_type }} ' +
+                    sessionStorage.access_token, 'header'));
+            document.getElementsByName('apiKey')[0].value = sessionStorage.access_token;
 
             window.swaggerUi.load();
         });

@@ -370,7 +370,7 @@ SWAGGER_SETTINGS = {
     'is_authenticated': True,
     'is_superuser': True,
     'token_type': 'Bearer',
-    'exclude_namespaces': ['djstripe', 'accounts', 'stats', 'internal'],
+    'exclude_namespaces': ['accounts', 'stats', 'internal', 'payments'],
     'info': {
         'contact': 'info@trac-us.com',
         'title': 'TRAC API',
