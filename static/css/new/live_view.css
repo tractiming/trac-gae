@@ -21,6 +21,15 @@ ul.menulist {
 
 #menu-btn, #calendar-btn {
 	cursor: pointer;
+	background-color:#f5f5f5; 
+	border-radius:4px;
+	padding:5px
+}
+#menu-btn:hover, #calendar-btn:hover {
+	cursor: pointer;
+	background-color:#aec8dc; 
+	border-radius:4px;
+	padding:5px
 }
 
 #calendar-overlay {
