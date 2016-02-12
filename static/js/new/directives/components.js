@@ -25,6 +25,7 @@
           angular.forEach(panes, function(pane) {
             pane.selected = false;
           });
+          $scope.lastPane.selected = false;
           pane.selected = true;
         }
 
@@ -46,15 +47,22 @@
 
  
         this.addPane = function(pane) {
-          if (panes.length == 0) $scope.select(pane);
           panes.push(pane);
         }
       },
+      link: function(scope, element, attrs) {
+        scope.lastPane = scope.panes.shift();
+
+        scope.select(scope.lastPane);
+      },
       template:
         '<div class="tabbable">' +
-          '<ul class="nav nav-tabs">' +
+          '<ul class="nav nav-tabs" id="team-nav">' +
             '<li ng-repeat="pane in panes" ng-class="{active:pane.selected}" role="presentation">'+
               '<a href="" ng-click="select(pane); getRoster(pane.id)">{{pane.title}}</a>' +
+            '</li>' +
+            '<li ng-class="{active:lastPane.selected}" role="presentation">' +
+              '<a href="" ng-click="select(lastPane);">{{lastPane.title}}</a>' +
             '</li>' +
           '</ul>' +
           '<div class="tab-content" ng-transclude></div>' +
