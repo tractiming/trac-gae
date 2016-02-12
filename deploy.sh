@@ -15,6 +15,7 @@ DRF_STRIPE_DIR=$(head -n 1 $SITE_DIR/django-rest-framework-stripe.egg-link)
 cp -r $DRF_STRIPE_DIR/payments libs
 
 cp -r libs/django/contrib/admin/static/admin static/
+cp -r libs/rest_framework_swagger/static/rest_framework_swagger static/
 
 $GAE_DIR/google_appengine/appcfg.py \
     --oauth2_refresh_token=$REFRESH_TOKEN \
