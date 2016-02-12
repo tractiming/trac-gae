@@ -368,7 +368,7 @@ STRIPE_ENSURE_TEST = False
 SWAGGER_SETTINGS = {
     'api_version': '0.1',
     'is_authenticated': True,
-    'is_superuser': True,
+    'is_superuser': False,
     'token_type': 'Bearer',
     'exclude_namespaces': ['accounts', 'stats', 'internal', 'payments'],
     'info': {
