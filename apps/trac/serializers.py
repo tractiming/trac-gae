@@ -96,7 +96,7 @@ class SaveUserMixin(object):
         """Extract user data, create the user, and use to create the
         higher-level object.
         """
-        user_data = validated_data.pop('user')
+        user_data = validated_data.pop('user', {})
         if 'username' not in user_data:
             user_data['username'] = random_username()
         user_serializer = UserSerializer(data=user_data)

@@ -481,7 +481,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
           form: replace
         parameters:
         - name: file_format
-          description: Type of file to write ("csv", "pdf", or "tfrss")
+          description: Type of file to write ("csv", "pdf", or "tfrrs")
         type:
           uri:
             required: true
@@ -536,6 +536,18 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         Will attach a CSV file to an email at all users that have an email
         associated with them. If they do not have an email, it will not
         include them.
+        ---
+        omit_serializer: true
+        omit_parameters:
+        - query
+        parameters_strategy:
+          form: replace
+        parameters:
+        - name: full_results
+          description: >
+            Whether to give an athlete only his/her results or results
+            of evryone in the workout.
+          type: boolean
         """
         session = self.get_object()
         athletes = Athlete.objects.filter(
@@ -589,7 +601,16 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         contain any of the fields "gender" or "birth_date".
 
         A new athlete will be created for each row in the file and that
-        athlete will be added to the selected session
+        athlete will be added to the selected session.
+        ---
+        omit_serializer: true
+        omit_parameters:
+        - query
+        - form
+        parameters:
+        - name: file
+          description: Roster of athletes
+          type: file
         """
         session = self.get_object()
         user = request.user
