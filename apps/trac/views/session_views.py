@@ -481,7 +481,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
           form: replace
         parameters:
         - name: file_format
-          description: Type of file to write ("csv", "pdf", or "tfrss")
+          description: Type of file to write ("csv", "pdf", or "tfrrs")
         type:
           uri:
             required: true
