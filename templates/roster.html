@@ -393,10 +393,10 @@
               <pane title="Add Team +" id="addTeam" has-content="false">
                 <div class="row" style="padding-top:2%">
                   <div class="col-lg-5">
-                    <input id="teaminput" ng-model="newTeam.name" placeholder="Team Name" class="form-control">
+                    <input id="teaminput" ng-model="newTeam.name" placeholder="Team Name" class="form-control" >
                   </div>
                   <div class="col-lg-2">
-                    <button name="" class="btn btn-primary" ng-click="createTeam(newTeam)">Save</button>
+                    <button name="" class="btn btn-primary" ng-click="createTeam(newTeam)" onclick="$('#teaminput').val('');">Save</button>
                   </div>
                 </div>
               </pane>
