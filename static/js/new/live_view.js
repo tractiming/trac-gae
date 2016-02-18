@@ -507,6 +507,14 @@ google.setOnLoadCallback(function(){
 			    spinner.spin(document.getElementById('spinner-download-results'));
 
                 downloadFormat = $('input[name="download-format"]:checked').val();
+                alert(downloadFormat);
+                if (downloadFormat.match('-splits'+'$') == '-splits') {
+                    resultsType = 'splits';
+                    downloadFormat = downloadFormat.slice(0, -7);
+                } else {
+                    resultsType = 'final';
+                }
+                alert(resultsType);
 
                 $.ajax({
                     method: 'POST',
@@ -515,7 +523,8 @@ google.setOnLoadCallback(function(){
                         Authorization: 'Bearer ' + sessionStorage.access_token
                     },
                     data: JSON.stringify({
-                        'file_format': downloadFormat
+                        'file_format': downloadFormat,
+                        'results_type': resultsType
                     }),
                     contentType: 'application/json',
                     dataType: 'text',
