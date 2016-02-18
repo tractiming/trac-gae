@@ -486,10 +486,40 @@ class TimingSessionViewSetTest(APITestCase):
         self.assertEqual(resp.status_code, 200)
         mock_writer.assert_called_with(settings.GCS_RESULTS_BUCKET,
                                        results_path, make_public=True)
-        mock_csv.writer().writerow.assert_has_calls([
-            mock.call(('Name', 'Time')),
-            mock.call(['Cam Levins', '05:18.601']),
-            mock.call(['Galen Rupp', '06:29.045'])])
+        mock_csv.DictWriter().writerow.assert_has_calls([
+            mock.call({'Name': 'Cam Levins', 'Time': '05:18.601'}),
+            mock.call({'Name': 'Galen Rupp', 'Time': '06:29.045'})])
+        self.assertEqual(resp.data['uri'], 'filedownloadurl.csv')
+
+    @mock.patch.object(trac.views.session_views, 'csv')
+    @mock.patch.object(trac.views.session_views, 'get_public_link')
+    @mock.patch.object(trac.views.session_views, 'gcs_writer')
+    def test_export_csv_with_splits(self, mock_writer, mock_link, mock_csv):
+        """Test saving a results file in GCS that includes all splits."""
+        mock_link.return_value = 'filedownloadurl.csv'
+        results_path = '{}/1/individual-splits.csv'.format(
+            settings.GCS_RESULTS_DIR)
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.post(
+            '/api/sessions/1/export_results/',
+            data=json.dumps({'results_type': 'splits'}),
+            content_type='application/json')
+        self.assertEqual(resp.status_code, 200)
+        mock_writer.assert_called_with(settings.GCS_RESULTS_BUCKET,
+                                       results_path, make_public=True)
+        mock_csv.DictWriter().writerow.assert_has_calls([
+            mock.call(OrderedDict((
+                ('Name', 'Cam Levins'),
+                ('Interval 1', 123.021),
+                ('Interval 2', 195.58),
+                ('Total', '05:18.601')))),
+            mock.call(OrderedDict((
+                ('Name', 'Galen Rupp'),
+                ('Interval 1', 122.003),
+                ('Interval 2', 197.237),
+                ('Interval 3', 69.805),
+                ('Total', '06:29.045'))))])
         self.assertEqual(resp.data['uri'], 'filedownloadurl.csv')
 
     @mock.patch.object(trac.views.session_views, 'write_pdf_results')
@@ -509,8 +539,8 @@ class TimingSessionViewSetTest(APITestCase):
         mock_writer.assert_called_with(settings.GCS_RESULTS_BUCKET,
                                        results_path, make_public=True)
         results = (
-            OrderedDict((('name', 'Cam Levins'), ('time', '05:18.601'))),
-            OrderedDict((('name', 'Galen Rupp'), ('time', '06:29.045')))
+            OrderedDict((('Name', 'Cam Levins'), ('Time', '05:18.601'))),
+            OrderedDict((('Name', 'Galen Rupp'), ('Time', '06:29.045')))
         )
         mock_pdf.assert_called_with(mock_writer().__enter__(), mock.ANY)
         self.assertEqual(results, tuple(mock_pdf.call_args_list[0][0][1]))
