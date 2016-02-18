@@ -27,10 +27,6 @@
 
 
 {% block content %}
-	<nav class="pushy pushy-left">
-		<ul class="menulist">      
-		</ul>
-	</nav>
 
 	<div class="site-overlay"></div>
 
@@ -57,38 +53,244 @@
 		</div>
 	</div>
 
+	<div class="modal fade" id="add-missed-runner-modal" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Add Runner Time</h4>
+				</div>
+				<div class="modal-body">
+					<div id="spinner-add-missed-runner"></div>
+					<div class="center" style="text-align:center;">
+						<p class="notification notification-warning add-missed-runner">You may only add a time for runners whose tag is registered in the current workout session but was never picked up by the reader.</p>
+						<p class="notification notification-error no-missed-runners">
+							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Looks like there are no missed runners.
+						</p>
+						<p class="notification notification-error add-missed-runner-error" role="alert">
+							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Input is an invalid time. Please try again.
+						</p>
+					</div>
+					<div id="add-missed-runner-body">
+						<div class="center" style="margin-bottom:15px; width:252px;">
+							<label for="add-missed-runner-select" class="sr-only">Select athlete:</label>
+							<select class="form-control" id="add-missed-runner-select">
+								<option disabled selected>Select athlete...</option>
+							</select>
+						</div>
+						<div class="center" style="margin-bottom:15px;">
+							<div class="add-missed-runner-input">
+								<label for="add-missed-runner-hrs" class="sr-only">Hours</label>
+								<input type="text" id="add-missed-runner-hrs" name="add-missed-runner-hrs" class="form-control numeric-input" placeholder="hh" autofocus>
+							</div>
+							<span class="add-missed-runner-separator">:</span>
+							<div class="add-missed-runner-input">
+								<label for="add-missed-runner-mins" class="sr-only">Minutes</label>
+								<input type="text" id="add-missed-runner-mins" name="add-missed-runner-mins" class="form-control numeric-input" placeholder="mm">
+							</div>
+							<span class="add-missed-runner-separator">:</span>
+							<div class="add-missed-runner-input">
+								<label for="add-missed-runner-secs" class="sr-only">Seconds</label>
+								<input type="text" id="add-missed-runner-secs" name="add-missed-runner-secs" class="form-control numeric-input" placeholder="ss">
+							</div>
+							<span class="add-missed-runner-separator">.</span>
+							<div class="add-missed-runner-input" style="width:60px;">
+								<label for="add-missed-runner-ms" class="sr-only">Milliseconds</label>
+								<input type="text" id="add-missed-runner-ms" name="add-missed-runner-ms" class="form-control numeric-input" placeholder="ms">
+							</div>
+						</div>
+						<div class="center">
+							<button id="add-missed-runner-confirm" class="btn btn-primary btn-md" style="margin-right: 10px;">Confirm</button>
+							<button id="add-missed-runner-cancel" class="btn btn-danger btn-md">Cancel</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 
+	<div class="modal fade" id="filter-disable-modal" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-body">
+					<p>It seems the filter is enabled for this workout. To edit individual splits, the filter has to be off. Would you like to turn it off? </p>
+					<div class="center">
+						<button id="filter-disable-confirm" class="btn btn-primary btn-md" style="margin-right: 10px;">Yes</button>
+						<button id="filter-disable-cancel" class="btn btn-danger btn-md">No</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="modify-total-time-modal" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-body">
+					<div class="center" style="">
+						<p class="notification notification-warning edit-total">Editing total time will delete all splits and replace them with a single split with the time you specify.</p>
+						<p class="notification notification-error total-time-error" role="alert">
+							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Input is an invalid time. Please try again.
+						</p>
+					</div>
+					<div class="center" style="margin-bottom:15px;">
+						<div class="modify-total-time-input">
+							<label for="total-hrs" class="sr-only">Hours</label>
+							<input type="text" id="total-hrs" name="total-hrs" class="form-control numeric-input" placeholder="hh" autofocus>
+						</div>
+						<span class="modify-total-time-separator">:</span>
+						<div class="modify-total-time-input">
+							<label for="total-mins" class="sr-only">Minutes</label>
+							<input type="text" id="total-mins" name="total-mins" class="form-control numeric-input" placeholder="mm">
+						</div>
+						<span class="modify-total-time-separator">:</span>
+						<div class="modify-total-time-input">
+							<label for="total-secs" class="sr-only">Seconds</label>
+							<input type="text" id="total-secs" name="total-secs" class="form-control numeric-input" placeholder="ss">
+						</div>
+						<span class="modify-total-time-separator">.</span>
+						<div class="modify-total-time-input" style="width:60px;">
+							<label for="total-ms" class="sr-only">Milliseconds</label>
+							<input type="text" id="total-ms" name="total-ms" class="form-control numeric-input" placeholder="ms">
+						</div>
+					</div>
+					<div class="center">
+						<button id="modify-total-time-confirm" class="btn btn-primary btn-md" style="margin-right: 10px;">Confirm</button>
+						<button id="modify-total-time-cancel" class="btn btn-danger btn-md">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="download-results-modal" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Download Results<button id="cl" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button></h4> 
+				</div>
+				<div class="modal-body">
+					<div id="spinner-download-results"></div>
+					<div id="download-results-body">
+					    <div class="center" style="margin-bottom:15px;">
+                            <label for="download-format">Results Format:</label>
+                            <div style="padding-left:5px; border-radius:4px;">
+                            	<label class="btn btn-default">
+	                                <input type="radio"
+	                                       name="download-format"
+	                                       id="download-format-csv"
+	                                       value="csv"
+	                                       checked="checked" required> CSV
+	                            </label>
+	                            <label class="btn btn-default">
+	                                <input type="radio"
+	                                       name="download-format"
+	                                       id="download-format-pdf"
+	                                       value="pdf"
+	                                       style="margin-left:10px" required> PDF
+	                            </label>
+	                            <label class="btn btn-default">
+	                                <input type="radio"
+	                                       name="download-format"
+	                                       id="download-format-tfrrs"
+	                                       value="tfrrs"
+	                                       style="margin-left:10px;" required> CSV (TFRRS) 
+	                            </label>
+                            </div>
+						</div>
+						<div class="center">
+							<button id="download-results-confirm" class="btn btn-primary btn-md" style="margin-right: 10px;">Confirm</button>
+							<button id="download-results-cancel" class="btn btn-danger btn-md">Cancel</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="email-results-modal" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Email Athletes: <button id="cl" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button></h4>
+				</div>
+				<div class="modal-body">
+					<div id="spinner-email-results"></div>
+					<div id="email-body">
+					    <div class="center" style="margin-bottom:15px;">
+                            <div style="padding-left:5px; border-radius:4px;">
+	                            <label class="btn btn-default">
+	                                <input type="radio"
+	                                       name="email-format"
+	                                       id="email-format-whole"
+	                                       value="true"
+	                                       style="margin-left:10px" required> Entire Workout
+	                            </label>
+	                            <label class="btn btn-default">
+	                                <input type="radio"
+	                                       name="email-format"
+	                                       id="email-format-single"
+	                                       value="false"
+	                                       style="margin-left:10px;" required> Only Their Times
+	                            </label>
+                            </div>
+						</div>
+						<div class="center">
+							<button id="email-results-confirm" class="btn btn-primary btn-md" style="margin-right: 10px;">Confirm</button>
+							<button id="email-results-cancel" class="btn btn-danger btn-md">Cancel</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class = "modal fade" id="email-success" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-body">
+					<p class="notification notification-success center" id="email-success-message" role="alert">
+						<span class="glyphicon glyphicon-info-sign"></span> You have successfully send an email.
+					</p>
+					<p class="notification notification-error select-group center" id="email-failure-message" role="alert">
+						<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Internal Server Error. 
+					</p>
+				</div>
+			</div>
+		</div>
+	</div>
 
 	<div id="content" class="container-fluid">
 		<div class="container">
 			<div class="row">
 				<div class="col-md-3 col-sm-4 col-xs-6">
 					<div id="menu-btn" class="menu-btn" style="display:inline-block;">
-						<span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span> Workout Menu
+						<!--<span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span> Workout Menu-->
 					</div>
 				</div>
 				<div class="col-md-3 col-md-offset-6 col-sm-4 col-sm-offset-4 col-xs-6" style="text-align:right;">
 					<div id="calendar-btn" style="display:inline-block;">
-					
+						<!--<span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> Calendar-->
 					</div>
 				</div>
 			</div>
 
 			<div class="row">
-				<h1 id="results-title">Live Results</h1>
+				<h1 id="results-title">Results</h1>
 				<div id="results-status" class="center">Workout status: <span></span></div>
 				<div id="results">
 					<ul id="results-nav" class="nav nav-tabs">
 					  <li role="presentation" class="active"><a href="#">Live Results</a></li>
 					  <li role="presentation"><a href="#">Live Graph</a></li>
-					  <li id="individual-final" role="presentation"><a href="#">Age Group</a></li>
+					  <li id="individual-final" role="presentation"><a href="#">Filtered Results</a></li>
 					  <li id="team-final" role="presentation"><a href="#">Team Results</a></li>
 					</ul>
 					<div id="results-table" class="results-tab-content">
 						<div id="correction-options" class="container" style="display:none;">
 							<div class="row hidden-xs" id="enable-corrections-container">
 								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-									
+									<div id="auto-correct">
+										<label for="enable-corrections" class="sr-only">Enable auto-correction:</label>
+										<input type="checkbox" id="enable-corrections" class="switchery-checkbox"><span id="enable-corrections-status"></span>
+									</div>
 								</div>
 							</div>
 							<div class="row results-navigate-container">
@@ -104,7 +306,9 @@
 								</div>
 								<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
 									<div id="add-missed-runner-container" class="pull-right">
-										
+										<button type="button" class="btn btn-default" id="add-missed-runner">
+											<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Missed Runner
+										</button>
 									</div>
 								</div>
 							</div>
@@ -140,7 +344,7 @@
 					<div id="results-individual" class="results-tab-content">
 						<div class="container">
 							<div class="row">
-								<div class="col-md-3 col-sm-5 col-xs-6" style="padding-top:15px;">
+								<div class="col-lg-3 col-md-3 col-sm-5 col-xs-6" style="padding-top:15px;">
 									<div class="form-group">
 										<label for="gender-select" class="sr-only">Select list:</label>
 										<select class="form-control" id="gender-select">
@@ -150,28 +354,21 @@
 										</select>
 									</div>
 								</div>
-								<div class="col-md-3 col-sm-5 col-xs-6" style="padding-top:15px;">
+								<div class="col-lg-3 col-md-3 col-sm-5 col-xs-6" style="padding-top:15px;">
 									<div class="form-group">
 										<label for="age-select" class="sr-only">Select list:</label>
-										<select class="form-control" id="age-select">
-											<option disabled selected>Age group</option>
+										<input class="form-control" id="age-select" placeholder="Age Range (Min-Max)"/>
 											
-											<option>0 - 19</option>
-											<option>20 - 29</option>
-											<option>30 - 39</option>
-											
-											<option>40 - 49</option>
-											
-											<option>50 - 59</option>
-											
-											<option>60 - 69</option>
-											
-											<option>70 - 120</option>
-											
-											<option>0 - 120</option>
-										</select>
 									</div>
 								</div>
+								<div class= "col-lg-offset-1 col-lg-5" style="padding-left:0px !important; padding-top:15px;">
+				                  <div class="input-group">
+									  <span></span>
+									  <span id="searchclear" class="glyphicon glyphicon-remove fade" onclick="$('#searchinput').val('');" style="margin-right:10%;"></span>
+				                      <input type="text" class="form-control" placeholder="Search" aria-describedby="basic-search" style="margin-left:100%; width:0; border-top-left-radius:4px !important; border-bottom-left-radius:4px!important; position:static !important;" type="search" id="searchinput">
+				                      <span class="input-group-addon " id="basic-search"  aria-hidden="true" style="cursor:pointer;"><span class="glyphicon glyphicon-search" onclick="amplitude.logEvent('roster_search');"></span></span>
+									</div>
+				                </div>
 							</div>
 							<div class="row">
 								<table id="individual-table-canvas" class="table table-striped table-hover" style="margin-top:10px;"></table>
@@ -198,7 +395,7 @@
 						<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> No recent events to show.
 					</p>
 					<p class="notification notification-warning select-group" role="alert">
-						<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Please select gender and age group.
+						<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Please select gender and age group or search term.
 					</p>
 					<p class="notification notification-error no-individual-data" role="alert">
 						<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> There is currently no data for this group.
@@ -213,8 +410,8 @@
 				<p>Currently downloading. Please wait...</p>
 			</div>
 			<div id="download-container" class="center" style="display:none;">
-			  <button id="download" class="btn btn-primary btn-md" style="margin-right:10px">Download</button>
-			  <button id="download-TFRRS" class="btn btn-primary btn-md">TFRRS</button>
+				<button id="email" class="btn btn-default btn-md" style="margin-right:10px">Email</button>
+			  	<button id="download" class="btn btn-primary btn-md" style="margin-right:10px">Download</button>
 			</div>
 		</div>
 		<div class="container">
@@ -232,6 +429,5 @@
 			
 			</div>
 		</div>
-		
 	</div>
 {% endblock %}

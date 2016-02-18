@@ -128,9 +128,11 @@ google.setOnLoadCallback(function(){
 				drawTeam();
 				return;
 			}
-
+			//if workoutid is undefined, break loop, prevent ajax call
+			if (idjson == undefined || idjson === null)
+				return;
 			ajaxRequest = $.ajax({
-				url: '/api/sessions/78/individual_results',
+				url: '/api/sessions/'+ idjson + '/individual_results',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				data: data,
 				dataType: 'text',
@@ -402,7 +404,8 @@ google.setOnLoadCallback(function(){
 			// request for registered runners
 			$.ajax({
 				method: 'GET',
-				url: 'api/reg_tag',
+				url: 'api/athletes?registered_to_session=' + '78' +
+                     '&session!=' + currentID,
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				data: {id: currentID, missed: true },
 				dataType: 'text',
@@ -423,9 +426,11 @@ google.setOnLoadCallback(function(){
 						$('#add-missed-runner-select').prop('disabled', false);
 
 						for (var i=0; i<data.length; i++) {
-							var tag = data[i];
+							var athlete = data[i];
 							$('#add-missed-runner-select').append(
-								'<option value="'+tag.id+'">'+tag.first+' '+tag.last+'</option>'
+								'<option value="'+athlete.id+'">' +
+                                athlete.first_name + ' ' + athlete.last_name +
+                                '</option>'
 							);
 						}
 
@@ -441,7 +446,7 @@ google.setOnLoadCallback(function(){
 						$('body').on('click', '#add-missed-runner-confirm', function(e) {
 							e.preventDefault();
 
-							tagID = $('#add-missed-runner-select option:selected').val();
+							athleteID = $('#add-missed-runner-select option:selected').val();
 							hrs = Number($('#add-missed-runner-hrs').val());
 							mins = Number($('#add-missed-runner-mins').val());
 							secs = Number($('#add-missed-runner-secs').val());
@@ -451,19 +456,19 @@ google.setOnLoadCallback(function(){
 								$('.notification.add-missed-runner-error').show();
 								return;
 							}
+                            var data = [{
+                                "id": athleteID,
+                                "splits": [hrs*3600 + mins*60 + secs + ms/1000.0]
+                            }];
 
 							$.ajax({
 								method: 'POST',
-								url: 'api/sessions/'+currentID+'/add_missed_runner/',
-								headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
-								data: {
-									tag_id: tagID,
-									hour: hrs,
-									min: mins,
-									sec: secs,
-									mil: ms 
-								},
-								dataType: 'text',
+								url: 'api/sessions/'+currentID+'/upload_results/',
+								headers: {Authorization: 'Bearer ' +
+                                          sessionStorage.access_token},
+
+								data: JSON.stringify(data),
+								contentType: 'application/json',
 								success: function(data) {
 									$('#table-canvas').empty();
 									spinner.spin(target);
@@ -485,6 +490,122 @@ google.setOnLoadCallback(function(){
 					}
 				}
 			});
+		});
+
+		// register handler for downloading results
+		$('body').on('click', 'button#download', function(e) {
+			e.stopPropagation();
+
+			$('.notification').hide();
+			$('#download-results-modal').modal('show');
+			$('#download-results-body').show();
+            $('body').off('click', '#download-results-confirm');
+            $('body').on('click', '#download-results-confirm', function(e) {
+                e.preventDefault();
+
+			    $('#spinner-download-results').css('height', 150);
+			    spinner.spin(document.getElementById('spinner-download-results'));
+
+                downloadFormat = $('input[name="download-format"]:checked').val();
+
+                $.ajax({
+                    method: 'POST',
+                    url: '/api/sessions/' + '78' + '/export_results/',
+                    headers: {
+                        Authorization: 'Bearer ' + sessionStorage.access_token
+                    },
+                    data: JSON.stringify({
+                        'file_format': downloadFormat
+                    }),
+                    contentType: 'application/json',
+                    dataType: 'text',
+                    success: function(data) {
+                        var uri = $.parseJSON(data).uri;
+                        var link = document.createElement('a');
+                        link.href = uri;
+                        link.style = 'visibility:hidden';
+
+                        spinner.stop();
+						$('#spinner-download-results').css('height', '');
+				        $('#download-results-modal').modal('hide');
+
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+
+                    },
+                    error: function(jqXHR, exception) {
+                    	spinner.stop();
+                    	$('#spinner-download-results').css('height', '');
+				        $('#download-results-modal').modal('hide');
+
+                        $('#email-success').modal('show');
+                    	$('#email-success-message').hide();
+                        $('#email-failure-message').show();
+                    }
+                });
+            });
+            $('body').off('click', '#download-results-cancel');
+            $('body').on('click', '#download-results-cancel', function(e) {
+                e.preventDefault();
+                $('#download-results-modal').modal('hide');
+            });
+
+		});
+
+		//Register Handler for Emailing Results
+				// register handler for downloading results
+		$('body').on('click', 'button#email', function(e) {
+			e.stopPropagation();
+
+			$('.notification').hide();
+			$('#email-results-modal').modal('show');
+			$('#email-body').show();
+            $('body').off('click', '#email-results-confirm');
+            $('body').on('click', '#email-results-confirm', function(e) {
+                e.preventDefault();
+
+			    $('#spinner-email-results').css('height', 150);
+			    spinner.spin(document.getElementById('spinner-email-results'));
+
+                resultsBoolean = $('input[name="email-format"]:checked').val();
+
+                $.ajax({
+                    method: 'POST',
+                    url: '/api/sessions/' + currentID + '/email_results/',
+                    headers: {
+                        Authorization: 'Bearer ' + sessionStorage.access_token
+                    },
+                    data: {'full_results': resultsBoolean},
+                    success: function(data) {
+                        spinner.stop();
+						$('#spinner-email-results').css('height', '');
+				        $('#email-results-modal').modal('hide');
+
+                        $('#email-success').modal('show');
+                        $('#email-failure-message').hide();
+                    	$('#email-success-message').show();
+
+
+                    },
+                    error: function(jqXHR, exception) {
+                    	spinner.stop();
+                    	$('#spinner-email-results').css('height', '');
+				        $('#email-results-modal').modal('hide');
+
+
+                    	$('#email-success').modal('show');
+                    	$('#email-success-message').hide();
+                        $('#email-failure-message').show();
+                    }
+                });
+            });
+            $('body').off('click', '#email-results-cancel');
+            $('body').on('click', '#email-results-cancel', function(e) {
+                e.preventDefault();
+                $('#email-results-modal').modal('hide');
+            });
+
 		});
 
 		// register handler for edit total time
@@ -586,33 +707,13 @@ google.setOnLoadCallback(function(){
 					e.preventDefault();
 
 					// make ajax call to turn off filter
-					var id = sessionData.id,
-							name = sessionData.name,
-							start = sessionData.start_time,
-							stop = sessionData.stop_time,
-							restTime = sessionData.rest_time,
-							distance = sessionData.interval_distance,
-							size = sessionData.track_size,
-							intervalNumber = sessionData.interval_number,
-							privateSelect = sessionData.private,
-							filter = false;
-
 					$.ajax({
-						type: 'POST',
-						dataType:'json',
-						url: '/api/time_create/',
+						type: 'PATCH',
+						dataType: 'json',
+						url: '/api/sessions/78/',
 						headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
 						data: {
-							id: id,
-							name: name,
-							start_time: start,
-							stop_time: stop,
-							rest_time: restTime,
-							track_size: size,
-							interval_distance: distance,
-							interval_number: intervalNumber,
-							filter_choice: filter,
-							private: privateSelect
+							filter_choice: false,
 						},
 						success: function(data) {
 							// update front end data
@@ -1318,12 +1419,20 @@ google.setOnLoadCallback(function(){
 		$('body').on('change', '#gender-select, #age-select', function(){
 			drawIndividual();
 		});
+		//Prevent from typing any non numeric characters
+		$("#age-select").keypress(function (e) {
+			if (e.which != 8 && e.which != 0 && e.which != 45 &&(e.which < 48 || e.which > 57)) {
+			return false;
+			}
+		});
+
 
 		function drawIndividual() {
 			$('#individual-table-canvas').empty();
 
 			var a = $('#age-select').val();
 			var g = $('#gender-select').val();
+			console.log(a);
 
 			// gender or age wasn't selected
 			if ((a === null) || (g === null)) {
@@ -1342,7 +1451,7 @@ google.setOnLoadCallback(function(){
 			var gender = (g.trim() === 'Male') ? 'M' : 'F';
 
 			$.ajax({
-				url: '/api/sessions/78/filtered_results/?gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
+				url: '/api/sessions/78/individual_results/?gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
@@ -1543,13 +1652,16 @@ google.setOnLoadCallback(function(){
 			spinner.spin(target);
 
 			$.ajax({
-				url: '/api/score/?team=Lake%20Forest',
-				
+				url: '/api/sessions/',
+				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'json',
-				
+				data: {
+					offset: sessionFirst-1,
+					limit: 15,
+				},
 				success: function(data){
 					var results = data.results,
-							numSessions = data.numSessions;
+					numSessions = data.count;
 					
 					if ((results.length == 0) && (!$.trim($('ul.menulist').html()))) {
 						$('.notification.no-sessions').show();
@@ -1595,13 +1707,18 @@ google.setOnLoadCallback(function(){
 			cStart = localISOString(cStart._d);
 			cStop = localISOString(cStop._d);
 			$.ajax({
-				url:'/api/score/?team=Lake%20Forest',
-				
+				url:'/api/sessions/',
+				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'json',
-				
+				data: {
+					offset: sessionFirst-1,
+                    limit: 15,
+                    start_date: cStart,
+                    stop_date: cStop,
+				},
 				success: function(data){
 					var results = data.results,
-							numSessions = data.numSessions;
+					numSessions = data.count;
 
 					calendarEvents = [];
 					for (var i=0; i<results.length; i++){
@@ -1693,14 +1810,14 @@ google.setOnLoadCallback(function(){
 					ajaxRequest.abort();
 
 				ajaxRequest = $.ajax({
-					url: '/api/sessions/'+ currentID,
+					url: '/api/sessions/78',
 					headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 					dataType: 'text',
 					success: function(data) {
 						var json = $.parseJSON(data);
 
 						// add heat name
-						$('#results-title').html('Live Results: ' + json.name);
+						$('#results-title').html('Results: ' + json.name);
 
 						// hide auto-correction options
 						$('#correction-options').hide();
@@ -1826,7 +1943,7 @@ google.setOnLoadCallback(function(){
 		});
 
 		// download to CSV script
-		$('body').on('click', '#download', function(){
+		/*$('body').on('click', '#download', function(){
 			// hide download buttons and show status
 			$('#download-container').hide();
 			$('#download-status').show();
@@ -1861,12 +1978,12 @@ google.setOnLoadCallback(function(){
 					$('#download-container').show();
 				}
 			});
-		});
+		});*/
 
 		//=================================== download functions ====================================
 		function createFullCSV(){
 			$.ajax({
-				url: '/api/sessions/'+currentID+'/individual_results',
+				url: '/api/sessions/78/individual_results',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
@@ -1947,7 +2064,7 @@ google.setOnLoadCallback(function(){
 			var gender = (g.trim() === 'Male') ? 'M' : 'F';
 
 			$.ajax({
-				url: '/api/sessions/78/filtered_results/?gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
+				url: '/api/sessions/78/individual_results/?gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
@@ -2029,7 +2146,7 @@ google.setOnLoadCallback(function(){
 			});
 		}
 
-		function download(CSV, reportTitle) {
+		/*function download(CSV, reportTitle) {
 			//Generate a file name
 			var fileName = 'TRAC_';
 			//this will remove the blank-spaces from the title and replace it with an underscore
@@ -2055,7 +2172,153 @@ google.setOnLoadCallback(function(){
 			document.body.appendChild(link);
 			link.click();
 			document.body.removeChild(link);
-		}
+		}*/
+		//=================================== searchbar functions ====================================
+		var bool = 1;
+    	$("#basic-search").click(function(){
+    		if(bool==0){
+        		$( "#searchinput" ).animate({
+        			width:'0',
+        			marginLeft:'100%',
+        			paddingRight:0,
+        			paddingLeft:0,
+        		},1000);
+        		$( "#searchclear" ).animate({
+        			opacity:0
+        		},1000);
+    			bool = 1;
+    			return;
+    		}
+    		else(bool==1)
+    		{
+    			$( "#searchinput" ).animate({
+    				width:'100%',
+    				marginLeft:0,
+    				paddingRight:'12px',
+    				paddingLeft:'12px',
+    			},1000);
+    			$( "#searchclear" ).animate({
+    				opacity:1
+    			},1000);
+    			bool=0;
+    			return;
+    		}
+    	});
+    	$("#searchinput").on('input', function(){
+    		drawIndividualSearch();
+    	});
+
+    	function drawIndividualSearch() {
+			$('#individual-table-canvas').empty();
+			$('.notification.select-group').hide();
+
+			$('#spinner').css('height', 150);
+			spinner.spin(target);
+
+			searchTerm = $('#searchinput').val();
+
+			$.ajax({
+				url: '/api/athletes/?session=78&search='+searchTerm,
+				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				dataType: 'text',
+				success: function(data) {
+					var results = $.parseJSON(data);
+					if (results.length === 0) {
+						spinner.stop();
+						$('#spinner').css('height', '');
+						$('#individual-table-canvas').empty();
+						$('.notification.no-individual-data').show();
+						$('#download-container').hide();
+					} else {
+						$('.notification').hide();
+
+						$('#individual-table-canvas').append(
+							'<thead>' +
+								'<tr>' +
+									'<th>Name</th>' +
+									'<th></th>' +
+								'</tr>' +
+							'</thead>' +
+							'<tbody>' +
+							'</tbody>'
+						);
+
+						var runner = {};
+						for (var i=0; i < results.length; i++) {
+							runner = results[i];
+							$('#individual-table-canvas>tbody').append(
+								'<tr id="results-'+runner.id+'" class="accordion-toggle" data-toggle="collapse" data-parent="#table-canvas" data-target="#collapse-'+runner.id+'" aria-expanded="false" aria-controls="collapse-'+runner.id+'">' + 
+									'<td>' + runner.first_name +' '+ runner.last_name  + '</td>' + 
+									'<td id="total-time-'+runner.id+'">'+ '<a id="resultsLink-'+runner.id+'" style="cursor:pointer">See Results</a>' +'</td>' + 
+										'<div class="modify-total-time pull-right" style="display:none;">' +
+											'<div class="edit-total"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
+										'</div>' +
+									'</td>' +
+								'</tr>' + 
+								'<tr></tr>'	+		// for correct stripes 
+								'<tr class="splits">' +
+									'<td colspan="4">' +
+										'<div id="collapse-'+runner.id+'" class="accordion-body collapse" aria-labelledby="results-'+runner.id+'">' + 
+											'<table id="splits-'+runner.id+'" class="table" style="text-align:center; background-color:transparent">' +
+												'<tbody>' +
+												'</tbody>' +
+											'</table>' +
+										'</div>' + 
+									'</td>' +
+								'</tr>'
+							);
+							$("#resultsLink-"+runner.id).on('click', function(){
+				    			//Sent the binder, load the data
+				    			var dynamicID = $(this).attr('id').split('-')[1];
+				    			$('table#splits-'+dynamicID+'>tbody').empty();
+
+				    			$.ajax({
+									url: '/api/sessions/78/individual_results/?athletes='+dynamicID,
+									headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+									dataType: 'text',
+									success: function(data) {
+										var total =0;
+										var splits = $.parseJSON(data).results[0].splits;
+										console.log(splits);
+										for (var j=0; j < splits.length; j++) {
+											console.log(splits[j]);
+											console.log(runner.id);
+											//console.log($'$this')
+											$('table#splits-'+dynamicID+'>tbody').append(
+													'<tr>' + 
+														'<td class="split-number">' + (j+1) + '</td>' + 
+														'<td class="split-time">' + splits[j] + '</td>' + 
+														'<td class="split-edit-options hidden-xs">' +
+															'<div class="modify-splits modify-splits-'+runner.id+' pull-right" style="display:none;">' +
+																'<div class="insert-split"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></div>' +
+																'<div class="insert-split"><span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span></div>' +
+																'<div class="edit-split"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
+																'<div class="delete-split"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></div>' +
+															'</div>' +
+														'</td>' + 
+													'</tr>'
+												);
+										}
+									}
+								});
+				    	});
+
+
+						}
+
+						// show results
+						spinner.stop();
+						$('#spinner').css('height', '');
+						$('#individual-table-canvas').show();
+						$('#download-container').show();
+					}
+				}
+			});
+		};
+
+		
+
+
 
 	});
 });
