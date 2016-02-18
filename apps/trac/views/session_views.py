@@ -1,6 +1,7 @@
 import ast
 import csv
 import datetime
+import itertools
 import json
 import logging
 import uuid
@@ -482,6 +483,10 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         parameters:
         - name: file_format
           description: Type of file to write ("csv", "pdf", or "tfrrs")
+        - name: results_type
+          description: Whether to return all splits ("splits") or final
+          results only ("final"). Only applied when `file_format` is "csv",
+          otherwise this setting is ignored.
         type:
           uri:
             required: true
@@ -493,6 +498,11 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         file_format = request.data.get('file_format', 'csv')
         if file_format not in ('csv', 'pdf', 'tfrrs'):
             return Response('Invalid file format',
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        results_type = request.data.get('results_type', 'final')
+        if results_type not in ('splits', 'final'):
+            return Response('Invalid results type',
                             status=status.HTTP_400_BAD_REQUEST)
 
         extension = 'pdf' if file_format == 'pdf' else 'csv'
@@ -507,19 +517,33 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             results_to_write = tfrrs.format_tfrrs_results(session)
             header = tfrrs._TFRRS_FIELDS
         else:
-            results_to_write = (OrderedDict((
-                ('name', result.name),
-                ('time', format_total_seconds(result.total)))
-            ) for result in session.individual_results())
-            header = ('Name', 'Time')
+            results = session.individual_results()
+            if results_type == 'final':
+                results_to_write = (OrderedDict((
+                    ('Name', result.name),
+                    ('Time', format_total_seconds(result.total)))
+                ) for result in results)
+                header = ('Name', 'Time')
+            else:
+                max_splits = max(len(result.splits) for result in results)
+                header = list(itertools.chain(
+                    ('Name',),
+                    ('Interval {}'.format(i+1) for i in xrange(max_splits)),
+                    ('Total',)))
+                results_to_write = (OrderedDict(list(itertools.chain(
+                    (('Name', result.name),),
+                    (('Interval {}'.format(num+1), split)
+                        for num, split in enumerate(result.splits)),
+                    (('Total', format_total_seconds(result.total)),)))
+                ) for result in results)
 
         with gcs_writer(settings.GCS_RESULTS_BUCKET, storage_path,
                         make_public=True) as _results:
             if file_format in ('csv', 'tfrrs'):
-                writer = csv.writer(_results)
-                writer.writerow(header)
+                writer = csv.DictWriter(_results, fieldnames=header)
+                writer.writeheader()
                 for result in results_to_write:
-                    writer.writerow(result.values())
+                    writer.writerow(result)
             elif file_format == 'pdf':
                 write_pdf_results(_results, results_to_write)
 
