@@ -64,6 +64,8 @@ google.setOnLoadCallback(function(){
 		$('#results-nav').hide();
 		$('.results-tab-content').hide();
 		$('#download-container').hide();
+		$('#results-title').html('Results: ' + 'Swinging Bridge 8k');
+
 
 		// query for all workout sessions
 		$('#spinner').css('height', 150);
@@ -1817,7 +1819,7 @@ google.setOnLoadCallback(function(){
 						var json = $.parseJSON(data);
 
 						// add heat name
-						$('#results-title').html('Results: ' + 'Swinging Bridge 8k');
+						//$('#results-title').html('Results: ' + 'Swinging Bridge 8k');
 
 						// hide auto-correction options
 						$('#correction-options').hide();
