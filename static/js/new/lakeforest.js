@@ -15,7 +15,7 @@ google.setOnLoadCallback(function(){
 		var RESULTS_PER_PAGE = 25;				// number of results per page
 
 		var idArray = [],
-				currentID, currentView,												// used to identify current session and view
+				currentID=78, currentView,												// used to identify current session and view
 				updateHandler, idleHandler,										// interval handlers
 				ajaxRequest, correctionAjaxRequest,						// used to keep track of ajax requests
 				sessionData, sessionResults,									// current session data
@@ -405,7 +405,7 @@ google.setOnLoadCallback(function(){
 			$.ajax({
 				method: 'GET',
 				url: 'api/athletes?registered_to_session=' + '78' +
-                     '&session!=' + currentID,
+                     '&session!=' + '78',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				data: {id: currentID, missed: true },
 				dataType: 'text',
@@ -463,7 +463,7 @@ google.setOnLoadCallback(function(){
 
 							$.ajax({
 								method: 'POST',
-								url: 'api/sessions/'+currentID+'/upload_results/',
+								url: 'api/sessions/'+'78'+'/upload_results/',
 								headers: {Authorization: 'Bearer ' +
                                           sessionStorage.access_token},
 
@@ -572,7 +572,7 @@ google.setOnLoadCallback(function(){
 
                 $.ajax({
                     method: 'POST',
-                    url: '/api/sessions/' + currentID + '/email_results/',
+                    url: '/api/sessions/' + '78' + '/email_results/',
                     headers: {
                         Authorization: 'Bearer ' + sessionStorage.access_token
                     },
