@@ -1817,7 +1817,7 @@ google.setOnLoadCallback(function(){
 						var json = $.parseJSON(data);
 
 						// add heat name
-						$('#results-title').html('Results: ' + json.name);
+						$('#results-title').html('Results: ' + 'Swinging Bridge 8k');
 
 						// hide auto-correction options
 						$('#correction-options').hide();
