@@ -505,13 +505,20 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             return Response('Invalid results type',
                             status=status.HTTP_400_BAD_REQUEST)
 
-        extension = 'pdf' if file_format == 'pdf' else 'csv'
-        tfrrs_name = '-tfrrs' if file_format == 'tfrrs' else ''
+        if file_format == 'tfrrs':
+            modifier = '-tfrrs'
+            extension = 'csv'
+        elif file_format == 'csv':
+            modifier = '-splits' if results_type == 'splits' else ''
+            extension = 'csv'
+        else:
+            modifier = ''
+            extension = 'pdf'
         storage_path = '/'.join((settings.GCS_RESULTS_DIR,
                                  str(session.pk),
-                                 'individual{tfrrs}.{extension}'.format(
+                                 'individual{modifier}.{extension}'.format(
                                      extension=extension,
-                                     tfrrs=tfrrs_name)))
+                                     modifier=modifier)))
 
         if file_format == 'tfrrs':
             results_to_write = tfrrs.format_tfrrs_results(session)
