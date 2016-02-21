@@ -188,8 +188,8 @@ google.setOnLoadCallback(function(){
 				$('#table-canvas').append(
 					'<thead>' + 
 						'<tr>' +
-							'<th>Name</th>' +
 							'<th>Place</th>' +
+							'<th>Name</th>' +
 							'<th>Latest Split</th>' +
 							'<th>Total Time</th>' +
 							'<th class="hidden-xs" style="width:50px;"></th>' +
@@ -204,7 +204,7 @@ google.setOnLoadCallback(function(){
 				var runner = results[i];
 
 				var id = runner.id,
-						place = i + resultOffset;
+						place = i + 1 + resultOffset;
 						name = runner.name,
 						splits = runner.splits,
 						total = Number(runner.total);
@@ -284,8 +284,8 @@ google.setOnLoadCallback(function(){
 
 			$('#table-canvas>tbody').append(
 				'<tr id="results-'+id+'" class="accordion-toggle" data-toggle="collapse" data-parent="#table-canvas" data-target="#collapse-'+id+'" aria-expanded="false" aria-controls="collapse-'+id+'">' + 
-					'<td>' + name + '</td>' +
 					'<td id="place-+'+id+'"">' + place + '</td>'+
+					'<td>' + name + '</td>' +
 					'<td id="latest-split-'+id+'">' + latestSplit + '</td>' + 
 					'<td id="total-time-'+id+'"></td>' + 
 					'<td id="modify-total-time-'+id+'" class="hidden-xs" style="width:50px;">' +
