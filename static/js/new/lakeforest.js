@@ -189,6 +189,7 @@ google.setOnLoadCallback(function(){
 					'<thead>' + 
 						'<tr>' +
 							'<th>Name</th>' +
+							'<th>Place</th>' +
 							'<th>Latest Split</th>' +
 							'<th>Total Time</th>' +
 							'<th class="hidden-xs" style="width:50px;"></th>' +
@@ -203,6 +204,7 @@ google.setOnLoadCallback(function(){
 				var runner = results[i];
 
 				var id = runner.id,
+						place = i + resultOffset;
 						name = runner.name,
 						splits = runner.splits,
 						total = Number(runner.total);
@@ -224,12 +226,7 @@ google.setOnLoadCallback(function(){
 									'<td class="split-number">' + (j+1) + '</td>' + 
 									'<td class="split-time">' + split + '</td>' + 
 									'<td class="split-edit-options hidden-xs">' +
-										'<div class="modify-splits modify-splits-'+id+'" style="display:none;">' +
-											'<div class="insert-split"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></div>' +
-											'<div class="insert-split"><span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span></div>' +
-											'<div class="edit-split"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
-											'<div class="delete-split"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></div>' +
-										'</div>' +
+										
 									'</td>' + 
 								'</tr>'
 							);
@@ -237,11 +234,12 @@ google.setOnLoadCallback(function(){
 						}
 
 						// then update latest split and total time
+						$('#place-'+id).html(place);
 						$('#latest-split-'+id).html(splits[splits.length-1][0]);
 						$('#total-time-'+id).html(formatTime(total));
 					}
 				} else {
-					addNewRow(id, name, splits, total);
+					addNewRow(id, name, splits, total, place);
 				}
 			}
 
@@ -277,7 +275,7 @@ google.setOnLoadCallback(function(){
 			$('#download-container').show();
 		}
 
-		function addNewRow(id, name, splits, total){
+		function addNewRow(id, name, splits, total, place){
 			var split = 0;
 			if (splits.length > 0)
 				latestSplit = splits[splits.length-1][0];
@@ -286,7 +284,8 @@ google.setOnLoadCallback(function(){
 
 			$('#table-canvas>tbody').append(
 				'<tr id="results-'+id+'" class="accordion-toggle" data-toggle="collapse" data-parent="#table-canvas" data-target="#collapse-'+id+'" aria-expanded="false" aria-controls="collapse-'+id+'">' + 
-					'<td>' + name + '</td>' + 
+					'<td>' + name + '</td>' +
+					'<td id="place-+'+id+'"">' + place + '</td>'+
 					'<td id="latest-split-'+id+'">' + latestSplit + '</td>' + 
 					'<td id="total-time-'+id+'"></td>' + 
 					'<td id="modify-total-time-'+id+'" class="hidden-xs" style="width:50px;">' +
@@ -1453,7 +1452,7 @@ google.setOnLoadCallback(function(){
 			var gender = (g.trim() === 'Male') ? 'M' : 'F';
 
 			$.ajax({
-				url: '/api/sessions/78/individual_results/?gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
+				url: '/api/sessions/78/individual_results/?gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte+'limit=150',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
@@ -2066,7 +2065,7 @@ google.setOnLoadCallback(function(){
 			var gender = (g.trim() === 'Male') ? 'M' : 'F';
 
 			$.ajax({
-				url: '/api/sessions/78/individual_results/?gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
+				url: '/api/sessions/78/individual_results/?gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte+'limit=150',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
