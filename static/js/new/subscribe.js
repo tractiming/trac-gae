@@ -81,20 +81,23 @@ $(function() {
       });
 
       e.preventDefault();
+      $('#custom-value').val('');
     }
   });
 
 $('#couponButton').on('click', function(e) {
-          if($('#coupon').val() == 'flagstaff')
+          if($('#coupon').val() == 'Flagstaff')
           {
             wait(1500);
             $('#educator').show();
             $('#monthly-button').show();
+            $('#coupon').val('');
           }
-          else if($('#coupon').val() == 'eugene')
+          else if($('#coupon').val() == 'Eugene')
           {
             wait(100);
             $('#custom-price').show();
+            $('#coupon').val('');
           }
       });
 

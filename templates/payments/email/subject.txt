@@ -1,1 +1,1 @@
-[{{ site.name }}] Payment Receipt (Invoice #{{ charge.pk }})
+[TRAC Timing] Payment Receipt (Invoice #{{ charge.pk }})

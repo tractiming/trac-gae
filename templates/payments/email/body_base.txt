@@ -1,12 +1,9 @@
-{% if charge.paid %}Your {{ site.name }} account was successfully charged ${{ charge.amount|floatformat:2 }} to the credit card ending in {{ charge.card_last_4 }}. The invoice below is for your records.
+{% if charge.paid %}Your TRAC account was successfully charged ${{ charge.amount|floatformat:2 }} to the credit card ending in {{ charge.card_last_4 }}. The invoice below is for your records.
 
 
 ========================================================
 INVOICE #{{ charge.pk }}     {{ charge.created_at|date:"F d, Y" }}
 ........................................................
-
-
-CUSTOMER: {% block customer_name %}{{ charge.customer.subscriber }}{% endblock %}
 
 
 DETAILS
@@ -23,5 +20,5 @@ PAID BY CREDIT CARD: -${{ charge.amount|floatformat:2 }}
 Please contact us with any questions regarding this invoice.
 
 ---
-Your {{ site.name }} Team
-{{ protocol }}://{{ site.domain }}
+The TRAC Team
+https://tractiming.com
