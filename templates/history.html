@@ -58,7 +58,7 @@
             $.ajax({
                 type: 'GET',
                 dataType: 'json',
-                url: '/payments/invoices/',
+                url: '/payments/charges/',
                 headers: {
                     Authorization: 'Bearer ' + sessionStorage.access_token
                 },
@@ -80,8 +80,8 @@
 
                         for (var i=0; i < data.length; i++) {
                             id = data[i].id;
-						    var payDate = UTC2local(data[i].date);
-                            amount = data[i].total;
+						    var payDate = UTC2local(data[i].charge_created);
+                            amount = data[i].amount;
 
                             $('#history-table tbody').append(
                                 '<tr>'+
