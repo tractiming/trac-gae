@@ -507,14 +507,12 @@ google.setOnLoadCallback(function(){
 			    spinner.spin(document.getElementById('spinner-download-results'));
 
                 downloadFormat = $('input[name="download-format"]:checked').val();
-                alert(downloadFormat);
                 if (downloadFormat.match('-splits'+'$') == '-splits') {
                     resultsType = 'splits';
                     downloadFormat = downloadFormat.slice(0, -7);
                 } else {
                     resultsType = 'final';
                 }
-                alert(resultsType);
 
                 $.ajax({
                     method: 'POST',
