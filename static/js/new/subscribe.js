@@ -55,12 +55,46 @@ $(function() {
       e.preventDefault();
   });
 
+   $('#custom-amount').on('click', function(e) {
+      // Open Checkout with further options
+      if($('#custom-value').val() == ''){
+        $('#payment-modal').modal('show');
+        $('#success_reference').text('Error. We are unable to process your request');
+      }
+      else{
+      stripePrice = $('#custom-value').val() * 100;
+      $.ajax({
+          type: 'POST',
+          dataType:'json',
+          url: '/payments/charges/',
+          headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+          data: {
+              amount: stripePrice
+          },
+          success: function(data) {
+              $('#payment-modal').modal('show');
+          },
+          error: function(xhr, errmsg, err) {
+              $('#payment-modal').modal('show');
+              $('#success_reference').text('Error. We are unable to process your request');
+          }
+      });
+
+      e.preventDefault();
+    }
+  });
+
 $('#couponButton').on('click', function(e) {
           if($('#coupon').val() == 'flagstaff')
           {
             wait(1500);
             $('#educator').show();
             $('#monthly-button').show();
+          }
+          else if($('#coupon').val() == 'eugene')
+          {
+            wait(100);
+            $('#custom-price').show();
           }
       });
 
