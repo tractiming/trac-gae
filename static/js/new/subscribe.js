@@ -34,7 +34,7 @@ $(function() {
 
   $('#customButton').on('click', function(e) {
       // Open Checkout with further options
-      var stripePrice = price*100;
+      var stripePrice = price;
       $.ajax({
           type: 'POST',
           dataType:'json',
@@ -62,7 +62,7 @@ $(function() {
         $('#success_reference').text('Error. We are unable to process your request');
       }
       else{
-      stripePrice = $('#custom-value').val() * 100;
+      stripePrice = $('#custom-value').val();
       $.ajax({
           type: 'POST',
           dataType:'json',
