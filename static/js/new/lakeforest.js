@@ -1452,7 +1452,7 @@ google.setOnLoadCallback(function(){
 			var gender = (g.trim() === 'Male') ? 'M' : 'F';
 
 			$.ajax({
-				url: '/api/sessions/78/individual_results/?gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte+'limit=150',
+				url: '/api/sessions/78/individual_results/?gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte+'&limit=150',
 				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
