@@ -91,10 +91,11 @@
                 var key = $('#input_apiKey')[0].value;
                 log('key: ' + key);
 
-                if (key && key.trim() != '') {
-                    console.log('added key ' + key);
-                    window.authorizations.add('key', new ApiKeyAuthorization('Authorization', '{{ swagger_settings.token_type }} ' + key, 'header'));
-                }
+                console.log('added key ' + key);
+                window.authorizations.add('key',
+                    new ApiKeyAuthorization('Authorization',
+                        '{{ swagger_settings.token_type }} ' + key,
+                        'header'));
             });
 
             window.authorizations.add('key',
