@@ -67,7 +67,7 @@ class SplitViewSet(viewsets.ModelViewSet):
       - query
     """
     serializer_class = SplitSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     pagination_class = pagination.LimitOffsetPagination
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = SplitFilter
