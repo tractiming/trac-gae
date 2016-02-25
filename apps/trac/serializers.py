@@ -337,3 +337,12 @@ class SplitSerializer(FilterRelatedMixin, serializers.ModelSerializer):
             session.clear_cache(split.athlete.id)
 
         return split
+
+
+class IndividualResultsQuerySerializer(serializers.Serializer):
+    gender = serializers.ChoiceField(['M', 'F', 'm', 'f'], required=False)
+    age_lte = serializers.IntegerField(required=False)
+    age_gte = serializers.IntegerField(required=False)
+    limit = serializers.IntegerField(default=25)
+    offset = serializers.IntegerField(default=0)
+    all_athletes = serializers.BooleanField(default=False)
