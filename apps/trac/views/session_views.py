@@ -24,7 +24,10 @@ from rest_framework.parsers import FileUploadParser
 from backends._gcs import gcs_writer, get_public_link
 from trac.filters import TimingSessionFilter
 from trac.models import TimingSession, Reader, Tag, Split, Team, Athlete
-from trac.serializers import TimingSessionSerializer, AthleteSerializer
+from trac.serializers import (
+    TimingSessionSerializer, AthleteSerializer,
+    IndividualResultsQuerySerializer
+)
 from trac.utils.integrations import tfrrs
 from trac.utils.pdf_util import write_pdf_results
 from trac.utils.split_util import format_total_seconds
@@ -38,14 +41,17 @@ log = logging.getLogger(__name__)
 EPOCH = timezone.datetime(1970, 1, 1)
 
 
-def _to_int(val):
-    """Convert value to int if it isn't None."""
-    return int(val) if val is not None else val
-
-
-def _to_ast(val):
-    """Call `ast.literal_eval` if value isn't None."""
-    return ast.literal_eval(val) if val is not None else val
+def _query_to_list(val):
+    """Call `ast.literal_eval` to get a list from a query string."""
+    if val is None:
+        return None
+    try:
+        list_ = ast.literal_eval(val)
+    except (SyntaxError, ValueError):
+        return None
+    if not isinstance(list_, Iterable):
+        list_ = [list_]
+    return list(list_)
 
 
 class TimingSessionViewSet(viewsets.ModelViewSet):
@@ -243,44 +249,36 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             required: true
             type: boolean
         """
-        gender = request.query_params.get('gender', None)
-        age_lte = _to_int(request.query_params.get('age_lte', None))
-        age_gte = _to_int(request.query_params.get('age_gte', None))
-        teams = request.query_params.get('teams', None)
-        limit = int(request.query_params.get('limit', 25))
-        offset = int(request.query_params.get('offset', 0))
-        all_athletes = bool(request.query_params.get('all_athletes', False))
+        teams = _query_to_list(request.query_params.get('teams', None))
+        athletes = _query_to_list(request.query_params.get('athletes', None))
+        serializer = IndividualResultsQuerySerializer(
+            data=request.query_params)
+        serializer.is_valid(raise_exception=True)
+        query = serializer.validated_data
 
-        athletes = _to_ast(request.query_params.get('athletes', None))
+        # Filter out IDs that do not belong to valid athletes.
+        all_athletes = query.pop('all_athletes')
         if athletes is not None:
-            if not isinstance(athletes, Iterable):
-                athletes = [athletes]
-            # Filter out IDs that do not belong to valid athletes.
             athletes = Athlete.objects.filter(pk__in=athletes).values_list(
                 'id', flat=True)
             all_athletes = False
 
         session = self.get_object()
-        raw_results = session.individual_results(limit,
-                                                 offset,
-                                                 gender=gender,
-                                                 age_lte=age_lte,
-                                                 age_gte=age_gte,
-                                                 teams=teams,
-                                                 athlete_ids=athletes)
+        raw_results = session.individual_results(athlete_ids=athletes,
+                                                 teams=teams,**query)
 
         extra_results = []
         distinct_ids = set(session.splits.values_list('athlete_id',
                                                       flat=True).distinct())
-        if (len(raw_results) < limit) and all_athletes:
+        if (len(raw_results) < query['limit']) and all_athletes:
             # Want to append results set with results for runners who are
             # registered, but do not yet have a time. These results are added
             # to the end of the list, since they cannot be ordered.
             if len(raw_results) == 0:
-                extra_offset = offset - session.num_athletes
+                extra_offset = query['offset'] - session.num_athletes
             else:
                 extra_offset = 0
-            extra_limit = limit - len(raw_results)
+            extra_limit = query['limit'] - len(raw_results)
             additional_athletes = []
             for athlete in session.registered_athletes.all(
                     )[extra_offset:extra_limit]:
