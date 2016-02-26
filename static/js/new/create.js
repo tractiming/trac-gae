@@ -109,6 +109,7 @@ $(function() {
 									'<th class="hidden-xs hidden-sm">Track</th>' +
 									'<th>Filtered</th>' +
 									'<th class="hidden-xs hidden-sm">Private</th>' +
+									'<th class="hidden-xs hidden-sm">Registered Only</th>' +
 								'</tr>' +
 							'</thead>' +
 							'<tbody>' +
@@ -124,6 +125,7 @@ $(function() {
 						track = results[i].track_size;
 						filter= results[i].filter_choice == true ? 'Yes' : 'No';
 						privateselect = results[i].private == true ? 'Yes' : 'No';
+						registeredrunner = results[i].use_registered_athletes_only == true ? 'Yes' : 'No';
 						var sTS = UTC2local(results[i].start_time);
 						sTS = sTS.substring(0, 25);
 						var sTE = UTC2local(results[i].stop_time);
@@ -139,6 +141,7 @@ $(function() {
 								'<td class="hidden-xs hidden-sm">'+track+'</td>'+
 								'<td>'+filter+'</td>'+
 								'<td class="hidden-xs hidden-sm">'+privateselect+'</td>'+
+								'<th class="hidden-xs hidden-sm">'+registeredrunner+'</th>' +
 							'</tr>'
 						);
 					}
@@ -321,6 +324,7 @@ $(function() {
 				var size = $('input[id=size]').val();
 				var filter = $('input[name=filter]:checked').val() == 'yes';
 				var privateselect = $('input[name=private]:checked').val() == 'yes';
+				var registeredrunner = $('input[name=rr]:checked').val() == 'yes';
 
 				//*
 				$.ajax({
@@ -337,7 +341,8 @@ $(function() {
 						interval_distance: distance,
 						interval_number: '0',
 						filter_choice: filter,
-						private: privateselect
+						private: privateselect,
+						use_registered_athletes_only: registeredrunner,
 					},
 					success: function(data) {
 						// hide spinner
@@ -597,6 +602,11 @@ $(function() {
 		else
 			$('input#private-no').prop('checked', true);
 
+		if ($(data[8]).html() === 'Yes')
+			$('input#rr-yes').prop('checked', true);
+		else
+			$('input#rr-no').prop('checked', true);
+
 		// show corrent buttons
 		$('.session-form-buttons').hide();
 		$('#session-edit-buttons').show();
@@ -678,6 +688,7 @@ $(function() {
 			var size = $('input[id=size]').val();
 			var filter = $('input[name=filter]:checked').val() == 'yes';
 			var privateselect = $('input[name=private]:checked').val() == 'yes';
+			var registeredrunner = $('input[name=rr]:checked').val() == 'yes';
 
 			//*
 			$.ajax({
@@ -694,7 +705,8 @@ $(function() {
 					interval_distance: distance,
 					interval_number: '0',
 					filter_choice: filter,
-					private: privateselect
+					private: privateselect,
+					use_registered_athletes_only: registeredrunner,
 				},
 				success: function(data) {
 					// hide spinner
