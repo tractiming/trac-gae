@@ -8,7 +8,7 @@ from django.db.models.signals import pre_delete, post_delete
 from django.dispatch import receiver
 from django.utils import timezone
 
-from trac.utils.filter_util import get_filter_constant
+#from trac.utils.filter_util import get_filter_constant
 
 
 def _upload_to(instance, filename):
@@ -141,7 +141,7 @@ class TimingSession(models.Model):
     name = models.CharField(max_length=50)
     coach = models.ForeignKey(Coach)
     readers = models.ManyToManyField(Reader)
-    splits = models.ManyToManyField(Split)
+    splits = models.ManyToManyField(Split, through='SplitFilter')
 
     start_time = models.DateTimeField(default=timezone.now, blank=True)
     stop_time = models.DateTimeField(default=timezone.now, blank=True)
@@ -216,14 +216,19 @@ class TimingSession(models.Model):
 
         return (athlete['athlete_id'] for athlete in results)
 
+    #def _filter_splits(self, splits, min_split):
+    #    """Ignore sensor readings that are within `min_split` of the previous
+    #    reading.
+    #    """
+    #    filtered_splits = [split for split in splits[1:] if ]
+
     def _calc_athlete_splits(self, athlete_id, filter_s=None, use_cache=True,
                              min_split=None):
         """Calculate splits for a single athlete.
 
         First try to read results from the cache. If results are not found, get
         the tag and all its times. Iterate through times to calculate splits.
-        Save new (raw) results to cache. Apply filter at end. Note that
-        filtered results are not actually cached.
+        Save new (raw) results to cache.
 
         Returns namedtuple of (user id, name, team, splits, total_time)
         """
@@ -247,23 +252,30 @@ class TimingSession(models.Model):
             if self.start_button_time is not None:
                 times.insert(0, self.start_button_time)
 
+            # Filter out times that are within `min_split` of the previous
+            # timestamp.
+            if times and min_split is not None:
+                times = ([times[0]] +
+                         [t2 for t1, t2 in zip(times, times[:1])
+                          if (t2 - t1)/1000.0 >= min_split])
+
             interval = [round((t2 - t1)/1000.0, 3)
                         for t1, t2 in zip(times, times[1:])]
-            results = (athlete_id, name, athlete.team, interval)
+            results = (athlete_id, name, athlete.team, interval, sum(interval))
 
-            # Save to the cache. Store the unfiltered results so that if the
-            # filter choice is changed, we don't need to recalculate.
             if use_cache:
                 cache.set(('ts_%i_athlete_%i_results' %(self.id, athlete_id)),
                           results)
 
-        if min_split is not None:
-            interval = filter(lambda x: x >= min_split, results[-1])
-        else:
-            interval = results[-1]
+        return Results(*results)
 
-        return Results(results[0], results[1], results[2],
-                       interval, sum(interval))
+        #if min_split is not None:
+        #    interval = filter(lambda x: x >= min_split, results[-1])
+        #else:
+        #    interval = results[-1]
+
+        #return Results(results.user_id, results[1], results[2],
+        #               interval, sum(interval))
 
     def individual_results(self, limit=None, offset=None, gender=None,
                            age_lte=None, age_gte=None, teams=None,
@@ -293,8 +305,9 @@ class TimingSession(models.Model):
         if apply_filter is None:
             apply_filter = self.filter_choice
         if apply_filter:
-            min_split = get_filter_constant(self.interval_distance,
-                                            self.track_size)
+            min_split = 10.0
+            #min_split = get_filter_constant(self.interval_distance,
+            #                                self.track_size)
         else:
             min_split = None
 
@@ -467,6 +480,20 @@ class TimingSession(models.Model):
                                   time=final_time)
         self.splits.add(tt.pk)
         self.save()
+
+
+class SplitFilter(models.Model):
+    """
+    Extra information about whether a split should be filtered from the
+    results in a given session.
+    """
+    timingsession = models.ForeignKey(TimingSession)
+    split = models.ForeignKey(Split)
+    filtered = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = 'trac_timingsession_splits'
+        unique_together = ('timingsession', 'split')
 
 
 @receiver(pre_delete, sender=TimingSession,
