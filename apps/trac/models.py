@@ -156,6 +156,7 @@ class TimingSession(models.Model):
     interval_distance = models.IntegerField(default=200, blank=True)
     interval_number = models.IntegerField(default=0, blank=True)
     filter_choice = models.BooleanField(default=True)
+    filter_time = models.IntegerField(default=10, blank=True)
 
     def __unicode__(self):
         return "num={}, name={}, coach={}".format(
@@ -254,10 +255,10 @@ class TimingSession(models.Model):
 
             # Filter out times that are within `min_split` of the previous
             # timestamp.
-            if times and min_split is not None:
-                times = ([times[0]] +
-                         [t2 for t1, t2 in zip(times, times[:1])
-                          if (t2 - t1)/1000.0 >= min_split])
+            #if times and min_split is not None:
+            #    times = ([times[0]] +
+            #             [t2 for t1, t2 in zip(times, times[:1])
+            #              if (t2 - t1)/1000.0 >= min_split])
 
             interval = [round((t2 - t1)/1000.0, 3)
                         for t1, t2 in zip(times, times[1:])]
@@ -494,6 +495,22 @@ class SplitFilter(models.Model):
     class Meta:
         db_table = 'trac_timingsession_splits'
         unique_together = ('timingsession', 'split')
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            # If being created, determine if the split should be
+            # filtered in the results.
+            most_recent_time = self.timingsession.splits.filter(
+                athlete=self.split.athlete,
+                time__lte=self.split.time).aggregate(
+                models.Max('time'))['time__max']
+            if most_recent_time is None:
+                most_recent_time = self.timingsession.start_button_time
+            if most_recent_time is not None:
+                min_seconds = 1000*self.timingsession.filter_time
+                do_filter = (self.split.time - most_recent_time) < min_seconds
+                self.filtered = do_filter
+        return super(SplitFilter, self).save(*args, **kwargs)
 
 
 @receiver(pre_delete, sender=TimingSession,

@@ -6,7 +6,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from trac.models import (
-    TimingSession, Tag, Reader, Athlete, Coach, Team, Split
+    TimingSession, Tag, Reader, Athlete, Coach, Team, Split, SplitFilter
 )
 from trac.utils.user_util import (
     is_coach, is_athlete, user_type, random_username,
@@ -261,6 +261,17 @@ class ScoringSerializer(serializers.ModelSerializer):
         fields = ('id', 'name')
 
 
+class SplitFilterSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SplitFilter
+        fields = ('id', 'filtered', 'timingsession')
+        read_only_fields = ('filtered',)# 'split')
+
+    #def create(self, validated_data):
+    #    import ipdb; ipdb.set_trace()
+
+
 class SplitSerializer(FilterRelatedMixin, serializers.ModelSerializer):
     reader = serializers.SlugRelatedField(slug_field='id_str',
                                           allow_null=True,
@@ -312,25 +323,36 @@ class SplitSerializer(FilterRelatedMixin, serializers.ModelSerializer):
         # tag. The validator ensures either the tag or the athlete is given.
         if validated_data['athlete'] is None:
             validated_data['athlete'] = validated_data['tag'].athlete
+        #import ipdb; ipdb.set_trace()
 
+        # Since we are using a custom "through" model between `Split` and
+        # `Session`, we must link the two manually by creating a `SplitFilter`
+        # object instead of letting DRF use the `.add()` method.
+        session_set = validated_data.pop('timingsession_set', [])
         split = super(SplitSerializer, self).create(validated_data)
 
         # If the session(s) is not given explicitly, add splits to sessions
         # based on the reader's active sessions.
-        if not split.timingsession_set.exists() and split.reader is not None:
-            sessions = split.reader.active_sessions
-            for session in sessions:
+        if not session_set and split.reader is not None:
+            sessions = []
+            for session in split.reader.active_sessions:
                 # If the session has a set of registered athletes, and the
                 # current tag is not in that set, ignore the split.
                 if (session.use_registered_athletes_only and
                         split.athlete not in
                         session.registered_athletes.all()):
                     continue
-                session.splits.add(split.pk)
+                sessions.append(session)
         else:
-            sessions = split.timingsession_set.all()
+            sessions = session_set
+        #import ipdb; ipdb.set_trace()
 
         for session in sessions:
+            # Add the split to the session by creating a row in the "through"
+            # table. The decision of whether to filter the split is determined
+            # on save.
+            SplitFilter.objects.create(split=split, timingsession=session)
+
             # Destroying the cache for this session will force the results
             # to be recalculated. Athlete is a required field on split, so
             # the id will always exist.

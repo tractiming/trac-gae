@@ -86,6 +86,7 @@ class SplitViewSet(viewsets.ModelViewSet):
         log.debug("Create split meta: %s", request.META)
         _convert_times(request.data)
         is_many = isinstance(request.data, list)
+        #import ipdb; ipdb.set_trace()
         if not is_many:
             return super(SplitViewSet, self).create(request, *args, **kwargs)
         else:

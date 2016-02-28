@@ -749,30 +749,196 @@
         "stop_time": "2015-08-28T03:47:28Z",
         "rest_time": 0,
         "track_size": 400,
-        "interval_number": 0,
-        "splits": [
-            101,
-            102,
-            103,
-            104,
-            105,
-            106,
-            107,
-            108,
-            109,
-            110,
-            111,
-            112,
-            113,
-            114,
-            115,
-            116,
-            117,
-            118,
-            119,
-            120,
-            121
-        ]
+        "interval_number": 0
+    }
+},
+{
+    "pk": 101,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 101,
+        "split": 101
+    }
+},
+{
+    "pk": 102,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 101,
+        "split": 102
+    }
+},
+{
+    "pk": 103,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 101,
+        "split": 103
+    }
+},
+{
+    "pk": 104,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 101,
+        "split": 104
+    }
+},
+{
+    "pk": 105,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 101,
+        "split": 105
+    }
+},
+{
+    "pk": 106,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 101,
+        "split": 106
+    }
+},
+{
+    "pk": 107,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 101,
+        "split": 107
+    }
+},
+{
+    "pk": 108,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 101,
+        "split": 108
+    }
+},
+{
+    "pk": 109,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 101,
+        "split": 109
+    }
+},
+{
+    "pk": 110,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 101,
+        "split": 110
+    }
+},
+{
+    "pk": 111,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 101,
+        "split": 111
+    }
+},
+{
+    "pk": 112,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 101,
+        "split": 112
+    }
+},
+{
+    "pk": 113,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 101,
+        "split": 113
+    }
+},
+{
+    "pk": 114,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 101,
+        "split": 114
+    }
+},
+{
+    "pk": 115,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 101,
+        "split": 115
+    }
+},
+{
+    "pk": 116,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 101,
+        "split": 116
+    }
+},
+{
+    "pk": 117,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 101,
+        "split": 117
+    }
+},
+{
+    "pk": 118,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 101,
+        "split": 118
+    }
+},
+{
+    "pk": 119,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 101,
+        "split": 119
+    }
+},
+{
+    "pk": 120,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 101,
+        "split": 120
+    }
+},
+{
+    "pk": 121,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 101,
+        "split": 121
     }
 }
 ]

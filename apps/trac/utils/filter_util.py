@@ -1,3 +1,6 @@
+from django.db.models import Max
+from trac.models import Split
+
 def get_filter_constant(interval_distance, track_size):
     """Given a track size and distance, determine the minimum allowable
     split duration.
@@ -41,3 +44,13 @@ def get_sec(num):
 
 def get_sec_ms(num):
     return get_sec(num), get_ms(num)
+
+def get_filter_choice(session_pk, athlete_pk, new_time, min_split=10.0):
+    """Determine whether or not a new split should be filtered. If the
+    new split is within `min_time` of the previous most recent time, return
+    True, otherwise False.
+    """
+    most_recent_time = Split.objects.filter(
+        timingsession=session_pk,
+        athlete=athlete_pk).aggregate(Max('time'))['time__max']
+    return (new_time - most_recent_time) >= 1000*min_split

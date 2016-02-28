@@ -6,7 +6,7 @@ from django.utils import timezone
 
 import trac.models
 from trac.models import (
-    Athlete, Coach, User, Reader, TimingSession, Split, Tag
+    Athlete, Coach, User, Reader, TimingSession, Split, Tag, SplitFilter
 )
 
 class ReaderTestCase(TestCase):
@@ -104,7 +104,7 @@ class TimingSessionTestCase(TestCase):
         session1 = TimingSession.objects.get(pk=1)
         session2 = TimingSession.objects.create(name='Second session',
                                                 coach=Coach.objects.all()[0])
-        session2.splits.add(split.pk)
+        SplitFilter.objects.create(timingsession=session2, split=split)
 
         # Clear split from session one. Split still exists and belongs to
         # session two.
@@ -201,3 +201,42 @@ class TimingSessionTestCase(TestCase):
                          Split.objects.exclude(timingsession=1).count())
 
 
+class SplitFilterTestCase(TestCase):
+
+    def setUp(self):
+        user1 = User.objects.create(username='lpuskedra')
+        user2 = User.objects.create(username='self')
+        self.athlete = Athlete.objects.create(user=user1)
+        self.session = TimingSession.objects.create(
+            name='A', coach=Coach.objects.create(user=user2))
+        self.split1 = Split.objects.create(time=0, athlete=self.athlete)
+        self.split2 = Split.objects.create(time=12000, athlete=self.athlete)
+        self.split3 = Split.objects.create(time=20000, athlete=self.athlete)
+
+    def test_create_no_times(self):
+        """Test that a split for an athlete with no time isn't filtered."""
+        split = SplitFilter.objects.create(timingsession=self.session,
+                                   split=self.split1)
+        self.assertTrue(self.session.splits.filter(
+            splitfilter__filtered=False).exists())
+        self.assertFalse(split.filtered)
+
+    def test_create_filter(self):
+        """Test correct filter is chosen based on time threshold."""
+        split1 = SplitFilter.objects.create(timingsession=self.session,
+                                            split=self.split1)
+        split2 = SplitFilter.objects.create(timingsession=self.session,
+                                            split=self.split2)
+        split3 = SplitFilter.objects.create(timingsession=self.session,
+                                            split=self.split3)
+        self.assertFalse(split1.filtered)
+        self.assertFalse(split2.filtered)
+        self.assertTrue(split3.filtered)
+
+    def test_create_start_button(self):
+        """Test that filtering uses the start button if present."""
+        self.session.start_button_time = 10000
+        self.session.save()
+        split = SplitFilter.objects.create(timingsession=self.session,
+                                           split=self.split2)
+        self.assertTrue(split.filtered)
