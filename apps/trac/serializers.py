@@ -261,17 +261,6 @@ class ScoringSerializer(serializers.ModelSerializer):
         fields = ('id', 'name')
 
 
-class SplitFilterSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = SplitFilter
-        fields = ('id', 'filtered', 'timingsession')
-        read_only_fields = ('filtered',)# 'split')
-
-    #def create(self, validated_data):
-    #    import ipdb; ipdb.set_trace()
-
-
 class SplitSerializer(FilterRelatedMixin, serializers.ModelSerializer):
     reader = serializers.SlugRelatedField(slug_field='id_str',
                                           allow_null=True,
@@ -323,7 +312,6 @@ class SplitSerializer(FilterRelatedMixin, serializers.ModelSerializer):
         # tag. The validator ensures either the tag or the athlete is given.
         if validated_data['athlete'] is None:
             validated_data['athlete'] = validated_data['tag'].athlete
-        #import ipdb; ipdb.set_trace()
 
         # Since we are using a custom "through" model between `Split` and
         # `Session`, we must link the two manually by creating a `SplitFilter`
@@ -345,7 +333,6 @@ class SplitSerializer(FilterRelatedMixin, serializers.ModelSerializer):
                 sessions.append(session)
         else:
             sessions = session_set
-        #import ipdb; ipdb.set_trace()
 
         for session in sessions:
             # Add the split to the session by creating a row in the "through"
