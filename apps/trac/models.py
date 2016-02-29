@@ -153,8 +153,10 @@ class TimingSession(models.Model):
     track_size = models.IntegerField(default=400, blank=True)
     interval_distance = models.IntegerField(default=200, blank=True)
     interval_number = models.IntegerField(default=0, blank=True)
+
     filter_choice = models.BooleanField(default=True)
     filter_time = models.IntegerField(default=10, blank=True)
+    filter_max_num_splits = models.IntegerField(null=True, blank=True)
 
     def __unicode__(self):
         return "num={}, name={}, coach={}".format(
