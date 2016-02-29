@@ -488,17 +488,25 @@ class SplitFilter(models.Model):
 
     def determine_filter(self, min_time=None):
         """Determine if a split should be filtered from the results."""
-        most_recent_time = self.timingsession.splits.filter(
-            athlete=self.split.athlete, time__lt=self.split.time).aggregate(
-            models.Max('time'))['time__max']
+        previous_splits = self.timingsession.splits.filter(
+            athlete=self.split.athlete,
+            time__lt=self.split.time)
+        most_recent_time = (previous_splits.aggregate(models.Max('time')).get(
+            'time__max') or self.timingsession.start_button_time)
 
-        if most_recent_time is None:
-            most_recent_time = self.timingsession.start_button_time
         if most_recent_time is not None:
             min_seconds = min_time or 1000*self.timingsession.filter_time
-            return (self.split.time - most_recent_time) < min_seconds
+            time_filter = (self.split.time - most_recent_time) < min_seconds
+        else:
+            time_filter = False
 
-        return False
+        max_num = self.timingsession.filter_max_num_splits
+        if max_num is not None:
+            num_filter = previous_splits.count() >= max_num
+        else:
+            num_filter = False
+
+        return (time_filter or num_filter)
 
     def save(self, *args, **kwargs):
         if not self.pk:

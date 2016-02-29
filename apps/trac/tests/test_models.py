@@ -3,7 +3,6 @@ import datetime
 import mock
 from django.test import TestCase
 from django.utils import timezone
-
 import trac.models
 from trac.models import (
     Athlete, Coach, User, Reader, TimingSession, Split, Tag, SplitFilter
@@ -243,3 +242,14 @@ class SplitFilterTestCase(TestCase):
         split = SplitFilter.objects.create(timingsession=self.session,
                                            split=self.split2)
         self.assertTrue(split.filtered)
+
+    def test_max_num_splits_filter(self):
+        """Test filtering based on a maximum number of splits."""
+        self.session.filter_max_num_splits = 1
+        self.session.save()
+        split1 = SplitFilter.objects.create(timingsession=self.session,
+                                            split=self.split1)
+        split2 = SplitFilter.objects.create(timingsession=self.session,
+                                            split=self.split2)
+        self.assertFalse(split1.filtered)
+        self.assertTrue(split2.filtered)
