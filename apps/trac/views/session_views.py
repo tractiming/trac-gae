@@ -250,6 +250,10 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             description: Whether or not the athlete has recorded a time
             required: true
             type: boolean
+          first_seen:
+            description: First time this athlete was recorded in the session
+            required: true
+            type: string
         """
         teams = _query_to_list(request.query_params.get('teams', None))
         athletes = _query_to_list(request.query_params.get('athletes', None))
@@ -308,7 +312,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                 'id': result.user_id,
                 'splits': [[str(split)] for split in result.splits],
                 'total': str(result.total),
-                'has_split': result in raw_results
+                'has_split': result in raw_results,
+                'first_seen': result.first_seen
             }
             results['results'].append(individual_result)
 
