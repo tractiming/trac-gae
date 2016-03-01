@@ -1,5 +1,4 @@
 import datetime
-
 import mock
 from django.test import TestCase
 from django.utils import timezone
@@ -201,6 +200,24 @@ class TimingSessionTestCase(TestCase):
         self.session.delete()
         self.assertEqual(Split.objects.all().count(),
                          Split.objects.exclude(timingsession=1).count())
+
+    def test_overwrite_final_time(self):
+        """Test overwriting an athlete's final time."""
+        session = TimingSession.objects.create(coach=self.session.coach,
+                                               name='test')
+        athlete = Athlete.objects.first()
+        session._overwrite_final_time(athlete.id, 1, 2, 3, 456)
+        results = session.individual_results()
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].total,
+                         (1*3600000 + 2*60000 + 3*1000 + 456)/1000.0)
+
+    def test_delete_splits(self):
+        """Test deleting splits from an athlete's results."""
+        athlete = Athlete.objects.get(user__username='clevins')
+        self.session._delete_split(athlete.pk, 0)
+        results = self.session.individual_results()
+        self.assertEqual(results[0].splits, [195.58])
 
 
 class SplitFilterTestCase(TestCase):
