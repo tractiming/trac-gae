@@ -1,12 +1,10 @@
 import datetime
-
 import mock
 from django.test import TestCase
 from django.utils import timezone
-
 import trac.models
 from trac.models import (
-    Athlete, Coach, User, Reader, TimingSession, Split, Tag
+    Athlete, Coach, User, Reader, TimingSession, Split, Tag, SplitFilter
 )
 
 class ReaderTestCase(TestCase):
@@ -104,7 +102,7 @@ class TimingSessionTestCase(TestCase):
         session1 = TimingSession.objects.get(pk=1)
         session2 = TimingSession.objects.create(name='Second session',
                                                 coach=Coach.objects.all()[0])
-        session2.splits.add(split.pk)
+        SplitFilter.objects.create(timingsession=session2, split=split)
 
         # Clear split from session one. Split still exists and belongs to
         # session two.
@@ -147,20 +145,23 @@ class TimingSessionTestCase(TestCase):
         res_1 = self.session._calc_athlete_splits(1)
         mock_cache.get.assert_called_with('ts_1_athlete_1_results')
         mock_cache.set.assert_called_with('ts_1_athlete_1_results',
-                (res_1.user_id, res_1.name, res_1.team, res_1.splits))
+                (res_1.user_id, res_1.name, res_1.team, res_1.splits,
+                 res_1.total))
         self.assertListEqual(res_1.splits, [122.003, 197.237, 69.805])
         self.assertEqual(sum(res_1.splits), res_1.total)
 
         res_2 = self.session._calc_athlete_splits(2)
         mock_cache.get.assert_called_with('ts_1_athlete_2_results')
         mock_cache.set.assert_called_with('ts_1_athlete_2_results',
-                (res_2.user_id, res_2.name, res_2.team, res_2.splits))
+                (res_2.user_id, res_2.name, res_2.team, res_2.splits,
+                 res_2.total))
         self.assertListEqual(res_2.splits, [123.021, 195.58])
         self.assertEqual(sum(res_2.splits), res_2.total)
 
     def test_splits_with_filter(self):
         """Test calculating splits while ignoring some."""
         session = TimingSession.objects.get(pk=2)
+        session.refresh_split_filters()
         results = session.individual_results(apply_filter=True)
         # Check that last split gets filtered out.
         self.assertEqual(len(results[0].splits), 1)
@@ -200,4 +201,72 @@ class TimingSessionTestCase(TestCase):
         self.assertEqual(Split.objects.all().count(),
                          Split.objects.exclude(timingsession=1).count())
 
+    def test_overwrite_final_time(self):
+        """Test overwriting an athlete's final time."""
+        session = TimingSession.objects.create(coach=self.session.coach,
+                                               name='test')
+        athlete = Athlete.objects.first()
+        session._overwrite_final_time(athlete.id, 1, 2, 3, 456)
+        results = session.individual_results()
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].total,
+                         (1*3600000 + 2*60000 + 3*1000 + 456)/1000.0)
 
+    def test_delete_splits(self):
+        """Test deleting splits from an athlete's results."""
+        athlete = Athlete.objects.get(user__username='clevins')
+        self.session._delete_split(athlete.pk, 0)
+        results = self.session.individual_results()
+        self.assertEqual(results[0].splits, [195.58])
+
+
+class SplitFilterTestCase(TestCase):
+
+    def setUp(self):
+        user1 = User.objects.create(username='lpuskedra')
+        user2 = User.objects.create(username='self')
+        self.athlete = Athlete.objects.create(user=user1)
+        self.session = TimingSession.objects.create(
+            name='A', coach=Coach.objects.create(user=user2))
+        self.split1 = Split.objects.create(time=0, athlete=self.athlete)
+        self.split2 = Split.objects.create(time=12000, athlete=self.athlete)
+        self.split3 = Split.objects.create(time=20000, athlete=self.athlete)
+
+    def test_create_no_times(self):
+        """Test that a split for an athlete with no time isn't filtered."""
+        split = SplitFilter.objects.create(timingsession=self.session,
+                                   split=self.split1)
+        self.assertTrue(self.session.splits.filter(
+            splitfilter__filtered=False).exists())
+        self.assertFalse(split.filtered)
+
+    def test_create_filter(self):
+        """Test correct filter is chosen based on time threshold."""
+        split1 = SplitFilter.objects.create(timingsession=self.session,
+                                            split=self.split1)
+        split2 = SplitFilter.objects.create(timingsession=self.session,
+                                            split=self.split2)
+        split3 = SplitFilter.objects.create(timingsession=self.session,
+                                            split=self.split3)
+        self.assertFalse(split1.filtered)
+        self.assertFalse(split2.filtered)
+        self.assertTrue(split3.filtered)
+
+    def test_create_start_button(self):
+        """Test that filtering uses the start button if present."""
+        self.session.start_button_time = 10000
+        self.session.save()
+        split = SplitFilter.objects.create(timingsession=self.session,
+                                           split=self.split2)
+        self.assertTrue(split.filtered)
+
+    def test_max_num_splits_filter(self):
+        """Test filtering based on a maximum number of splits."""
+        self.session.filter_max_num_splits = 1
+        self.session.save()
+        split1 = SplitFilter.objects.create(timingsession=self.session,
+                                            split=self.split1)
+        split2 = SplitFilter.objects.create(timingsession=self.session,
+                                            split=self.split2)
+        self.assertFalse(split1.filtered)
+        self.assertTrue(split2.filtered)

@@ -23,7 +23,9 @@ from rest_framework.parsers import FileUploadParser
 
 from backends._gcs import gcs_writer, get_public_link
 from trac.filters import TimingSessionFilter
-from trac.models import TimingSession, Reader, Tag, Split, Team, Athlete
+from trac.models import (
+    TimingSession, Reader, Tag, Split, Team, Athlete, SplitFilter
+)
 from trac.serializers import (
     TimingSessionSerializer, AthleteSerializer,
     IndividualResultsQuerySerializer
@@ -405,7 +407,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             for split in splits:
                 time += split*1000
                 new_split = Split.objects.create(athlete=athlete, time=time)
-                session.splits.add(new_split.pk)
+                SplitFilter.objects.create(timingsession=session,
+                                           split=new_split)
 
         session.save()
         return Response(status=status.HTTP_201_CREATED)
@@ -880,6 +883,7 @@ def edit_split(request):
                                  int(data['min']), int(data['sec']),
                                  int(data['mil']))
     else:
-        return Response({}, status=status.HTTP_404_NOT_FOUND)
-
-    return Response({}, status=status.HTTP_202_ACCEPTED)
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    ts.clear_cache(athlete.id)
+    return Response(status=status.HTTP_202_ACCEPTED)

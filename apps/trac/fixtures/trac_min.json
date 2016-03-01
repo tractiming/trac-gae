@@ -41,198 +41,191 @@
     }
 },
 {
-    "pk": 1, 
-    "model": "trac.coach", 
+    "pk": 1,
+    "model": "trac.coach",
     "fields": {
-        "user": 1, 
+        "user": 1,
         "payment": null
     }
 },
 {
-    "pk": 2, 
-    "model": "trac.coach", 
+    "pk": 2,
+    "model": "trac.coach",
     "fields": {
-        "user": 4, 
+        "user": 4,
         "payment": null
     }
 },
 {
-    "pk": 1, 
-    "model": "trac.team", 
+    "pk": 1,
+    "model": "trac.team",
     "fields": {
-        "tfrrs_code": "", 
-        "coach": 1, 
+        "tfrrs_code": "",
+        "coach": 1,
         "name": "Nike",
         "primary_team": true,
         "public_team": false
     }
 },
 {
-    "pk": 1, 
-    "model": "trac.athlete", 
+    "pk": 1,
+    "model": "trac.athlete",
     "fields": {
-        "gender": null, 
-        "team": 1, 
-        "user": 2, 
-        "year": null, 
-        "birth_date": null, 
+        "gender": null,
+        "team": 1,
+        "user": 2,
+        "year": null,
+        "birth_date": null,
         "tfrrs_id": null
     }
 },
 {
-    "pk": 2, 
-    "model": "trac.athlete", 
+    "pk": 2,
+    "model": "trac.athlete",
     "fields": {
-        "gender": "M", 
-        "team": 1, 
-        "user": 3, 
-        "year": null, 
-        "birth_date": "1990-05-26", 
+        "gender": "M",
+        "team": 1,
+        "user": 3,
+        "year": null,
+        "birth_date": "1990-05-26",
         "tfrrs_id": null
     }
 },
 {
-    "pk": 1, 
-    "model": "trac.tag", 
+    "pk": 1,
+    "model": "trac.tag",
     "fields": {
-        "athlete": 1, 
+        "athlete": 1,
         "id_str": "AAAA 0001"
     }
 },
 {
-    "pk": 2, 
-    "model": "trac.tag", 
+    "pk": 2,
+    "model": "trac.tag",
     "fields": {
-        "athlete": 2, 
+        "athlete": 2,
         "id_str": "AAAA 0002"
     }
 },
 {
-    "pk": 1, 
-    "model": "trac.reader", 
+    "pk": 1,
+    "model": "trac.reader",
     "fields": {
-        "coach": 1, 
-        "name": "Alien 1", 
+        "coach": 1,
+        "name": "Alien 1",
         "id_str": "A1010"
     }
 },
 {
-    "pk": 2, 
-    "model": "trac.reader", 
+    "pk": 2,
+    "model": "trac.reader",
     "fields": {
-        "coach": 1, 
-        "name": "Alien 2", 
+        "coach": 1,
+        "name": "Alien 2",
         "id_str": "A1011"
     }
 },
 {
-    "pk": 3, 
-    "model": "trac.reader", 
+    "pk": 3,
+    "model": "trac.reader",
     "fields": {
-        "coach": 2, 
-        "name": "Alien 3", 
+        "coach": 2,
+        "name": "Alien 3",
         "id_str": "A1012"
     }
 },
 {
-    "pk": 1, 
-    "model": "trac.split", 
+    "pk": 1,
+    "model": "trac.split",
     "fields": {
-        "athlete": 1, 
-        "tag": 1, 
+        "athlete": 1,
+        "tag": 1,
         "time": 1440647434003,
         "reader": 1
     }
 },
 {
-    "pk": 2, 
-    "model": "trac.split", 
+    "pk": 2,
+    "model": "trac.split",
     "fields": {
-        "athlete": 2, 
-        "tag": 2, 
+        "athlete": 2,
+        "tag": 2,
         "time": 1440647435021,
         "reader": 1
     }
 },
 {
-    "pk": 3, 
-    "model": "trac.split", 
+    "pk": 3,
+    "model": "trac.split",
     "fields": {
-        "athlete": 2, 
-        "tag": 2, 
+        "athlete": 2,
+        "tag": 2,
         "time": 1440647630601,
         "reader": 2
     }
 },
 {
-    "pk": 4, 
-    "model": "trac.split", 
+    "pk": 4,
+    "model": "trac.split",
     "fields": {
-        "athlete": 1, 
-        "tag": 1, 
+        "athlete": 1,
+        "tag": 1,
         "time": 1440647631240,
         "reader": 2
     }
 },
 {
-    "pk": 5, 
-    "model": "trac.split", 
+    "pk": 5,
+    "model": "trac.split",
     "fields": {
-        "athlete": 1, 
-        "tag": 1, 
+        "athlete": 1,
+        "tag": 1,
         "time": 1440647701045,
         "reader": 1
     }
 },
 {
     "pk": 6,
-    "model": "trac.split", 
+    "model": "trac.split",
     "fields": {
-        "athlete": 2, 
-        "tag": 1, 
+        "athlete": 2,
+        "tag": 1,
         "time": 1440647701047,
         "reader": 1
     }
 },
 {
     "pk": 7,
-    "model": "trac.split", 
+    "model": "trac.split",
     "fields": {
-        "athlete": 2, 
-        "tag": 1, 
+        "athlete": 2,
+        "tag": 1,
         "time": 1440647703047,
         "reader": 1
     }
 },
 {
-    "pk": 1, 
-    "model": "trac.timingsession", 
+    "pk": 1,
+    "model": "trac.timingsession",
     "fields": {
-        "comment": "", 
-        "coach": 1, 
-        "name": "60 x 400m", 
+        "comment": "",
+        "coach": 1,
+        "name": "60 x 400m",
         "readers": [
             1,
             2
-        ], 
-        "use_registered_athletes_only": false, 
-        "start_time": "2015-08-27T03:47:28Z", 
-        "registered_athletes": [], 
-        "private": false, 
-        "filter_choice": false, 
-        "interval_distance": 400, 
-        "start_button_time": 1440647312000, 
-        "stop_time": "2015-08-28T03:47:28Z", 
-        "rest_time": 0, 
-        "track_size": 400, 
-        "interval_number": 0, 
-        "splits": [
-            1,
-            2,
-            3,
-            4,
-            5
-        ]
+        ],
+        "use_registered_athletes_only": false,
+        "start_time": "2015-08-27T03:47:28Z",
+        "registered_athletes": [],
+        "private": false,
+        "filter_choice": false,
+        "interval_distance": 400,
+        "start_button_time": 1440647312000,
+        "stop_time": "2015-08-28T03:47:28Z",
+        "rest_time": 0,
+        "track_size": 400,
+        "interval_number": 0
     }
 },
 {
@@ -251,15 +244,74 @@
         "private": true,
         "filter_choice": false,
         "interval_distance": 1609,
-        "start_button_time": 1440647312000, 
-        "stop_time": "2015-10-11T01:32:39Z", 
-        "rest_time": 0, 
+        "start_button_time": 1440647312000,
+        "stop_time": "2015-10-11T01:32:39Z",
+        "rest_time": 0,
         "track_size": 1609,
-        "interval_number": 0, 
-        "splits": [
-            6,
-            7
-        ]
+        "interval_number": 0
+    }
+},
+{
+    "pk": 1,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 1,
+        "split": 1
+    }
+},
+{
+    "pk": 2,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 1,
+        "split": 2
+    }
+},
+{
+    "pk": 3,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 1,
+        "split": 3
+    }
+},
+{
+    "pk": 4,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 1,
+        "split": 4
+    }
+},
+{
+    "pk": 5,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 1,
+        "split": 5
+    }
+},
+{
+    "pk": 6,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 2,
+        "split": 6
+    }
+},
+{
+    "pk": 7,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 2,
+        "split": 7
     }
 },
 {
