@@ -883,6 +883,7 @@ def edit_split(request):
                                  int(data['min']), int(data['sec']),
                                  int(data['mil']))
     else:
-        return Response({}, status=status.HTTP_404_NOT_FOUND)
-
-    return Response({}, status=status.HTTP_202_ACCEPTED)
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    ts.clear_cache(athlete.id)
+    return Response(status=status.HTTP_202_ACCEPTED)
