@@ -247,7 +247,8 @@ class TimingSession(models.Model):
         else:
             results = None
 
-        Results = namedtuple('Results', 'user_id name team splits total')
+        Results = namedtuple('Results',
+                             'user_id name team splits total first_seen')
         if not results:
             athlete = Athlete.objects.get(id=athlete_id)
             name = athlete.user.get_full_name() or athlete.user.username
@@ -265,7 +266,15 @@ class TimingSession(models.Model):
             splits = [
                 round((t2 - t1)/1000.0, 3) for t1, t2 in zip(times, times[1:])
             ]
-            results = (athlete_id, name, athlete.team, splits, sum(splits))
+
+            if len(times) > 0:
+                raw_time = timezone.datetime.utcfromtimestamp(times[0]/1000.0)
+                first_seen = raw_time.strftime("%Y/%m/%d %H:%M:%S.%f")[:-3]
+            else:
+                first_seen = None
+
+            results = (athlete_id, name, athlete.team, splits,
+                       sum(splits), first_seen)
 
             if use_cache:
                 cache.set(('ts_%i_athlete_%i_results' %(self.id, athlete_id)),

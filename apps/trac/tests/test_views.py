@@ -339,7 +339,8 @@ class TimingSessionViewSetTest(APITestCase):
         """Test retrieving individual results."""
         user = User.objects.get(username='alsal')
         self.client.force_authenticate(user=user)
-        resp = self.client.get('/api/sessions/1/individual_results/', format='json')
+        resp = self.client.get('/api/sessions/1/individual_results/',
+                               format='json')
         self.assertEqual(resp.status_code, 200)
 
     def test_edit_denied_public_session(self):
@@ -575,6 +576,53 @@ class TimingSessionViewSetTest(APITestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['num_returned'], 1)
         self.assertEqual(resp.data['results'][0]['id'], 1)
+
+    def test_individual_results_first_seen(self):
+        """Test getting the first time an athlete was seen."""
+        coach = Coach.objects.get(user__username='alsal')
+        session = TimingSession.objects.create(coach=coach, name='test')
+        self.client.force_authenticate(user=coach.user)
+        split_time = '2015/01/01 01:01:01.123'
+        self.client.post(
+            '/api/splits/',
+            data=json.dumps({
+                'reader': None,
+                'athlete': 1,
+                'time': split_time,
+                'tag': None,
+                'sessions': [session.pk]}),
+            content_type='application/json')
+        resp = self.client.get('/api/sessions/{}/individual_results/'
+                               '?athletes=1'.format(session.pk),
+                               format='json')
+        self.assertEqual(resp.data['results'][0]['first_seen'], split_time)
+
+    def test_individual_results_first_seen_start_button(self):
+        """Test the case where the first seen time is the start button."""
+        coach = Coach.objects.get(user__username='alsal')
+        session = TimingSession.objects.create(coach=coach, name='test')
+
+        start_time = '2015/01/01 01:01:01.123'
+        stamp = timezone.datetime.strptime(start_time, '%Y/%m/%d %H:%M:%S.%f')
+        epoch = timezone.datetime(1970, 1, 1)
+        session.start_button_time = int((stamp-epoch).total_seconds()*1000)
+        session.save()
+
+        self.client.force_authenticate(user=coach.user)
+        resp = self.client.get('/api/sessions/{}/individual_results/'
+                               '?athletes=1'.format(session.pk),
+                               format='json')
+        self.assertEqual(resp.data['results'][0]['first_seen'], start_time)
+
+    def test_individual_results_first_seen_none(self):
+        """Test first seen with no splits and no start button."""
+        coach = Coach.objects.get(user__username='alsal')
+        session = TimingSession.objects.create(coach=coach, name='test')
+        self.client.force_authenticate(user=coach.user)
+        resp = self.client.get('/api/sessions/{}/individual_results/'
+                               '?athletes=1'.format(session.pk),
+                               format='json')
+        self.assertIsNone(resp.data['results'][0]['first_seen'])
 
 
 class SplitViewSetTest(APITestCase):
