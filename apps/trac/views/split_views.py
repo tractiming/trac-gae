@@ -9,6 +9,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 
+from notifications.decorators import do_maybe_notification
 from trac.filters import SplitFilter
 from trac.models import Split
 from trac.serializers import SplitSerializer
@@ -79,6 +80,7 @@ class SplitViewSet(viewsets.ModelViewSet):
         """Filter splits by athlete, session, tag or time."""
         return Split.objects.all()
 
+    @do_maybe_notification
     def create(self, request, *args, **kwargs):
         # https://stackoverflow.com/questions/22881067/
         # django-rest-framework-post-array-of-objects

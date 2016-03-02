@@ -28,6 +28,7 @@ setuptools==18.2
 shortuuid==0.4.2
 six==1.9.0
 stripe==1.27.1
+twilio==5.2.0
 wsgiref==0.1.2
 xlrd==0.9.4
 -e git://github.com/elliothevel/django-rest-framework-stripe.git@api-updates#egg=rest-framework-stripe
