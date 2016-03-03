@@ -18,8 +18,8 @@ _table_template = """\
 
 _row_template = """\
 <tr>
-    <td align="center">{name}</td>
-    <td align="center">{time}</td>
+    <td align="center">{Name}</td>
+    <td align="center">{Time}</td>
 </tr>
 """
 
