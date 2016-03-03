@@ -782,6 +782,8 @@ class SplitViewSetTest(APITestCase):
         public_splits = Split.objects.filter(timingsession__private=False)
         resp = self.client.get('/api/splits/')
         self.assertEqual(resp.status_code, 200)
+        self.assertEqual([split['id'] for split in resp.data],
+                         list(public_splits.values_list('id', flat=True)))
 
     def test_auth_view_splits(self):
         """Test that a coach can access splits that are in his sessions."""
@@ -790,6 +792,8 @@ class SplitViewSetTest(APITestCase):
         self.client.force_authenticate(user=coach.user)
         resp = self.client.get('/api/splits/')
         self.assertEqual(resp.status_code, 200)
+        self.assertEqual([split['id'] for split in resp.data],
+                         list(coach_splits.values_list('id', flat=True)))
 
 
 class UserViewSetTest(APITestCase):
