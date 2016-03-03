@@ -777,6 +777,20 @@ class SplitViewSetTest(APITestCase):
         # athlete.
         mock_clear.assert_has_calls([mock.call(1), mock.call(1)])
 
+    def test_anon_view_public_splits(self):
+        """Test that anyone can view splits from public sessions."""
+        public_splits = Split.objects.filter(timingsession__private=False)
+        resp = self.client.get('/api/splits/')
+        self.assertEqual(resp.status_code, 200)
+
+    def test_auth_view_splits(self):
+        """Test that a coach can access splits that are in his sessions."""
+        coach = Coach.objects.get(user__username='alsal')
+        coach_splits = Split.objects.filter(timingsession__coach=coach)
+        self.client.force_authenticate(user=coach.user)
+        resp = self.client.get('/api/splits/')
+        self.assertEqual(resp.status_code, 200)
+
 
 class UserViewSetTest(APITestCase):
 
