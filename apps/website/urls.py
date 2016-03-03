@@ -53,6 +53,8 @@ urlpatterns = patterns('',
         name='privacy'),
     url(r'^terms', TemplateView.as_view(template_name='terms.html'),
         name='terms'),
+    url(r'^messaging', TemplateView.as_view(template_name='messaging.html'),
+        name='messaging'),
 
     url(r'^payments/change_card',
         TemplateView.as_view(template_name='change_card.html'),
