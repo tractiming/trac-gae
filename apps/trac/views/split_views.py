@@ -13,6 +13,7 @@ from notifications.decorators import do_maybe_notification
 from trac.filters import SplitFilter
 from trac.models import Split
 from trac.serializers import SplitSerializer
+from trac.utils.user_util import is_athlete, is_coach
 
 
 log = logging.getLogger(__name__)
@@ -77,8 +78,17 @@ class SplitViewSet(viewsets.ModelViewSet):
     throttle_scope = 'splits'
 
     def get_queryset(self):
-        """Filter splits by athlete, session, tag or time."""
-        return Split.objects.all()
+        """Coaches can view all splits from sessions they create. Athletes
+        can view all of their own splits. Anonymous users have read
+        access to all splits belonging to public sessions.
+        """
+        user = self.request.user
+        if is_athlete(user):
+            return Split.objects.filter(athlete__user=user).distinct()
+        elif is_coach(user):
+            return Split.objects.filter(timingsession__coach=user.coach)
+        else:
+            return Split.objects.filter(timingsession__private=False)
 
     @do_maybe_notification
     def create(self, request, *args, **kwargs):

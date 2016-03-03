@@ -282,14 +282,20 @@ class SplitSerializer(FilterRelatedMixin, serializers.ModelSerializer):
         if 'request' in self.context:
             user = self.context['request'].user
             if not user.is_superuser:
-                queryset = queryset.filter(coach__user=user)
+                if user.is_anonymous():
+                    queryset = queryset.none()
+                else:
+                    queryset = queryset.filter(coach__user=user)
         return queryset
 
     def filter_reader(self, queryset):
         if 'request' in self.context:
             user = self.context['request'].user
             if not user.is_superuser:
-                queryset = queryset.filter(coach__user=user)
+                if user.is_anonymous():
+                    queryset = queryset.none()
+                else:
+                    queryset = queryset.filter(coach__user=user)
         return queryset
 
     def validate(self, data):
