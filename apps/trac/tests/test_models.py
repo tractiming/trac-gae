@@ -224,6 +224,72 @@ class TimingSessionTestCase(TestCase):
         self.assertEqual(results[0].splits, [195.58])
 
 
+class SplitTestCase(TestCase):
+
+    def setUp(self):
+        coach = Coach.objects.create(
+            user=User.objects.create(username='cquick'))
+        self.session = TimingSession.objects.create(name='test pace',
+                                                    coach=coach)
+        athlete = Athlete.objects.create(
+            user=User.objects.create(username='sagarpatel'))
+        self.reader1 = Reader.objects.create(id_str='Z2111', name='reader 1',
+                                             coach=coach)
+        self.reader2 = Reader.objects.create(id_str='Z2112', name='reader 2',
+                                             coach=coach)
+        self.split1 = Split.objects.create(athlete=athlete, time=300000,
+                                           reader=self.reader1)
+        self.split2 = Split.objects.create(athlete=athlete, time=600000,
+                                           reader=self.reader2)
+
+    def test_calc_pace_multiple_checkpoints(self):
+        """Test calculating pace in a session with multiple checkpoints."""
+        checkpoint1 = Checkpoint.objects.create(session=self.session,
+                                                name='A', distance=1)
+        checkpoint2 = Checkpoint.objects.create(session=self.session,
+                                                name='B', distance=2)
+        checkpoint1.readers.add(self.reader1)
+        checkpoint2.readers.add(self.reader2)
+        SplitFilter.objects.create(timingsession=self.session,
+                                   split=self.split1)
+        SplitFilter.objects.create(timingsession=self.session,
+                                   split=self.split2)
+
+        pace = self.split2.calc_pace(self.session)
+        self.assertEqual(pace, 5.0)
+
+    def test_calc_pace_one_checkpoint_with_start(self):
+        """Test calculating pace with a start and one checkpoint."""
+        self.session.start_button_time = 0
+        self.session.save()
+        checkpoint1 = Checkpoint.objects.create(session=self.session,
+                                                name='A', distance=1)
+        checkpoint1.readers.add(self.reader1)
+        SplitFilter.objects.create(timingsession=self.session,
+                                   split=self.split1)
+        pace = self.split1.calc_pace(self.session)
+        self.assertEqual(pace, 5.0)
+
+    def test_calc_pace_one_checkpoint_no_start(self):
+        """Test that pace is none with a single checkpoint and no start."""
+        checkpoint1 = Checkpoint.objects.create(session=self.session,
+                                                name='A', distance=1)
+        checkpoint1.readers.add(self.reader1)
+        SplitFilter.objects.create(timingsession=self.session,
+                                   split=self.split1)
+        pace = self.split1.calc_pace(self.session)
+        self.assertIsNone(pace)
+
+    def test_calc_pace_checkpoint_no_distance(self):
+        """Test that pace is not calculated if no checkpoint distance."""
+        checkpoint1 = Checkpoint.objects.create(session=self.session, name='A')
+        checkpoint1.readers.add(self.reader1)
+        SplitFilter.objects.create(timingsession=self.session,
+                                   split=self.split1)
+        pace = self.split1.calc_pace(self.session)
+        self.assertIsNone(pace)
+
+
 class SplitFilterTestCase(TestCase):
 
     def setUp(self):

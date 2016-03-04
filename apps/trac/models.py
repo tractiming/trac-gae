@@ -131,6 +131,44 @@ class Split(models.Model):
         return "time={}, tag={}, reader={}".format(
                 self.time, tag, reader)
 
+    def calc_pace(self, session):
+        """Calculate pace per mile for this split (if applicable)."""
+        assert self in session.splits.all(), 'Split not in given session'
+
+        checkpoint = session.checkpoint_set.filter(
+            readers=self.reader).first()
+        if not checkpoint or checkpoint.distance is None:
+            return None
+        current_distance = checkpoint.distance
+        current_time = self.time
+
+        # Check for the most recent checkpoint before the current one.
+        # If it does not have a distance, can't calculate pace.
+        previous_checkpoint = session.checkpoint_set.filter(
+            distance__lt=current_distance).order_by('-distance').first()
+        if previous_checkpoint:
+            if previous_checkpoint.distance is None:
+                return None
+            else:
+                previous_distance = previous_checkpoint.distance
+                previous_split = Split.objects.filter(
+                    reader__checkpoint=previous_checkpoint,
+                    splitfilter__filtered=False,
+                    athlete=self.athlete).order_by('-time').first()
+                previous_time = previous_split.time
+        else:
+            # If no previous checkpoint, assume this checkpoint comes after
+            # start at distance 0.
+            previous_distance = 0.0
+            previous_time = session.start_button_time
+
+        if previous_time is None:
+            return None
+
+        pace = ((current_time - previous_time)/
+                (current_distance - previous_distance))
+        return pace/60000.0
+
 
 class TimingSession(models.Model):
     """
