@@ -4,6 +4,7 @@ from trac.models import Athlete, Coach, User, TimingSession
 
 from trac.utils.filter_util import get_filter_constant
 from trac.utils.integrations import format_tfrrs_results
+from trac.utils.split_util import convert_units
 from trac.utils.user_util import is_athlete, is_coach, user_type
 
 
@@ -43,6 +44,20 @@ class UtilsTestCase(TestCase):
         ]
         for interval, size, constant in filters:
             self.assertEqual(get_filter_constant(interval, size), constant)
+
+    def test_convert_distance_units(self):
+        """Test converting units of distance."""
+        benchmarks = [
+            ((2, 'miles', 'meters'), 3218.68),
+            ((13.1, 'miles', 'kilometers'), 21.08241),
+            ((8, 'kilometers', 'miles'), 4.97097),
+            ((1500, 'meters', 'kilometers'), 1.5)
+        ]
+        for input_, output in benchmarks:
+            self.assertAlmostEqual(convert_units(*input_), output, 2)
+
+        with self.assertRaises(ValueError):
+            convert_units(26.2, 'miles', 'parsecs')
 
 
 class IntegrationsTestCase(TestCase):
