@@ -1,10 +1,14 @@
 import datetime
+
 import mock
+from django.db.utils import IntegrityError
 from django.test import TestCase
 from django.utils import timezone
+
 import trac.models
 from trac.models import (
-    Athlete, Coach, User, Reader, TimingSession, Split, Tag, SplitFilter
+    Athlete, Coach, User, Reader, TimingSession, Split, Tag, SplitFilter,
+    Checkpoint
 )
 
 class ReaderTestCase(TestCase):
@@ -270,3 +274,22 @@ class SplitFilterTestCase(TestCase):
                                             split=self.split2)
         self.assertFalse(split1.filtered)
         self.assertTrue(split2.filtered)
+
+
+class CheckpointTestCase(TestCase):
+
+    fixtures = ['trac_min.json']
+
+    def test_unique_readers_session(self):
+        """Check that one reader can't be added to more than one checkpoint
+        in the same session.
+        """
+        coach = Coach.objects.get(user__username='alsal')
+        session = TimingSession.objects.first()
+        reader = Reader.objects.create(coach=coach, name='1')
+        checkpoint1 = Checkpoint.objects.create(session=session, name='A')
+        checkpoint2 = Checkpoint.objects.create(session=session, name='B')
+
+        checkpoint1.readers.add(reader)
+        with self.assertRaises(IntegrityError):
+            checkpoint2.readers.add(reader)

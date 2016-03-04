@@ -4,7 +4,8 @@ import datetime
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.db import models
-from django.db.models.signals import pre_delete, post_delete
+from django.db.models.signals import pre_delete, post_delete, m2m_changed
+from django.db.utils import IntegrityError
 from django.dispatch import receiver
 from django.utils import timezone
 
@@ -91,7 +92,6 @@ class Tag(models.Model):
 
     def __unicode__(self):
         return "id={}, athlete={}".format(self.id_str, self.athlete.user.username)
-
 
 class Reader(models.Model):
     """
@@ -505,6 +505,19 @@ class SplitFilter(models.Model):
         return super(SplitFilter, self).save(*args, **kwargs)
 
 
+class Checkpoint(models.Model):
+    """
+    A checkpoint encodes where each reader is located in a race.
+    """
+    name = models.CharField(max_length=50)
+    session = models.ForeignKey(TimingSession)
+    readers = models.ManyToManyField(Reader)
+    distance = models.FloatField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ('name', 'session',)
+
+
 @receiver(pre_delete, sender=TimingSession,
           dispatch_uid="timingsession_pre_delete")
 def delete_tag_times(sender, instance, using, **kwargs):
@@ -528,3 +541,23 @@ def delete_coach_user(sender, instance, using, **kwargs):
     Delete the user associated with a `Coach`.
     """
     instance.user.delete()
+
+
+@receiver(m2m_changed, sender=Checkpoint.readers.through)
+def verify_unique_reader_checkpoint(sender, **kwargs):
+    """
+    Verify that a reader can belong to no more than one checkpoint in a
+    single session. See https://djangosnippets.org/snippets/2552/.
+    """
+    checkpoint = kwargs.get('instance', None)
+    action = kwargs.get('action', None)
+    readers = kwargs.get('pk_set', None)
+
+    if action == 'pre_add':
+        session = checkpoint.session
+        for reader in readers:
+            if session.checkpoint_set.exclude(id=checkpoint.id).filter(
+                    readers=reader).exists():
+                raise IntegrityError(
+                    'Reader {} already exists in another checkpoint in '
+                    'session {}'.format(reader, session.pk))
