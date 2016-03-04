@@ -552,6 +552,18 @@ class Checkpoint(models.Model):
     readers = models.ManyToManyField(Reader)
     distance = models.FloatField(null=True, blank=True)
 
+    METERS = 'm'
+    KILOMETERS = 'km'
+    MILES = 'mi'
+    DISTANCE_UNITS = (
+        (METERS, 'meters'),
+        (KILOMETERS, 'kilometers'),
+        (MILES, 'miles'),
+    )
+    distance_units = models.CharField(max_length=2,
+                                      choices=DISTANCE_UNITS,
+                                      default=MILES)
+
     class Meta:
         unique_together = ('name', 'session',)
 

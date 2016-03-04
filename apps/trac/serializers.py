@@ -274,6 +274,7 @@ class SplitSerializer(FilterRelatedMixin, serializers.ModelSerializer):
         source='timingsession_set')
     athlete = serializers.PrimaryKeyRelatedField(
         many=False, queryset=Athlete.objects.all(), allow_null=True)
+    pace = serializers.SerializerMethodField()
 
     class Meta:
         model = Split
@@ -298,6 +299,10 @@ class SplitSerializer(FilterRelatedMixin, serializers.ModelSerializer):
                 else:
                     queryset = queryset.filter(coach__user=user)
         return queryset
+
+    def get_pace(self, obj):
+        return {'session_{}'.format(session.pk): obj.calc_pace(session)
+                for session in obj.timingsession_set.all()}
 
     def validate(self, data):
         # Must specify either an athlete or a tag.
