@@ -1,6 +1,6 @@
 import rest_framework_filters as filters
 
-from trac.models import Athlete, Coach, TimingSession, Team, Split
+from trac.models import Athlete, Coach, TimingSession, Team, Split, Checkpoint
 
 
 class AthleteFilter(filters.FilterSet):
@@ -105,4 +105,15 @@ class SplitFilter(filters.FilterSet):
             'reader',
             'time_lte',
             'time_gte'
+        )
+
+
+class CheckpointFilter(filters.FilterSet):
+    reader = filters.CharFilter(name='readers__id_str')
+
+    class Meta:
+        model = Checkpoint
+        fields = (
+            'name',
+            'reader'
         )

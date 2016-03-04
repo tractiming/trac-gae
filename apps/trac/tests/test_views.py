@@ -4,7 +4,6 @@ import tempfile
 from collections import OrderedDict
 
 import mock
-
 from django.conf import settings
 from django.test import TestCase
 from django.utils import timezone
@@ -12,10 +11,10 @@ from django.contrib.auth.models import User
 from oauth2_provider.models import AccessToken, Application
 from rest_framework.test import APITestCase
 
+import trac.views
 from trac.models import (
     TimingSession, Reader, Split, Athlete, Coach, Team, Tag, Checkpoint
 )
-import trac.views
 
 
 class TagViewSetTest(APITestCase):
@@ -989,3 +988,18 @@ class CheckpointViewSetTest(APITestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(Checkpoint.objects.filter(
             readers__id_str='A1010', session=1, name='CP2').exists())
+
+    def test_filter_checkpoint_reader(self):
+        """Test filtering checkpoints by reader."""
+        reader = Reader.objects.get(id_str='A1010')
+        session = TimingSession.objects.get(pk=1)
+        checkpoint1 = Checkpoint.objects.create(session=session,
+                                                name='CP1')
+        checkpoint1.readers.add(reader)
+        checkpoint2 = Checkpoint.objects.create(session=session,
+                                                name='CP2')
+        resp = self.client.get('/api/sessions/1/checkpoints/?reader=A1010',
+                               format='json')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 1)
+        self.assertEqual(resp.data[0]['id'], checkpoint1.pk)

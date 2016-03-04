@@ -22,7 +22,7 @@ from rest_framework.response import Response
 from rest_framework.parsers import FileUploadParser
 
 from backends._gcs import gcs_writer, get_public_link
-from trac.filters import TimingSessionFilter
+from trac.filters import TimingSessionFilter, CheckpointFilter
 from trac.models import (
     TimingSession, Reader, Tag, Split, Team, Athlete, SplitFilter, Checkpoint
 )
@@ -64,6 +64,8 @@ class CheckpointViewSet(viewsets.ModelViewSet):
     serializer_class = CheckpointSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     pagination_class = pagination.LimitOffsetPagination
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_class = CheckpointFilter
     
     def get_queryset(self):
         # Return only checkpoints belonging to the parent session.
