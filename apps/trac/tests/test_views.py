@@ -13,7 +13,8 @@ from rest_framework.test import APITestCase
 
 import trac.views
 from trac.models import (
-    TimingSession, Reader, Split, Athlete, Coach, Team, Tag, Checkpoint
+    TimingSession, Reader, Split, Athlete, Coach, Team, Tag, Checkpoint,
+    SplitFilter
 )
 
 
@@ -813,6 +814,24 @@ class SplitViewSetTest(APITestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual([split['id'] for split in resp.data],
                          list(coach_splits.values_list('id', flat=True)))
+
+    def test_filter_splits_checkpoint(self):
+        """Test filtering splits by checkpoint."""
+        session = TimingSession.objects.get(pk=1)
+        reader = Reader.objects.create(id_str='Z1010', coach=session.coach)
+        session.readers.add(reader)
+        athlete = Athlete.objects.first()
+        checkpoint = Checkpoint.objects.create(session=session,
+                                                name='CP1')
+        checkpoint.readers.add(reader)
+        split = Split.objects.create(reader=reader, athlete=athlete,
+                                     time=11000)
+        SplitFilter.objects.create(timingsession=session, split=split)
+        resp = self.client.get(
+            '/api/splits/?checkpoint={}'.format(checkpoint.pk), format='json')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 1)
+        self.assertEqual(resp.data[0]['id'], split.pk)
 
 
 class UserViewSetTest(APITestCase):

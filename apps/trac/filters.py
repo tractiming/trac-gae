@@ -95,6 +95,8 @@ class SplitFilter(filters.FilterSet):
     time_gte = filters.NumberFilter(name='time', lookup_type='gte')
     time_lte = filters.NumberFilter(name='time', lookup_type='lte')
     session = filters.NumberFilter(name='timingsession')
+    checkpoint = filters.NumberFilter(name='reader__checkpoint',
+                                      distinct=True)
 
     class Meta:
         model = Split
@@ -104,7 +106,8 @@ class SplitFilter(filters.FilterSet):
             'session',
             'reader',
             'time_lte',
-            'time_gte'
+            'time_gte',
+            'checkpoint'
         )
 
 
