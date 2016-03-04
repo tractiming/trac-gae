@@ -984,7 +984,7 @@ class CheckpointViewSetTest(APITestCase):
             '/api/sessions/1/checkpoints/{}/'.format(checkpoint.pk),
             data=json.dumps({'name': 'CP2'}),
             content_type='application/json')
-        self.assertEqual(resp.data['id'], 1)
+        self.assertEqual(resp.data['id'], checkpoint.pk)
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(Checkpoint.objects.filter(
             readers__id_str='A1010', session=1, name='CP2').exists())
