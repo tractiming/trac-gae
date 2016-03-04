@@ -6,7 +6,8 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from trac.models import (
-    TimingSession, Tag, Reader, Athlete, Coach, Team, Split, SplitFilter
+    TimingSession, Tag, Reader, Athlete, Coach, Team, Split, SplitFilter,
+    Checkpoint
 )
 from trac.utils.user_util import (
     is_coach, is_athlete, user_type, random_username,
@@ -352,6 +353,26 @@ class SplitSerializer(FilterRelatedMixin, serializers.ModelSerializer):
             session.clear_cache(split.athlete.id)
 
         return split
+
+
+class CheckpointSerializer(FilterRelatedMixin,
+                           serializers.ModelSerializer):
+    readers = serializers.SlugRelatedField(
+        many=True, slug_field='id_str', queryset=Reader.objects.all(),
+        required=False)
+
+    class Meta:
+        model = Checkpoint
+
+    def filter_readers(self, queryset):
+        if 'request' in self.context:
+            user = self.context['request'].user
+            if not user.is_superuser:
+                if user.is_anonymous():
+                    queryset = queryset.none()
+                else:
+                    queryset = queryset.filter(coach__user=user)
+        return queryset
 
 
 class IndividualResultsQuerySerializer(serializers.Serializer):

@@ -24,11 +24,11 @@ from rest_framework.parsers import FileUploadParser
 from backends._gcs import gcs_writer, get_public_link
 from trac.filters import TimingSessionFilter
 from trac.models import (
-    TimingSession, Reader, Tag, Split, Team, Athlete, SplitFilter
+    TimingSession, Reader, Tag, Split, Team, Athlete, SplitFilter, Checkpoint
 )
 from trac.serializers import (
     TimingSessionSerializer, AthleteSerializer, TagSerializer,
-    IndividualResultsQuerySerializer
+    IndividualResultsQuerySerializer, CheckpointSerializer
 )
 from trac.utils.integrations import tfrrs
 from trac.utils.pdf_util import write_pdf_results
@@ -54,6 +54,29 @@ def _query_to_list(val):
     if not isinstance(list_, Iterable):
         list_ = [list_]
     return list(list_)
+
+
+class CheckpointViewSet(viewsets.ModelViewSet):
+    """Checkpoint resource.
+
+    This resource lives as a nested attribute of a TimingSession.
+    """
+    serializer_class = CheckpointSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    pagination_class = pagination.LimitOffsetPagination
+    
+    def get_queryset(self):
+        # Return only checkpoints belonging to the parent session.
+        session_pk = self.kwargs.get('session_pk', None)
+        return Checkpoint.objects.filter(session=session_pk)
+
+    def create(self, request, **kwargs):
+        request.data['session'] = kwargs.get('session_pk', None)
+        return super(CheckpointViewSet, self).create(request)
+
+    def update(self, request, **kwargs):
+        request.data['session'] = kwargs.get('session_pk', None)
+        return super(CheckpointViewSet, self).update(request)
 
 
 class TimingSessionViewSet(viewsets.ModelViewSet):

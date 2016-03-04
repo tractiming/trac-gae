@@ -13,7 +13,7 @@ from oauth2_provider.models import AccessToken, Application
 from rest_framework.test import APITestCase
 
 from trac.models import (
-    TimingSession, Reader, Split, Athlete, Coach, Team, Tag
+    TimingSession, Reader, Split, Athlete, Coach, Team, Tag, Checkpoint
 )
 import trac.views
 
@@ -954,3 +954,38 @@ class RockBlockTestCase(APITestCase):
                                  'iridium_cep': 8,
                                  'data': 'hello world'.encode('hex')})
         self.assertEqual(resp.status_code, 200)
+
+
+class CheckpointViewSetTest(APITestCase):
+
+    fixtures = ['trac_min.json']
+
+    def test_create_checkpoint(self):
+        """Test creating a checkpoint."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.post(
+            '/api/sessions/1/checkpoints/',
+            data=json.dumps({'name': 'A', 'readers': ['A1010']}),
+            content_type='application/json')
+        self.assertEqual(resp.status_code, 201)
+        self.assertTrue(Checkpoint.objects.filter(
+            readers__id_str='A1010', session=1).exists())
+
+    def test_update_checkpoint(self):
+        """Test updating an existing checkpoint."""
+        reader = Reader.objects.get(id_str='A1010')
+        session = TimingSession.objects.get(pk=1)
+        checkpoint = Checkpoint.objects.create(session=session,
+                                               name='CP1')
+        checkpoint.readers.add(reader)
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.patch(
+            '/api/sessions/1/checkpoints/{}/'.format(checkpoint.pk),
+            data=json.dumps({'name': 'CP2'}),
+            content_type='application/json')
+        self.assertEqual(resp.data['id'], 1)
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(Checkpoint.objects.filter(
+            readers__id_str='A1010', session=1, name='CP2').exists())
