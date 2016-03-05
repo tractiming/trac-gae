@@ -2,7 +2,8 @@ from django.conf.urls import url, include
 from rest_framework import routers
 
 from trac.views import (
-    user_views, session_views, reader_views, team_views, auth_views
+    user_views, session_views, reader_views, team_views, auth_views,
+    rockblock_views
 )
 
 
@@ -27,6 +28,7 @@ urlpatterns = [
     url(r'^send_email/$', user_views.send_email),
     url(r'^verifyLogin/$', auth_views.verify_login),
     url(r'^request_quote/$', user_views.request_quote),
+    url(r'^rockblock/$', rockblock_views.rockblock_receive),
 
     url(r'^time/$', reader_views.current_time, name='time')
 ]
