@@ -919,3 +919,18 @@ class AuthTestCase(TestCase):
         self.assertEqual(resp.status_code, 404)
         resp = self.client.get('/api/verifyLogin/', {'token': '2112'})
         self.assertEqual(resp.status_code, 404)
+
+
+class RockBlockTestCase(APITestCase):
+
+    def test_rockblock_receive(self):
+        """Test receiving a message from a rock block."""
+        resp = self.client.post('/api/rockblock/',
+                                {'imei': 300234010753370,
+                                 'momsn': 12345,
+                                 'transmit_time': '12-10-10 10:41:50',
+                                 'iridium_latitude': 52.3867,
+                                 'iridium_longitude': 0.2938,
+                                 'iridium_cep': 8,
+                                 'data': 'hello world'.encode('hex')})
+        self.assertEqual(resp.status_code, 200)
