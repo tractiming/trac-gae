@@ -27,7 +27,7 @@ from trac.models import (
     TimingSession, Reader, Tag, Split, Team, Athlete, SplitFilter
 )
 from trac.serializers import (
-    TimingSessionSerializer, AthleteSerializer,
+    TimingSessionSerializer, AthleteSerializer, TagSerializer,
     IndividualResultsQuerySerializer
 )
 from trac.utils.integrations import tfrrs
@@ -635,7 +635,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
         The uploaded file must have a header row that contains the
         fields "first_name" and "last_name" and may additionally
-        contain any of the fields "gender" or "birth_date".
+        contain any of the fields "team", "gender", "birth_date",
+        "rfid_code", or "bib_number".
 
         A new athlete will be created for each row in the file and that
         athlete will be added to the selected session.
@@ -652,12 +653,15 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         session = self.get_object()
         user = request.user
         roster = roster_upload_validator(request.data)
+        default_team_name = 'session-{}-default-team'.format(session.pk)
 
         for athlete in roster:
+            team_name = athlete.get('team', '').strip() or default_team_name
             team, created = Team.objects.get_or_create(
-                name=athlete.get('team',None),
+                name=team_name,
                 coach_id=user.coach.id
             )
+
             athlete_data = {
                 'first_name': athlete['first_name'],
                 'last_name': athlete['last_name'],
@@ -669,6 +673,18 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             new_athlete = serializer.create(serializer.validated_data)
             session.registered_athletes.add(new_athlete.pk)
+
+            rfid_code = athlete.get('rfid_code', None) or None
+            bib_number = athlete.get('bib_number', None) or None
+            if rfid_code is not None:
+                tag_data = {
+                    'bib': bib_number,
+                    'id_str': rfid_code,
+                    'athlete': new_athlete.pk
+                }
+                serializer = TagSerializer(data=tag_data)
+                serializer.is_valid(raise_exception=True)
+                serializer.create(serializer.validated_data)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 

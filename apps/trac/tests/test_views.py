@@ -624,6 +624,26 @@ class TimingSessionViewSetTest(APITestCase):
                                format='json')
         self.assertIsNone(resp.data['results'][0]['first_seen'])
 
+    def test_roster_upload_with_tags(self):
+        """Test uploading a roster with tag and bib information."""
+        user = User.objects.get(username='alsal')
+        session = TimingSession.objects.create(
+            name='upload', coach=Coach.objects.get(user=user))
+        self.client.force_authenticate(user=user)
+        with tempfile.NamedTemporaryFile(suffix='.csv', mode='r+w') \
+                as _roster:
+            _roster.write(
+                'first_name,last_name,birth_date,rfid_code,bib_number\n'
+                'Ryan,Hall,,0000 0001,101')
+            _roster.seek(0)
+            resp = self.client.post(
+                '/api/sessions/{}/upload_runners/'.format(session.pk),
+                data={'file': [_roster]})
+            self.assertEqual(resp.status_code, 204)
+        self.assertTrue(Team.objects.filter(
+            name='session-{}-default-team'.format(session.pk)).exists())
+        self.assertTrue(Tag.objects.filter(
+            bib='101', id_str='0000 0001').exists())
 
 class SplitViewSetTest(APITestCase):
 
