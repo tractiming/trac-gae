@@ -624,6 +624,17 @@ class TimingSessionViewSetTest(APITestCase):
                                format='json')
         self.assertIsNone(resp.data['results'][0]['first_seen'])
 
+    def test_individual_results_with_paces(self):
+        """Test getting paces with individual results."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.get('/api/sessions/1/individual_results/?'
+                               'calc_paces=True', format='json')
+        self.assertEqual(resp.data['results'][0]['paces'],
+                         {'split_0': None, 'split_1': None})
+        self.assertEqual(resp.data['results'][1]['paces'],
+                         {'split_0': None, 'split_1': None, 'split_2': None})
+
     def test_roster_upload_with_tags(self):
         """Test uploading a roster with tag and bib information."""
         user = User.objects.get(username='alsal')
