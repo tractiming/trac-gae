@@ -1,5 +1,5 @@
 import datetime
-from collections import namedtuple, defaultdict
+from collections import namedtuple
 
 from django.contrib.auth.models import User
 from django.core.cache import cache
@@ -151,47 +151,34 @@ class Split(models.Model):
 
     def calc_pace(self, session, distance_units='miles'):
         """Calculate pace per mile for this split (if applicable)."""
-        _units_map = defaultdict(
-            str, {'mi': 'miles', 'm': 'meters', 'km': 'kilometers'})
-
-        checkpoint = session.checkpoint_set.filter(
-            readers=self.reader).first()
-        if not checkpoint or checkpoint.distance is None:
-            return None
-        current_distance = checkpoint.distance
-        current_units = _units_map[checkpoint.distance_units]
         current_time = self.time
+        current_distance = self.distance(session, units=distance_units)
 
-        # Check for the most recent checkpoint before the current one.
-        # If it does not have a distance, can't calculate pace.
-        previous_checkpoint = session.checkpoint_set.filter(
-            distance__lt=current_distance).order_by('-distance').first()
-        if previous_checkpoint:
-            if previous_checkpoint.distance is None:
+        previous_split = session.splits.filter(
+            time__lt=self.time,
+            athlete=self.athlete,
+            splitfilter__filtered=False).order_by('-time').first()
+
+        if previous_split is None:
+            if session.start_button_time is None:
+                # This split is the first in the session, can't calculate
+                # pace.
                 return None
             else:
-                previous_distance = previous_checkpoint.distance
-                previous_units = _units_map[previous_checkpoint.distance_units]
-                previous_split = Split.objects.filter(
-                    reader__checkpoint=previous_checkpoint,
-                    splitfilter__filtered=False,
-                    athlete=self.athlete).order_by('-time').first()
-                previous_time = previous_split.time
+                previous_time = session.start_button_time
+                previous_distance = 0.0
         else:
-            # If no previous checkpoint, assume this checkpoint comes after
-            # start at distance 0.
-            previous_distance = 0.0
-            previous_units = 'miles'
-            previous_time = session.start_button_time
+            previous_time = previous_split.time
+            previous_distance = previous_split.distance(session,
+                                                        units=distance_units)
 
-        if previous_time is None:
+        if current_distance is None or previous_distance is None:
             return None
 
-        x0 = convert_units(previous_distance, previous_units, distance_units)
-        x1 = convert_units(current_distance, current_units, distance_units)
-        pace_seconds = ((current_time - previous_time) / (x1 - x0)) / 1000.0
+        pace_seconds = (((current_time - previous_time) /
+                        (current_distance - previous_distance)) / 1000.0)
         return '{} min/{}'.format(format_total_seconds(pace_seconds),
-                distance_units[:-1])
+                                  distance_units[:-1])
 
 
 class TimingSession(models.Model):
@@ -338,7 +325,7 @@ class TimingSession(models.Model):
                 first_seen = None
 
             if calc_paces:
-                distances = list(split.distance(self) for split in raw_splits)
+                distances = [split.distance(self) for split in raw_splits]
                 if self.start_button_time is not None:
                     distances.insert(0, 0.0)
 
