@@ -272,7 +272,9 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             required: true
             type: string
           has_split:
-            description: Whether or not the athlete has recorded a time
+            description: >
+              Whether or not the athlete has recorded a time (will
+              always return True if the start button has been pressed)
             required: true
             type: boolean
           first_seen:
@@ -337,7 +339,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                 'id': result.user_id,
                 'splits': [[str(split)] for split in result.splits],
                 'total': str(result.total),
-                'has_split': result in raw_results,
+                'has_split': result.first_seen is not None,
                 'first_seen': result.first_seen
             }
             if query['calc_paces']:

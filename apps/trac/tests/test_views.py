@@ -656,6 +656,20 @@ class TimingSessionViewSetTest(APITestCase):
         self.assertTrue(Tag.objects.filter(
             bib='101', id_str='0000 0001').exists())
 
+    def test_individual_results_has_split(self):
+        """Test that has_split is True if start button is pressed."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        session = TimingSession.objects.get(pk=2)
+        resp = self.client.get('/api/sessions/2/individual_results/?'
+                               'athletes=1', format='json')
+        self.assertTrue(resp.data['results'][0]['has_split'])
+        session.start_button_time = None
+        session.save()
+        resp = self.client.get('/api/sessions/2/individual_results/?'
+                               'athletes=1', format='json')
+        self.assertFalse(resp.data['results'][0]['has_split'])
+
 class SplitViewSetTest(APITestCase):
 
     fixtures = ['trac_min.json']
