@@ -6,7 +6,8 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from trac.models import (
-    TimingSession, Tag, Reader, Athlete, Coach, Team, Split, SplitFilter
+    TimingSession, Tag, Reader, Athlete, Coach, Team, Split, SplitFilter,
+    Checkpoint
 )
 from trac.utils.user_util import (
     is_coach, is_athlete, user_type, random_username,
@@ -273,6 +274,7 @@ class SplitSerializer(FilterRelatedMixin, serializers.ModelSerializer):
         source='timingsession_set')
     athlete = serializers.PrimaryKeyRelatedField(
         many=False, queryset=Athlete.objects.all(), allow_null=True)
+    pace = serializers.SerializerMethodField()
 
     class Meta:
         model = Split
@@ -297,6 +299,10 @@ class SplitSerializer(FilterRelatedMixin, serializers.ModelSerializer):
                 else:
                     queryset = queryset.filter(coach__user=user)
         return queryset
+
+    def get_pace(self, obj):
+        return {'session_{}'.format(session.pk): obj.calc_pace(session)
+                for session in obj.timingsession_set.all()}
 
     def validate(self, data):
         # Must specify either an athlete or a tag.
@@ -354,6 +360,26 @@ class SplitSerializer(FilterRelatedMixin, serializers.ModelSerializer):
         return split
 
 
+class CheckpointSerializer(FilterRelatedMixin,
+                           serializers.ModelSerializer):
+    readers = serializers.SlugRelatedField(
+        many=True, slug_field='id_str', queryset=Reader.objects.all(),
+        required=False)
+
+    class Meta:
+        model = Checkpoint
+
+    def filter_readers(self, queryset):
+        if 'request' in self.context:
+            user = self.context['request'].user
+            if not user.is_superuser:
+                if user.is_anonymous():
+                    queryset = queryset.none()
+                else:
+                    queryset = queryset.filter(coach__user=user)
+        return queryset
+
+
 class IndividualResultsQuerySerializer(serializers.Serializer):
     gender = serializers.ChoiceField(['M', 'F', 'm', 'f'], required=False)
     age_lte = serializers.IntegerField(required=False)
@@ -361,3 +387,4 @@ class IndividualResultsQuerySerializer(serializers.Serializer):
     limit = serializers.IntegerField(default=25)
     offset = serializers.IntegerField(default=0)
     all_athletes = serializers.BooleanField(default=False)
+    calc_paces = serializers.BooleanField(default=False)

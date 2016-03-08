@@ -4,7 +4,6 @@ import tempfile
 from collections import OrderedDict
 
 import mock
-
 from django.conf import settings
 from django.test import TestCase
 from django.utils import timezone
@@ -12,10 +11,11 @@ from django.contrib.auth.models import User
 from oauth2_provider.models import AccessToken, Application
 from rest_framework.test import APITestCase
 
-from trac.models import (
-    TimingSession, Reader, Split, Athlete, Coach, Team, Tag
-)
 import trac.views
+from trac.models import (
+    TimingSession, Reader, Split, Athlete, Coach, Team, Tag, Checkpoint,
+    SplitFilter
+)
 
 
 class TagViewSetTest(APITestCase):
@@ -624,6 +624,17 @@ class TimingSessionViewSetTest(APITestCase):
                                format='json')
         self.assertIsNone(resp.data['results'][0]['first_seen'])
 
+    def test_individual_results_with_paces(self):
+        """Test getting paces with individual results."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.get('/api/sessions/1/individual_results/?'
+                               'calc_paces=True', format='json')
+        self.assertEqual(resp.data['results'][0]['paces'],
+                         {'split_0': None, 'split_1': None})
+        self.assertEqual(resp.data['results'][1]['paces'],
+                         {'split_0': None, 'split_1': None, 'split_2': None})
+
     def test_roster_upload_with_tags(self):
         """Test uploading a roster with tag and bib information."""
         user = User.objects.get(username='alsal')
@@ -815,6 +826,24 @@ class SplitViewSetTest(APITestCase):
         self.assertEqual([split['id'] for split in resp.data],
                          list(coach_splits.values_list('id', flat=True)))
 
+    def test_filter_splits_checkpoint(self):
+        """Test filtering splits by checkpoint."""
+        session = TimingSession.objects.get(pk=1)
+        reader = Reader.objects.create(id_str='Z1010', coach=session.coach)
+        session.readers.add(reader)
+        athlete = Athlete.objects.first()
+        checkpoint = Checkpoint.objects.create(session=session,
+                                                name='CP1')
+        checkpoint.readers.add(reader)
+        split = Split.objects.create(reader=reader, athlete=athlete,
+                                     time=11000)
+        SplitFilter.objects.create(timingsession=session, split=split)
+        resp = self.client.get(
+            '/api/splits/?checkpoint={}'.format(checkpoint.pk), format='json')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 1)
+        self.assertEqual(resp.data[0]['id'], split.pk)
+
 
 class UserViewSetTest(APITestCase):
 
@@ -954,3 +983,53 @@ class RockBlockTestCase(APITestCase):
                                  'iridium_cep': 8,
                                  'data': 'hello world'.encode('hex')})
         self.assertEqual(resp.status_code, 200)
+
+
+class CheckpointViewSetTest(APITestCase):
+
+    fixtures = ['trac_min.json']
+
+    def test_create_checkpoint(self):
+        """Test creating a checkpoint."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.post(
+            '/api/sessions/1/checkpoints/',
+            data=json.dumps({'name': 'A', 'readers': ['A1010']}),
+            content_type='application/json')
+        self.assertEqual(resp.status_code, 201)
+        self.assertTrue(Checkpoint.objects.filter(
+            readers__id_str='A1010', session=1).exists())
+
+    def test_update_checkpoint(self):
+        """Test updating an existing checkpoint."""
+        reader = Reader.objects.get(id_str='A1010')
+        session = TimingSession.objects.get(pk=1)
+        checkpoint = Checkpoint.objects.create(session=session,
+                                               name='CP1')
+        checkpoint.readers.add(reader)
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.patch(
+            '/api/sessions/1/checkpoints/{}/'.format(checkpoint.pk),
+            data=json.dumps({'name': 'CP2'}),
+            content_type='application/json')
+        self.assertEqual(resp.data['id'], checkpoint.pk)
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(Checkpoint.objects.filter(
+            readers__id_str='A1010', session=1, name='CP2').exists())
+
+    def test_filter_checkpoint_reader(self):
+        """Test filtering checkpoints by reader."""
+        reader = Reader.objects.get(id_str='A1010')
+        session = TimingSession.objects.get(pk=1)
+        checkpoint1 = Checkpoint.objects.create(session=session,
+                                                name='CP1')
+        checkpoint1.readers.add(reader)
+        checkpoint2 = Checkpoint.objects.create(session=session,
+                                                name='CP2')
+        resp = self.client.get('/api/sessions/1/checkpoints/?reader=A1010',
+                               format='json')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 1)
+        self.assertEqual(resp.data[0]['id'], checkpoint1.pk)

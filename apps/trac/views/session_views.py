@@ -22,13 +22,13 @@ from rest_framework.response import Response
 from rest_framework.parsers import FileUploadParser
 
 from backends._gcs import gcs_writer, get_public_link
-from trac.filters import TimingSessionFilter
+from trac.filters import TimingSessionFilter, CheckpointFilter
 from trac.models import (
-    TimingSession, Reader, Tag, Split, Team, Athlete, SplitFilter
+    TimingSession, Reader, Tag, Split, Team, Athlete, SplitFilter, Checkpoint
 )
 from trac.serializers import (
     TimingSessionSerializer, AthleteSerializer, TagSerializer,
-    IndividualResultsQuerySerializer
+    IndividualResultsQuerySerializer, CheckpointSerializer
 )
 from trac.utils.integrations import tfrrs
 from trac.utils.pdf_util import write_pdf_results
@@ -54,6 +54,31 @@ def _query_to_list(val):
     if not isinstance(list_, Iterable):
         list_ = [list_]
     return list(list_)
+
+
+class CheckpointViewSet(viewsets.ModelViewSet):
+    """Checkpoint resource.
+
+    This resource lives as a nested attribute of a TimingSession.
+    """
+    serializer_class = CheckpointSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    pagination_class = pagination.LimitOffsetPagination
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_class = CheckpointFilter
+    
+    def get_queryset(self):
+        # Return only checkpoints belonging to the parent session.
+        session_pk = self.kwargs.get('session_pk', None)
+        return Checkpoint.objects.filter(session=session_pk)
+
+    def create(self, request, **kwargs):
+        request.data['session'] = kwargs.get('session_pk', None)
+        return super(CheckpointViewSet, self).create(request)
+
+    def update(self, request, **kwargs):
+        request.data['session'] = kwargs.get('session_pk', None)
+        return super(CheckpointViewSet, self).update(request)
 
 
 class TimingSessionViewSet(viewsets.ModelViewSet):
@@ -271,7 +296,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
         session = self.get_object()
         raw_results = session.individual_results(athlete_ids=athletes,
-                                                 teams=teams,**query)
+                                                 teams=teams, **query)
 
         extra_results = []
         distinct_ids = set(session.splits.values_list('athlete_id',
@@ -295,7 +320,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                 # already show up in the results.
                 if not has_split:
                     extra_results.append(session._calc_athlete_splits(
-                        athlete.id))
+                        athlete.id, calc_paces=query['calc_paces']))
 
                 distinct_ids |= set(session.registered_athletes.values_list(
                     'id', flat=True).distinct())
@@ -315,6 +340,13 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                 'has_split': result in raw_results,
                 'first_seen': result.first_seen
             }
+            if query['calc_paces']:
+                individual_result.update({
+                    'paces': {
+                        'split_{}'.format(i): pace
+                        for i, pace in enumerate(result.paces)
+                    }
+                })
             results['results'].append(individual_result)
 
         return Response(results)
