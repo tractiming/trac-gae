@@ -99,9 +99,12 @@ class Reader(models.Model):
     """
     An RFID reader that streams splits.
     """
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50)
     id_str = models.CharField(max_length=50, unique=True)
     coach = models.ForeignKey(Coach)
+
+    class Meta:
+        unique_together = ('coach', 'name',)
 
     def __unicode__(self):
         return "id={}, name={}".format(self.id_str, self.name)
