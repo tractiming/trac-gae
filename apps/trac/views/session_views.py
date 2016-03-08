@@ -296,7 +296,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
         session = self.get_object()
         raw_results = session.individual_results(athlete_ids=athletes,
-                                                 teams=teams,**query)
+                                                 teams=teams, **query)
 
         extra_results = []
         distinct_ids = set(session.splits.values_list('athlete_id',
@@ -320,7 +320,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                 # already show up in the results.
                 if not has_split:
                     extra_results.append(session._calc_athlete_splits(
-                        athlete.id))
+                        athlete.id, calc_paces=query['calc_paces']))
 
                 distinct_ids |= set(session.registered_athletes.values_list(
                     'id', flat=True).distinct())
@@ -340,6 +340,13 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                 'has_split': result in raw_results,
                 'first_seen': result.first_seen
             }
+            if query['calc_paces']:
+                individual_result.update({
+                    'paces': {
+                        'split_{}'.format(i): pace
+                        for i, pace in enumerate(result.paces)
+                    }
+                })
             results['results'].append(individual_result)
 
         return Response(results)

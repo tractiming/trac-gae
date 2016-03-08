@@ -151,7 +151,7 @@ class TimingSessionTestCase(TestCase):
         mock_cache.get.assert_called_with('ts_1_athlete_1_results')
         mock_cache.set.assert_called_with('ts_1_athlete_1_results',
                 (res_1.user_id, res_1.name, res_1.team, res_1.splits,
-                 res_1.total, res_1.first_seen))
+                 res_1.total, res_1.first_seen, res_1.paces))
         self.assertListEqual(res_1.splits, [122.003, 197.237, 69.805])
         self.assertEqual(sum(res_1.splits), res_1.total)
 
@@ -159,7 +159,7 @@ class TimingSessionTestCase(TestCase):
         mock_cache.get.assert_called_with('ts_1_athlete_2_results')
         mock_cache.set.assert_called_with('ts_1_athlete_2_results',
                 (res_2.user_id, res_2.name, res_2.team, res_2.splits,
-                 res_2.total, res_2.first_seen))
+                 res_2.total, res_2.first_seen, res_2.paces))
         self.assertListEqual(res_2.splits, [123.021, 195.58])
         self.assertEqual(sum(res_2.splits), res_2.total)
 
@@ -232,15 +232,15 @@ class SplitTestCase(TestCase):
             user=User.objects.create(username='cquick'))
         self.session = TimingSession.objects.create(name='test pace',
                                                     coach=coach)
-        athlete = Athlete.objects.create(
+        self.athlete = Athlete.objects.create(
             user=User.objects.create(username='sagarpatel'))
         self.reader1 = Reader.objects.create(id_str='Z2111', name='reader 1',
                                              coach=coach)
         self.reader2 = Reader.objects.create(id_str='Z2112', name='reader 2',
                                              coach=coach)
-        self.split1 = Split.objects.create(athlete=athlete, time=300000,
+        self.split1 = Split.objects.create(athlete=self.athlete, time=300000,
                                            reader=self.reader1)
-        self.split2 = Split.objects.create(athlete=athlete, time=600000,
+        self.split2 = Split.objects.create(athlete=self.athlete, time=600000,
                                            reader=self.reader2)
 
     def test_calc_pace_multiple_checkpoints(self):
@@ -256,8 +256,12 @@ class SplitTestCase(TestCase):
         SplitFilter.objects.create(timingsession=self.session,
                                    split=self.split2)
 
+        correct_pace = '{} min/mile'.format(format_total_seconds(300))
         pace = self.split2.calc_pace(self.session)
-        self.assertEqual(pace, '{} min/miles'.format(format_total_seconds(5)))
+        results = self.session._calc_athlete_splits(self.athlete.id,
+                                                    calc_paces=True)
+        self.assertEqual(pace, correct_pace)
+        self.assertEqual(results.paces[0], correct_pace)
 
     def test_calc_pace_one_checkpoint_with_start(self):
         """Test calculating pace with a start and one checkpoint."""
@@ -268,8 +272,12 @@ class SplitTestCase(TestCase):
         checkpoint1.readers.add(self.reader1)
         SplitFilter.objects.create(timingsession=self.session,
                                    split=self.split1)
+        correct_pace = '{} min/mile'.format(format_total_seconds(300))
         pace = self.split1.calc_pace(self.session)
-        self.assertEqual(pace, '{} min/miles'.format(format_total_seconds(5)))
+        results = self.session._calc_athlete_splits(self.athlete.id,
+                                                    calc_paces=True)
+        self.assertEqual(pace, correct_pace)
+        self.assertEqual(results.paces[0], correct_pace)
 
     def test_calc_pace_one_checkpoint_no_start(self):
         """Test that pace is none with a single checkpoint and no start."""
@@ -280,6 +288,9 @@ class SplitTestCase(TestCase):
                                    split=self.split1)
         pace = self.split1.calc_pace(self.session)
         self.assertIsNone(pace)
+        results = self.session._calc_athlete_splits(self.athlete.id,
+                                                    calc_paces=True)
+        self.assertEqual(results.paces, [])
 
     def test_calc_pace_checkpoint_no_distance(self):
         """Test that pace is not calculated if no checkpoint distance."""
@@ -289,6 +300,9 @@ class SplitTestCase(TestCase):
                                    split=self.split1)
         pace = self.split1.calc_pace(self.session)
         self.assertIsNone(pace)
+        results = self.session._calc_athlete_splits(self.athlete.id,
+                                                    calc_paces=True)
+        self.assertEqual(results.paces, [])
 
     def test_calc_pace_unit_conversion(self):
         """Test calculating pace with a unit conversion."""
@@ -296,7 +310,7 @@ class SplitTestCase(TestCase):
             session=self.session, name='A', distance=1609.34,
             distance_units='m')
         checkpoint2 = Checkpoint.objects.create(
-            session=self.session, name='B', distance=3218.64,
+            session=self.session, name='B', distance=3218.68,
             distance_units='m')
         checkpoint1.readers.add(self.reader1)
         checkpoint2.readers.add(self.reader2)
@@ -306,7 +320,8 @@ class SplitTestCase(TestCase):
                                    split=self.split2)
 
         pace = self.split2.calc_pace(self.session)
-        self.assertEqual(pace, '{} min/miles'.format(format_total_seconds(5)))
+        self.assertEqual(pace, '{} min/mile'.format(
+            format_total_seconds(300.001)))
 
 
 class SplitFilterTestCase(TestCase):

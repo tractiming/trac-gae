@@ -133,9 +133,24 @@ class Split(models.Model):
         return "time={}, tag={}, reader={}".format(
                 self.time, tag, reader)
 
+    def distance(self, session, units='miles'):
+        """Get the distance in the race at which this split was taken.
+        Returns None if this split was not taken at a known checkpoint.
+        """
+        assert self in session.splits.all(), 'Split not in given session'
+
+        checkpoint = session.checkpoint_set.filter(
+            readers=self.reader).first()
+        if not checkpoint or checkpoint.distance is None:
+            return None
+
+        _units = {'mi': 'miles', 'm': 'meters', 'km': 'kilometers'}
+        return convert_units(checkpoint.distance,
+                             _units[checkpoint.distance_units],
+                             units)
+
     def calc_pace(self, session, distance_units='miles'):
         """Calculate pace per mile for this split (if applicable)."""
-        assert self in session.splits.all(), 'Split not in given session'
         _units_map = defaultdict(
             str, {'mi': 'miles', 'm': 'meters', 'km': 'kilometers'})
 
@@ -174,9 +189,9 @@ class Split(models.Model):
 
         x0 = convert_units(previous_distance, previous_units, distance_units)
         x1 = convert_units(current_distance, current_units, distance_units)
-        pace_seconds = ((current_time - previous_time) / (x1 - x0)) / 60000.0
+        pace_seconds = ((current_time - previous_time) / (x1 - x0)) / 1000.0
         return '{} min/{}'.format(format_total_seconds(pace_seconds),
-                                  distance_units)
+                distance_units[:-1])
 
 
 class TimingSession(models.Model):
@@ -277,14 +292,15 @@ class TimingSession(models.Model):
         return (athlete['athlete_id'] for athlete in results)
 
     def _calc_athlete_splits(self, athlete_id, use_cache=True,
-                             apply_filter=True):
+                             apply_filter=True, calc_paces=False):
         """Calculate splits for a single athlete.
 
         First try to read results from the cache. If results are not found,
         get the tag and all its times. Iterate through times to calculate
         splits. Save new results to cache.
 
-        Returns namedtuple of (user id, name, team, splits, total)
+        Returns namedtuple of (user id, name, team, splits, total,
+        first_seen, paces)
         """
         # Try to read from the cache. Note that results are cached on a per
         # tag basis.
@@ -294,17 +310,18 @@ class TimingSession(models.Model):
         else:
             results = None
 
-        Results = namedtuple('Results',
-                             'user_id name team splits total first_seen')
+        Results = namedtuple(
+            'Results',
+            'user_id name team splits total first_seen paces')
         if not results:
             athlete = Athlete.objects.get(id=athlete_id)
             name = athlete.user.get_full_name() or athlete.user.username
 
             filter_ = (models.Q(splitfilter__filtered=False) if apply_filter
                        else models.Q())
-            times = list(self.splits.filter(
-                filter_, athlete_id=athlete.id).order_by('time').values_list(
-                'time', flat=True))
+            raw_splits = self.splits.filter(
+                filter_, athlete_id=athlete.id).order_by('time')
+            times = list(raw_splits.values_list('time', flat=True))
 
             # Offset for start time if needed.
             if self.start_button_time is not None:
@@ -320,18 +337,36 @@ class TimingSession(models.Model):
             else:
                 first_seen = None
 
+            if calc_paces:
+                distances = list(split.distance(self) for split in raw_splits)
+                if self.start_button_time is not None:
+                    distances.insert(0, 0.0)
+
+                paces = []
+                for i, diff in enumerate(zip(distances, distances[1:])):
+                    if diff[0] is not None and diff[1] is not None:
+                        pace = '{} min/mile'.format(format_total_seconds(
+                            splits[i] / (diff[1] - diff[0])))
+                    else:
+                        pace = None
+                    paces.append(pace)
+
+            else:
+                paces = None
+
             results = (athlete_id, name, athlete.team, splits,
-                       sum(splits), first_seen)
+                       sum(splits), first_seen, paces)
 
             if use_cache:
-                cache.set(('ts_%i_athlete_%i_results' %(self.id, athlete_id)),
-                          results)
+                cache.set(('ts_%i_athlete_%i_results'
+                          %(self.id, athlete_id)), results)
 
         return Results(*results)
 
     def individual_results(self, limit=None, offset=None, gender=None,
                            age_lte=None, age_gte=None, teams=None,
-                           apply_filter=None, athlete_ids=None):
+                           apply_filter=None, athlete_ids=None,
+                           calc_paces=False):
         """Calculate individual results for a session.
 
         First call `_sorted_athlete_list` for a list of tag IDs that are
@@ -358,7 +393,9 @@ class TimingSession(models.Model):
                                                  teams=teams,
                                                  apply_filter=apply_filter)
 
-        return [self._calc_athlete_splits(athlete, apply_filter=apply_filter)
+        return [self._calc_athlete_splits(athlete,
+                                          apply_filter=apply_filter,
+                                          calc_paces=calc_paces)
                 for athlete in athletes]
 
     def team_results(self, num_scorers=5):
