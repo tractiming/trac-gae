@@ -12,14 +12,17 @@ def convert_units(distance, input_units, output_units):
     """Convert units of distance (miles, meters, and kilometers)."""
     conversion_factors = {
         'miles': {
+            'miles': 1.0,
             'meters': 1609.34,
-            'kilometers': 1.60934,
+            'kilometers': 1.60934
         },
         'kilometers': {
+            'kilometers': 1.0,
             'meters': 1000.0,
             'miles': 0.621371,
         },
         'meters': {
+            'meters': 1.0,
             'miles': 0.000621371,
             'kilometers': 0.001
         }

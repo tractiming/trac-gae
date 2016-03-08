@@ -1,5 +1,5 @@
-from collections import namedtuple
 import datetime
+from collections import namedtuple, defaultdict
 
 from django.contrib.auth.models import User
 from django.core.cache import cache
@@ -8,6 +8,8 @@ from django.db.models.signals import pre_delete, post_delete, m2m_changed
 from django.db.utils import IntegrityError
 from django.dispatch import receiver
 from django.utils import timezone
+
+from trac.utils.split_util import convert_units, format_total_seconds
 
 
 def _upload_to(instance, filename):
@@ -131,15 +133,18 @@ class Split(models.Model):
         return "time={}, tag={}, reader={}".format(
                 self.time, tag, reader)
 
-    def calc_pace(self, session):
+    def calc_pace(self, session, distance_units='miles'):
         """Calculate pace per mile for this split (if applicable)."""
         assert self in session.splits.all(), 'Split not in given session'
+        _units_map = defaultdict(
+            str, {'mi': 'miles', 'm': 'meters', 'km': 'kilometers'})
 
         checkpoint = session.checkpoint_set.filter(
             readers=self.reader).first()
         if not checkpoint or checkpoint.distance is None:
             return None
         current_distance = checkpoint.distance
+        current_units = _units_map[checkpoint.distance_units]
         current_time = self.time
 
         # Check for the most recent checkpoint before the current one.
@@ -151,6 +156,7 @@ class Split(models.Model):
                 return None
             else:
                 previous_distance = previous_checkpoint.distance
+                previous_units = _units_map[previous_checkpoint.distance_units]
                 previous_split = Split.objects.filter(
                     reader__checkpoint=previous_checkpoint,
                     splitfilter__filtered=False,
@@ -160,14 +166,17 @@ class Split(models.Model):
             # If no previous checkpoint, assume this checkpoint comes after
             # start at distance 0.
             previous_distance = 0.0
+            previous_units = 'miles'
             previous_time = session.start_button_time
 
         if previous_time is None:
             return None
 
-        pace = ((current_time - previous_time)/
-                (current_distance - previous_distance))
-        return pace/60000.0
+        x0 = convert_units(previous_distance, previous_units, distance_units)
+        x1 = convert_units(current_distance, current_units, distance_units)
+        pace_seconds = ((current_time - previous_time) / (x1 - x0)) / 60000.0
+        return '{} min/{}'.format(format_total_seconds(pace_seconds),
+                                  distance_units)
 
 
 class TimingSession(models.Model):

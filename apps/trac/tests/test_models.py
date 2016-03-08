@@ -10,6 +10,7 @@ from trac.models import (
     Athlete, Coach, User, Reader, TimingSession, Split, Tag, SplitFilter,
     Checkpoint
 )
+from trac.utils.split_util import format_total_seconds
 
 class ReaderTestCase(TestCase):
 
@@ -256,7 +257,7 @@ class SplitTestCase(TestCase):
                                    split=self.split2)
 
         pace = self.split2.calc_pace(self.session)
-        self.assertEqual(pace, 5.0)
+        self.assertEqual(pace, '{} min/miles'.format(format_total_seconds(5)))
 
     def test_calc_pace_one_checkpoint_with_start(self):
         """Test calculating pace with a start and one checkpoint."""
@@ -268,7 +269,7 @@ class SplitTestCase(TestCase):
         SplitFilter.objects.create(timingsession=self.session,
                                    split=self.split1)
         pace = self.split1.calc_pace(self.session)
-        self.assertEqual(pace, 5.0)
+        self.assertEqual(pace, '{} min/miles'.format(format_total_seconds(5)))
 
     def test_calc_pace_one_checkpoint_no_start(self):
         """Test that pace is none with a single checkpoint and no start."""
@@ -288,6 +289,24 @@ class SplitTestCase(TestCase):
                                    split=self.split1)
         pace = self.split1.calc_pace(self.session)
         self.assertIsNone(pace)
+
+    def test_calc_pace_unit_conversion(self):
+        """Test calculating pace with a unit conversion."""
+        checkpoint1 = Checkpoint.objects.create(
+            session=self.session, name='A', distance=1609.34,
+            distance_units='m')
+        checkpoint2 = Checkpoint.objects.create(
+            session=self.session, name='B', distance=3218.64,
+            distance_units='m')
+        checkpoint1.readers.add(self.reader1)
+        checkpoint2.readers.add(self.reader2)
+        SplitFilter.objects.create(timingsession=self.session,
+                                   split=self.split1)
+        SplitFilter.objects.create(timingsession=self.session,
+                                   split=self.split2)
+
+        pace = self.split2.calc_pace(self.session)
+        self.assertEqual(pace, '{} min/miles'.format(format_total_seconds(5)))
 
 
 class SplitFilterTestCase(TestCase):
