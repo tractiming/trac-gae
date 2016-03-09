@@ -3,6 +3,7 @@ from collections import namedtuple
 
 from django.contrib.auth.models import User
 from django.core.cache import cache
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models.signals import pre_delete, post_delete, m2m_changed
 from django.db.utils import IntegrityError
@@ -94,6 +95,7 @@ class Tag(models.Model):
 
     def __unicode__(self):
         return "id={}, athlete={}".format(self.id_str, self.athlete.user.username)
+
 
 class Reader(models.Model):
     """
@@ -302,7 +304,7 @@ class TimingSession(models.Model):
 
         Results = namedtuple(
             'Results',
-            'user_id name team splits total first_seen paces')
+            'user_id name team splits total first_seen paces bib')
         if not results:
             athlete = Athlete.objects.get(id=athlete_id)
             name = athlete.user.get_full_name() or athlete.user.username
@@ -344,8 +346,13 @@ class TimingSession(models.Model):
             else:
                 paces = None
 
+            try:
+                bib = athlete.tag.bib
+            except ObjectDoesNotExist:
+                bib = None
+
             results = (athlete_id, name, athlete.team, splits,
-                       sum(splits), first_seen, paces)
+                       sum(splits), first_seen, paces, bib)
 
             if use_cache:
                 cache.set(('ts_%i_athlete_%i_results'
