@@ -340,7 +340,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                 'splits': [[str(split)] for split in result.splits],
                 'total': str(result.total),
                 'has_split': result.first_seen is not None,
-                'first_seen': result.first_seen
+                'first_seen': result.first_seen,
+                'bib': result.bib
             }
             if query['calc_paces']:
                 individual_result.update({

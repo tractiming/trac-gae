@@ -670,6 +670,16 @@ class TimingSessionViewSetTest(APITestCase):
                                'athletes=1', format='json')
         self.assertFalse(resp.data['results'][0]['has_split'])
 
+    def test_individual_results_bib_number(self):
+        """Test returning bib number with the results."""
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+        resp = self.client.get('/api/sessions/1/individual_results/',
+                               format='json')
+        self.assertIsNone(resp.data['results'][0]['bib'])
+        self.assertTrue(resp.data['results'][1]['bib'], '101')
+
+
 class SplitViewSetTest(APITestCase):
 
     fixtures = ['trac_min.json']

@@ -96,7 +96,8 @@
     "model": "trac.tag",
     "fields": {
         "athlete": 1,
-        "id_str": "AAAA 0001"
+        "id_str": "AAAA 0001",
+        "bib": "101"
     }
 },
 {
