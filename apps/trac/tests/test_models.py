@@ -136,6 +136,19 @@ class TimingSessionTestCase(TestCase):
         mock_cache.delete.assert_called_with('ts_{}_athlete_1_results'.format(
             session2.id))
 
+    @mock.patch.object(trac.models.TimingSession, 'clear_cache')
+    def test_clear_cache_all(self, mock_clear):
+        """Test clearing the cache for all athletes."""
+        session = TimingSession.objects.create(coach=self.session.coach)
+        registered_athlete = Athlete.objects.get(pk=1)
+        result_athlete = Athlete.objects.get(pk=2)
+        session.registered_athletes.add(registered_athlete.pk)
+        split = Split.objects.create(athlete=result_athlete, time=0)
+        SplitFilter.objects.create(split=split, timingsession=session)
+        session.clear_cache_all()
+        mock_clear.assert_has_calls([mock.call(registered_athlete.pk),
+                                     mock.call(result_athlete.pk)])
+
     def test_is_active(self):
         """Test determining if the workout is open or closed."""
         # Open the workout by advancing the stop time.

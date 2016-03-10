@@ -450,6 +450,17 @@ class TimingSession(models.Model):
         """Clear the session's cached results for a single tag."""
         cache.delete(('ts_%i_athlete_%i_results' %(self.id, athlete_id)))
 
+    def clear_cache_all(self):
+        """Clear the cache for all participating athletes. Include athletes
+        that are registered, as well as those who show up in the results.
+        """
+        athlete_ids = (
+            set(self.splits.values_list('athlete_id', flat=True)) |
+            set(self.registered_athletes.values_list('id', flat=True))
+        )
+        for athlete_id in athlete_ids:
+            self.clear_cache(athlete_id)
+
 
 
     # TODO: Move to utils.
