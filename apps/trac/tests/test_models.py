@@ -12,6 +12,7 @@ from trac.models import (
 )
 from trac.utils.split_util import format_total_seconds
 
+
 class ReaderTestCase(TestCase):
 
     fixtures = ['trac_min.json']
@@ -22,14 +23,21 @@ class ReaderTestCase(TestCase):
         inactive_stop = timezone.now()+timezone.timedelta(-1)
         active_stop = timezone.now()+timezone.timedelta(1)
         session = TimingSession.objects.get(pk=1)
-        reader = Reader.objects.get(pk=1)
+        session2 = TimingSession.objects.get(pk=2)
+        reader = Reader.objects.get(pk=2)
+        
         session.start_time = start
         session.stop_time = inactive_stop
         session.save()
+        session2.start_time = start
+        session2.stop_time = active_stop
+        session2.save()
+        
         self.assertNotIn(session, reader.active_sessions)
         session.stop_time = active_stop
         session.save()
         self.assertIn(session, reader.active_sessions)
+        self.assertNotIn(session2, reader.active_sessions)
 
 
 class AthleteTestCase(TestCase):
