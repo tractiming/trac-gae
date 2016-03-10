@@ -197,6 +197,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         session = self.get_object()
         session.start_button_time = timestamp
         session.save()
+        session.clear_cache_all()
         return Response(status=status.HTTP_202_ACCEPTED)
 
     @detail_route(methods=['get'])

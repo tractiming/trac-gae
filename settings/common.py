@@ -92,7 +92,7 @@ if not APP_ENGINE:
     TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
     NOSE_ARGS = [
-        '--with-coverage', '--cover-inclusive',
+        '--with-coverage', '--cover-inclusive', '--cover-erase',
         '--cover-package=trac,website,stats,accounts,notifications'
     ]
 
