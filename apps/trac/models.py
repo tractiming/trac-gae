@@ -116,8 +116,9 @@ class Reader(models.Model):
         """
         Returns a list of all active sessions the reader belongs to.
         """
-        return [session for session in TimingSession.objects.all() if
-                session.active]
+        now = timezone.now()
+        return self.timingsession_set.filter(start_time__lte=now,
+                                             stop_time__gte=now)
 
 
 class Split(models.Model):
