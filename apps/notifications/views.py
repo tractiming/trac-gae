@@ -6,6 +6,7 @@ from notifications.models import Message, Subscription
 from notifications.permissions import IsFromTaskQueuePermission
 from notifications.serializers import SubscriptionSerializer
 from trac.models import Split
+from trac.utils.split_util import format_total_seconds
 
 
 _message_template = ('TRAC update - athlete: {name}, race: {session}, '
@@ -55,9 +56,10 @@ def notify(request):
             # that says so.
             result = subscription.session.individual_results(
                 athlete_ids=[subscription.athlete_id])[0]
-            text = _message_template.format(name=result.name,
-                                            session=subscription.session.name,
-                                            time=result.total)
+            text = _message_template.format(
+                name=result.name,
+                session=subscription.session.name,
+                time=format_total_seconds(result.total))
             message, created = Message.objects.get_or_create(
                 subscription=subscription, message=text)
             if created:
