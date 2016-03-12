@@ -23,19 +23,40 @@
 
 {% block js_scripts %}
 	<script src="{% static "js/new/teams.js" %}" type="text/javascript"></script>
+	<style>
+		#menu-btn {
+			cursor: pointer;
+			background-color:#dcdcdc; 
+			border-radius:4px;
+			padding:5px;
+			border: .5px black;
+		}
+
+		#menu-btn:hover {
+			cursor: pointer;
+			background-color:#aec8dc; 
+			border-radius:4px;
+			padding:5px
+		}
+	</style>
 {% endblock %}
 
 <!-- Body -->
 {% block nav-items %}
   <li><a href="/login">Login</a></li>
   <li><a href="/register">Register</a></li>
-  <li><a href="http://www.trac-us.com">About</a></li>
+  <li><a href="/">About</a></li>
   <li><a href="/score">Live Results</a></li>
 {% endblock %}
 
 {% block content %}
 	<div id="content" class="container-fluid">
 		<div class="container">
+			<div class="col-md-offset-6 col-sm-offset-6 col-xs-offset-6 col-md-6 col-sm-6 col-xs-6" style="">
+	          <div id="menu-btn" class="" data-toggle="modal" style="float:right;" onclick="location.href='/text/'">
+	            <span class="glyphicon glyphicon-phone" aria-hidden="true" onclick="amplitude.logEvent('text_link');"></span> Text Updates
+	          </div>
+	        </div>
 
 			<div class="row">
 				<h1 id="results-title">All teams</h1>
