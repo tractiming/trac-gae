@@ -37,6 +37,13 @@ $(document).ready(function() {
 <script type="text/javascript" src="{% static "js/new/messaging.js"%}"}></script>
 {% endblock %}
 
+{% block nav-items %}
+  <li><a href="/login">Login</a></li>
+  <li><a href="/register">Register</a></li>
+  <li><a href="/index">About</a></li>
+  <li><a href="/score">Live Results</a></li>
+{% endblock %}
+
 {% block content %}
 <div class="modal fade" id="notification-modal" role="dialog">
     <div class="modal-dialog">
