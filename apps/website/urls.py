@@ -55,6 +55,8 @@ urlpatterns = patterns('',
         name='terms'),
     url(r'^text', TemplateView.as_view(template_name='messaging.html'),
         name='text'),
+        url(r'^cara', TemplateView.as_view(template_name='change_tag.html'),
+        name='cara'),
 
     url(r'^payments/change_card',
         TemplateView.as_view(template_name='change_card.html'),

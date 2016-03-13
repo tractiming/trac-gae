@@ -354,3 +354,22 @@ def give_athlete_password(request):
         return HttpResponse(status.HTTP_200_OK)
     else:
         return HttpResponse(status.HTTP_403_FORBIDDEN)
+
+@csrf_exempt
+@permission_classes((permissions.AllowAny))
+def tag_id_change_athlete(request):
+    """
+    Endpoint that allows user to change user first and last name.
+
+    Can optionally change the username and password if they choose.
+    """
+    tag = Tag.objects.get(id_str=request.POST.get('tag_id'))
+    ath = tag.athlete
+    if not ath.user.password:
+        ath.user.first_name = request.POST.get('first_name')
+        ath.user.last_name = request.POST.get('last_name')
+        ath.user.username = request.POST.get('username')
+        ath.user.password = request.POST.get('password')
+        return HttpResponse(status.HTTP_201_CREATED)
+    else:
+        return HttpResponse(status.HTTP_403_FORBIDDEN)
