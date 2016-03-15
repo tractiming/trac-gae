@@ -584,7 +584,8 @@ class SplitFilter(models.Model):
 
         max_num = self.timingsession.filter_max_num_splits
         if max_num is not None:
-            num_filter = previous_splits.count() >= max_num
+            num_filter = previous_splits.filter(
+                splitfilter__filtered=False).count() >= max_num
         else:
             num_filter = False
 
