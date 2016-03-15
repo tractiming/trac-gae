@@ -34,6 +34,8 @@ urlpatterns = patterns('',
         name='caramile'),
     url(r'^lakeforest', TemplateView.as_view(template_name='lakeforest.html'),
         name='lakeforest'),
+    url(r'^badwater', TemplateView.as_view(template_name='badwater.html'),
+        name='badwater'),
 
     url(r'^liveview', TemplateView.as_view(template_name='live_view.html'),
         name='liveview'),
