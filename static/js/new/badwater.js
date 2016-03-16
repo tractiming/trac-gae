@@ -64,7 +64,7 @@ google.setOnLoadCallback(function(){
 		$('#results-nav').hide();
 		$('.results-tab-content').hide();
 		$('#download-container').hide();
-		$('#results-title').html('Results: ' + 'Badwater Baldhead Island');
+		$('#results-title').html('Results: ' + 'Badwater Cape Fear');
 
 
 		// query for all workout sessions
