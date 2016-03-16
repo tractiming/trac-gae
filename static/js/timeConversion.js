@@ -35,12 +35,20 @@ function localISOString(timeString){
 		+ ':' + pad(tzo % 60);
 }
 
-// format time in seconds.milliseconds to mm:ss.mil
+// format time in seconds.milliseconds to hh:mm:ss.mil
 function formatTime(time) {
-	var mins = Math.floor(time / 60);
+	var hours = Math.floor(time / 3600);
+	var mins = Math.floor((time - (hours * 3600)) / 60);
 	var secs = (time % 60).toFixed(3);
 	secs = Math.floor(secs / 10) == 0 ? '0'+secs : secs;
-	return mins.toString() + ':' + secs.toString();
+	if (hours == 0)
+	{
+		return mins.toString() + ':' + secs.toString();
+	}
+	else{
+		mins = Math.floor(mins / 10) == 0 ? '0'+mins : mins;
+		return hours.toString() + ':' + mins.toString() + ':' + secs.toString();
+	}
 }
 
 // convert time string in mm:ss.mil to seconds and milliseconds
