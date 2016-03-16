@@ -4,6 +4,7 @@ import datetime
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
+from django.db.models import Q
 from django.http import HttpResponse
 from django.template import loader
 from django.utils import timezone
@@ -137,7 +138,9 @@ class AthleteViewSet(viewsets.ModelViewSet):
             return Athlete.objects.filter(user=user)
 
         else:
-            return Athlete.objects.filter(split__timingsession__private=False).distinct()
+            return Athlete.objects.filter(
+                Q(split__timingsession__private=False) |
+                Q(timingsession__private=False)).distinct()
 
     def create(self, request, *args, **kwargs):
         # We want to allow for a tag to be created at the same time as an
