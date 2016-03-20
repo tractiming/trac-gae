@@ -162,11 +162,10 @@
       </div>
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-right">
-            <li class="hidden-sm hidden-xs"><a href="/#top" class="scrollto" rel="top">Home</a></li>
-            <li><a href="/#bg2" class="scrollto" rel="bg2" onclick="amplitude.logEvent('products');">Product</a></li>
-            <li><a href="/#bg3" class="scrollto" rel="bg3" onclick="amplitude.logEvent('about');">About</a></li>
-            <li><a href="/#bg4" class="scrollto" rel="bg4" onclick="amplitude.logEvent('blog');">Blog</a></li>
-            <li><a href="/#bg5" class="scrollto" rel="bg5" onclick="amplitude.logEvent('team');">Team</a></li>
+            <li><a href="/" onclick="amplitude.logEvent('home');">Home</a></li>
+            <li><a href="/#bg3" onclick="amplitude.logEvent('about');">About</a></li>
+            <li><a href="https://blog.tracchicago.com" onclick="amplitude.logEvent('blog');">Blog</a></li>
+            <li><a href="/#bg5" onclick="amplitude.logEvent('team');">Team</a></li>
             <li><a href="/score/" onclick="amplitude.logEvent('score');">Results</a></li>
             <li><a class="hidden-lg hidden-md"href="/login" class="scrollto" rel="bg6">Login</a></li>
             <li class="hidden-sm hidden-xs"><button class="btn btn-warning" style="margin-top:20%; margin-left:5%" onclick="location.href='/login'; amplitude.logEvent('toLogin');">Log in</button></li>
@@ -194,8 +193,15 @@
             </div>
             <div class="col-lg-7 col-md-7 col-sm-23 col-xs-23">
                <p style="text-align:left">
-              <b><i>Our Hardware:</i></b> Designed to detect any RFID chips that pass by and immediately sends athlete information to the cloud. Can be used for races or practices and easily communicates with other systmes if necessary for additional checkpoints or splits. All controlled via smartphone or browser. Can operate under harsh conditions.<br><br>
-             <b><i>Our Software:</i></b> Designed to scale for any race. The software can be run through your smartphone app or via web browser. Push live text updates or send emails when a friend of family member passes the finish. Finally, review results and compare times too. <br><br>
+                &bull; Works in all weather (even snowstorms!)<br>
+                &bull; Sends results to you immediately (as the race is running)<br>
+                &bull; Portable, less than ten pounds<br>
+                &bull; Controlled by a simple smartphone app<br>
+                &bull; Cost effective, less than half the price of a standard timing system<br>
+                &bull; No extra computers needed<br>
+                &bull; Works with other systems easily<br>
+                &bull; Setup everything in less than 2 minutes<br>
+                &bull; Battery life for more than 6 hours
             </p>
             </div>
         </div>
@@ -235,31 +241,31 @@
         <div class="text hidden-xs">
           <div class="left">
             <p>
-             Run.
+             Run a practice like you normally would. Set your sensor down at the place where you would normally take splits.
             </p>
           </div>
           <div class="mid">
-            <p>Results are streamed.</p>
+            <p>As soon as a runner passes the sensors results are immediatley streamed to the cloud.</p>
           </div>
           <div class="right">
-            <p>View them instantly on your phone.</p>
+            <p>You and any of your assistant coaches can view results as they instantly appear everyones phone.</p>
           </div>
            
         </div>
         <div class="row hidden-lg hidden-md hidden-sm">
           <img src={% static "img/box-01.png" %} height="200px">
           <p>
-              Order everything necessary in preparation for race day. We ship it to you a few days before.
+              Run a practice like you normally would. Set your sensor down at the place where you would normally take splits.
             </p>
           <div class="col-4-xs">
           </div>
           <div class="col-4-xs">
             <img src={% static "img/phone.png" %} height="150px">
-            <p>Run the entire system off your smartphone. No messy cables or equipment.</p>
+             <p>As soon as a runner passes the sensors results are immediatley streamed to the cloud.</p>
           </div>
           <div class="col-4-xs">
             <img src={% static "img/trophy-01.png" %} height="150px">
-            <p>Results are streamed live to the web and immediately available for all participants.</p>
+             <p>You and any of your assistant coaches can view results as they instantly appear everyones phone.</p>
           </div>
         </div>
 
@@ -276,7 +282,7 @@
 
     <div id="bg2" style="background:#222 !important;">
             <div class="content">
-        <h2>Small Races & XC Meets</h2>
+        <h2>Races & XC Meets</h2>
         <br>
           <br>
         <div class="pictures hidden-xs">
@@ -301,7 +307,7 @@
         <div class="text hidden-xs">
           <div class="left">
             <p>
-              Order everything necessary in preparation for race day. We ship it to you a few days before.
+              Order everything necessary in preparation for race day--sensor & bibs. We ship it to you a few days before.
             </p>
           </div>
           <div class="mid">
@@ -340,38 +346,29 @@
 
     <div id="bg2">
           <div class="content">
-        <h2>Big Races</h2>
+        <h2>Software as a Service</h2>
         <br>
           <br>
         <div class="pictures hidden-xs">
-        <div class="left">
-          <img src={% static "img/runningguy.png" %} height="200px">
-        </div>
-        <div class="wifione hidden-xs">
-          <img src={% static "img/wifi.png" %} height="100px">
-        </div>
-        <div class="mid">
-          
-          <img src={% static "img/cloud.png" %} height="150px">
-            
-        </div>
-        <div class="wifitwo hidden-xs">
-          <img src={% static "img/wifi.png" %} height="100px">
-        </div>
-        <div class="right">
-          <img src={% static "img/trophy-01.png" %} height="150px">
-        </div>
+          <div class="row">
+            <img src={% static "img/cloud.png" %} height="100px" style="padding-right:10%">
+            <img src={% static "img/wifi.png" %} height="100px" style="padding-right:10%">
+            <img src={% static "img/trophy-01.png" %} height="150px">
+          </div>
+
         </div>
         <div class="text hidden-xs">
-          <div class="left">
-            <p>
-              Order everything necessary in preparation for race day. We ship it to you a few days before.
-            </p>
-          </div>
-          
-          <div class="right">
-            <p>Results are streamed live to the web and immediately available for all participants.</p>
-          </div>
+          <div class="row">
+            <div class="col-lg-3 col-lg-offset-2">
+              <p>Push your results straight to our cloud platform. We parse the raw times and ID numbers and compute results immediately.</p>
+            </div>
+            <div class="col-lg-3">
+              <p>Unofficail results can be instantly pushed live around the world. Use our platform to push text or email notifications when users pass specific checkpoints.</p>
+            </div>
+            <div class="col-lg-3">
+              <p> View results on our mobile web platform, or just share them internally amongst your team. Finalize results, publish them, and give out awards!</p>
+            </div>
+            </div>
            
         </div>
         <div class="row hidden-lg hidden-md hidden-sm">
@@ -405,14 +402,15 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-md-3 col-sm-6 footer-item">
-          <img class="footer-img" src= {% static "img/trac_small.gif" %} alt="TRAC" aria-hidden="true" >
+          <a href="/">
+           <img class="footer-img" src= {% static "img/trac_small.gif" %} alt="TRAC" aria-hidden="true" >
+          </a>
         </div>
 
         <div class="col-md-3 col-sm-6 footer-item">
           <div class="internal">
             <a href="https://www.facebook.com/timingracing" onclick="amplitude.logEvent('toFB');"><img src={% static "img/facebook.png" %}></a>
             <a href="http://youtu.be/9OxhM_fiHWo"><img src={% static "img/youtube.png" %} width="50px"></a>
-            <a href="https://angel.co/timing-and-racing-around-the-clock"><img src= {% static "img/angellist.png" %}></a>
             <a href="https://twitter.com/TRAC_Chicago" onclick="amplitude.logEvent('toTwitter');"><img src= {% static "img/twitter2.png" %} style="width:56px"></a>
           </div>
         </div>
@@ -420,9 +418,9 @@
         <div class="col-md-3 col-sm-6 hidden-xs footer-item">
           <div class="external">
             <ul>
-              <li><a href="/bg3" class="scrollto" rel="bg3">About</a></li>
+              <li><a href="/">About</a></li>
               <li><a href="/Tutorial/5/" onclick="amplitude.logEvent('toFAQ');">Frequently Asked Questions</a></li>
-              <li><a href="mailto:founders@tracchicago.com" onclick="amplitude.logEvent('mailto');">Contact us</a></li>
+              <li><a href="mailto:info@tracchicago.com" onclick="amplitude.logEvent('mailto');">Contact us</a></li>
             </ul>
           </div>
         </div>
@@ -430,7 +428,6 @@
         <div class="col-md-3 col-sm-6 footer-item">
           <address style="color:black">
             Timing and Racing Around the Clock<br>
-            The Garage<br>
             2311 Campus Drive<br>
             Evanston, IL 60208<br><br>
           </address>
@@ -572,7 +569,7 @@ $("video").bind("ended", function() {
                   Mass start & wide finish line (<15ft): 2 <br>
                   If you intend to have a chip timed start, that is not the finish, add 1 (>15ft) or 2 (<15ft)<br>
                   For checkpoints, depending on the width, add the necessary number of systems. If races are circular, and start and finish in the same place, the same systems can be used.<br>
-                  For more information contact: founders@tracchicago.com
+                  For more information contact: info@tracchicago.com
 
                 </div>
               </div>
@@ -601,7 +598,7 @@ $("video").bind("ended", function() {
             <br><br>
             To manage your event, and stay updated with your order please create an account: <br><center><button type="submit" id="submit" class="btn btn-primary" style="margin-left:2%; width:250px;" onclick="location.href='/register';" onclick="amplitude.logEvent('Create_Account_Payment_Popup');">Register</button> </center>-->
             <br><br>
-            For more information regarding your order, email <a href="mailto:founders@tracchicago.com" style="color:#3577A8 !important;">founders@tracchicago.com</a>
+            For more information regarding your order, email <a href="mailto:infos@tracchicago.com" style="color:#3577A8 !important;">info@tracchicago.com</a>
             </div>
          </div>
         <div class="modal-footer">
