@@ -156,16 +156,16 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a id="logo" class="navbar-brand" href="/home">
+        <a id="logo" class="navbar-brand" href="/">
           <img class="footer-img" src={% static "img/trac_small.gif" %} alt="TRAC" aria-hidden="true" >
         </a>
       </div>
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-right">
             <li class="hidden-sm hidden-xs"><a href="/#top" class="scrollto" rel="top">Home</a></li>
-            <li><a href="/#bg2" class="scrollto" rel="bg2" onclick="amplitude.logEvent('products');">Product</a></li>
+            <li><a href="/product"  onclick="amplitude.logEvent('products');">Product</a></li>
             <li><a href="/#bg3" class="scrollto" rel="bg3" onclick="amplitude.logEvent('about');">About</a></li>
-            <li><a href="/#bg4" class="scrollto" rel="bg4" onclick="amplitude.logEvent('blog');">Blog</a></li>
+            <li><a href="https://blog.tracchicago.com" onclick="amplitude.logEvent('blog');">Blog</a></li>
             <li><a href="/#bg5" class="scrollto" rel="bg5" onclick="amplitude.logEvent('team');">Team</a></li>
             <li><a href="/score/" onclick="amplitude.logEvent('score');">Results</a></li>
             <li><a class="hidden-lg hidden-md"href="/login" class="scrollto" rel="bg6">Login</a></li>
@@ -260,7 +260,7 @@
   <div style="position:absolute; margin-top:-60px;">
     <h1 class="logo hidden-xs" style="font-family: 'GothamHTF-Book', 'Helvetica', 'Arial', sans; font-size:30px; color:#fff; margin-right:auto; margin-left:auto; font-weight:700;">Timing And Racing Around the Clock</h1> 
     </div> 
-    <div id="bg2">  
+    <!--<div id="bg2">  
      
     <div class="content">
         <h2>Product</h2>
@@ -322,8 +322,8 @@
           &#8226; Hardware is lightweight (5lbs) and rechargable
           <br><br>
            &#8226; Wearables attach to shoes and never need to be charged-->
-      </div>
-    </div>
+     <!-- </div>
+    </div>-->
 
   <div id="bg3">
       <div class="text"><br>
@@ -463,7 +463,9 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-md-3 col-sm-6 footer-item">
-          <img class="footer-img" src= {% static "img/trac_small.gif" %} alt="TRAC" aria-hidden="true" >
+          <a id="logo" class="navbar-brand" href="/">
+            <img class="footer-img" src= {% static "img/trac_small.gif" %} alt="TRAC" aria-hidden="true" >
+          </a>
         </div>
 
         <div class="col-md-3 col-sm-6 footer-item">
