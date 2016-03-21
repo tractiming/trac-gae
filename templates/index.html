@@ -82,7 +82,6 @@
   <script src="{% static "js/bowtruss.js" %}" type="text/javascript"></script>
   <script src="{% static "js/bootstrap-datepicker.min.js" %}" type="text/javascript"></script>
   <script type="text/javascript" src="{% static "js/new/index.js" %}"></script>
-   <script src="https://checkout.stripe.com/checkout.js"></script>
   
 <!--colorbox-->
 <link rel="stylesheet" href="static/css/colorbox.css" />  
@@ -156,16 +155,15 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a id="logo" class="navbar-brand" href="/home">
+        <a id="logo" class="navbar-brand" href="/">
           <img class="footer-img" src={% static "img/trac_small.gif" %} alt="TRAC" aria-hidden="true" >
         </a>
       </div>
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-right">
-            <li class="hidden-sm hidden-xs"><a href="/#top" class="scrollto" rel="top">Home</a></li>
-            <li><a href="/#bg2" class="scrollto" rel="bg2" onclick="amplitude.logEvent('products');">Product</a></li>
+            <li><a href="/product"  onclick="amplitude.logEvent('products');">Product</a></li>
             <li><a href="/#bg3" class="scrollto" rel="bg3" onclick="amplitude.logEvent('about');">About</a></li>
-            <li><a href="/#bg4" class="scrollto" rel="bg4" onclick="amplitude.logEvent('blog');">Blog</a></li>
+            <li><a href="https://blog.tracchicago.com" target="_blank" onclick="amplitude.logEvent('blog');">Blog</a></li>
             <li><a href="/#bg5" class="scrollto" rel="bg5" onclick="amplitude.logEvent('team');">Team</a></li>
             <li><a href="/score/" onclick="amplitude.logEvent('score');">Results</a></li>
             <li><a class="hidden-lg hidden-md"href="/login" class="scrollto" rel="bg6">Login</a></li>
@@ -185,7 +183,7 @@
               <div id="subtext" >
               <h2>YOUR RACE, ON DEMAND</h2><br>
               <p class="hidden-xs">TIMING AT THE CLICK OF A BUTTON</p> <br> 
-              <button type="submit" id="submit" class="btn btn-primary form-control" style="margin-left:2%; width:250px;" data-toggle="modal" data-target="#order-modal" onclick="amplitude.logEvent('Order_Now');">Order Now</button> 
+              <button type="submit" id="submit" class="btn btn-primary form-control" style="margin-left:2%; width:250px;" onclick="location.href='/quote'; amplitude.logEvent('Order_Now');">Order Now</button> 
               </div>
             </div>
           </div>
@@ -206,7 +204,7 @@
               <div id="subtext" >
               <h2>FOCUS ON THE RACE</h2><br>
               <p class="hidden-xs">CONCENTRATE ON WHAT MATTERS</p> <br> 
-              <button type="submit" id="submit" class="btn btn-primary form-control" style="margin-left:2%; width:250px;" data-toggle="modal" data-target="#order-modal" onclick="amplitude.logEvent('Order_Now');">Order Now</button> 
+              <button type="submit" id="submit" class="btn btn-primary form-control" style="margin-left:2%; width:250px;" data-toggle="modal" data-target="#order-modal" onclick="location.href='/quote'; amplitude.logEvent('Order_Now');">Order Now</button> 
               </div>
             </div>
           </div>
@@ -260,7 +258,7 @@
   <div style="position:absolute; margin-top:-60px;">
     <h1 class="logo hidden-xs" style="font-family: 'GothamHTF-Book', 'Helvetica', 'Arial', sans; font-size:30px; color:#fff; margin-right:auto; margin-left:auto; font-weight:700;">Timing And Racing Around the Clock</h1> 
     </div> 
-    <div id="bg2">  
+    <!--<div id="bg2">  
      
     <div class="content">
         <h2>Product</h2>
@@ -322,9 +320,61 @@
           &#8226; Hardware is lightweight (5lbs) and rechargable
           <br><br>
            &#8226; Wearables attach to shoes and never need to be charged-->
-      </div>
-    </div>
+     <!-- </div>
+    </div>-->
+<div id="bg4">
+      <div class="text"><br>
 
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12  col-xs-12">
+              <br><br>
+            <h2>Product</h2><br>
+          </div>
+        </div>
+
+        <div class="container">
+        <div class="row">
+            <div class="col-lg-5 col-md-5 col-sm-5 col-xs-7">
+             <img src={% static "img/DSC_0918.JPG" %} style="width:100%">
+            </div>
+            <div class="col-lg-7 col-md-7 col-sm-7 col-xs-5">
+               <p style="text-align:left" class="hidden-xs">
+                &bull; Sends results to you immediately (as the race is running)<br>
+                &bull; Works in all weather (even snowstorms!)<br>
+                &bull; Portable, less than ten pounds<br>
+                &bull; Controlled by a simple smartphone app<br>
+                &bull; Cost effective, less than half the price of a standard timing system<br>
+                &bull; No extra computers needed<br>
+                &bull; Works with other systems easily<br>
+                &bull; Setup everything in less than 2 minutes<br>
+                &bull; Battery life for more than 6 hours<br>
+                &bull; <a href="/product#bg2" onclick="amplitude.logEvent('toDemo');">See the details</a>
+            </p>
+            <p style="text-align:left" class="hidden-lg hidden-md hidden-sm">
+                &bull; Sends results to you immediately (as the race is running)<br>
+                &bull; Works in all weather (even snowstorms!)<br>
+                &bull; Controlled by a simple smartphone app<br>
+                &bull; <a href="/product#bg2" onclick="amplitude.logEvent('toDemo');">See the details</a>
+            </p>
+            </div>
+        </div>
+        <div class="row" style="padding-top:5%">
+          <div class="col-lg-6 col-lg-offset-3 col-md-5 col-sm-8 col-xs-8 col-xs-offset-2">
+             <a href="https://blog.tracchicago.com" target="_blank" onclick="amplitude.logEvent('toDemo');">Checkout the product in action</a>
+          </div>
+
+        </div>
+      </div>
+      
+
+         
+
+      
+      </div>
+
+
+        
+    </div>
   <div id="bg3">
       <div class="text"><br>
       
@@ -362,47 +412,7 @@
       </div>
         
     </div>
-    <div id="bg4">
-      <div class="text"><br>
-
-        <div class="row">
-            <div class="col-lg-12 col-md-12 col-sm-12  col-xs-12">
-              <br><br>
-            <h2>Trac on the track</h2><br>
-          </div>
-        </div>
-
-        <div class="container">
-        <div class="row">
-            <div class="col-lg-5 col-md-5 col-sm-5 hidden-xs">
-             <img src={% static "img/Tempo_Run2.jpg" %} style="width:100%">
-            </div>
-            <div class="col-lg-7 col-md-7 col-sm-23 col-xs-23">
-               <p style="text-align:left">
-              <i>Team:</i> Northwestern Men XC<br>
-              <i>Workout:</i> Montrose Tempo<br>
-              <i>Interval:</i> 3 X 2 Mile at tempo pace with 1 min rest <br>
-              <i>Set-Up:</i> 1 TRAC reader at the start/finish line on a 400 m track<br><br><br>
-              <i class="hidden-sm"> "By taking the work associated with splits out of the equation entirely, I can focus on actually watching the athletes and giving constructive feedback in real time." </i> <b class="hidden-sm">Coach Peter Foote</b>
-            </p>
-            </div>
-        </div>
-        <div class="row" style="padding-top:5%">
-          <div class="col-lg-6 col-lg-offset-3 col-md-5 col-sm-8 col-xs-8 col-xs-offset-2">
-             <a href="https://blog.tracchicago.com" target="_blank" onclick="amplitude.logEvent('toDemo');">Checkout other workouts in action</a>
-          </div>
-
-        </div>
-      </div>
-      
-
-         
-
-      
-      </div>
-
-        
-    </div>
+    
     <div id="bg5">
       <div class="content">
         <h2>Our Team</h2>
@@ -446,41 +456,33 @@
       </div>
     </div>
 
-    <div id="bg6">
-      <div class="content">
-        <h2>CONTACT US</h2>
-        <br>
-          <br>
-        <p>For more information regarding Timing and Racing Around the Clock or about purchasing one of our systems reach us at:</p>
-        <br>
-          <br>
-         <h3><a href="mailto:founders@tracchicago.com?subject=TRAC System Interest&body=Hi TRAC Team, I am interested in more information regarding your timing system." onclick="amplitude.logEvent('mailto');">founders@tracchicago.com</a></h3>
-      </div>
-    </div>
+
 
 <!--Footer Addition -->
  <footer class="footer">
     <div class="container-fluid">
       <div class="row">
         <div class="col-md-3 col-sm-6 footer-item">
-          <img class="footer-img" src= {% static "img/trac_small.gif" %} alt="TRAC" aria-hidden="true" >
+          <a id="logo" class="navbar-brand" href="/">
+            <img class="footer-img" src= {% static "img/trac_small.gif" %} alt="TRAC" aria-hidden="true" >
+          </a>
         </div>
 
         <div class="col-md-3 col-sm-6 footer-item">
           <div class="internal">
-            <a href="https://www.facebook.com/timingracing" onclick="amplitude.logEvent('toFB');"><img src={% static "img/facebook.png" %}></a>
-            <a href="http://youtu.be/9OxhM_fiHWo"><img src={% static "img/youtube.png" %} width="50px"></a>
-            <a href="https://angel.co/timing-and-racing-around-the-clock"><img src= {% static "img/angellist.png" %}></a>
-            <a href="https://twitter.com/TRAC_Chicago" onclick="amplitude.logEvent('toTwitter');"><img src= {% static "img/twitter2.png" %} style="width:56px"></a>
+            <a href="https://www.facebook.com/timingracing" target="_blank" onclick="amplitude.logEvent('toFB');"><img src={% static "img/facebook.png" %}></a>
+            <a href="https://youtu.be/Tk-7w_dl9aY" target="_blank"><img src={% static "img/youtube.png" %} width="50px"></a>
+            <a href="https://twitter.com/TRAC_Chicago" target="_blank" onclick="amplitude.logEvent('toTwitter');"><img src= {% static "img/twitter2.png" %} style="width:56px"></a>
           </div>
         </div>
 
         <div class="col-md-3 col-sm-6 hidden-xs footer-item">
           <div class="external">
             <ul>
-              <li><a href="/bg3" class="scrollto" rel="bg3">About</a></li>
+              <li><a href="/#bg3" class="scrollto" rel="bg3">About</a></li>
               <li><a href="/Tutorial/5/" onclick="amplitude.logEvent('toFAQ');">Frequently Asked Questions</a></li>
-              <li><a href="mailto:founders@tracchicago.com" onclick="amplitude.logEvent('mailto');">Contact us</a></li>
+              <li><a href="/privacy/">Privacy</a> <a style="cursor:pointer">&</a> <a href="/terms/">Terms</a></li>
+              <li><a href="mailto:info@tractiming.com" onclick="amplitude.logEvent('mailto');">Contact us</a></li>
             </ul>
           </div>
         </div>
@@ -488,7 +490,6 @@
         <div class="col-md-3 col-sm-6 footer-item">
           <address style="color:black">
             Timing and Racing Around the Clock<br>
-            The Garage<br>
             2311 Campus Drive<br>
             Evanston, IL 60208<br><br>
           </address>
@@ -563,7 +564,7 @@ $("video").bind("ended", function() {
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header" style="color:black">
-            Race Day Information:<button id="cl" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button>
+            Estimated Race Day Quote:<button id="cl" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button>
         </div>
         <div class="modal-body" style="color:black">
           <form id="session-form" name="session-form" method="POST">
@@ -580,7 +581,7 @@ $("video").bind("ended", function() {
             </div>
             <div class="form-group">
               <label >Number of Tags:</label>
-              <input type="text" id="tags" name="organization" class="form-group form-control" required placeholder="25">
+              <input type="text" id="tags" name="organization" class="form-group form-control" required placeholder="5000" data-toggle="popover" title="Popover title" data-content="And here's some amazing content. It's very engaging. Right?">
             </div>
             <label>Tag Type:</label>
             <div class="form-group">
@@ -593,7 +594,7 @@ $("video").bind("ended", function() {
             </div>
             <div class="form-group">
               <label >Number of Systems:</label><br>
-              <input type="text" id="systems" class="form-group form-control" placeholder="0">
+              <input type="text" id="systems" class="form-group form-control" placeholder="3">
             </div>
             <div class="form-group" style="overflow:hidden;">
               <div style="width:50%; float:left; padding-right:5px;">
@@ -615,7 +616,7 @@ $("video").bind("ended", function() {
               </div>
             </div>
             <div class="form-group">
-            <label id="pricing">Calculated Price: $25.00</label>
+            <label id="pricing">Estimated Price: $25.00</label>
             <button class="btn btn-primary pull-right" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
             Ordering Guidelines
             </button>
@@ -630,14 +631,14 @@ $("video").bind("ended", function() {
                   Mass start & wide finish line (<15ft): 2 <br>
                   If you intend to have a chip timed start, that is not the finish, add 1 (>15ft) or 2 (<15ft)<br>
                   For checkpoints, depending on the width, add the necessary number of systems. If races are circular, and start and finish in the same place, the same systems can be used.<br>
-                  For more information contact: founders@tracchicago.com
+                  For more information contact: info@tractiming.com
 
                 </div>
               </div>
         </div>
         <div class="modal-footer">
-          <div class="btn-group pull-right" role="group">
-            <button type="submit" id="quote" class="btn btn-secondary" style="margin-left:2%">Next<span class="glyphicon glyphicon-menu-right"></span></button>
+          <div class="btn-group center" role="group">
+            <button type="submit" id="quote" class="btn btn-primary" style="margin-left:2%">Submit Quote</button>
           </div>
           <div id="spinner-form"></div>
         </div>
@@ -653,13 +654,12 @@ $("video").bind("ended", function() {
         </div>
         <div class="modal-body" style="color:black">
           <div id="success_reference">
-            Let's get ready for race day! <br><br> Expect your equipment at least one day before your event. Your payment reference number is:<br><br>
-            <center id="payment_reference"></center> 
+           We have emailed you a quote. We'll be in touch shortly about your race.
             <!-- TODO: Take info, create account as necessary
             <br><br>
             To manage your event, and stay updated with your order please create an account: <br><center><button type="submit" id="submit" class="btn btn-primary" style="margin-left:2%; width:250px;" onclick="location.href='/register';" onclick="amplitude.logEvent('Create_Account_Payment_Popup');">Register</button> </center>-->
             <br><br>
-            For more information regarding your order, email <a href="mailto:founders@tracchicago.com" style="color:#3577A8 !important;">founders@tracchicago.com</a>
+            For more information regarding your order, email <a href="mailto:info@tractiming.com" style="color:#3577A8 !important;">info@tractiming.com</a>
             </div>
          </div>
         <div class="modal-footer">

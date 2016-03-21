@@ -11,7 +11,7 @@ $(function() {
 	$('input#end-date').datepicker(datepickerOptions);
 
 
-	var tag_type=1, num_tags=25, systems=0, startTime = [9,0], startDate, startAMPM, shipping=0,email;
+	var tag_type=1, num_tags=5000, systems=3, startTime = [9,0], startDate, startAMPM, shipping=0,email;
 
 	$("#tags").keypress(function (e) {
 	//if the letter is not digit then display error and don't type anything
@@ -44,44 +44,15 @@ $(function() {
 
 	function changePricing(tag_type,num_tags,systems,diff){
 	  price = (tag_type * num_tags) + (systems * 350) + (systems * diff) + (diff/3);
-	  $('#pricing').text('Calculated Price: $' + price+'.00');
+
+	  $('#pricing').text('Estimated Price: $' + price.toLocaleString()+'.00');
 
 	};
 
 
-	var handler = StripeCheckout.configure({
-	  key:  'pk_live_3nKm6N41EIJ2QyGxB16dyoGj',
-	  image: '../../static/img/trac_stripe.png',
-	  locale: 'auto',
-	  token: function(token) {
-	    // Use the token to create the charge with a server-side script.
-	    // You can access the token ID with `token.id`
-	    var stripePrice = price *100;
-	    $.ajax({
-					type: 'POST',
-					dataType:'json',
-					url: '/stripe-single/',
-					data: {
-						stripeToken: token.id,
-						price: stripePrice
-										
-					},
-					success: function(data) {
-						$('#payment_reference').text(token.id);
-						$('#payment-modal').modal('show');
-					},
-					error: function(xhr, errmsg, err) {
-						$('#payment_reference').text('Something went wrong...We are sorry for any inconvenience');
-						$('#payment-modal').modal('show');
-					}
-				});
-
-	  }
-	  });
-
 	  // Close Checkout on page navigation
 	  $(window).on('popstate', function() {
-	  handler.close();
+	  //handler.close();
 	  });
 
 
@@ -147,14 +118,14 @@ $(function() {
 				var email = $('input[id=email]').val();
 				var stripePrice = price *100;
 
-			  handler.open({
-			  	email: email,
-			    name: 'TRAC',
-			    description: 'TRAC Timing',
-			    amount: stripePrice,
-			    shippingAddress:true,
-			  });
-			  e.preventDefault();
+			  // .open({
+			  // 	email: email,
+			  //   name: 'TRAC',
+			  //   description: 'TRAC Timing',
+			  //   amount: stripePrice,
+			  //   shippingAddress:true,
+			  // });
+			  // e.preventDefahandlerult();
 
 				// get start date and time
 				var startDate = $('input[id=start-date]').val().trim().split(/[\/-]/),
@@ -220,7 +191,8 @@ $(function() {
 						//$('#notifications-modal').modal('show');
 
 						// clear form and reload data
-						$('#session-form')[0].reset();
+
+						$('#payment-modal').modal('show');
 					},
 					error: function(xhr, errmsg, err) {
 						// hide spinner
