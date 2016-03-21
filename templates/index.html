@@ -163,7 +163,7 @@
         <ul class="nav navbar-nav navbar-right">
             <li><a href="/product"  onclick="amplitude.logEvent('products');">Product</a></li>
             <li><a href="/#bg3" class="scrollto" rel="bg3" onclick="amplitude.logEvent('about');">About</a></li>
-            <li><a href="https://blog.tracchicago.com" onclick="amplitude.logEvent('blog');">Blog</a></li>
+            <li><a href="https://blog.tracchicago.com" target="_blank" onclick="amplitude.logEvent('blog');">Blog</a></li>
             <li><a href="/#bg5" class="scrollto" rel="bg5" onclick="amplitude.logEvent('team');">Team</a></li>
             <li><a href="/score/" onclick="amplitude.logEvent('score');">Results</a></li>
             <li><a class="hidden-lg hidden-md"href="/login" class="scrollto" rel="bg6">Login</a></li>
@@ -183,7 +183,7 @@
               <div id="subtext" >
               <h2>YOUR RACE, ON DEMAND</h2><br>
               <p class="hidden-xs">TIMING AT THE CLICK OF A BUTTON</p> <br> 
-              <button type="submit" id="submit" class="btn btn-primary form-control" style="margin-left:2%; width:250px;" data-toggle="modal" data-target="#order-modal" onclick="amplitude.logEvent('Order_Now');">Order Now</button> 
+              <button type="submit" id="submit" class="btn btn-primary form-control" style="margin-left:2%; width:250px;" onclick="location.href='/quote'; amplitude.logEvent('Order_Now');">Order Now</button> 
               </div>
             </div>
           </div>
@@ -204,7 +204,7 @@
               <div id="subtext" >
               <h2>FOCUS ON THE RACE</h2><br>
               <p class="hidden-xs">CONCENTRATE ON WHAT MATTERS</p> <br> 
-              <button type="submit" id="submit" class="btn btn-primary form-control" style="margin-left:2%; width:250px;" data-toggle="modal" data-target="#order-modal" onclick="amplitude.logEvent('Order_Now');">Order Now</button> 
+              <button type="submit" id="submit" class="btn btn-primary form-control" style="margin-left:2%; width:250px;" data-toggle="modal" data-target="#order-modal" onclick="location.href='/quote'; amplitude.logEvent('Order_Now');">Order Now</button> 
               </div>
             </div>
           </div>
@@ -334,11 +334,11 @@
 
         <div class="container">
         <div class="row">
-            <div class="col-lg-5 col-md-5 col-sm-5 hidden-xs">
+            <div class="col-lg-5 col-md-5 col-sm-5 col-xs-7">
              <img src={% static "img/DSC_0918.JPG" %} style="width:100%">
             </div>
-            <div class="col-lg-7 col-md-7 col-sm-23 col-xs-23">
-               <p style="text-align:left">
+            <div class="col-lg-7 col-md-7 col-sm-7 col-xs-5">
+               <p style="text-align:left" class="hidden-xs">
                 &bull; Sends results to you immediately (as the race is running)<br>
                 &bull; Works in all weather (even snowstorms!)<br>
                 &bull; Portable, less than ten pounds<br>
@@ -348,7 +348,13 @@
                 &bull; Works with other systems easily<br>
                 &bull; Setup everything in less than 2 minutes<br>
                 &bull; Battery life for more than 6 hours<br>
-                &bull; <a href="/product#bg2" target="_blank" onclick="amplitude.logEvent('toDemo');">See the details</a>
+                &bull; <a href="/product#bg2" onclick="amplitude.logEvent('toDemo');">See the details</a>
+            </p>
+            <p style="text-align:left" class="hidden-lg hidden-md hidden-sm">
+                &bull; Sends results to you immediately (as the race is running)<br>
+                &bull; Works in all weather (even snowstorms!)<br>
+                &bull; Controlled by a simple smartphone app<br>
+                &bull; <a href="/product#bg2" onclick="amplitude.logEvent('toDemo');">See the details</a>
             </p>
             </div>
         </div>
@@ -475,7 +481,8 @@
             <ul>
               <li><a href="/#bg3" class="scrollto" rel="bg3">About</a></li>
               <li><a href="/Tutorial/5/" onclick="amplitude.logEvent('toFAQ');">Frequently Asked Questions</a></li>
-              <li><a href="mailto:info@tracchicago.com" onclick="amplitude.logEvent('mailto');">Contact us</a></li>
+              <li><a href="/privacy/">Privacy</a> <a style="cursor:pointer">&</a> <a href="/terms/">Terms</a></li>
+              <li><a href="mailto:info@tractiming.com" onclick="amplitude.logEvent('mailto');">Contact us</a></li>
             </ul>
           </div>
         </div>
@@ -624,7 +631,7 @@ $("video").bind("ended", function() {
                   Mass start & wide finish line (<15ft): 2 <br>
                   If you intend to have a chip timed start, that is not the finish, add 1 (>15ft) or 2 (<15ft)<br>
                   For checkpoints, depending on the width, add the necessary number of systems. If races are circular, and start and finish in the same place, the same systems can be used.<br>
-                  For more information contact: info@tracchicago.com
+                  For more information contact: info@tractiming.com
 
                 </div>
               </div>
@@ -652,7 +659,7 @@ $("video").bind("ended", function() {
             <br><br>
             To manage your event, and stay updated with your order please create an account: <br><center><button type="submit" id="submit" class="btn btn-primary" style="margin-left:2%; width:250px;" onclick="location.href='/register';" onclick="amplitude.logEvent('Create_Account_Payment_Popup');">Register</button> </center>-->
             <br><br>
-            For more information regarding your order, email <a href="mailto:info@tracchicago.com" style="color:#3577A8 !important;">info@tracchicago.com</a>
+            For more information regarding your order, email <a href="mailto:info@tractiming.com" style="color:#3577A8 !important;">info@tractiming.com</a>
             </div>
          </div>
         <div class="modal-footer">

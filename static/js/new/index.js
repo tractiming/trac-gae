@@ -11,7 +11,7 @@ $(function() {
 	$('input#end-date').datepicker(datepickerOptions);
 
 
-	var tag_type=1, num_tags=25, systems=0, startTime = [9,0], startDate, startAMPM, shipping=0,email;
+	var tag_type=1, num_tags=5000, systems=3, startTime = [9,0], startDate, startAMPM, shipping=0,email;
 
 	$("#tags").keypress(function (e) {
 	//if the letter is not digit then display error and don't type anything
@@ -191,7 +191,7 @@ $(function() {
 						//$('#notifications-modal').modal('show');
 
 						// clear form and reload data
-						$('#session-form')[0].reset();
+
 						$('#payment-modal').modal('show');
 					},
 					error: function(xhr, errmsg, err) {

@@ -164,7 +164,7 @@
         <ul class="nav navbar-nav navbar-right">
             <li><a href="/" onclick="amplitude.logEvent('home');">Home</a></li>
             <li><a href="/#bg3" onclick="amplitude.logEvent('about');">About</a></li>
-            <li><a href="https://blog.tracchicago.com" onclick="amplitude.logEvent('blog');">Blog</a></li>
+            <li><a href="https://blog.tracchicago.com" target="_blank" onclick="amplitude.logEvent('blog');">Blog</a></li>
             <li><a href="/#bg5" onclick="amplitude.logEvent('team');">Team</a></li>
             <li><a href="/score/" onclick="amplitude.logEvent('score');">Results</a></li>
             <li><a class="hidden-lg hidden-md"href="/login" class="scrollto" rel="bg6">Login</a></li>
@@ -188,11 +188,11 @@
 
         <div class="container">
         <div class="row">
-            <div class="col-lg-5 col-md-5 col-sm-5 hidden-xs">
+            <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
              <img src={% static "img/DSC_0918.JPG" %} style="width:100%">
             </div>
-            <div class="col-lg-7 col-md-7 col-sm-23 col-xs-23">
-               <p style="text-align:left">
+            <div class="col-lg-7 col-md-7 col-sm-7 col-xs-5">
+               <p style="text-align:left" class="hidden-xs">
                 &bull; Sends results to you immediately (as the race is running)<br>
                 &bull; Works in all weather (even snowstorms!)<br>
                 &bull; Portable, less than ten pounds<br>
@@ -201,7 +201,14 @@
                 &bull; No extra computers needed<br>
                 &bull; Works with other systems easily<br>
                 &bull; Setup everything in less than 2 minutes<br>
-                &bull; Battery life for more than 6 hours
+                &bull; Battery life for more than 6 hours<br>
+                &bull; <a href="/product#bg2" onclick="amplitude.logEvent('toDemo');">See the details</a>
+            </p>
+            <p style="text-align:left" class="hidden-lg hidden-md hidden-sm">
+                &bull; Sends results to you immediately (as the race is running)<br>
+                &bull; Works in all weather (even snowstorms!)<br>
+                &bull; Controlled by a simple smartphone app<br>
+                &bull; <a href="/product#bg2" onclick="amplitude.logEvent('toDemo');">See the details</a>
             </p>
             </div>
         </div>
@@ -251,7 +258,7 @@
             </p>
           </div>
           <div class="mid">
-            <p>As soon as a runner passes the sensors results are immediatley streamed to the cloud.</p>
+            <p>As soon as a runner passes the sensor, results are immediatley streamed to the cloud.</p>
           </div>
           <div class="right">
             <p>You and any of your assistant coaches can view results as they instantly appear everyones phone.</p>
@@ -259,18 +266,18 @@
            
         </div>
         <div class="row hidden-lg hidden-md hidden-sm">
-          <img src={% static "img/box-01.png" %} height="200px">
+          <img src={% static "img/runningguy.png" %} height="150px">
           <p>
               Run a practice like you normally would. Set your sensor down at the place where you would normally take splits.
             </p>
           <div class="col-4-xs">
           </div>
           <div class="col-4-xs">
-            <img src={% static "img/phone.png" %} height="150px">
-             <p>As soon as a runner passes the sensors results are immediatley streamed to the cloud.</p>
+            <img src={% static "img/cloud.png" %} height="100px">
+             <p>As soon as a runner passes the sensor, results are immediatley streamed to the cloud.</p>
           </div>
           <div class="col-4-xs">
-            <img src={% static "img/trophy-01.png" %} height="150px">
+            <img src={% static "img/phone.png" %} height="150px">
              <p>You and any of your assistant coaches can view results as they instantly appear everyones phone.</p>
           </div>
         </div>
@@ -378,19 +385,17 @@
            
         </div>
         <div class="row hidden-lg hidden-md hidden-sm">
-          <img src={% static "img/box-01.png" %} height="200px">
-          <p>
-              Order everything necessary in preparation for race day. We ship it to you a few days before.
-            </p>
+          <img src={% static "img/cloud.png" %} height="100px">
+            <p>Push your results straight to our cloud platform. We parse the raw times and ID numbers and compute results immediately.</p>
           <div class="col-4-xs">
           </div>
           <div class="col-4-xs">
-            <img src={% static "img/phone.png" %} height="150px">
-            <p>Run the entire system off your smartphone. No messy cables or equipment.</p>
+            <img src={% static "img/wifi.png" %} height="150px">
+            <p>Unofficial results can be instantly pushed live around the world. Use our platform to push text or email notifications when users pass specific checkpoints.</p>
           </div>
           <div class="col-4-xs">
             <img src={% static "img/trophy-01.png" %} height="150px">
-            <p>Results are streamed live to the web and immediately available for all participants.</p>
+             <p> View results on our mobile web platform, or just share them internally amongst your team. Finalize results, publish them, and give out awards!</p>
           </div>
         </div>
 
@@ -426,7 +431,8 @@
             <ul>
               <li><a href="/">About</a></li>
               <li><a href="/Tutorial/5/" onclick="amplitude.logEvent('toFAQ');">Frequently Asked Questions</a></li>
-              <li><a href="mailto:info@tracchicago.com" onclick="amplitude.logEvent('mailto');">Contact us</a></li>
+              <li><a href="/privacy/">Privacy</a> <a style="cursor:pointer">&</a> <a href="/terms/">Terms</a></li>
+              <li><a href="mailto:info@tractiming.com" onclick="amplitude.logEvent('mailto');">Contact us</a></li>
             </ul>
           </div>
         </div>
