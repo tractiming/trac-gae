@@ -250,6 +250,13 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             type: string
             paramType: query
             allowMultiple: true
+          - name: exclude_nt
+            description: >
+              If True, do not return results for athletes who have not
+              recorded at least one nonzero time.
+            required: false
+            type: boolean
+            paramType: query
         omit_parameters:
           - form
         parameters_strategy:
