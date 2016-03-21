@@ -245,6 +245,23 @@ class TimingSessionTestCase(TestCase):
         results = self.session.individual_results()
         self.assertEqual(results[0].splits, [195.58])
 
+    def test_sorted_athletes_exclude_notime(self):
+        """Test excluding athletes with no times from the results."""
+        cam = Athlete.objects.get(user__username='clevins')
+        galen = Athlete.objects.get(user__username='grupp')
+        session = TimingSession.objects.create(name='test exclude',
+                                               coach=self.session.coach)
+        split1 = Split.objects.create(athlete=cam, time=0)
+        split2 = Split.objects.create(athlete=cam, time=11000)
+        split3 = Split.objects.create(athlete=galen, time=1)
+        SplitFilter.objects.create(split=split1, timingsession=session)
+        SplitFilter.objects.create(split=split2, timingsession=session)
+        SplitFilter.objects.create(split=split3, timingsession=session)
+
+        sorted_athletes = list(session._sorted_athlete_list(exclude_nt=True))
+        self.assertIn(cam.pk, sorted_athletes)
+        self.assertNotIn(galen.pk, sorted_athletes)
+
 
 class SplitTestCase(TestCase):
 
