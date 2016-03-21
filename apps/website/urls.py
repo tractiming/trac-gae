@@ -16,6 +16,8 @@ urlpatterns = patterns('',
         name='index'),
     url(r'^product', TemplateView.as_view(template_name='product.html'),
         name='product'),
+    url(r'^quote', TemplateView.as_view(template_name='quote.html'),
+        name='quote'),
 
     url(r'^home', csrf_exempt(
         TemplateView.as_view(template_name='home.html')),

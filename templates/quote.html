@@ -176,40 +176,112 @@
 
 
   <div class="parallax" id="top">
-    <div id="bg4">
+    <div id="bg4" style="height:100%">
       <div class="text" style="margin-top:5%;"><br>
 
         <div class="row">
             <div class="col-lg-12 col-md-12 col-sm-12  col-xs-12">
               <br><br>
-            <h2>Product</h2><br>
+            <h2>Quote</h2><br>
           </div>
         </div>
-
-        <div class="container">
         <div class="row">
-            <div class="col-lg-5 col-md-5 col-sm-5 hidden-xs">
-             <img src={% static "img/DSC_0918.JPG" %} style="width:100%">
+        <div class="col-lg-offset-1 col-lg-6" style="color:black">
+          <form id="session-form" name="session-form" method="POST" style="text-align:left">
+            
+            <div class="form-group">
+              <div style="width:50%; float:left; padding-right:5px;">
+                <label for="title">Name:</label>
+                <input type="text" id="title" name="title" class="form-control" required autofocus data-parsley-group="block1">
+              </div>
+              <div style="width:50%; float:left; padding-right:5px;">
+                <label for="email">Email:</label>
+                <input type="text" id="email" name="email" class="form-control" required autofocus data-parsley-group="block1">
+              </div>
             </div>
-            <div class="col-lg-7 col-md-7 col-sm-23 col-xs-23">
-               <p style="text-align:left">
-                &bull; Sends results to you immediately (as the race is running)<br>
-                &bull; Works in all weather (even snowstorms!)<br>
-                &bull; Portable, less than ten pounds<br>
-                &bull; Controlled by a simple smartphone app<br>
-                &bull; Cost effective, less than half the price of a standard timing system<br>
-                &bull; No extra computers needed<br>
-                &bull; Works with other systems easily<br>
-                &bull; Setup everything in less than 2 minutes<br>
-                &bull; Battery life for more than 6 hours
-            </p>
+            <div class="form-group">
+              <label >Number of Tags:</label>
+              <input type="text" id="tags" name="organization" class="form-group form-control" required placeholder="25">
             </div>
+            <label>Tag Type:</label>
+            <div class="form-group">
+              <label class="btn btn-default">
+              <input type="radio" id="tag_type" name="tag_type" value="4"/> Durable
+              </label>
+              <label class="btn btn-default">
+              <input type="radio" id="tag_type" name="tag_type" value="1" checked="checked"/> Disposable w/ Bib
+              </label>
+            </div>
+            <div class="form-group">
+              <label >Number of Systems:</label><br>
+              <input type="text" id="systems" class="form-group form-control" placeholder="0">
+            </div>
+            <div class="form-group" style="overflow:hidden;">
+              <div style="width:50%; float:left; padding-right:5px;">
+                <label for="start-date">Race Start Date:</label>
+                <input type="text" id="start-date" name="start-date" class="form-control" required data-parsley-group="block1" data-parsley-date>
+              </div>
+              <div style="width:50%; float:left; padding-left:5px;">
+                <label for="start-time">Race Start Time:</label>
+                <div class="row">
+                  <div style="width:50%; float:left; padding-right:5px; padding-left:5%">
+                    <input type="text" id="start-time" name="start-time" class="form-control" value="9:00" required data-parsley-group="block1" data-parsley-time>
+                  </div>
+                  <div style="width:40%; float:left; padding-left:5px;">
+                    <label for="start-am-pm" class="sr-only">AM/PM</label>
+                    <select class="form-control" id="start-am-pm">
+                      <option selected>AM</option>
+                      <option>PM</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+            <label id="pricing">Calculated Price: $25.00</label>
+              <button class="btn btn-primary pull-right" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+            Request Quote
+            </button>
+            </div>
+          </form>
+         
         </div>
-        <div class="row" style="padding-top:5%">
-          <div class="col-lg-6 col-lg-offset-3 col-md-5 col-sm-8 col-xs-8 col-xs-offset-2">
-             <a href="https://blog.tracchicago.com" target="_blank" onclick="amplitude.logEvent('toDemo');">Checkout the product in action</a>
+        <div class="col-lg-4">|
+          <div class="row">
+            <div class="panel panel-default">
+              <div class="panel-body">
+                <p style="text-align:left">
+                    Durable Chips are worn on foot and are designed for practices. <br>
+                    Disposable chips are sent on a racing bib. 
+                    
+                  </p>
+              </div>
+            </div>
           </div>
+          <div class="row" style="padding-top:3%">
+            <div class="panel panel-default">
+              <div class="panel-body">
+                <p style="text-align:left">
+                    System Rentals:<br>
+                  Mass start & finish line (>15ft): 1 <br>
+                  Mass start & wide finish line (<15ft): 2 <br>
+                  If you intend to have a chip timed start, that is not the finish, add 1 (>15ft) or 2 (<15ft)<br>
+                  For checkpoints, depending on the width, add the necessary number of systems. If races are circular, and start and finish in the same place, the same systems can be used.<br>
 
+                  </p>
+              </div>
+            </div>
+          </div>
+          <div class="row" style="padding-top:3%">
+            <div class="panel panel-default">
+              <div class="panel-body">
+                <p style="text-align:left">
+                    For more information contact: info@tracchicago.com
+                    
+                  </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       
@@ -219,189 +291,11 @@
       
       </div>
     </div>
-    <div id="bg2">  
-     
-    <div class="content">
-        <h2>Practice</h2>
-        <br>
-          <br>
-        <div class="pictures hidden-xs">
-        <div class="left">
-          <img src={% static "img/runningguy.png" %} height="200px">
-        </div>
-        <div class="wifione hidden-xs">
-          <img src={% static "img/wifi.png" %} height="100px">
-        </div>
-        <div class="mid">
-          
-          <img src={% static "img/cloud.png" %} height="150px">
-            
-        </div>
-        <div class="wifitwo hidden-xs">
-          <img src={% static "img/wifi.png" %} height="100px">
-        </div>
-        <div class="right">
-          <img src={% static "img/phone.png" %} height="150px">
-        </div>
-        </div>
-        <div class="text hidden-xs">
-          <div class="left">
-            <p>
-             Run a practice like you normally would. Set your sensor down at the place where you would normally take splits.
-            </p>
-          </div>
-          <div class="mid">
-            <p>As soon as a runner passes the sensors results are immediatley streamed to the cloud.</p>
-          </div>
-          <div class="right">
-            <p>You and any of your assistant coaches can view results as they instantly appear everyones phone.</p>
-          </div>
-           
-        </div>
-        <div class="row hidden-lg hidden-md hidden-sm">
-          <img src={% static "img/box-01.png" %} height="200px">
-          <p>
-              Run a practice like you normally would. Set your sensor down at the place where you would normally take splits.
-            </p>
-          <div class="col-4-xs">
-          </div>
-          <div class="col-4-xs">
-            <img src={% static "img/phone.png" %} height="150px">
-             <p>As soon as a runner passes the sensors results are immediatley streamed to the cloud.</p>
-          </div>
-          <div class="col-4-xs">
-            <img src={% static "img/trophy-01.png" %} height="150px">
-             <p>You and any of your assistant coaches can view results as they instantly appear everyones phone.</p>
-          </div>
-        </div>
-
-      <!--  <br><br><br><br><br>
-        &#8226; Eliminates the need for clipboards and stopwatches
-        <br><br>
-          &#8226; Hardware is lightweight (5lbs) and rechargable
-          <br><br>
-           &#8226; Wearables attach to shoes and never need to be charged-->
-      </div>
-    </div>
 
 
 
-    <div id="bg2" style="background:#222 !important;">
-            <div class="content">
-        <h2>Races & XC Meets</h2>
-        <br>
-          <br>
-        <div class="pictures hidden-xs">
-        <div class="left">
-          <img src={% static "img/box-01.png" %} height="200px">
-        </div>
-        <div class="wifione hidden-xs">
-          <img src={% static "img/dashes-01.png" %} height="100px">
-        </div>
-        <div class="mid">
-          
-          <img src={% static "img/phone.png" %} height="150px">
-            
-        </div>
-        <div class="wifitwo hidden-xs">
-          <img src={% static "img/dashes-01.png" %} height="100px">
-        </div>
-        <div class="right">
-          <img src={% static "img/trophy-01.png" %} height="150px">
-        </div>
-        </div>
-        <div class="text hidden-xs">
-          <div class="left">
-            <p>
-              Order everything necessary in preparation for race day--sensor & bibs. We ship it to you a few days before.
-            </p>
-          </div>
-          <div class="mid">
-            <p>Run the entire system off your smartphone. No messy cables or equipment.</p>
-          </div>
-          <div class="right">
-            <p>Results are streamed live to the web and immediately available for all participants.</p>
-          </div>
-           
-        </div>
-        <div class="row hidden-lg hidden-md hidden-sm">
-          <img src={% static "img/box-01.png" %} height="200px">
-          <p>
-              Order everything necessary in preparation for race day. We ship it to you a few days before.
-            </p>
-          <div class="col-4-xs">
-          </div>
-          <div class="col-4-xs">
-            <img src={% static "img/phone.png" %} height="150px">
-            <p>Run the entire system off your smartphone. No messy cables or equipment.</p>
-          </div>
-          <div class="col-4-xs">
-            <img src={% static "img/trophy-01.png" %} height="150px">
-            <p>Results are streamed live to the web and immediately available for all participants.</p>
-          </div>
-        </div>
 
-      <!--  <br><br><br><br><br>
-        &#8226; Eliminates the need for clipboards and stopwatches
-        <br><br>
-          &#8226; Hardware is lightweight (5lbs) and rechargable
-          <br><br>
-           &#8226; Wearables attach to shoes and never need to be charged-->
-      </div>
-    </div>
 
-    <div id="bg2">
-          <div class="content">
-        <h2>Software as a Service</h2>
-        <br>
-          <br>
-        <div class="pictures hidden-xs">
-          <div class="row">
-            <img src={% static "img/cloud.png" %} height="100px" style="padding-right:10%">
-            <img src={% static "img/wifi.png" %} height="100px" style="padding-right:10%">
-            <img src={% static "img/trophy-01.png" %} height="150px">
-          </div>
-
-        </div>
-        <div class="text hidden-xs">
-          <div class="row">
-            <div class="col-lg-3 col-lg-offset-2">
-              <p>Push your results straight to our cloud platform. We parse the raw times and ID numbers and compute results immediately.</p>
-            </div>
-            <div class="col-lg-3">
-              <p>Unofficial results can be instantly pushed live around the world. Use our platform to push text or email notifications when users pass specific checkpoints.</p>
-            </div>
-            <div class="col-lg-3">
-              <p> View results on our mobile web platform, or just share them internally amongst your team. Finalize results, publish them, and give out awards!</p>
-            </div>
-            </div>
-           
-        </div>
-        <div class="row hidden-lg hidden-md hidden-sm">
-          <img src={% static "img/box-01.png" %} height="200px">
-          <p>
-              Order everything necessary in preparation for race day. We ship it to you a few days before.
-            </p>
-          <div class="col-4-xs">
-          </div>
-          <div class="col-4-xs">
-            <img src={% static "img/phone.png" %} height="150px">
-            <p>Run the entire system off your smartphone. No messy cables or equipment.</p>
-          </div>
-          <div class="col-4-xs">
-            <img src={% static "img/trophy-01.png" %} height="150px">
-            <p>Results are streamed live to the web and immediately available for all participants.</p>
-          </div>
-        </div>
-
-      <!--  <br><br><br><br><br>
-        &#8226; Eliminates the need for clipboards and stopwatches
-        <br><br>
-          &#8226; Hardware is lightweight (5lbs) and rechargable
-          <br><br>
-           &#8226; Wearables attach to shoes and never need to be charged-->
-      </div>
-    </div>
 
 <!--Footer Addition -->
  <footer class="footer">
@@ -504,6 +398,33 @@ $("video").bind("ended", function() {
 */
 </script>
 
+
+<div class="modal fade" id="payment-modal" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header" style="color:black">
+            Success!<button id="cl" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button>
+        </div>
+        <div class="modal-body" style="color:black">
+          <div id="success_reference">
+            Let's get ready for race day! <br><br> Expect your equipment at least one day before your event. Your payment reference number is:<br><br>
+            <center id="payment_reference"></center> 
+            <!-- TODO: Take info, create account as necessary
+            <br><br>
+            To manage your event, and stay updated with your order please create an account: <br><center><button type="submit" id="submit" class="btn btn-primary" style="margin-left:2%; width:250px;" onclick="location.href='/register';" onclick="amplitude.logEvent('Create_Account_Payment_Popup');">Register</button> </center>-->
+            <br><br>
+            For more information regarding your order, email <a href="mailto:infos@tracchicago.com" style="color:#3577A8 !important;">info@tracchicago.com</a>
+            </div>
+         </div>
+        <div class="modal-footer">
+          <div class="btn-group pull-right" role="group">
+            <button type="submit" data-dismiss="modal" class="btn btn-primary" style="margin-left:2%">Close</button>
+          </div>
+          <div id="spinner-form"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   </body>
 </html>
