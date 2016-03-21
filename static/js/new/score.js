@@ -144,7 +144,7 @@ $(function() {
 			ajaxRequest.abort();
 
 		if (view === TABLE_VIEW)
-				data = {'limit': resultOffset + RESULTS_PER_PAGE, 'offset': resultOffset};
+				data = {'limit': resultOffset + RESULTS_PER_PAGE, 'offset': resultOffset, 'exclude_nt': true};
 		else if (view === TEAM_FINAL_VIEW) {
 				//$('#results-table #table-canvas').empty();
 				$('.notification').hide();
