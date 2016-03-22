@@ -240,7 +240,7 @@ class TimingSession(models.Model):
 
     def _sorted_athlete_list(self, limit=None, offset=None, gender=None,
                              age_lte=None, age_gte=None, teams=None,
-                             apply_filter=True):
+                             apply_filter=True, exclude_nt=False):
         """Return IDs of all distinct athletes seen in this workout.
 
         The athlete IDs are ordered according to cumulative time. Therefore,
@@ -272,15 +272,23 @@ class TimingSession(models.Model):
 
         if self.start_button_time is None:
             min_time = models.Min('time')
+            min_split_count = 2
         else:
             min_time = self.start_button_time
+            min_split_count = 1
+
+        notime_filter = (models.Q(num_splits__gte=min_split_count)
+                         if exclude_nt else models.Q())
 
         filter_ = (models.Q(splitfilter__filtered=False) if apply_filter
                    else models.Q())
 
-        results = self.splits.filter(athlete_filter & filter_).values(
-            'athlete_id').annotate(diff=models.Max('time')-min_time).order_by(
-            'diff')[offset:limit]
+        results = (self.splits.filter(athlete_filter & filter_)
+                              .values('athlete_id')
+                              .annotate(diff=models.Max('time')-min_time,
+                                        num_splits=models.Count('splitfilter'))
+                              .filter(notime_filter)
+                              .order_by('diff')[offset:limit])
 
         return (athlete['athlete_id'] for athlete in results)
 
@@ -364,7 +372,7 @@ class TimingSession(models.Model):
     def individual_results(self, limit=None, offset=None, gender=None,
                            age_lte=None, age_gte=None, teams=None,
                            apply_filter=None, athlete_ids=None,
-                           calc_paces=False):
+                           calc_paces=False, exclude_nt=False):
         """Calculate individual results for a session.
 
         First call `_sorted_athlete_list` for a list of tag IDs that are
@@ -389,7 +397,8 @@ class TimingSession(models.Model):
                                                  age_lte=age_lte,
                                                  age_gte=age_gte,
                                                  teams=teams,
-                                                 apply_filter=apply_filter)
+                                                 apply_filter=apply_filter,
+                                                 exclude_nt=exclude_nt)
 
         return [self._calc_athlete_splits(athlete,
                                           apply_filter=apply_filter,
