@@ -2,7 +2,7 @@ from rest_framework import permissions, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
-#import stats.stats_calcs as stats
+import stats.stats_calcs as stats
 from trac.models import TimingSession, Coach
 from trac.utils.user_util import is_athlete, is_athlete
 
