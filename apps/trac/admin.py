@@ -43,7 +43,11 @@ class CoachAdmin(admin.ModelAdmin):
             return False
 
 
-admin.site.register(TimingSession)
+class TimingSessionAdmin(admin.ModelAdmin):
+    exclude = ('registered_athletes',)
+
+
+admin.site.register(TimingSession, TimingSessionAdmin)
 admin.site.register(Tag)
 admin.site.register(Coach, CoachAdmin)
 admin.site.register(Athlete)
