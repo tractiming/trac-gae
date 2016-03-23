@@ -28,6 +28,9 @@ class Coach(models.Model):
     def __unicode__(self):
         return "name={}".format(self.user.username)
 
+    class Meta:
+        verbose_name_plural = 'coaches'
+
 
 class Team(models.Model):
     """

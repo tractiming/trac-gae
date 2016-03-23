@@ -56,6 +56,7 @@ MANAGERS = ADMINS
 
 ########## APP CONFIGURATION ##########
 DJANGO_APPS = (
+    'django_admin_bootstrapped',
     'django.contrib.admin',
     'django.contrib.contenttypes',
     'django.contrib.auth',
@@ -71,8 +72,8 @@ THIRD_PARTY_APPS = (
     'oauth2_provider',
     'rest_framework_swagger',
     'payments',
+    'bootstrap3'
 )
-
 
 LOCAL_APPS = (
     'accounts',
@@ -288,6 +289,9 @@ MEDIA_ROOT = 'media'
 ########## TEMPLATE CONFIGURATION ##########
 TEMPLATE_DIRS = (
     normpath(join(DJANGO_ROOT, 'templates')),
+)
+DAB_FIELD_RENDERER = (
+    'django_admin_bootstrapped.renderers.BootstrapFieldRenderer'
 )
 ############################################
 
