@@ -69,13 +69,21 @@ else{
 											<div id="spinner"></div>
 										</div>
 										<div class="row">
-											<div class="col-lg-4 pull-left col-md-6 col-sm-6 col-xs-6">
-												<button type="submit" id="submit" class="btn btn-primary" onclick="amplitude.logEvent('signin');" style="width:100%">Sign in</button>
+											<div class="col-lg-6 pull-left col-md-6 col-sm-6 col-xs-6">
+												<button type="submit" id="submit" class="btn btn-primary" onclick="amplitude.logEvent('signin');" style="width:100%; margin-bottom:2%">Sign in</button>
 											</div>
-											<div class="col-lg-2 hidden-xs hidden-sm hidden-md" style="text-align:center; padding-top:7px; padding-right:10px">
-											-or-
+											<div class="col-lg-6 pull-left col-md-6 col-sm-6 col-xs-6" style="padding-top:2%">
+												<a href="#" id ="passwordlink" onclick="amplitude.logEvent('forgotPassword');" data-toggle="modal" data-target="#pModal">Forgot Password?</a>
 											</div>
-											<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+										</div>
+										
+										<div class="row" style="padding-top:2%">
+											<hr class="col-lg-4 col-md-4 col-sm-4 col-xs-4" style="border-color:#ccc">
+											<div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 center" style="text-align:center; padding-top:2%" >or</div>
+											<hr class="col-lg-4 col-md-4 col-sm-4 col-xs-4 pull-right" style="border-color:#ccc">
+										</div>
+										<div class="row">
+											<div class="col-lg-offset-2 col-md-offset-2 col-sm-offset-2 col-xs-offset-2 col-lg-8 col-md-8 col-sm-8 col-xs-8">
 												<input type="image" src="{% static "img/btn_google_signin_dark_normal_web@2x.png" %}" class="pull-right" id="google-sign-in" style="width:100%"/>
 											</div>
 										</div>
@@ -84,7 +92,7 @@ else{
                                 
                                 <br>
                                 
-                                <a href="#" id ="passwordlink" onclick="amplitude.logEvent('forgotPassword');" data-toggle="modal" data-target="#pModal">Forgot your Password?</a>
+                                
 							</form>
 							<div class="modal fade" id="pModal" role="dialog">
     							<div class="modal-dialog">
