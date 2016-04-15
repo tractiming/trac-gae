@@ -3,6 +3,24 @@ if (sessionStorage.access_token == null) {
     location.href= '/login';
 }
 else{
+	console.log('hit else');
+	$.ajax({
+	  type: 'GET',
+	  url: '/api/verifyLogin/',
+	  data: {
+	  	token: sessionStorage.access_token
+	  },
+	  dataType:'json',
+
+	  // Registration was successful.
+	  success: function(data) {},
+	  // Registration failed.
+	  error: function(xhr, errmsg, err) {
+	  	location.href='/login';
+	  },
+	  });
+
+
 	$(document).ready(function() {
 		$('li a.logout').click(function(){	
 					sessionStorage.clear();
