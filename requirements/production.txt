@@ -4,6 +4,7 @@ dj-stripe==0.8.0
 django-admin-bootstrapped==2.5.7
 django-bootstrap3==7.0.1
 django-braces==1.8.1
+django-cors-headers==1.1.0
 django-filter==0.11.0
 django-jsonfield==0.9.15
 django-model-utils==2.3.1
