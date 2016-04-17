@@ -16,6 +16,7 @@ else{
 	  success: function(data) {},
 	  // Registration failed.
 	  error: function(xhr, errmsg, err) {
+	  	sessionStorage.clear();
 	  	location.href='/login';
 	  },
 	  });
