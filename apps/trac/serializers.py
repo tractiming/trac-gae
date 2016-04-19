@@ -40,10 +40,33 @@ class TagSerializer(FilterRelatedMixin, serializers.ModelSerializer):
                                      read_only=True)
     full_name = serializers.CharField(source='athlete.user.get_full_name',
                                       read_only=True)
+    id_str = serializers.CharField()
+    # Explicity declare id_str, as inheritance from model creates UniqueValidator()
+    #  on id_str, which fails if tag in database is reentered
 
     class Meta:
         model = Tag
         fields = ('id', 'id_str', 'username', 'full_name', 'athlete', 'bib')
+
+    def create(self, validated_data):
+        RFID_str = validated_data.pop('id_str', None)
+        athlete = validated_data.pop('athlete', None)
+        bib = validated_data.pop('bib', None)
+        
+        if RFID_str is not None:
+            # If none, dont create a tag object
+            if not RFID_str or not Tag.objects.filter(id_str=RFID_str).exists():
+                # If it doesnt exists create it
+                Tag.objects.create(athlete=athlete, id_str=RFID_str, bib=bib)
+            else:
+                if Tag.objects.get(id_str=RFID_str).athlete == athlete:
+                    pass
+                # If tag exists and does not belong to current user, raise
+                # validation error.
+                else:
+                    t = Tag.objects.get(id_str=RFID_str)
+                    t.athlete = athlete
+                    t.save()
 
     def filter_athlete(self, queryset):
         """Only show athletes belonging to the current coach."""
