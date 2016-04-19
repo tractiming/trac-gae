@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from trac.filters import TeamFilter
 from trac.models import Team, TimingSession, Coach
 from trac.serializers import (
-    TeamSerializer, ScoringSerializer, AthleteSerializer
+    TeamSerializer, ScoringSerializer, AthleteSerializer, TagSerializer
 )
 from trac.utils.user_util import is_athlete, is_coach
 from trac.validators import roster_upload_validator
@@ -109,11 +109,24 @@ class TeamViewSet(viewsets.ModelViewSet):
                 'last_name': athlete['last_name'],
                 'gender': athlete.get('gender', None),
                 'birth_date': athlete.get('birth_date', '').strip() or None,
+                'tfrrs_id': athlete.get('tfrrs_id', None),
                 'team': team.pk
             }
             serializer = AthleteSerializer(data=athlete_data)
             serializer.is_valid(raise_exception=True)
-            serializer.create(serializer.validated_data)
+            new_athlete = serializer.create(serializer.validated_data)
+
+            rfid_code = athlete.get('rfid_code', None) or None
+            bib_number = athlete.get('bib_number', None) or None
+            if rfid_code is not None:
+                tag_data = {
+                    'bib': bib_number,
+                    'id_str': rfid_code,
+                    'athlete': new_athlete.pk
+                }
+                serializer = TagSerializer(data=tag_data)
+                serializer.is_valid(raise_exception=True)
+                serializer.create(serializer.validated_data)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
