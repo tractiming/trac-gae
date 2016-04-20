@@ -150,13 +150,8 @@ class AthleteViewSet(viewsets.ModelViewSet):
         tag_str = request.data.pop('tag', None)
         if tag_str is not None:
             if not tag_str or Tag.objects.filter(id_str=tag_str).exists():
-                Tag.objects.filter(id_str=tag_str).delete()
-                resp = super(AthleteViewSet, self).create(request, *args, **kwargs)
-                athlete = Athlete.objects.get(pk=resp.data['id'])
-                tag = Tag.objects.create(athlete=athlete, id_str=tag_str)
-                resp.data['tag'] = tag.id_str
-                return resp
-                #return Response({'tag': ['Invalid id']},status=status.HTTP_400_BAD_REQUEST)
+                return Response({'tag': ['Invalid id']},
+                                status=status.HTTP_400_BAD_REQUEST)
         resp = super(AthleteViewSet, self).create(request, *args, **kwargs)
         if tag_str:
             athlete = Athlete.objects.get(pk=resp.data['id'])
@@ -171,9 +166,11 @@ class AthleteViewSet(viewsets.ModelViewSet):
 
         if 'tag' in request.data:
             tag_str = request.data.pop('tag')
+
             # If tag is given, but listed as null, delete the tag.
             if not tag_str:
                 Tag.objects.filter(athlete=athlete).delete()
+
             else:
                 if Tag.objects.filter(id_str=tag_str).exists():
                     # If tag exists and belongs to current user, do nothing.
@@ -182,16 +179,8 @@ class AthleteViewSet(viewsets.ModelViewSet):
                     # If tag exists and does not belong to current user, raise
                     # validation error.
                     else:
-                        t = Tag.objects.get_or_create(id_str=tag_str)[0]
-                        try: 
-                            if athlete.tag is not None:
-                                athlete.tag.delete()
-                        except ObjectDoesNotExist:
-                            #Do Nothing
-                            pass
-                        t.athlete = athlete
-                        t.save()
-                        #return Response({'tag': ['Invalid ID']}, status=status.HTTP_400_BAD_REQUEST)
+                        return Response({'tag': ['Invalid ID']},
+                                        status=status.HTTP_400_BAD_REQUEST)
                 else:
                     # If tag does not exist, create it, deleting any existing
                     # tags.

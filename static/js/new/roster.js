@@ -346,9 +346,8 @@
     }
 
     //Editing an athletes info for a workout
-    $scope.save = function(runner, allRunners){
+    $scope.save = function(runner){
       var url = '/api/athletes/'+runner.id +'/';
-
       $http({method: 'PATCH', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{
         first_name: runner.first_name,
         last_name: runner.last_name,
@@ -359,13 +358,6 @@
        }
       })
         .success(function (response) { 
-          for (var i = 0; i < allRunners.length; i++) {
-            if(runner == allRunners[i])
-              continue
-            if (allRunners[i].tag == runner.tag){
-              allRunners[i].tag = null;
-            }
-          }
           $scope.universalEdit = false;
           var dynamicString = 'editing_' + runner.id;
           $scope[dynamicString] = false;

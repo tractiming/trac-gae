@@ -143,7 +143,7 @@
                           <span class="glyphicon glyphicon-remove hidden-xs hidden-sm" title="Delete Permanently" aria-hidden="true" ng-click="deleteButtons(x);" style="margin-right:10px"></span>
                         </div>
                         <div class="buttons hidden-xs hidden-sm no-animate pull-right" ng-show="showSave_{{x.id}}">
-                          <button name="" class="btn btn-primary" ng-click="save(x, athletes)">Save</button>
+                          <button name="" class="btn btn-primary" ng-click="save(x)">Save</button>
                           <button name="" class="btn btn-default" ng-click="cancel(x)">Cancel</button>
                         </div>
                         <div class="buttons hidden-xs hidden-sm no-animate pull-right" ng-show="showEdit_{{x.id}}">
@@ -376,7 +376,7 @@
                               <span class="glyphicon glyphicon-remove hidden-xs hidden-sm" title="Delete Permanently" aria-hidden="true" ng-click="deleteButtons(x);" style="margin-right:10px"></span>
                             </div>
                             <div class="buttons pull-right no-animate hidden-xs hidden-sm" ng-show="showSave_{{x.id}}">
-                              <button name="" class="btn btn-primary" ng-click="save(x, rosterAthletes)">Save</button>
+                              <button name="" class="btn btn-primary" ng-click="save(x)">Save</button>
                               <button name="" class="btn btn-default" ng-click="rosterCancel(x)">Cancel</button>
                             </div>
                             <div class="buttons hidden-xs hidden-sm pull-right no-animate" ng-show="showDelete_{{x.id}}">
