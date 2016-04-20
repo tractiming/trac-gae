@@ -128,9 +128,9 @@ class Split(models.Model):
     """
     A single split time from one tag.
     """
-    tag = models.ForeignKey(Tag, null=True, blank=True)
+    tag = models.ForeignKey(Tag, null=True, blank=True, on_delete=models.SET_NULL)
     athlete = models.ForeignKey(Athlete)
-    reader = models.ForeignKey(Reader, null=True, blank=True)
+    reader = models.ForeignKey(Reader, null=True, blank=True, on_delete=models.SET_NULL)
     time = models.BigIntegerField()
 
     class Meta:
