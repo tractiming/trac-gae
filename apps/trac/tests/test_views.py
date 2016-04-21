@@ -204,12 +204,12 @@ class AthleteViewSetTest(APITestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['tag'], None)
 
-        # Try to post an existing tag and fail.
+        # Try to post an existing tag and 'steal' it.
         resp = self.client.patch(
             '/api/athletes/1/',
             data=json.dumps({'tag': 'AAAA 0002'}),
             content_type='application/json')
-        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(resp.status_code, 200)
 
     @mock.patch.object(trac.serializers, 'random_username')
     def test_create_without_username(self, mock_name):
