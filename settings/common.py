@@ -68,6 +68,7 @@ DJANGO_APPS = (
 )
 
 THIRD_PARTY_APPS = (
+    'corsheaders',
     'rest_framework',
     'oauth2_provider',
     'rest_framework_swagger',
@@ -107,6 +108,7 @@ if SHIPPABLE:
 ########## MIDDLEWARE CONFIGURATION ##########
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -272,6 +274,13 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 ###########################################
+
+########## CORS CONFIGURATION ##########
+CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_WHITELIST = (
+         'cararuns.org',
+)
+############################################
 
 ########## STATIC FILES ##########
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
