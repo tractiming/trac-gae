@@ -1,0 +1,160 @@
+{% extends "base_new.html" %}
+{% load static %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static "css/new/main.css" %}" />
+<style>
+.phone-number .col-xs-3::after{
+    content: "-";
+    position:absolute;
+    right: 5px;
+    color: black;
+    border: 0px solid;
+    top: 5px;
+}
+
+.phone-number .col-xs-4{
+    width:25%;
+}
+
+.phone-number .col-xs-3, .phone-number .col-xs-4{
+    padding-left:0;
+    padding-bottom: 1cm;
+}
+</style>
+{% endblock %}
+
+{% block js_scripts %}
+<script>
+$(document).ready(function() {
+    $("li a.logout").click(function(){
+        sessionStorage.clear();
+        location.href="/login";
+    });
+});
+</script>
+<script type="text/javascript" src="{% static "js/trac-ajax.js" %}"}></script>
+<script type="text/javascript" src="{% static "js/new/change_tag.js"%}"}></script>
+{% endblock %}
+
+{% block nav-items %}
+  <li><a href="/login">Login</a></li>
+  <li><a href="/register">Register</a></li>
+  <li><a href="/index">About</a></li>
+  <li><a href="/score">Live Results</a></li>
+{% endblock %}
+
+{% block content %}
+<div class="modal fade" id="notification-modal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <p class="notification notification-success center"
+                id="subscribe-success-message" role="alert">
+                    <span class="glyphicon glyphicon-info-sign"></span>
+                    You have successfully changed your information.
+                </p>
+                <p class="notification notification-error select-group center"
+                id="subscribe-failure-message" role="alert">
+                    <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                    Internal Server Error
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="content" class="container-fluid">
+    <div class="container">
+        <div class="row">
+            <h1> CARA Park Run</h1>
+            <center> Change Name & Create Account</center>
+            <center><img src="{% static "img/cara-logo.png" %}"></center>
+            <br>
+        </div>
+        <div id="subscription-select" class="row" style="display:none;">
+            <div class="subscription-select
+                col-lg-6 col-md-6 col-sm-6 col-xs-6
+                col-lg-offset-3 col-md-offset-3 col-sm-offset-3 col-xs-3">
+                <div class="row">
+                    <div class="session-select-container
+                        col-lg-8 col-md-8
+                        col-lg-offset-2 col-md-offset-2">
+                        <div class="form-group">
+                            <label for="session-select" class="sr-only">Input ID Number:</label>
+                            <input class="form-control" id="tag" placeholder="Tag Number">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="athlete-select-container
+                        col-lg-8 col-md-8
+                        col-lg-offset-2 col-md-offset-2">
+                        <div class="form-group">
+                            <label for="session-select" class="sr-only">First Name:</label>
+                            <input class="form-control" id="first_name" placeholder="First Name">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="athlete-select-container
+                        col-lg-8 col-md-8
+                        col-lg-offset-2 col-md-offset-2">
+                        <div class="form-group">
+                            <label for="session-select" class="sr-only">Last Name:</label>
+                            <input class="form-control" id="last_name" placeholder="Last Name">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="athlete-select-container
+                        col-lg-8 col-md-8
+                        col-lg-offset-2 col-md-offset-2">
+                        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                          <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="headingOne">
+                              <h4 class="panel-title">
+                                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                  Create User (Optional)
+                                </a>
+                              </h4>
+                            </div>
+                            <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+                              <div class="panel-body">
+                                <div class="row">
+                                    <div class="athlete-select-container">
+                                        <div class="form-group">
+                                            <label for="session-select" class="sr-only">Username (Optional)</label>
+                                            <input class="form-control" id="first_name" placeholder="Username (Optional)">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="athlete-select-container">
+                                        <div class="form-group">
+                                            <label for="session-select" class="sr-only">Password (Optional)</label>
+                                            <input class="form-control" id="first_name" placeholder="Password (Optional)">
+                                        </div>
+                                    </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="subscribe-button
+                        col-lg-4 col-lg-offset-4
+                        col-md-4 col-md-offset-4">
+                        <button type="submit" id="submit"class="btn btn-success form-control">
+                            Change
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
