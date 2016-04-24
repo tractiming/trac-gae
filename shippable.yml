@@ -7,7 +7,7 @@ env:
   global:
     - SETTINGS_MODE=test
     - GAE_DIR=/tmp/gae
-    - secure: fK1h5ZVwdEbGmfozdwxRkbuSTtrHO7ICJe7pKX0xRD0T5kfLMMPSaukt31v9dnJruF/Z2EZcepjna2fJOEV0IRPhywzBKh1JA68ddvTNCnQxINYb2Qo3DEzPtklvOccI3N7OFRSddEyK2Q1/nQP3o3DWc4sa51cvVaY2T3O9R19wX7MypbVlxltOsr6d96uKWJWwdlj0zZsN6eJnlc8rJy+PUVRVjjf8O+jAdz8lAivXhDASOPgdwvuJduu4juQbrJ1f8R8HKrJdRDS8Vpr0R3jUCIF+bKXPZG2wxAZ0nxQ3qY58QgAroMd2VlQ9mBkfHgb5tusD7lNRF8qVS8djSQ==
+    - secure: QatCF7BebHs3QJHhCoak3P5Q3UV+g3sL3L1Qhoq3qhy0tujvLldXWYhLVcKsA5r/YjMbqQxLItujhWmSf9t2bKfqPcEZ1H0E5S/iHiQF4yuYjD2fg1RrL1mkYI3FxTSUU/VugqKU226r65TmGTpYqiG4jn+FAeqq4pG23yzINnsBn3T3MV8L1qIya/feKK7qV3N8LOsIx1aRWIWKirKR4caMAPihbnhDFQNyzuL0rukEn/WkLLyvIHqXZTgJTJjHfKEyrhcHIOeOd0Djn1ToPyxOQR4jGENeZur5FpaESOrmEjxkQZbmUOCTZIfclgi8m4+wsyaZB0gH7Pv33pbkvA==
 
 install:
   - pip install -r requirements/production.txt
