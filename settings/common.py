@@ -278,7 +278,7 @@ USE_TZ = True
 ########## CORS CONFIGURATION ##########
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_ORIGIN_WHITELIST = (
-         'cararuns.org',
+         'www.cararuns.org',
 )
 ############################################
 
