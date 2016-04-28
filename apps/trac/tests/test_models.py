@@ -180,7 +180,7 @@ class TimingSessionTestCase(TestCase):
         mock_cache.get.assert_called_with('ts_1_athlete_2_results')
         mock_cache.set.assert_called_with('ts_1_athlete_2_results',
                 (res_2.user_id, res_2.name, res_2.team, res_2.splits,
-                 res_2.total, res_2.first_seen, res_2.paces, res_2.bib, res_1.gender, res_1.age))
+                 res_2.total, res_2.first_seen, res_2.paces, res_2.bib, res_2.gender, res_2.age))
         self.assertListEqual(res_2.splits, [123.021, 195.58])
         self.assertEqual(sum(res_2.splits), res_2.total)
 
