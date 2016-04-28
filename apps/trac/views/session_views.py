@@ -349,6 +349,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                 'total': str(result.total),
                 'has_split': result.first_seen is not None,
                 'first_seen': result.first_seen,
+                'gender': result.gender,
+                'age': result.age,
                 'bib': result.bib
             }
             if query['calc_paces']:

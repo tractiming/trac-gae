@@ -316,7 +316,7 @@ class TimingSession(models.Model):
 
         Results = namedtuple(
             'Results',
-            'user_id name team splits total first_seen paces bib')
+            'user_id name team splits total first_seen paces bib gender age')
         if not results:
             athlete = Athlete.objects.get(id=athlete_id)
             name = athlete.user.get_full_name() or athlete.user.username
@@ -363,8 +363,18 @@ class TimingSession(models.Model):
             except ObjectDoesNotExist:
                 bib = None
 
+            try:
+                gender = athlete.gender
+            except ObjectDoesNotExist:
+                gender = None
+
+            try:
+                age = athlete.age()
+            except ObjectDoesNotExist:
+                age = None
+
             results = (athlete_id, name, athlete.team, splits,
-                       sum(splits), first_seen, paces, bib)
+                       sum(splits), first_seen, paces, bib, gender, age)
 
             if use_cache:
                 cache.set(('ts_%i_athlete_%i_results'
