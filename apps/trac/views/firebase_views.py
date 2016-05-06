@@ -11,7 +11,6 @@ def firebase_post(session_id):
 	Firebase Test. 
 
 	"""
-	print('FIREBASE!')
 
 	session = TimingSession.objects.get(id=session_id)
 	# Filter out IDs that do not belong to valid athletes.
