@@ -13,8 +13,6 @@ from trac.utils.user_util import (
     is_coach, is_athlete, user_type, random_username,
 )
 
-from trac.views.firebase_views import firebase_post
-
 
 class FilterRelatedMixin(object):
     """Mixin to filter related objects."""
@@ -381,9 +379,6 @@ class SplitSerializer(FilterRelatedMixin, serializers.ModelSerializer):
             # to be recalculated. Athlete is a required field on split, so
             # the id will always exist.
             session.clear_cache(split.athlete.id)
-
-            #Update Firebase using the session update id.
-            firebase_post(session.id)
 
         return split
 
