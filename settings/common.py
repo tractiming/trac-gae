@@ -72,9 +72,9 @@ THIRD_PARTY_APPS = (
     'rest_framework',
     'oauth2_provider',
     'rest_framework_swagger',
+    'firebase',
     'payments',
     'bootstrap3',
-    'firebase'
 )
 
 LOCAL_APPS = (
