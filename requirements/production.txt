@@ -36,3 +36,4 @@ twilio==5.2.0
 wsgiref==0.1.2
 xlrd==0.9.4
 -e git://github.com/elliothevel/django-rest-framework-stripe.git@api-updates#egg=rest-framework-stripe
+-e git://github.com/ozgur/python-firebase.git#egg=python-firebase
