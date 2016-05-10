@@ -5,14 +5,12 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from django.db.models.signals import pre_delete, post_delete, m2m_changed, post_save
+from django.db.models.signals import pre_delete, post_delete, m2m_changed
 from django.db.utils import IntegrityError
 from django.dispatch import receiver
 from django.utils import timezone
 
 from trac.utils.split_util import convert_units, format_total_seconds
-
-from trac.views.firebase_views import firebase_post
 
 
 def _upload_to(instance, filename):
@@ -648,13 +646,6 @@ class Checkpoint(models.Model):
     class Meta:
         unique_together = ('name', 'session',)
 
-
-@receiver(post_save, sender=TimingSession, dispatch_uid="timingsession_post_save")
-def firebase_update(sender, instance, using, **kwargs):
-    """
-    fire
-    """
-    firebase_post(instance.id)
 
 @receiver(pre_delete, sender=TimingSession,
           dispatch_uid="timingsession_pre_delete")
