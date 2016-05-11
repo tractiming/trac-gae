@@ -4,7 +4,7 @@ from firebase import firebase
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.response import Response
 from rest_framework import viewsets, permissions, status, pagination, filters
-from trac.models import TimingSession
+import trac.models
 
 def firebase_post(session_id):
 	"""
@@ -12,7 +12,7 @@ def firebase_post(session_id):
 
 	"""
 
-	session = TimingSession.objects.get(id=session_id)
+	session = trac.models.TimingSession.objects.get(id=session_id)
 	# Filter out IDs that do not belong to valid athletes.
 	all_athletes = True
 
