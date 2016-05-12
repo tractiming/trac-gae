@@ -488,8 +488,8 @@ class TimingSessionViewSetTest(APITestCase):
         mock_writer.assert_called_with(settings.GCS_RESULTS_BUCKET,
                                        results_path, make_public=True)
         mock_csv.DictWriter().writerow.assert_has_calls([
-            mock.call({'Name': 'Cam Levins', 'Time': '05:18.601'}),
-            mock.call({'Name': 'Galen Rupp', 'Time': '06:29.045'})])
+            mock.call({'Name': 'Cam Levins', 'Gender': 'M', 'Age': 25, 'Time': '05:18.601'}),
+            mock.call({'Name': 'Galen Rupp', 'Gender': None, 'Age': None, 'Time': '06:29.045'})])
         self.assertEqual(resp.data['uri'], 'filedownloadurl.csv')
 
     @mock.patch.object(trac.views.session_views, 'csv')
@@ -512,11 +512,15 @@ class TimingSessionViewSetTest(APITestCase):
         mock_csv.DictWriter().writerow.assert_has_calls([
             mock.call(OrderedDict((
                 ('Name', 'Cam Levins'),
+                ('Gender', 'M'),
+                ('Age', 25),
                 ('Interval 1', 123.021),
                 ('Interval 2', 195.58),
                 ('Total', '05:18.601')))),
             mock.call(OrderedDict((
                 ('Name', 'Galen Rupp'),
+                ('Gender', None),
+                ('Age', None),
                 ('Interval 1', 122.003),
                 ('Interval 2', 197.237),
                 ('Interval 3', 69.805),
@@ -540,8 +544,8 @@ class TimingSessionViewSetTest(APITestCase):
         mock_writer.assert_called_with(settings.GCS_RESULTS_BUCKET,
                                        results_path, make_public=True)
         results = (
-            OrderedDict((('Name', 'Cam Levins'), ('Time', '05:18.601'))),
-            OrderedDict((('Name', 'Galen Rupp'), ('Time', '06:29.045')))
+            OrderedDict((('Name', 'Cam Levins'), ('Gender', 'M'), ('Age', 25), ('Time', '05:18.601'))),
+            OrderedDict((('Name', 'Galen Rupp'), ('Gender', None), ('Age', None), ('Time', '06:29.045')))
         )
         mock_pdf.assert_called_with(mock_writer().__enter__(), mock.ANY)
         self.assertEqual(results, tuple(mock_pdf.call_args_list[0][0][1]))
