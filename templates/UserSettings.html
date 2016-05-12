@@ -7,15 +7,19 @@
 <link rel="stylesheet" href="{% static "css/new/create.css" %}" />
 {% endblock %}
 
-{% block js_scripts %}
-<script type="text/javascript">
+{% block content %}
+<script>
+$(document).ready(function(){
+
     var token = "{{ token }}";
+    var header_token = token;
     var pk = "{{ pk }}";
     $.ajax({
-      type:"POST",
-      url:"/api/token_validation/",
+      type:"GET",
+      url:"/api/verifyLogin/",
       headers:{Authorization: "Bearer " + token},
       data: {
+        token: header_token
       },
       success: function(data){
       },
@@ -23,12 +27,7 @@
         location.href = '/login'
       }
     });
-</script>
-{% endblock %}
 
-{% block content %}
-<script>
-$(document).ready(function(){
   $('body').on('submit', 'form#pform', function(e){
     e.preventDefault();
     var password =  $('input#pfield').val();
