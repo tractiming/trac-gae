@@ -1,6 +1,7 @@
 import json
 import urlparse
 import os
+import requests
 
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.response import Response
