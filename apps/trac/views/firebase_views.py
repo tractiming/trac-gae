@@ -1,5 +1,5 @@
 import json
-from firebase import firebase
+from firebase import Firebase
 
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.response import Response
@@ -69,8 +69,11 @@ def firebase_post(session_id):
 
 	try:
 		individual_results_json = results
-		f = firebase.FirebaseApplication('https://dazzling-torch-965.firebaseio.com/', None)
-		r = f.put('/sessions', str(session_id), individual_results_json, {'print': 'pretty'})
+		fire_url = 'https://dazzling-torch-965.firebaseio.com/sessions/' + str(session_id) 
+		f = Firebase(fire_url)
+		print(f)
+		r = f.put(individual_results_json)
+		print(r)
 		return Response(status=status.HTTP_202_ACCEPTED)
 	except ObjectDoesNotExist:
 		return Response(status=status.HTTP_404_BAD_REQUEST)
