@@ -579,17 +579,23 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             if results_type == 'final':
                 results_to_write = (OrderedDict((
                     ('Name', result.name),
+                    ('Gender', result.gender),
+                    ('Age', result.age),
                     ('Time', format_total_seconds(result.total)))
                 ) for result in results)
-                header = ('Name', 'Time')
+                header = ('Name', 'Gender', 'Age', 'Time')
             else:
                 max_splits = max(len(result.splits) for result in results)
                 header = list(itertools.chain(
                     ('Name',),
+                    ('Gender',),
+                    ('Age',),
                     ('Interval {}'.format(i+1) for i in xrange(max_splits)),
                     ('Total',)))
                 results_to_write = (OrderedDict(list(itertools.chain(
                     (('Name', result.name),),
+                    (('Gender', result.gender),),
+                    (('Age', result.age),),
                     (('Interval {}'.format(num+1), split)
                         for num, split in enumerate(result.splits)),
                     (('Total', format_total_seconds(result.total)),)))
