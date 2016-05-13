@@ -36,6 +36,8 @@ from trac.utils.split_util import format_total_seconds
 from trac.utils.user_util import is_athlete, is_coach
 from trac.validators import roster_upload_validator
 
+from trac.views.firebase_views import firebase_post
+
 
 log = logging.getLogger(__name__)
 
@@ -146,6 +148,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         """
         session = self.get_object()
         session.clear_results()
+        #Update Firebase using the session update id.
+        firebase_post(session.id)
         return Response(status=status.HTTP_202_ACCEPTED)
 
     @csrf_exempt
@@ -198,6 +202,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         session.start_button_time = timestamp
         session.save()
         session.clear_cache_all()
+        #Update Firebase using the session update id.
+        firebase_post(session.id)
         return Response(status=status.HTTP_202_ACCEPTED)
 
     @detail_route(methods=['get'])
