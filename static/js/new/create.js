@@ -692,7 +692,7 @@ $(function() {
 
 			//*
 			$.ajax({
-				type: 'PUT',
+				type: 'PATCH',
 				dataType:'json',
 				url: '/api/sessions/'+id+'/',
 				headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
