@@ -198,6 +198,25 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         session.start_button_time = timestamp
         session.save()
         session.clear_cache_all()
+
+        #Hack for the Chicago Park District
+        #Change every week to associate correct primary keys
+        if session.id == 102:
+            sess = TimingSession.objects.get(id=2)
+            sess.start_button_time = timestamp
+            sess.save()
+            sess.clear_cache_all()
+        elif session.id == 103:
+            sess = TimingSession.objects.get(id=2)
+            sess.start_button_time = timestamp
+            sess.save()
+            sess.clear_cache_all()
+        elif session.id == 104:
+            sess = TimingSession.objects.get(id=2)
+            sess.start_button_time = timestamp
+            sess.save()
+            sess.clear_cache_all()
+
         return Response(status=status.HTTP_202_ACCEPTED)
 
     @detail_route(methods=['get'])
