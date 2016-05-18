@@ -39,6 +39,14 @@ handlers:
   static_dir: static
   secure: always
 
+- url: /api/splits/.*
+  script: main.application
+  secure: optional
+
+- url: /api/time/.*
+  script: main.application
+  secure: optional
+
 - url: /.*
   script: main.application
   secure: always
