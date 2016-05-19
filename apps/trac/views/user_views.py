@@ -230,6 +230,12 @@ class AthleteViewSet(viewsets.ModelViewSet):
 
         sessions = TimingSession.objects.filter(
             splits__athlete_id=athlete.id).distinct()
+
+        if (request.user == athlete.user):
+            sessions = sessions.filter(Q(private=False) | Q(registered_athletes__in=[athlete]))
+        else:
+            sessions = sessions.filter(private=False)
+
         results = {
             'name': name,
             'sessions': []
@@ -243,7 +249,7 @@ class AthleteViewSet(viewsets.ModelViewSet):
                 'name': session.name,
                 'date': session.start_time,
                 'splits': session_results.splits,
-                'total': session_results.total
+                'total': session_results.total,
             }
             results['sessions'].append(session_info)
 
