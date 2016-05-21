@@ -173,7 +173,7 @@
             return;
           }
           var url = '/api/athletes/?team=' + $scope.rosterID;
-            $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:last, limit: 2} })
+            $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:last, limit: 20} })
             .success(function (response) { 
               if(response.results.length == 0) return;
               for(i=0; i < response.results.length; i++){
