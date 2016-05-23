@@ -183,6 +183,25 @@
             });
   };
 
+
+$scope.checkAll = function () {
+  console.log($scope.selectedAll);
+        if ($scope.selectedAll) {
+            console.log('all');
+            $scope.selectedAll = false;
+        } else {
+            console.log('false');
+            $scope.selectedAll = true;
+        }
+        angular.forEach($scope.rosterAthletes, function (x) {
+            //console.log(x.id);
+            x.selected = $scope.selectedAll;
+            console.log($scope.selectedAll);
+        });
+
+    };
+
+
       //Search for Roster
       $scope.athleteSearchRoster = function(){
       $scope.searchRoster.change = $scope.searchRoster.model;
