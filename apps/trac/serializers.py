@@ -412,3 +412,4 @@ class IndividualResultsQuerySerializer(serializers.Serializer):
     all_athletes = serializers.BooleanField(default=False)
     calc_paces = serializers.BooleanField(default=False)
     exclude_nt = serializers.BooleanField(default=False)
+    sort_athletes = serializers.BooleanField(default=False)
