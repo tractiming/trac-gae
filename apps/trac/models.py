@@ -202,7 +202,7 @@ class TimingSession(models.Model):
     start_time = models.DateTimeField(default=timezone.now, blank=True)
     stop_time = models.DateTimeField(default=timezone.now, blank=True)
     start_button_time = models.BigIntegerField(null=True, blank=True)
-    registered_athletes = models.ManyToManyField(Athlete)
+    registered_athletes = models.ManyToManyField(Athlete, through='AthleteRegistration')
     use_registered_athletes_only = models.BooleanField(default=False)
     private = models.BooleanField(default=True)
 
@@ -575,6 +575,15 @@ class TimingSession(models.Model):
         final_time = start_time + (3600000*hr + 60000*mn + 1000*sc + ms)
         split = Split.objects.create(athlete_id=athlete_id, time=final_time)
         self.splitfilter_set.create(split=split)
+
+
+class AthleteRegistration(models.Model):
+    athlete = models.ForeignKey(Athlete)
+    timingsession = models.ForeignKey(TimingSession)
+    order = models.PositiveIntegerField()
+
+    class Meta:
+        ordering = ('order',)
 
 
 class SplitFilter(models.Model):
