@@ -213,6 +213,11 @@
                   <span></span>
                 </div>-->
                 <span us-spinner spinner-key="roster-spinner" spinner-start-active="false"></span>
+                <div class="row">
+                  <div class="col-lg-2">
+                    <label style="display: block;padding-left: 15px; text-indent: -15px;"><input type="checkbox" ng-model="selectedAll" ng-checked="selectedAll" ng-click="checkAll()"style="width: 13px; height: 13px; padding: 0; margin:0; vertical-align: bottom; position: relative; top: -1px; *overflow: hidden;"/> Select All</label>
+                  </div>
+                </div>
                 <table id="results-table" class="table table-striped table-hover">
                   <thead>
                     <tr>
@@ -335,7 +340,7 @@
                     <div infinite-scroll='loadMore()' infinite-scroll-distance="0" infinite-scroll-container="'#parent-selector'" infinite-scroll-parent="true">
                       <tr ng-repeat="x in rosterAthletes" id="{{x.id}}" class="ath" ng-class="{danger:showDelete_{{x.id}}, info: showSave_{{x.id}}}" ng-mouseover="hoverIn();" ng-mouseleave="hoverOut();">
                         <td class="col-lg-1">
-                          <input type="checkbox" id="check" ng-model="selected[x.id]" ng-hide="editing_{{x.id}}" class="no-animate">
+                          <input type="checkbox" id="check" ng-checked="x.selected" ng-model="selected[x.id]" ng-hide="editing_{{x.id}}" class="no-animate">
                         </td>
                         <td class="hidden-xs hidden-sm hidden-md hidden-lg" id="id">{{x.id}}</td>
                         <td class="col-lg-2">
