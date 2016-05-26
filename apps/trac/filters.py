@@ -11,6 +11,7 @@ class AthleteFilter(filters.FilterSet):
     team_name = filters.CharFilter(name='team__name')
     min_age = filters.MethodFilter()
     max_age = filters.MethodFilter()
+    registered_to_session_sorted = filters.MethodFilter()
     registered_to_session = filters.NumberFilter(
         name='timingsession', distinct=True)
 
@@ -27,6 +28,9 @@ class AthleteFilter(filters.FilterSet):
             'max_age',
             'registered_to_session'
         )
+
+    def filter_registered_to_session_sorted(self, queryset, value):
+        return queryset.filter(timingsession=value).order_by('athleteregistration').distinct()
 
     def filter_min_age(self, queryset, value):
         """Minimum age."""

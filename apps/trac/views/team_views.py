@@ -2,9 +2,10 @@ from rest_framework import viewsets, permissions, filters, status, mixins
 from rest_framework.decorators import detail_route
 from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
+from django.utils.dateparse import parse_date
 
 from trac.filters import TeamFilter
-from trac.models import Team, TimingSession, Coach
+from trac.models import Team, TimingSession, Coach, Athlete
 from trac.serializers import (
     TeamSerializer, ScoringSerializer, AthleteSerializer, TagSerializer
 )
@@ -79,6 +80,32 @@ class TeamViewSet(viewsets.ModelViewSet):
                                        primary_team=True)
         else:
             return Team.objects.filter(public_team=True, primary_team=True)
+
+    # first_name,last_name,rfid_code,new_bday,new_gender,new_first_name,new_last_name
+    @detail_route(methods=['post'], parser_classes=(FileUploadParser,))
+    def upload_new_names(self, request, *args, **kwargs):
+        csv_data = roster_upload_validator(request.data)
+        for row in csv_data:
+            # find athlete
+            try:
+                athlete = Athlete.objects.get(user__first_name=row['first_name'],
+                                              user__last_name=row['last_name'],
+                                              tag__id_str=row['rfid_code'])
+            except (ValueError, ObjectDoesNotExist):
+                return Response("Could not find athlete with matching"
+                                "first_name={}, last_name={}, and rfid_tag={}".format(row['first_name', row['last_name'], row['rfid_code']]),
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            #update name
+            athlete.user.first_name = row['new_first_name']
+            athlete.user.last_name = row['new_last_name']
+            athlete.birth_date = parse_date(row['new_bday'])
+            athlete.gender = row['new_gender']
+            athlete.save()
+            athlete.user.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
     @detail_route(methods=['post'], parser_classes=(FileUploadParser,))
     def upload_roster(self, request, *args, **kwargs):

@@ -24,7 +24,7 @@ from rest_framework.parsers import FileUploadParser
 from backends._gcs import gcs_writer, get_public_link
 from trac.filters import TimingSessionFilter, CheckpointFilter
 from trac.models import (
-    TimingSession, Reader, Tag, Split, Team, Athlete, SplitFilter, Checkpoint
+    TimingSession, Reader, Tag, Split, Team, Athlete, SplitFilter, Checkpoint, AthleteRegistration
 )
 from trac.serializers import (
     TimingSessionSerializer, AthleteSerializer, TagSerializer,
@@ -269,6 +269,10 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             type: string
             paramType: query
             allowMultiple: true
+          - name: sort_athletes
+            description: sorts athletes by order
+            type: boolean
+            paramType: query
           - name: exclude_nt
             description: >
               If True, do not return results for athletes who have not
@@ -323,6 +327,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                 'id', flat=True)
             all_athletes = False
 
+
         session = self.get_object()
         raw_results = session.individual_results(athlete_ids=athletes,
                                                  teams=teams, **query)
@@ -359,6 +364,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             'num_returned': len(raw_results)+len(extra_results),
             'results': []
         }
+
 
         for result in (raw_results + extra_results):
             individual_result = {
@@ -743,7 +749,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             serializer = AthleteSerializer(data=athlete_data)
             serializer.is_valid(raise_exception=True)
             new_athlete = serializer.create(serializer.validated_data)
-            session.registered_athletes.add(new_athlete.pk)
+            new_athlete_registration = AthleteRegistration(athlete_id=new_athlete.pk, timingsession=session, order=0)
+            new_athlete_registration.save()
 
             rfid_code = athlete.get('rfid_code', None) or None
             bib_number = athlete.get('bib_number', None) or None

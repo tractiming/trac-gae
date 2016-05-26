@@ -202,7 +202,7 @@ class TimingSession(models.Model):
     start_time = models.DateTimeField(default=timezone.now, blank=True)
     stop_time = models.DateTimeField(default=timezone.now, blank=True)
     start_button_time = models.BigIntegerField(null=True, blank=True)
-    registered_athletes = models.ManyToManyField(Athlete)
+    registered_athletes = models.ManyToManyField(Athlete, through='AthleteRegistration')
     use_registered_athletes_only = models.BooleanField(default=False)
     private = models.BooleanField(default=True)
 
@@ -385,7 +385,7 @@ class TimingSession(models.Model):
     def individual_results(self, limit=None, offset=None, gender=None,
                            age_lte=None, age_gte=None, teams=None,
                            apply_filter=None, athlete_ids=None,
-                           calc_paces=False, exclude_nt=False):
+                           calc_paces=False, exclude_nt=False, sort_athletes=None):
         """Calculate individual results for a session.
 
         First call `_sorted_athlete_list` for a list of tag IDs that are
@@ -398,6 +398,7 @@ class TimingSession(models.Model):
 
         Individual results can also be filtered by age, gender, etc.
         """
+
         if apply_filter is None:
             apply_filter = self.filter_choice
 
@@ -412,6 +413,10 @@ class TimingSession(models.Model):
                                                  teams=teams,
                                                  apply_filter=apply_filter,
                                                  exclude_nt=exclude_nt)
+
+            athletes = list(athletes)
+            if sort_athletes:
+                athletes = Athlete.objects.filter(id__in=athletes).order_by('athleteregistration').distinct().values_list('id', flat=True)
 
         return [self._calc_athlete_splits(athlete,
                                           apply_filter=apply_filter,
@@ -575,6 +580,15 @@ class TimingSession(models.Model):
         final_time = start_time + (3600000*hr + 60000*mn + 1000*sc + ms)
         split = Split.objects.create(athlete_id=athlete_id, time=final_time)
         self.splitfilter_set.create(split=split)
+
+
+class AthleteRegistration(models.Model):
+    athlete = models.ForeignKey(Athlete)
+    timingsession = models.ForeignKey(TimingSession)
+    order = models.PositiveIntegerField()
+
+    class Meta:
+        ordering = ('order',)
 
 
 class SplitFilter(models.Model):
