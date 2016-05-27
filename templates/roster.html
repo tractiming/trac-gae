@@ -262,6 +262,7 @@
                           <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
                             <li><a  ng-click="header();" ng-show="editing_header">Add Runner</a></li>
                             <li><a ng-click="csvheader();" ng-show="csvHeader">CSV Upload Team</a></li>
+                            <li><a ng-click="namechange();" ng-show="nameChange">CSV Change Name</a></li>
                           </ul>
                         </div>
                       <!--  <button type="button" class="btn btn-default pull-right" ng-click="header();" ng-show="editing_header">
@@ -293,6 +294,32 @@
                               <div class="pull-right" style="width:40%"> 
                                 <button name="" class="btn btn-primary" ng-click="csvTeamCreate(team.id);">Create</button>
                                 <button name="" class="btn btn-default hidden-sm hidden-xs hidden-md" ng-click="csvcancelHeader()">Cancel</button>
+                              </div>
+                            </div>
+                            
+                          </div>
+                        </form>
+                      </td>
+                    </tr>
+                    <tr ng-hide="nameChange" class="expand">
+                      <td colspan="7">
+                        <form name="csvformRoster" id="namechangeRoster-{{team.id}}" data-parsley-validate>
+                          <div class="row">
+                            <div class="col-lg-6">
+                              <p class="notification-warning">
+                                <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> CSV uploads must be in a specific format. Click <a href="../../../static/files/name_change_example.csv">here</a> for an example.
+                              </p>
+                            </div>
+                            <div class="input-group col-lg-6 file-input2-{{team.id}}">
+                              <span class="input-group-btn">
+                                <span class="btn btn-warning btn-file roster2_{{team.id}}">
+                                  Browse&hellip; <input type="file" id="file" name="file" onchange="angular.element(this).scope().fileNameChanged2()" data-parsley-errors-container="#csv-parsley-errors">
+                                </span>
+                              </span>
+                              <input type="text" class="form-control" readonly required data-parsley-errors-container="#csv-parsley-errors" style="width:45%">
+                              <div class="pull-right" style="width:40%"> 
+                                <button name="" class="btn btn-danger" ng-click="nameChangeCreate(team.id);">Change</button>
+                                <button name="" class="btn btn-default hidden-sm hidden-xs hidden-md" ng-click="cancelnamechange()">Cancel</button>
                               </div>
                             </div>
                             

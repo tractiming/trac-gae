@@ -2,9 +2,10 @@ from rest_framework import viewsets, permissions, filters, status, mixins
 from rest_framework.decorators import detail_route
 from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
+from dateutil.parser import *
 
 from trac.filters import TeamFilter
-from trac.models import Team, TimingSession, Coach
+from trac.models import Team, TimingSession, Coach, Athlete
 from trac.serializers import (
     TeamSerializer, ScoringSerializer, AthleteSerializer, TagSerializer
 )
@@ -79,6 +80,59 @@ class TeamViewSet(viewsets.ModelViewSet):
                                        primary_team=True)
         else:
             return Team.objects.filter(public_team=True, primary_team=True)
+
+    # first_name,last_name,rfid_code,new_bday,new_gender,new_first_name,new_last_name
+    @detail_route(methods=['post'], parser_classes=(FileUploadParser,))
+    def upload_new_names(self, request, *args, **kwargs):
+        """Upload a CSV file with athletes on this team.
+
+        The uploaded file must have a header row that contains the
+        fields "first_name" and "last_name", and "new_last_name" 
+        and "new_first_name" and may additionally
+        contain any of the fields "gender" or "birth_date".
+
+        A new athlete will be created for each row in the file and that
+        athlete will be assigned to the current team.
+        ---
+        omit_serializer: true
+        omit_parameters:
+        - query
+        - form
+        parameters:
+        - name: file
+          description: CSV file with new name roster information
+          type: file
+        """
+        csv_data = roster_upload_validator(request.data)
+        for row in csv_data:
+            # find athlete
+            try:
+                athlete = Athlete.objects.get(user__first_name=row['first_name'],
+                                              user__last_name=row['last_name'],
+                                              tag__id_str=row['rfid_code'])
+                # update name and user information
+                athlete.user.first_name = row['new_first_name']
+                athlete.user.last_name = row['new_last_name']
+                athlete.birth_date = parse(row['new_bday'])
+                print(athlete.birth_date, row['new_bday'])
+                athlete.gender = row['new_gender']
+                athlete.save()
+                athlete.user.save()
+                #
+                # return Response({
+                #     'name': athlete.user.first_name + " " + athlete.user.last_name,
+                #     'bday': str(athlete.birth_date),
+                #     'gender': athlete.gender
+                # })
+
+            except (ValueError, ObjectDoesNotExist):
+                return Response("Could not find athlete with matching"
+                                "first_name={}, last_name={}, and rfid_tag={}".format(row['first_name', row['last_name'], row['rfid_code']]),
+                                status=status.HTTP_400_BAD_REQUEST)
+
+
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @detail_route(methods=['post'], parser_classes=(FileUploadParser,))
     def upload_roster(self, request, *args, **kwargs):

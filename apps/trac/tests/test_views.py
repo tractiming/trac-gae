@@ -83,6 +83,32 @@ class TeamViewSetTest(APITestCase):
         team = Team.objects.get(pk=resp.data['id'])
         self.assertEqual(team.coach.user.username, 'alsal')
 
+    def test_update_names_upload(self):
+        user = User.objects.get(username='alsal')
+        self.client.force_authenticate(user=user)
+
+        with tempfile.NamedTemporaryFile(suffix='.csv', mode="r+w") as uploadedFile:
+            uploadedFile.write("""first_name,last_name,rfid_code,new_bday,new_gender,new_first_name,new_last_name
+Galen,Rupp,AAAA 0001,05/26/2016,M,Jack,Miller""")
+            uploadedFile.seek(0)
+            resp = self.client.post(
+                '/api/teams/1/upload_new_names/',
+                data={'file': [uploadedFile]}
+            )
+            self.assertEqual(resp.status_code, 204)
+
+        team = Team.objects.get(id=1)
+
+        a = Athlete.objects.get(user__first_name="Jack", user__last_name="Miller")
+        print(a, a.birth_date, a.gender)
+        print(team.athlete_set.all())
+
+        self.assertTrue(Athlete.objects.filter(
+            user__first_name='Jack',
+            user__last_name='Miller',
+            birth_date=datetime.date(2016, 5, 26),
+            gender='M').exists())
+
     def test_roster_upload_no_birthdate(self):
         """Test uploading a roster with a blank "birth_date" column."""
         user = User.objects.get(username='alsal')
@@ -488,7 +514,7 @@ class TimingSessionViewSetTest(APITestCase):
         mock_writer.assert_called_with(settings.GCS_RESULTS_BUCKET,
                                        results_path, make_public=True)
         mock_csv.DictWriter().writerow.assert_has_calls([
-            mock.call({'Name': 'Cam Levins', 'Gender': 'M', 'Age': 25, 'Time': '05:18.601'}),
+            mock.call({'Name': 'Cam Levins', 'Gender': 'M', 'Age': 26, 'Time': '05:18.601'}),
             mock.call({'Name': 'Galen Rupp', 'Gender': None, 'Age': None, 'Time': '06:29.045'})])
         self.assertEqual(resp.data['uri'], 'filedownloadurl.csv')
 
@@ -513,7 +539,7 @@ class TimingSessionViewSetTest(APITestCase):
             mock.call(OrderedDict((
                 ('Name', 'Cam Levins'),
                 ('Gender', 'M'),
-                ('Age', 25),
+                ('Age', 26),
                 ('Interval 1', 123.021),
                 ('Interval 2', 195.58),
                 ('Total', '05:18.601')))),
@@ -544,7 +570,7 @@ class TimingSessionViewSetTest(APITestCase):
         mock_writer.assert_called_with(settings.GCS_RESULTS_BUCKET,
                                        results_path, make_public=True)
         results = (
-            OrderedDict((('Name', 'Cam Levins'), ('Gender', 'M'), ('Age', 25), ('Time', '05:18.601'))),
+            OrderedDict((('Name', 'Cam Levins'), ('Gender', 'M'), ('Age', 26), ('Time', '05:18.601'))),
             OrderedDict((('Name', 'Galen Rupp'), ('Gender', None), ('Age', None), ('Time', '06:29.045')))
         )
         mock_pdf.assert_called_with(mock_writer().__enter__(), mock.ANY)
