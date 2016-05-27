@@ -32,6 +32,7 @@
     $scope.regNull = false;
     $scope.editing_header = true;
     $scope.csvHeader = true;
+    $scope.nameChange = true;
     $scope.currentPage = 1;
     $scope.sessionFirst = 1;
     $scope.sessionLast = SESSIONS_PER_PAGE;
@@ -45,6 +46,24 @@
       input.trigger('fileselect', [numFiles, label]);
 
        var input = $('.roster_'+$scope.rosterID+' :file').parents('.file-input-'+$scope.rosterID).find(':text'),
+          log = numFiles > 1 ? numFiles + ' files selected' : label;
+      
+      if( input.length ) {
+        input.val(log);
+      } else {
+        if( log ) alert(log);
+      }
+
+    }
+
+    $scope.fileNameChanged2 = function() {
+      var input = $('.roster2_'+$scope.rosterID+' :file'),
+          numFiles = input.get(0).files ? input.get(0).files.length : 1,
+          label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+      console.log(input);
+      input.trigger('fileselect', [numFiles, label]);
+
+       var input = $('.roster2_'+$scope.rosterID+' :file').parents('.file-input2-'+$scope.rosterID).find(':text'),
           log = numFiles > 1 ? numFiles + ' files selected' : label;
       
       if( input.length ) {
@@ -521,13 +540,44 @@ $scope.checkAll = function () {
     }
     $scope.csvheader = function(){
       $scope.csvHeader = false;
+      $scope.nameChange = true;
     }
     $scope.csvcancelHeader = function(){
       $scope.csvHeader = true;
     }
+    $scope.namechange = function(){
+      $scope.nameChange = false;
+      $scope.csvHeader = true;
+    }
+    $scope.cancelnamechange = function(){
+      $scope.nameChange = true;
+    }
     $scope.csvTeamCreate = function(id){
       var fd = new FormData($('#csvformRoster-'+id)[0]);
       var url = "/api/teams/"+ id +"/upload_roster/";
+      $('#csvModal').modal('hide');
+      usSpinnerService.spin('roster-spinner');
+      $http({method: 'POST', url: url, cache:false, headers: {Authorization: 'Bearer ' + sessionStorage.access_token, 'Content-Type': undefined}, data:fd, transformRequest: angular.identity })
+            .success(function (response) { 
+             
+              var url = '/api/athletes/?team=' + $scope.rosterID + '&limit=10';
+            $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
+            .success(function (response) { 
+              $scope.rosterAthletes = response.results;
+              usSpinnerService.stop('roster-spinner');
+              });
+            })
+            .error(function (response) {
+              $('#rosterModal').modal('hide');
+              usSpinnerService.stop('main-spinner');
+              $('.notification').hide();
+              $('.notification.input-error').show();
+              $('#notificationModal').modal('show');
+            });
+    }
+    $scope.nameChangeCreate = function(id){
+      var fd = new FormData($('#namechangeRoster-'+id)[0]);
+      var url = "/api/teams/"+ id +"/upload_new_names/";
       $('#csvModal').modal('hide');
       usSpinnerService.spin('roster-spinner');
       $http({method: 'POST', url: url, cache:false, headers: {Authorization: 'Bearer ' + sessionStorage.access_token, 'Content-Type': undefined}, data:fd, transformRequest: angular.identity })

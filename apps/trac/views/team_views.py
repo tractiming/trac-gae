@@ -84,6 +84,25 @@ class TeamViewSet(viewsets.ModelViewSet):
     # first_name,last_name,rfid_code,new_bday,new_gender,new_first_name,new_last_name
     @detail_route(methods=['post'], parser_classes=(FileUploadParser,))
     def upload_new_names(self, request, *args, **kwargs):
+        """Upload a CSV file with athletes on this team.
+
+        The uploaded file must have a header row that contains the
+        fields "first_name" and "last_name", and "new_last_name" 
+        and "new_first_name" and may additionally
+        contain any of the fields "gender" or "birth_date".
+
+        A new athlete will be created for each row in the file and that
+        athlete will be assigned to the current team.
+        ---
+        omit_serializer: true
+        omit_parameters:
+        - query
+        - form
+        parameters:
+        - name: file
+          description: CSV file with new name roster information
+          type: file
+        """
         csv_data = roster_upload_validator(request.data)
         for row in csv_data:
             # find athlete
@@ -96,7 +115,7 @@ class TeamViewSet(viewsets.ModelViewSet):
                                 "first_name={}, last_name={}, and rfid_tag={}".format(row['first_name', row['last_name'], row['rfid_code']]),
                                 status=status.HTTP_400_BAD_REQUEST)
 
-            #update name
+            #update name and user information
             athlete.user.first_name = row['new_first_name']
             athlete.user.last_name = row['new_last_name']
             athlete.birth_date = parse_date(row['new_bday'])
