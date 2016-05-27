@@ -2,7 +2,7 @@ from rest_framework import viewsets, permissions, filters, status, mixins
 from rest_framework.decorators import detail_route
 from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
-from django.utils.dateparse import parse_date
+from dateutil.parser import *
 
 from trac.filters import TeamFilter
 from trac.models import Team, TimingSession, Coach, Athlete
@@ -110,18 +110,27 @@ class TeamViewSet(viewsets.ModelViewSet):
                 athlete = Athlete.objects.get(user__first_name=row['first_name'],
                                               user__last_name=row['last_name'],
                                               tag__id_str=row['rfid_code'])
+                # update name and user information
+                athlete.user.first_name = row['new_first_name']
+                athlete.user.last_name = row['new_last_name']
+                athlete.birth_date = parse(row['new_bday'])
+                print(athlete.birth_date, row['new_bday'])
+                athlete.gender = row['new_gender']
+                athlete.save()
+                athlete.user.save()
+                #
+                # return Response({
+                #     'name': athlete.user.first_name + " " + athlete.user.last_name,
+                #     'bday': str(athlete.birth_date),
+                #     'gender': athlete.gender
+                # })
+
             except (ValueError, ObjectDoesNotExist):
                 return Response("Could not find athlete with matching"
                                 "first_name={}, last_name={}, and rfid_tag={}".format(row['first_name', row['last_name'], row['rfid_code']]),
                                 status=status.HTTP_400_BAD_REQUEST)
 
-            #update name and user information
-            athlete.user.first_name = row['new_first_name']
-            athlete.user.last_name = row['new_last_name']
-            athlete.birth_date = parse_date(row['new_bday'])
-            athlete.gender = row['new_gender']
-            athlete.save()
-            athlete.user.save()
+
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
