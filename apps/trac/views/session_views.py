@@ -179,6 +179,16 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         session = self.get_object()
         session.stop_time = timezone.now()
         session.save()
+
+        if session.id == 1:
+            raw_results = session.individual_results()
+            for result in raw_results:
+                if session.id == 1:
+                    if len(result.splits) != 3:
+                        session._overwrite_final_time(result.user_id, int(0), int(0), int(0), int(0))
+                print(result)
+                return Response(status=status.HTTP_201_CREATED)
+
         return Response(status=status.HTTP_202_ACCEPTED)
 
     @csrf_exempt
