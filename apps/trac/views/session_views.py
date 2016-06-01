@@ -179,6 +179,22 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         session = self.get_object()
         session.stop_time = timezone.now()
         session.save()
+
+        if session.id in [700, 698, 695]:
+            raw_results = session.individual_results()
+            for result in raw_results:
+                if len(result.splits) != 2:
+                    session._overwrite_final_time(result.user_id, int(0), int(0), int(0), int(0))
+                print(result)
+            return Response(status=status.HTTP_201_CREATED)
+        elif session.id in [699, 697, 696]:
+            raw_results = session.individual_results()
+            for result in raw_results:
+                if len(result.splits) != 1:
+                    session._overwrite_final_time(result.user_id, int(0), int(0), int(0), int(0))
+                print(result)
+            return Response(status=status.HTTP_201_CREATED)
+
         return Response(status=status.HTTP_202_ACCEPTED)
 
     @csrf_exempt
@@ -201,18 +217,18 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
         #Hack for the Chicago Park District
         #Change every week to associate correct primary keys
-        if session.id == 687:
-            sess = TimingSession.objects.get(id=688)
+        if session.id == 696:
+            sess = TimingSession.objects.get(id=695)
             sess.start_button_time = timestamp
             sess.save()
             sess.clear_cache_all()
-        elif session.id == 691:
-            sess = TimingSession.objects.get(id=692)
+        elif session.id == 697:
+            sess = TimingSession.objects.get(id=698)
             sess.start_button_time = timestamp
             sess.save()
             sess.clear_cache_all()
-        elif session.id == 689:
-            sess = TimingSession.objects.get(id=690)
+        elif session.id == 699:
+            sess = TimingSession.objects.get(id=700)
             sess.start_button_time = timestamp
             sess.save()
             sess.clear_cache_all()
