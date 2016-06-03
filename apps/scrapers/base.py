@@ -8,6 +8,9 @@ class Scraper(object):
      - get athlete_details_from_url
      - search
     '''
+    def __init__(self):
+        pass
+
     def get_athlete_results_from_url(self, url):
         raise NotImplementedError()
 
