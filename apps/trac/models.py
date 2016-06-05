@@ -576,6 +576,21 @@ class TimingSession(models.Model):
         split = Split.objects.create(athlete_id=athlete_id, time=final_time)
         self.splitfilter_set.create(split=split)
 
+    def _unlink_splits(self, athlete_id):
+        """
+        Unlink splits that belong to one timing session, but dont belong in another
+        without deleting them. It removes the link between the split and the 
+        SplitFilter model
+        """
+
+        ath_splits = self.splits.filter(athlete_id=athlete_id)
+
+        for split in ath_splits:
+            try:
+                split.splitfilter_set.filter(timingsession__id=self.id).first().delete()
+            except (ValueError, ObjectDoesNotExist):
+                pass
+
 
 class SplitFilter(models.Model):
     """

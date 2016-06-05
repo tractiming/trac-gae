@@ -682,6 +682,34 @@ google.setOnLoadCallback(function(){
 				$('#modify-total-time-modal').modal('hide');
 			});
 
+			$('body').off('click', '#modify-total-time-delete');
+			$('body').on('click', '#modify-total-time-delete', function(e) {
+				e.preventDefault();
+
+				//console.log(hrs+':'+mins+':'+secs+'.'+ms);
+
+				$.ajax({
+					method: 'POST',
+					url: 'api/edit_split/',
+					headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+					data: { id: currentID,
+									user_id: runnerID,
+									action: 'unlink_total', },
+					success: function(data) {
+						$('#table-canvas').empty();
+						$('#spinner').css('height', 150);
+						spinner.spin(target);
+						update(currentID, currentView);
+					},
+					error: function(jqXHR, exception) {
+						$('.notification.server-error').show();
+					}
+				});
+
+				// hide modal
+				$('#modify-total-time-modal').modal('hide');
+			});
+
 			$('body').off('click', '#modify-total-time-cancel');
 			$('body').on('click', '#modify-total-time-cancel', function(e) {
 				e.preventDefault();

@@ -180,6 +180,21 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         session.stop_time = timezone.now()
         session.save()
 
+        # if session.id in [104]:
+        #     raw_results = session.individual_results()
+        #     for result in raw_results:
+        #         if len(result.splits) != 2:
+        #             session._unlink_splits(result.user_id)
+        #         print(result)
+        #     return Response(status=status.HTTP_201_CREATED)
+        # elif session.id in [699, 697, 696]:
+        #     raw_results = session.individual_results()
+        #     for result in raw_results:
+        #         if len(result.splits) != 1:
+        #             session._unlink_splits(result.user_id)
+        #         print(result)
+        #     return Response(status=status.HTTP_201_CREATED)
+
         return Response(status=status.HTTP_202_ACCEPTED)
 
     @csrf_exempt
@@ -975,6 +990,8 @@ def edit_split(request):
         ts._overwrite_final_time(athlete.id, int(data['hour']),
                                  int(data['min']), int(data['sec']),
                                  int(data['mil']))
+    elif data['action'] == 'unlink_total':
+        ts._unlink_splits(athlete.id)
     else:
         return Response(status=status.HTTP_404_NOT_FOUND)
     
