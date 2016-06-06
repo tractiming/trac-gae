@@ -49,7 +49,7 @@ TEMPLATE_DEBUG = DEBUG
 
 ########## MANAGER CONFIGURATION ##########
 ADMINS = (
-    ('elliot', 'ejhevel@gmail.com'),
+    ('griffin', 'griffinkelly2013@gmail.com'),
 )
 MANAGERS = ADMINS
 ###########################################
