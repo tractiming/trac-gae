@@ -11,6 +11,7 @@ from trac.serializers import (
 )
 from trac.utils.user_util import is_athlete, is_coach
 from trac.validators import roster_upload_validator
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class TeamViewSet(viewsets.ModelViewSet):
