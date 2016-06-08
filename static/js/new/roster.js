@@ -594,7 +594,8 @@ $scope.checkAll = function () {
               $('#rosterModal').modal('hide');
               usSpinnerService.stop('main-spinner');
               $('.notification').hide();
-              $('.notification.input-error').show();
+              $('.notification.input-custom').show();
+              $('.notification.input-custom').append(response);
               $('#notificationModal').modal('show');
             });
     }
