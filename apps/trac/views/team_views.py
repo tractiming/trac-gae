@@ -127,9 +127,9 @@ class TeamViewSet(viewsets.ModelViewSet):
                 # })
 
             except (ValueError, ObjectDoesNotExist):
-                return Response("Could not find athlete with matching"
-                                "first_name={}, last_name={}, and rfid_tag={}".format(row['first_name', row['last_name'], row['rfid_code']]),
-                                status=status.HTTP_400_BAD_REQUEST)
+              #response = "Could not find athlete with matching first_name={}, last_name={}, and rfid_tag={}".format(row['first_name', row['last_name'], row['rfid_code']])
+              response = 'Could not find athlete matching name ' '{} {} {}'.format(row['first_name'], row['last_name'], row['rfid_code'])
+              return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
 
 
