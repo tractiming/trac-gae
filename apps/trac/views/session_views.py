@@ -485,7 +485,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                                  athlete=athlete).delete()
 
             splits = athlete_data['splits']
-            time = session.3_button_time or 0
+            time = session.start_button_time or 0
             if session.start_button_time is None:
                 splits.insert(0, 0)
 
