@@ -11,7 +11,7 @@ class Scraper(object):
     def __init__(self):
         pass
 
-    def get_athlete_results_from_url(self, url):
+    def get_athlete_results_from_url(self, url, limit=None):
         raise NotImplementedError()
 
     def get_athlete_details_from_url(self, url):
