@@ -180,14 +180,14 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         session.stop_time = timezone.now()
         session.save()
 
-        # if session.id in [104]:
+        # if session.id in [706, 704, 702]:
         #     raw_results = session.individual_results()
         #     for result in raw_results:
         #         if len(result.splits) != 2:
         #             session._unlink_splits(result.user_id)
         #         print(result)
         #     return Response(status=status.HTTP_201_CREATED)
-        # elif session.id in [699, 697, 696]:
+        # elif session.id in [705, 703, 701]:
         #     raw_results = session.individual_results()
         #     for result in raw_results:
         #         if len(result.splits) != 1:
@@ -217,18 +217,18 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
         #Hack for the Chicago Park District
         #Change every week to associate correct primary keys
-        if session.id == 696:
-            sess = TimingSession.objects.get(id=695)
+        if session.id == 701:
+            sess = TimingSession.objects.get(id=702)
             sess.start_button_time = timestamp
             sess.save()
             sess.clear_cache_all()
-        elif session.id == 697:
-            sess = TimingSession.objects.get(id=698)
+        elif session.id == 703:
+            sess = TimingSession.objects.get(id=704)
             sess.start_button_time = timestamp
             sess.save()
             sess.clear_cache_all()
-        elif session.id == 699:
-            sess = TimingSession.objects.get(id=700)
+        elif session.id == 705:
+            sess = TimingSession.objects.get(id=706)
             sess.start_button_time = timestamp
             sess.save()
             sess.clear_cache_all()
@@ -485,7 +485,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                                  athlete=athlete).delete()
 
             splits = athlete_data['splits']
-            time = session.start_button_time or 0
+            time = session.3_button_time or 0
             if session.start_button_time is None:
                 splits.insert(0, 0)
 
