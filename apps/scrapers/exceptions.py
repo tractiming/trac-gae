@@ -1,0 +1,2 @@
+class NoSuchAthlete(Exception):
+    pass
