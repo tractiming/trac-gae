@@ -95,7 +95,7 @@ if not APP_ENGINE:
 
     NOSE_ARGS = [
         '--with-coverage', '--cover-inclusive', '--cover-erase',
-        '--cover-package=trac,website,stats,accounts,notifications'
+        '--cover-package=trac,website,stats,accounts,notifications,scrapers'
     ]
 
 if SHIPPABLE:

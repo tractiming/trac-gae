@@ -3,10 +3,10 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 
 from .base import Scraper
-from .exceptions import NoSuchAthlete
+from .exceptions import NoSuchAthlete, TooManyAthletes
 
-
-PO10_SEARCH_URL = 'http://www.thepowerof10.info/athletes/athleteslookup.aspx'
+PO10_BASE = 'http://www.thepowerof10.info/'
+PO10_SEARCH_URL = PO10_BASE + 'athletes/athleteslookup.aspx'
 
 YEAR_ROW = 1
 TITLES_ROW = 2
@@ -28,6 +28,12 @@ def get_name_from_profile(content):
     profile_soup = BeautifulSoup(content, 'html.parser')
     name_elem = profile_soup.find_all(class_="athleteprofilesubheader")[0].h2
     return name_elem.string.strip().encode('utf-8')
+
+
+def get_club_from_profile(content):
+    profile_soup = BeautifulSoup(content, 'html.parser')
+    details = profile_soup.find_all(id='cphBody_pnlAthleteDetails')[0]
+    return details.find_all('table')[1].find_all('table')[0].find_all('td')[1].text
 
 
 def get_perf_table_from_profile(content):
@@ -89,21 +95,32 @@ class Po10Scraper(Scraper):
         r = requests.get(PO10_SEARCH_URL, params={'firstname': firstname,
                                                   'surname': surname,
                                                   'club': club})
+        if r.history:
+            # We have been redirected to an athlete profile page
+            name = get_name_from_profile(r.content)
+            url = r.url
+            club = get_club_from_profile(r.content)
+            return [{'name': name, 'club': club, 'url': url}]
 
         results = []
         soup = BeautifulSoup(r.content, 'html.parser')
-        try:
-            search_results = soup.find(id='cphBody_pnlResults')
-            rows = search_results.find_all('tr')
-        except Exception:
-            # This may be either 'too many athletes found' or 'none found'
-            # TODO: raise if it's too many athletes
-            return results
+
+        # Check errors - we may have either too many athletes found or
+        # not a detailed enough search (fewer than 3 letters)
+        request_error = soup.find_all(id='cphBody_lblRequestErrorMessage')
+        results_error = soup.find_all(id='cphBody_lblResultsErrorMessage')
+        if request_error and 'Please enter at least 3 characters' in request_error[0].text:
+            raise ValueError('Search terms not detailed enough.')
+        elif results_error and 'Too many athletes found.' in results_error[0].text:
+            raise TooManyAthletes('Found too many athletes for search.')
+
+        search_results = soup.find(id='cphBody_pnlResults')
+        rows = search_results.find_all('tr')
 
         for row in rows[1:-1]:  # First row is header, last is ignored
             cells = row.find_all('td')
             name = cells[0].text + ' ' + cells[1].text
             club = cells[7].text
-            id = cells[8].a.get('href').split('athleteid=')[1]
-            results.append({'name': name, 'club': club, 'id': id})
+            url = PO10_BASE + 'athletes/' + cells[8].a.get('href')
+            results.append({'name': name, 'club': club, 'url': url})
         return results
