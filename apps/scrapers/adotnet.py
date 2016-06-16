@@ -11,6 +11,10 @@ ADOTNET_SEARCH_URL = 'http://www.athletic.net/Search.aspx/runSearch'
 
 
 class AdotNetScraper(Scraper):
+    '''
+    TODO: Think about cross v track results (separate urls).
+          Order race results?
+    '''
 
     def get_athlete_details_from_url(self, url):
         r = requests.get(url)
