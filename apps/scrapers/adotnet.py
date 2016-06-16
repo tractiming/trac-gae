@@ -28,7 +28,7 @@ class AdotNetScraper(Scraper):
         return {'name': name, 'url': url}
 
     def get_athlete_results_from_url(self, url, limit=None):
-        ''' returns performances from the athlete's power of 10 page. '''
+        ''' returns performances from the athlete's athletic.net page. '''
         r = requests.get(url)
 
         soup = BeautifulSoup(r.content, 'html.parser')
@@ -63,7 +63,7 @@ class AdotNetScraper(Scraper):
     def search(self, firstname='', surname='', team=''):
         ret = []
         query = ' '.join([firstname, surname, team])
-        data = json.dumps({'q': query, 'fq': "", 'start': 0})
+        data = json.dumps({'q': query, 'fq': "t:a", 'start': 0})
         headers = {'Content-Type': 'application/json'}
         r = requests.post(ADOTNET_SEARCH_URL, data=data, headers=headers)
 
@@ -83,6 +83,6 @@ class AdotNetScraper(Scraper):
                     pass
                 if 'School' in link.get('href'):
                     team.add(link.text.strip())
-            ret.append({'name': name, 'team': '/'.join(list(team)), 'url': url})
+            ret.append({'name': str(name), 'team': str('/'.join(list(team))), 'url': str(url)})
 
         return ret

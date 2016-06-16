@@ -1,17 +1,20 @@
 from django.test import TestCase
 
 from .po10 import Po10Scraper
+from .adotnet import AdotNetScraper
 from .exceptions import TooManyAthletes, NoSuchAthlete
 
 
 OVETT = 'http://www.thepowerof10.info/athletes/profile.aspx?athleteid=2424'
 COE = 'http://www.thepowerof10.info/athletes/profile.aspx?athleteid=1987'
 BAD = 'http://www.thepowerof10.info/athletes/profile.aspx?athleteid=nope'
+GALEN = 'http://www.athletic.net/TrackAndField/Athlete.aspx?AID=676001'
+BAD2 = 'http://www.athletic.net/TrackAndField/Athlete.aspx?AID=nah'
 
 
 class Po10TestCase(TestCase):
     '''
-    Not all these tests call the power of 10 website to ensure the html
+    Note all these tests call the power of 10 website to ensure the html
     has not changed. Do not need to be run in the regular test suite.
     '''
     def setUp(self):
@@ -54,4 +57,38 @@ class Po10TestCase(TestCase):
 
     def test_get_results_with_limit(self):
         results = self.scraper.get_athlete_results_from_url(OVETT, limit=10)
+        self.assertEqual(len(results), 10)
+
+
+class AdotNetTestCase(TestCase):
+    '''
+    Note all these tests call the athletic.net website to ensure the html
+    has not changed. Do not need to be run in the regular test suite.
+    '''
+    def setUp(self):
+        self.scraper = AdotNetScraper()
+
+    def test_search_for_rupp(self):
+        results = self.scraper.search(firstname='galen', surname='rupp', team='oregon')
+        self.assertEqual(len(results), 2)
+        self.assertEqual(results[1], {'name': 'Galen Rupp', 'team': 'Central Catholic HS/Oregon', 'url': GALEN})
+
+    def test_no_athletes_found(self):
+        results = self.scraper.search(firstname='Lebron', surname='James', team='cavs')
+        self.assertEqual(len(results), 0)
+
+    def test_get_ovett_details(self):
+        details = self.scraper.get_athlete_details_from_url(GALEN)
+        self.assertEqual(details, {'url': GALEN, 'name': 'Galen Rupp'})
+
+    def test_no_athlete(self):
+        self.assertRaises(NoSuchAthlete, self.scraper.get_athlete_details_from_url, BAD2)
+
+    def test_get_rupp_results(self):
+        results = self.scraper.get_athlete_results_from_url(GALEN)
+        self.assertEqual(len(results), 56)
+        self.assertEqual(results[0]['event'], '800 Meters')
+
+    def test_get_results_with_limit(self):
+        results = self.scraper.get_athlete_results_from_url(GALEN, limit=10)
         self.assertEqual(len(results), 10)
