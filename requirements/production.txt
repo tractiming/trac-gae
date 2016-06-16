@@ -1,5 +1,6 @@
 Django==1.8
 argparse==1.2.1
+bs4==0.0.1
 dj-stripe==0.8.0
 django-admin-bootstrapped==2.5.7
 django-bootstrap3==7.0.1
