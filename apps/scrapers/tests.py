@@ -20,13 +20,13 @@ class Po10TestCase(TestCase):
     def test_search_for_ovett(self):
         results = self.scraper.search(firstname='steve', surname='ovett')
         self.assertEqual(len(results), 1)
-        self.assertEqual(results[0], {'name': 'Steven Ovett', 'club': 'Annan', 'url': OVETT})
+        self.assertEqual(results[0], {'name': 'Steven Ovett', 'team': 'Annan', 'url': OVETT})
 
     def test_search_for_seb_coe_redirect(self):
         ''' this search redirects to seb coe's profile on po10 '''
-        results = self.scraper.search(firstname='seb', surname='coe', club='Haringey')
+        results = self.scraper.search(firstname='seb', surname='coe', team='Haringey')
         self.assertEqual(len(results), 1)
-        self.assertEqual(results[0], {'name': 'Sebastian Coe', 'club': 'Haringey', 'url': COE})
+        self.assertEqual(results[0], {'name': 'Sebastian Coe', 'team': 'Haringey', 'url': COE})
 
     def test_no_athletes_found(self):
         results = self.scraper.search(firstname='Lebron', surname='James')

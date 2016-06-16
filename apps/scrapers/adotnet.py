@@ -1,9 +1,13 @@
 from .base import Scraper
 from .exceptions import NoSuchAthlete
 
+import json
 from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
+
+ADOTNET_BASE = 'http://www.athletic.net/'
+ADOTNET_SEARCH_URL = 'http://www.athletic.net/Search.aspx/runSearch'
 
 
 class AdotNetScraper(Scraper):
@@ -56,5 +60,29 @@ class AdotNetScraper(Scraper):
 
         return perfs[0:limit]
 
-    def search(self, **kwargs):
-        raise NotImplementedError()
+    def search(self, firstname='', surname='', team=''):
+        ret = []
+        query = ' '.join([firstname, surname, team])
+        data = json.dumps({'q': query, 'fq': "", 'start': 0})
+        headers = {'Content-Type': 'application/json'}
+        r = requests.post(ADOTNET_SEARCH_URL, data=data, headers=headers)
+
+        resp_html = r.json()['d']['results']
+        soup = BeautifulSoup(resp_html, 'html.parser')
+        results = soup.find_all(class_='Athlete')
+        for r in results:
+            name = r.find(class_='Title').text.strip()
+            links = r.find_all('a')
+            url = None
+            team = set()
+            for link in links:
+                try:
+                    if link.get('class')[0] == 'TFLink':
+                        url = ADOTNET_BASE + link.get('href')
+                except TypeError:
+                    pass
+                if 'School' in link.get('href'):
+                    team.add(link.text.strip())
+            ret.append({'name': name, 'team': '/'.join(list(team)), 'url': url})
+
+        return ret

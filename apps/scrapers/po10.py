@@ -91,16 +91,16 @@ class Po10Scraper(Scraper):
                 break
         return perfs
 
-    def search(self, firstname='', surname='', club=''):
+    def search(self, firstname='', surname='', team=''):
         r = requests.get(PO10_SEARCH_URL, params={'firstname': firstname,
                                                   'surname': surname,
-                                                  'club': club})
+                                                  'club': team})
         if r.history:
             # We have been redirected to an athlete profile page
             name = get_name_from_profile(r.content)
             url = r.url
             club = get_club_from_profile(r.content)
-            return [{'name': name, 'club': club, 'url': url}]
+            return [{'name': name, 'team': club, 'url': url}]
 
         results = []
         soup = BeautifulSoup(r.content, 'html.parser')
@@ -122,5 +122,5 @@ class Po10Scraper(Scraper):
             name = cells[0].text + ' ' + cells[1].text
             club = cells[7].text
             url = PO10_BASE + 'athletes/' + cells[8].a.get('href')
-            results.append({'name': name, 'club': club, 'url': url})
+            results.append({'name': name, 'team': club, 'url': url})
         return results
