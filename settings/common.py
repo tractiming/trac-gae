@@ -151,7 +151,8 @@ REST_FRAMEWORK = {
     ]
 }
 OAUTH2_PROVIDER = {
-    'SCOPES': {'read': 'Read scope', 'write': 'Write scope'}
+    'SCOPES': {'read': 'Read scope', 'write': 'Write scope'},
+    'ACCESS_TOKEN_EXPIRE_SECONDS': 315360000,
 }
 
 ########## URL CONFIGURATION ##########
