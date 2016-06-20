@@ -338,11 +338,13 @@ class TimingSession(models.Model):
             if len(times) > 0:
                 raw_time = timezone.datetime.utcfromtimestamp(times[0]/1000.0)
                 first_seen = raw_time.strftime("%Y/%m/%d %H:%M:%S.%f")[:-3]
+
+                last_split = timezone.datetime.utcfromtimestamp(times[-1]/1000.0)
+                last_seen = last_split.strftime("%Y/%m/%d %H:%M:%S.%f")[:-3]
+
             else:
                 first_seen = None
-
-            last_split = timezone.datetime.utcfromtimestamp(times[-1]/1000.0)
-            last_seen = last_split.strftime("%Y/%m/%d %H:%M:%S.%f")[:-3]
+                last_seen = None
 
             if calc_paces:
                 distances = [split.distance(self) for split in raw_splits]
