@@ -37,6 +37,8 @@
     $scope.sessionFirst = 1;
     $scope.sessionLast = SESSIONS_PER_PAGE;
     $scope.universalEdit = false;
+    $scope.searchRoster = '';
+    $scope.searchRoster.model = '';
 
     $scope.fileNameChanged = function() {
       var input = $('.roster_'+$scope.rosterID+' :file'),
@@ -222,9 +224,12 @@ $scope.checkAll = function () {
 
 
       //Search for Roster
-      $scope.athleteSearchRoster = function(){
-      $scope.searchRoster.change = $scope.searchRoster.model;
-      var url = '/api/athletes/?primary_team=True&search=' +  $scope.searchRoster.change;
+      $scope.athleteSearchRoster = function(inputTerm){
+        //TODO: Make this not use JQuery...
+
+      //console.log($('#searchinputRoster').val());
+      //$scope.searchRoster.change = $('#searchinputRoster').val();
+      var url = '/api/athletes/?primary_team=True&search=' +  $('#searchinputRoster').val();
       $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: 50} })
         .success(function (response) {
 
