@@ -231,8 +231,8 @@ class AthleteViewSet(viewsets.ModelViewSet):
         sessions = TimingSession.objects.filter(
             splits__athlete_id=athlete.id).distinct()
 
-        if (request.user == athlete.user):
-            sessions = sessions.filter(Q(private=False) | Q(registered_athletes__in=[athlete]))
+        if (request.user == athlete.user) or (request.user == athlete.team.coach.user):
+            pass
         else:
             sessions = sessions.filter(private=False)
 
