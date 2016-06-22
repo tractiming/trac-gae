@@ -29,9 +29,9 @@ def analyze(request):
     idx = request.POST.get('id')
     session = TimingSession.objects.get(pk=idx)
     results = session.individual_results()
-
+    print(results)
     data = [{
-        'name': result.name,
+        'name': result.user_id,
         'times': result.splits,
     } for result in results]
     analyzed_times = stats.investigate(data)

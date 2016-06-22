@@ -955,7 +955,7 @@ def upload_workouts(request):
                 tt = Split.objects.create(athlete_id=new_user.athlete.id,
                                           time=time,
                                           reader_id=reader.id)
-                ts.splits.add(tt.pk)
+                SplitFilter.objects.create(split=tt, timingsession=ts)
 
     return Response({}, status=status.HTTP_201_CREATED)
 
