@@ -73,18 +73,17 @@ class AdotNetScraper(Scraper):
 
         resp_html = r.json()['d']['results']
         soup = BeautifulSoup(resp_html, 'html.parser')
-        results = soup.find_all(class_='Athlete')
+        results = soup.find_all('tr')
+
         for r in results:
-            name = r.find(class_='Title').text.strip()
+            name = r.find_all('td')[1].find('a').text.strip()
             links = r.find_all('a')
             url = None
             team = set()
             for link in links:
-                try:
-                    if link.get('class')[0] == 'TFLink':
-                        url = ADOTNET_BASE + link.get('href')
-                except TypeError:
-                    pass
+                address = ADOTNET_BASE + link.get('href')
+                if url is None and 'Athlete' in address:
+                    url = address
                 if 'School' in link.get('href'):
                     team.add(link.text.strip())
             ret.append({'name': str(name), 'team': str('/'.join(list(team))), 'url': str(url)})
