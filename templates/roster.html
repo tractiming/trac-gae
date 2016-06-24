@@ -204,17 +204,17 @@
           <div class="modal-body" id="parent-selector" style="min-height:250px">
             <tabs>
               <pane title="{{team.name}}" id="{{team.id}}" has-content="true" ng-repeat="team in rosterTeams">
-                <div class="input-group col-lg-5" style="margin-top:.5%;">
+                <!-- SEARCH BAR TO BE ADDED <div class="input-group col-lg-5">
                   <span class="btn btn-default input-group-addon" ng-click="hideInput = !hideInput;" style="{{changeStyle(hideInput)}}">
                     <span class="glyphicon glyphicon-search"></span>
                   </span>
                   <input ng-model="searchRoster.model" ng-change="athleteSearchRoster();" class="form-control animate-hide" ng-hide="hideInput" style="border-top-right-radius:4px !important; border-bottom-right-radius:4px !important; position:static !important;" type="search" id="searchinputRoster">
                   <span id="searchclearRoster" class="glyphicon glyphicon-remove fade" ng-hide="hideInput" onclick="$('#searchinputRoster').val('');" ng-click="searchResetRoster();"></span>
                   <span></span>
-                </div>
+                </div>-->
                 <span us-spinner spinner-key="roster-spinner" spinner-start-active="false"></span>
                 <div class="row">
-                  <div class="col-lg-2" style="padding-top:1.5%;margin-bottom:-2%; margin-left:.9%">
+                  <div class="col-lg-2">
                     <label style="display: block;padding-left: 15px; text-indent: -15px;"><input type="checkbox" ng-model="selectedAll" ng-checked="selectedAll" ng-click="checkAll()"style="width: 13px; height: 13px; padding: 0; margin:0; vertical-align: bottom; position: relative; top: -1px; *overflow: hidden;"/> Select All</label>
                   </div>
                 </div>
