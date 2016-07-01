@@ -101,9 +101,27 @@
 <script src="static/js/new/jquery.colorbox.js"></script>
 <script>
   $(document).ready(function(){
-    //$(".youtube").colorbox({iframe:true, innerWidth:640, innerHeight:390}); 
-    $(".youtube").colorbox({iframe:true, width:"90%", height:"95%"}); 
-    $(".iframe").colorbox({iframe:true, width:"50%", height:"65%"}); 
+// create switchery checkbox
+              $('#enable-corrections').next('.switchery').remove();
+              switcheryTarget = $('#enable-corrections')[0];
+              switchery = new Switchery(switcheryTarget, { size: 'small', disabled: true ,  color: '#286090'});
+
+              //switchery = new Switchery(elem, { size: 'small' });
+              $('#enable-corrections-status').css('color', '#286090');
+              $('#enable-corrections-status').html(' Monthly');
+              switchery.enable();
+              $('body').on('change', '#enable-corrections', function() {
+                if ($(this).prop('checked')){
+                    $('.price-monthly').show();
+                    $('.price-annually').hide();
+                  }
+                  else{
+                    $('.price-monthly').hide();
+                    $('.price-annually').show();
+                  }
+
+                  });
+
   });
 </script>
   
@@ -196,8 +214,15 @@
 
       
   <div class="container-fluid content">
-      <div class="container" style="padding-top:12%; padding-bottom:10%">
+      <div class="container" style="padding-top:7%; padding-bottom:10%">
         <div class="row">
+          <h2 style="font-size:30px;">Simple pricing. A plan to suit all your needs.</h2>
+          <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="padding-bottom:3%">
+              <div id="auto-correct" class="center">
+                Annual
+                <input type="checkbox" id="enable-corrections" class="switchery-checkbox"><span id="enable-corrections-status"></span>
+              </div>
+            </div>
           <div class="col-md-4">
             <div class="thincol">
               <div>
@@ -205,7 +230,7 @@
                   <h2>
                   <sup style="font-size:50%">$</sup>
                   <span class="price-annually">9</span>
-                  <span class="price-monthly hide">15</span>
+                  <span class="price-monthly" style="display:none">15</span>
                   <sub style="font-size:50%">/ MO</sub>
                 </h2>
                 <labe class="center"> per user</label>
@@ -262,7 +287,7 @@
                   <h2>
                   <sup style="font-size:50%">$</sup>
                   <span class="price-annually">85</span>
-                  <span class="price-monthly hide">100</span>
+                  <span class="price-monthly" style="display:none">100</span>
                   <sub style="font-size:50%">/ MO</sub>
                 </h2>
                 <labe class="center"> per user</label>
@@ -324,7 +349,7 @@
                   <h2>
                   <sup style="font-size:50%">$</sup>
                   <span class="price-annually">2999</span>
-                  <span class="price-monthly hide">2999</span>
+                  <span class="price-monthly" style="display:none">2999</span>
                   <sub style="font-size:50%"></sub>
                 </h2>
                 <labe class="center"> starting at</label>
