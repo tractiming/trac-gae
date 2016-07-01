@@ -217,18 +217,18 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
         #Hack for the Chicago Park District
         #Change every week to associate correct primary keys
-        if session.id == 719:
-            sess = TimingSession.objects.get(id=720)
+        if session.id == 730:
+            sess = TimingSession.objects.get(id=731)
             sess.start_button_time = timestamp
             sess.save()
             sess.clear_cache_all()
-        elif session.id == 721:
-            sess = TimingSession.objects.get(id=722)
+        elif session.id == 732:
+            sess = TimingSession.objects.get(id=733)
             sess.start_button_time = timestamp
             sess.save()
             sess.clear_cache_all()
-        elif session.id == 723:
-            sess = TimingSession.objects.get(id=724)
+        elif session.id == 734:
+            sess = TimingSession.objects.get(id=735)
             sess.start_button_time = timestamp
             sess.save()
             sess.clear_cache_all()
