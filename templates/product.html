@@ -163,10 +163,9 @@
       </div>
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-right">
-            <li><a href="/" onclick="amplitude.logEvent('home');">Home</a></li>
-            <li><a href="/#bg3" onclick="amplitude.logEvent('about');">About</a></li>
+            <li><a href="/product" onclick="amplitude.logEvent('products');">Product</a></li>
+            <li><a href="/pricing" onclick="amplitude.logEvent('about');">Pricing</a></li>
             <li><a href="https://blog.tracchicago.com" target="_blank" onclick="amplitude.logEvent('blog');">Blog</a></li>
-            <li><a href="/#bg5" onclick="amplitude.logEvent('team');">Team</a></li>
             <li><a href="/score/" onclick="amplitude.logEvent('score');">Results</a></li>
             <li><a class="hidden-lg hidden-md"href="/login" class="scrollto" rel="bg6">Login</a></li>
             <li class="hidden-sm hidden-xs"><button class="btn btn-warning" style="margin-top:20%; margin-left:5%" onclick="location.href='/login'; amplitude.logEvent('toLogin');">Log in</button></li>
@@ -203,19 +202,18 @@
                 &bull; Works with other systems easily<br>
                 &bull; Setup everything in less than 2 minutes<br>
                 &bull; Battery life for more than 6 hours<br>
-                &bull; <a href="/product#bg2" onclick="amplitude.logEvent('toDemo');">See the details</a>
             </p>
             <p style="text-align:left" class="hidden-lg hidden-md hidden-sm">
                 &bull; Sends results to you immediately (as the race is running)<br>
                 &bull; Works in all weather (even snowstorms!)<br>
                 &bull; Controlled by a simple smartphone app<br>
-                &bull; <a href="/product#bg2" onclick="amplitude.logEvent('toDemo');">See the details</a>
+                
             </p>
             </div>
         </div>
         <div class="row" style="padding-top:5%">
           <div class="col-lg-6 col-lg-offset-3 col-md-5 col-sm-8 col-xs-8 col-xs-offset-2">
-             <a href="https://blog.tracchicago.com" target="_blank" onclick="amplitude.logEvent('toDemo');">Checkout the product in action</a>
+            <button type="submit" id="submit" class="btn btn-primary form-control" style="margin-left:2%; width:200px;" onclick="location.href='/register';" onclick="amplitude.logEvent('Create_Account_Off_Splash');">Get Started</button>
           </div>
 
         </div>
@@ -414,23 +412,10 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-md-3 col-sm-6 footer-item">
-          <a href="/">
-           <img class="footer-img" src= {% static "img/trac_small.gif" %} alt="TRAC" aria-hidden="true" >
-          </a>
-        </div>
-
-        <div class="col-md-3 col-sm-6 footer-item">
-          <div class="internal">
-            <a href="https://www.facebook.com/timingracing" target="_blank" onclick="amplitude.logEvent('toFB');"><img src={% static "img/facebook.png" %}></a>
-            <a href="https://youtu.be/Tk-7w_dl9aY" target="_blank"><img src={% static "img/youtube.png" %} width="50px"></a>
-            <a href="https://twitter.com/TRAC_Chicago"  target="_blank" onclick="amplitude.logEvent('toTwitter');"><img src= {% static "img/twitter2.png" %} style="width:56px"></a>
-          </div>
-        </div>
-
-        <div class="col-md-3 col-sm-6 hidden-xs footer-item">
           <div class="external">
             <ul>
-              <li><a href="/">About</a></li>
+              <li></li>
+              <li><a href="/#bg3" class="scrollto" rel="bg3">About</a></li>
               <li><a href="/faqs/" onclick="amplitude.logEvent('toFAQ');">Frequently Asked Questions</a></li>
               <li><a href="/privacy/">Privacy</a> <a style="cursor:pointer">&</a> <a href="/terms/">Terms</a></li>
               <li><a href="mailto:info@tractiming.com" onclick="amplitude.logEvent('mailto');">Contact us</a></li>
@@ -439,11 +424,22 @@
         </div>
 
         <div class="col-md-3 col-sm-6 footer-item">
-          <address style="color:black">
-            Timing and Racing Around the Clock<br>
-            2311 Campus Drive<br>
-            Evanston, IL 60208<br><br>
-          </address>
+          <div class="internal">
+            <a href="https://www.facebook.com/timingracing" target="_blank" onclick="amplitude.logEvent('toFB');"><img src={% static "img/facebook.png" %}></a>
+            <a href="https://youtu.be/Tk-7w_dl9aY" target="_blank"><img src={% static "img/youtube.png" %} width="50px"></a>
+            <a href="https://twitter.com/TRAC_Chicago" target="_blank" onclick="amplitude.logEvent('toTwitter');"><img src= {% static "img/twitter2.png" %} style="width:56px"></a>
+          </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6 hidden-xs footer-item">
+          
+        </div>
+
+        <div class="col-md-3 col-sm-6 footer-item">
+          <a id="logo" class="navbar-brand" href="/">
+            <img class="footer-img" src= {% static "img/trac_small.gif" %} alt="TRAC" aria-hidden="true" >
+          </a>
+          
         </div>
       </div>
     </div>

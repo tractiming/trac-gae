@@ -149,41 +149,37 @@
 	<footer class="footer">
 		<div class="container-fluid">
 			<div class="row">
-				<div class="col-md-3 col-sm-6 footer-item">
-					<a href="/">
-						<img class="footer-img" src={% static "img/trac_small.gif" %} alt="TRAC" aria-hidden="true" >
-					</a>
-				</div>
+        <div class="col-md-3 col-sm-6 footer-item">
+          <div class="external">
+            <ul>
+              <li></li>
+              <li><a href="/#bg3" class="scrollto" rel="bg3">About</a></li>
+              <li><a href="/faqs/" onclick="amplitude.logEvent('toFAQ');">Frequently Asked Questions</a></li>
+              <li><a href="/privacy/">Privacy</a> <a style="cursor:pointer">&</a> <a href="/terms/">Terms</a></li>
+              <li><a href="mailto:info@tractiming.com" onclick="amplitude.logEvent('mailto');">Contact us</a></li>
+            </ul>
+          </div>
+        </div>
 
-				<div class="col-md-3 col-sm-6 footer-item">
-					<div class="internal">
-						<a target="_blank" href="https://www.facebook.com/timingracing"><img src={% static "img/facebook.png" %}></a>
-						<a target="_blank" href="https://youtu.be/Tk-7w_dl9aY"><img src={% static "img/youtube.png" %} width="50px"></a>
-						 <a target="_blank" href="https://twitter.com/TRAC_Chicago"><img src= {% static "img/twitter2.png" %} style="width:56px"></a>
-					</div>
-				</div>
+        <div class="col-md-3 col-sm-6 footer-item">
+          <div class="internal">
+            <a href="https://www.facebook.com/timingracing" target="_blank" onclick="amplitude.logEvent('toFB');"><img src={% static "img/facebook.png" %}></a>
+            <a href="https://youtu.be/Tk-7w_dl9aY" target="_blank"><img src={% static "img/youtube.png" %} width="50px"></a>
+            <a href="https://twitter.com/TRAC_Chicago" target="_blank" onclick="amplitude.logEvent('toTwitter');"><img src= {% static "img/twitter2.png" %} style="width:56px"></a>
+          </div>
+        </div>
 
-				<div class="col-md-3 col-sm-6 hidden-xs footer-item">
-					<div class="external">
-						<ul>
-							<li></li>
-							<li><a href="/#bg3" class="scrollto" rel="bg3">About</a></li>
-							<li><a href="/faqs/" class="scrollto" rel="bg4">Frequently Asked Questions</a></li>
-						</ul>
-					</div>
-				</div>
+        <div class="col-md-3 col-sm-6 hidden-xs footer-item">
+          
+        </div>
 
-				<div class="col-md-3 col-sm-6 footer-item">
-					<div class="external">
-						<ul>
-							<li></li>
-							<li><a href="/privacy/">Privacy</a> <a style="cursor:pointer">&</a> <a href="/terms/">Terms</a></li>
-							<li><a href="mailto:info@tractiming.com">Contact us</a></li>
-                           
-						</ul>
-					</div>
-				</div>
-			</div>
+        <div class="col-md-3 col-sm-6 footer-item">
+          <a id="logo" class="navbar-brand" href="/">
+            <img class="footer-img" src= {% static "img/trac_small.gif" %} alt="TRAC" aria-hidden="true" >
+          </a>
+          
+        </div>
+      </div>
 		</div>
 
 		<script type="text/javascript">
