@@ -122,6 +122,12 @@ $(function() {
                     sessionStorage.setItem('access_token', access_token);
                     sessionStorage.setItem('usertype', usertype);
                     sessionStorage.setItem('username', username);
+                    
+                    //Attempting to transition into localStorage.
+                    localStorage.setItem('access_token', access_token);
+                    localStorage.setItem('usertype', usertype);
+                    localStorage.setItem('username', username);
+                    
                     location.href = '/home';
                 },
                 // Login request failed.

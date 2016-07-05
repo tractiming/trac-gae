@@ -12,7 +12,7 @@
 <script>
 var instanceFirst = 1;
 var instanceLast = 3;
-if (sessionStorage.access_token == null) {
+if (localStorage.access_token == null) {
     //link to login page
     location.href="/login";
 }
@@ -22,7 +22,7 @@ else{
 
     $(document).ready(function() {
       $("li a.logout").click(function(){
-          sessionStorage.clear();
+          localStorage.clear();
           location.href="/login";
       });
 

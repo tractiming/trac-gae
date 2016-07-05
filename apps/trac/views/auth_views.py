@@ -106,6 +106,7 @@ def verify_login(request):
       paramType: query
     """
     token = request.GET.get('token', '')
+    print request
     if get_object_or_404(AccessToken, token=token).is_valid():
         return Response(200, status=status.HTTP_200_OK)
     return Response(404, status=status.HTTP_404_NOT_FOUND)
