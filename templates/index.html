@@ -161,10 +161,9 @@
       </div>
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-right">
-            <li><a href="/#bg4" class="scrollto" rel="bg4" onclick="amplitude.logEvent('products');">Product</a></li>
-            <li><a href="/#bg3" class="scrollto" rel="bg3" onclick="amplitude.logEvent('about');">About</a></li>
+            <li><a href="/product" onclick="amplitude.logEvent('products');">Product</a></li>
+            <li><a href="/pricing" onclick="amplitude.logEvent('about');">Pricing</a></li>
             <li><a href="https://blog.tracchicago.com" target="_blank" onclick="amplitude.logEvent('blog');">Blog</a></li>
-            <li><a href="/#bg5" class="scrollto" rel="bg5" onclick="amplitude.logEvent('team');">Team</a></li>
             <li><a href="/score/" onclick="amplitude.logEvent('score');">Results</a></li>
             <li><a class="hidden-lg hidden-md"href="/login" class="scrollto" rel="bg6">Login</a></li>
             <li class="hidden-sm hidden-xs"><button class="btn btn-warning" style="margin-top:20%; margin-left:5%" onclick="location.href='/login'; amplitude.logEvent('toLogin');">Log in</button></li>
@@ -174,155 +173,100 @@
   </nav>
 
 
-  <div class="parallax" id="top">
-      <div class="swiper-container" id="grad"> 
-        <div class="swiper-wrapper">
-          <div class="swiper-slide">
-            <div id="subcontainer">
-              <img id='image' src={% static "img/splash1.jpg" %} style='width:100%;' class='' />
-              <div id="subtext" >
-              <h2>YOUR RACE, ON DEMAND</h2><br>
-              <p class="hidden-xs">TIMING AT THE CLICK OF A BUTTON</p> <br> 
-              <button type="submit" id="submit" class="btn btn-primary form-control" style="margin-left:2%; width:250px;" onclick="location.href='/quote'; amplitude.logEvent('Order_Now');">Order Now</button> 
-              </div>
-            </div>
-          </div>
-          <div class="swiper-slide">
-            <div id="subcontainer">
-              <a href='https://www.youtube.com/embed/Tk-7w_dl9aY?rel=0&amp;showinfo=0' class='youtube' onclick="amplitude.logEvent('promoVideo');"><img id='image' src={% static "img/splash2dark.JPG" %} style='width:100%;' class='' /></a>
-              <div id="subtext" >
-              <h2 style="color:white">NEVER MISS A SPLIT</h2><br>
-              <p style="color:white" class="hidden-xs">THE TIMING SOLUTION FOR COACHES AND ATHLETES</p> <br> 
-              <button type="submit" id="submit" class="btn btn-primary form-control" style="margin-left:2%; width:200px;" onclick="location.href='/register';" onclick="amplitude.logEvent('Create_Account_Off_Splash');">Create Account</button>
-              <a href='https://www.youtube.com/embed/Tk-7w_dl9aY?rel=0&amp;showinfo=0' class='youtube' onclick="amplitude.logEvent('promoVideo');"><button type="submit" id="submit" class="btn btn-primary form-control" style="margin-left:2%; width:200px;">See It In Action</button></a>
-              </div>
-            </div>
-          </div>
-          <div class="swiper-slide">
-            <div id="subcontainer">
-              <img id='image' src={% static "img/winner.jpg" %} style='width:100%;' class='' />
-              <div id="subtext" >
-              <h2>FOCUS ON THE RACE</h2><br>
-              <p class="hidden-xs">CONCENTRATE ON WHAT MATTERS</p> <br> 
-              <button type="submit" id="submit" class="btn btn-primary form-control" style="margin-left:2%; width:250px;" data-toggle="modal" data-target="#order-modal" onclick="location.href='/quote'; amplitude.logEvent('Order_Now');">Order Now</button> 
-              </div>
-            </div>
-          </div>
-          <div class="swiper-slide">
-            <div id="subcontainer">
-              <div id="subtext" >
-                <div class="row" style="padding-top:10%">
-                  <div class="col-lg-5 col-md-5 col-sm-5" style="padding-top:7%">
-                    <h2 style="color:black" class="hidden-xs">POWERFUL COMPUTING</h2><br>
-                    <p style="color:black">RUN ON SMARTPHONE, PROCESSED IN THE CLOUD</p> <br> 
-                    <a href="https://play.google.com/store/apps/details?id=com.trac.tracdroid"><img src={% static "img/google-play-badge.png" %} style='height:37px' /></a>
-                    <a href="https://itunes.apple.com/us/app/t.r.a.c./id1011232830?ls=1&mt=8"><img src={% static "img/appleicon.svg" %} style='height:38px' /></a>
 
-                  </div>
-                   <div class="col-lg-6 col-md-5 col-sm-5 hidden-xs">
-                    <img src={% static "img/phone_screenshots.png" %} style='width:100%;' />
-                  </div>
+      
+  <div class="container-fluid content" style="background-image:url({% static "img/splash2dark.JPG" %}); background-position: 0px -150px; padding-bottom:5% ">
+      <div class="container" style="padding-top:12%; padding-bottom:10%">
+        <div class="row">
+          <div class="col-lg-5 col-md-5 col-sm-12">
+            <h2 style="color:white">NEVER MISS A SPLIT</h2><br>
+              <p style="color:white">THE TIMING SOLUTION FOR COACHES AND ATHLETES AT RACES AND PRACTICE</p> <br> 
+              <button type="submit" id="submit" class="btn btn-primary form-control" style="margin-left:2%; width:200px;" onclick="location.href='/register';" onclick="amplitude.logEvent('Create_Account_Off_Splash');">Get Started</button>
               </div>
+          </div>
+      </div>
+    </div>
+  <div class="container-fluid content">
+      <div class="container" style="padding-top:5%">
+        <div class="row">
+          <h3 style="color:#555 ;" >Outperform your competitors by turning <u>time</u> into your competitive advantage.</h3>
+            <div class="row" style="margin-top:10%">
+              <div class="col-lg-6 col-md-6 col-sm-12">
+               <p style="color:#555 ;">Gain Freedom from the Stopwatch<br><br>
+                With our hardware capture splits and view them anywhere where cellular service is available. Anytime an athlete runs by wearing a tag, a split is captured. View your entire team's data instantly and graph it with the click of a button.
+                <br><br>
+                <a href="/product/" style="color:#337ab7">Learn more</a>
+                </p>
+
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-12">
+               <img src={% static "img/demo_1.png" %} style="width:100%">
               </div>
             </div>
           </div>
 
+            <div class="row" style="margin-top:10%">
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+               <img src={% static "img/demo_2.png" %} style="width:100%">
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-12">
+               <p style="color:#555 ;">Intelligent Automation Where it Counts<br><br>
+              Automate the data capture and allow us to help you in the analysis. TRAC supports multiple analysis methods, allowing you to dial in the right level of support. Analyze the effectiveness of each workout from the increased number of data points that can now be captured, or let us highlight points that could be concerning for you.  
+                <br><br>
+                <a href="/product/" style="color:#337ab7">Learn more</a>
+                </p>
 
-           <!-- <div class="swiper-slide">
-              <a href='https://www.youtube.com/embed/0mxy3hyEMno?rel=0&amp;wmode=transparent' class='youtube' onclick="amplitude.logEvent('promoVideo');"><img src={% static "img/shoes-video.jpg" %} style='width:100%;' class='' /></a>
-            </div>-->
+              </div>
+            </div>
 
-        </div>
-        <!-- Add Pagination -->
-        <div class="swiper-pagination"></div>
-        <!-- Add Arrows -->
-        <div class="swiper-button-next"></div>
-        <div class="swiper-button-prev"></div>
+
+            <div class="row" style="margin-top:10%">
+              <div class="col-lg-6 col-md-6 col-sm-12">
+               <p style="color:#555 ;">Compare Head to Head Anywhere<br><br>
+                Data can now be viewed via mobile app, or on your personal computer anywhere in the world. You can compare runners across seasons or across workouts, head to head, instantly. Upload old workouts to our site to make the comparison easier, or download current ones into Excel for a personal touch.
+                <br><br>
+                <a  href="/product/" style="color:#337ab7">Learn more</a>
+                </p>
+
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-12">
+               <img src={% static "img/demo_3.png" %} style="width:100%">
+              </div>
+          </div>
+          <div class="row" style="margin-top:10%" >
+            <hr>
+            <center> <h3 style="color:#555 ;">AS SEEN ON</h3></center>
+              <div class="col-lg-12 col-md-12 col-sm-12">
+               <img src={% static "img/gilllogo.jpg" %} style="width:18%">
+               <img src={% static "img/tribune.png" %} style="width:25%; margin-left:2%" >
+               <img src={% static "img/journal.jpg" %} style="width:25%; margin-left:2%" >
+               <img class="pull-right"src={% static "img/techcrunch.png" %} style="width:25%">
+               <hr style="margin-top:5%; padding-bottom:5%"> 
+
+              </div>
+          </div>
+          <div class="row">
+              <div class="col-lg-offset-3 col-lg-6 col-md-12 col-sm-12">
+               <h2 class="text-center" style="color:#555 ;">Get in touch</h2><br>
+               <form class="centercol" id="form-contact">
+                <div class="row"><div class="col-md-6"><div class="form-group"><label for="name" style="color:#555" > Name</label>
+                  <input class="form-control" maxlength="100" name="name" required="" type="text" id='title'/></div></div>
+                  <div class="col-md-6"><div class="form-group"><label for="email" style="color:#555"> Email</label>
+                  <input class="form-control" maxlength="100" name="email" required="" type="email" id='email'/></div></div>
+                  <div class="col-md-12"><div class="form-group"><label for="message" style="color:#555"> Message</label><textarea id='body' class="form-control" maxlength="1000" name="message" required="" rows="4"></textarea></div>
+                  <button class="btn btn-primary" id="contact" style="margin-right: 30px;" type="submit">Send</button></div>
+                </div>
+              </form></br></div>
+
+              </div>
+          </div>
+
+      </div>
     </div>
 
-    <!-- Initialize Swiper -->
-    <script>
-    var swiper = new Swiper('.swiper-container', {
-        pagination: '.swiper-pagination',
-        nextButton: '.swiper-button-next',
-        prevButton: '.swiper-button-prev',
-        slidesPerView: 1,
-        paginationClickable: true,
-        spaceBetween: 30,
-        loop: true,
-        autoplay: 5500,
-        autoplayDisableOnInteraction: false
-    });
-    </script>
 
-  <div style="position:absolute; margin-top:-60px;">
-    <h1 class="logo hidden-xs" style="font-family: 'GothamHTF-Book', 'Helvetica', 'Arial', sans; font-size:30px; color:#fff; margin-right:auto; margin-left:auto; font-weight:700;">Timing And Racing Around the Clock</h1> 
-    </div> 
-    <!--<div id="bg2">  
-     
-    <div class="content">
-        <h2>Product</h2>
-        <br>
-          <br>
-        <div class="pictures hidden-xs">
-        <div class="left">
-          <img src={% static "img/box-01.png" %} height="200px">
-        </div>
-        <div class="wifione hidden-xs">
-          <img src={% static "img/dashes-01.png" %} height="100px">
-        </div>
-        <div class="mid">
-          
-          <img src={% static "img/phone.png" %} height="150px">
-            
-        </div>
-        <div class="wifitwo hidden-xs">
-          <img src={% static "img/dashes-01.png" %} height="100px">
-        </div>
-        <div class="right">
-          <img src={% static "img/trophy-01.png" %} height="150px">
-        </div>
-        </div>
-        <div class="text hidden-xs">
-          <div class="left">
-            <p>
-              Order everything necessary in preparation for race day. We ship it to you a few days before.
-            </p>
-          </div>
-          <div class="mid">
-            <p>Run the entire system off your smartphone. No messy cables or equipment.</p>
-          </div>
-          <div class="right">
-            <p>Results are streamed live to the web and immediately available for all participants.</p>
-          </div>
-           
-        </div>
-        <div class="row hidden-lg hidden-md hidden-sm">
-          <img src={% static "img/box-01.png" %} height="200px">
-          <p>
-              Order everything necessary in preparation for race day. We ship it to you a few days before.
-            </p>
-          <div class="col-4-xs">
-          </div>
-          <div class="col-4-xs">
-            <img src={% static "img/phone.png" %} height="150px">
-            <p>Run the entire system off your smartphone. No messy cables or equipment.</p>
-          </div>
-          <div class="col-4-xs">
-            <img src={% static "img/trophy-01.png" %} height="150px">
-            <p>Results are streamed live to the web and immediately available for all participants.</p>
-          </div>
-        </div>
 
-      <!--  <br><br><br><br><br>
-        &#8226; Eliminates the need for clipboards and stopwatches
-        <br><br>
-          &#8226; Hardware is lightweight (5lbs) and rechargable
-          <br><br>
-           &#8226; Wearables attach to shoes and never need to be charged-->
-     <!-- </div>
-    </div>-->
-<div id="bg4">
+ <!--<div id="bg4">
       <div class="text"><br>
 
         <div class="row">
@@ -374,88 +318,9 @@
 
 
         
-    </div>
-  <div id="bg3">
-      <div class="text"><br>
-      
-        <div class="row">
-              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-      <br><br><br><h2>About</h2>
-    </div>
-  </div>
-        <div class="row">
-              <div class="col-lg-6 col-lg-offset-3 col-md-6 col-md-offset-3 hidden-sm hidden-xs">
-                 <p>
-                  To the backdrop of Northwestern University, Elliot and Griffin met their freshman year running track & field. They have built a strong sense of collaboration, not only as teammates on the track, but through working on hours of engineering homework together. 
-                </p>
-              </div>
-          </div>
-           <div class="row">
-            <div class="col-lg-6 col-lg-offset-3 col-md-6 col-md-offset-3 col-sm-12 col-xs-12">
-              <br> <br> <br>
-              <p>
-                After finishing their master's degrees in the winter of 2013, Elliot and Griffin thought it would be the end of their journey. However, after forgetting his watch multiple times on lonely winter runs, Griffin realized technology was missing from track and field and cross-country running; technology that was simple, easy to use, and available on demand. Needing a partner who could share the dream.
-              </p>
-              <br>
-            </div>
-    </div>
-        <br>
-          <br>
-          <div class="row">
-            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-      <p>        TRAC was born.
-        
-      </p>
-            </div>
-          </div>
-      
-      </div>
-        
-    </div>
-    
-    <div id="bg5">
-      <div class="content">
-        <h2>Our Team</h2>
-        <div class="row">
-          <div class="col-lg-offset-1 col-lg-2">
-            <img src={% static "img/grif_headshot.jpg" %} alt="Photo of Grif"  height="150px" width="150px" style=" border-radius: 50%; border: 2px solid #FFF;">
-            <address>
-              <strong>Griffin Kelly</strong>
-              <p>Founder & CEO</p>
-            </address>
-          </div>
-          <div class="col-lg-2">
-            <img src={% static "img/elliotheadshot.JPG" %} alt="Photo of Elliot"  height="150px" width="150px" style=" border-radius: 50%; border: 2px solid #FFF;">
-            <address>
-              <strong>Elliot Hevel</strong>
-              <p>Founder & CTO</p>
-            </address>
-          </div>
-          <div class="col-lg-2">
-            <img src={% static "img/oscar_headshot.jpg" %} alt="Photo of Oscar"  height="150px" width="150px" style=" border-radius: 50%; border: 2px solid #FFF;">
-            <address>
-              <strong>Oscar Aguiñaga</strong>
-              <p>Business Development</p>
-            </address>
-          </div>
-          <div class="col-lg-2">
-            <img src={% static "img/bew_headshot.jpg" %} alt="Photo of Bew"  height="150px" width="150px" style=" border-radius: 50%; border: 2px solid #FFF;">
-            <address>
-              <strong>Bew Harichanwong</strong>
-              <p>Engineer</p>
-            </address>
-          </div>
-          <div class="col-lg-2">
-            <img src={% static "img/Greenway_headshot.jpg" %} alt="Photo of AJ"  height="150px" width="150px" style=" border-radius: 50%; border: 2px solid #FFF;">
-            <address>
-              <strong>AJ Greenway</strong>
-              <p>Business Development</p>
-            </address>
-          </div>
-        </div>
-      </div>
-    </div>
+    </div>-->
 
+    
 
 
 <!--Footer Addition -->
@@ -463,9 +328,15 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-md-3 col-sm-6 footer-item">
-          <a id="logo" class="navbar-brand" href="/">
-            <img class="footer-img" src= {% static "img/trac_small.gif" %} alt="TRAC" aria-hidden="true" >
-          </a>
+          <div class="external">
+            <ul>
+              <li></li>
+              <li><a href="/#bg3" class="scrollto" rel="bg3">About</a></li>
+              <li><a href="/faqs/" onclick="amplitude.logEvent('toFAQ');">Frequently Asked Questions</a></li>
+              <li><a href="/privacy/">Privacy</a> <a style="cursor:pointer">&</a> <a href="/terms/">Terms</a></li>
+              <li><a href="mailto:info@tractiming.com" onclick="amplitude.logEvent('mailto');">Contact us</a></li>
+            </ul>
+          </div>
         </div>
 
         <div class="col-md-3 col-sm-6 footer-item">
@@ -476,24 +347,20 @@
           </div>
         </div>
 
-        <div class="col-md-3 col-sm-6 hidden-xs footer-item">
-          <div class="external">
-            <ul>
-              <li></li>
-              <li><a href="/#bg3" class="scrollto" rel="bg3">About</a></li>
-              <li><a href="/faqs/" onclick="amplitude.logEvent('toFAQ');">Frequently Asked Questions</a></li>
-            </ul>
-          </div>
+        <div class="col-md-3 col-sm-6 footer-item">
+          <div class="col-md-12" style="padding-bottom:2%">
+           <a href="https://play.google.com/store/apps/details?id=com.trac.tracdroid"><img src=/static/img/google-play-badge.png style='height:37px;' /></a>
+         </div>
+         <div class="col-md-12">
+                    <a href="https://itunes.apple.com/us/app/t.r.a.c./id1011232830?ls=1&mt=8"><img src=/static/img/appleicon.svg style='height:38px' /></a>
+        </div>
         </div>
 
         <div class="col-md-3 col-sm-6 footer-item">
-              <div class="external">
-              <ul>
-                <li></li>
-              <li><a href="/privacy/">Privacy</a> <a style="cursor:pointer">&</a> <a href="/terms/">Terms</a></li>
-              <li><a href="mailto:info@tractiming.com" onclick="amplitude.logEvent('mailto');">Contact us</a></li>
-            </ul>
-          </div>
+          <a id="logo" class="navbar-brand" href="/">
+            <img class="footer-img" src= {% static "img/trac_small.gif" %} alt="TRAC" aria-hidden="true" >
+          </a>
+          
         </div>
       </div>
     </div>
@@ -502,152 +369,76 @@
   
     $(document).ready(function() {
       bowtrussHeader();
-  Footer();
+      $('body').on('click', 'button#contact', function(e){
+      e.preventDefault();
+
+      var name = $('input[id=title]').val();
+      var email = $('input[id=email]').val();
+      var body = $('textarea[id=body]').val();
+
+      $.ajax({
+          type: 'POST',
+          dataType:'json',
+          url: '/api/request_contact/',
+          headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+          data: {
+            name: name,
+            email: email,
+            body: body,        
+          },
+          success: function(data) {
+            $('#email-modal').modal('show');
+          },
+          error: function(xhr, errmsg, err) {
+          }
+        });
+
+
+
+    });
     });
   </script>
-  <script>
-/*!function ($) {
-  $(document).ready(function() {
-    /* fancy background video player deally */    
-  /*  $('.video-background').videobackground({
-      videoSource: ['video/trac.mov', 'video/mov'], 
-      poster: '',
-      resize: false,
-      loop: true,
-      autoplay: true,
+ 
 
-      preloadCallback: function() {
-      },
-      loadedCallback: function() {
-        $(this).videobackground('mute');
-      }
-    });
-  
-    /* physical controls */   
-/*    $("#target").click(function() {
-      $('.video-background').videobackground('play');
-      $('#intro-copy').addClass('fadeintro');
-      $('.video-background').toggleClass('visible')
-      $('#top').toggleClass('top-hide');
-      $('#banner').toggleClass('lower-opacity'); 
-    }); 
-*/
-    /* controlling the video with page scroll triggers */
- /*   var wasUserPlaying = false;
-      $("div#bg3").waypoint(function (direction) { 
-          if (direction == 'down' ) {
-            if( !$('.video-background video').get(0).paused ) {
-              $('.video-background video').get(0).pause();
-              wasUserPlaying = true;
-            } else {
-              wasUserPlaying = false;
-            }
-          }
-          else if(direction === 'up' && wasUserPlaying ) {
-        $('.video-background video').get(0).play();
-          }
-    }, { offset: 200 });
-
-$("video").bind("ended", function() {
-   alert("I'm done!");
-});
-    
-    
-
-    
-    
-  });
-}(window.jQuery);
-*/
-</script>
-
-<!-- <div class="modal fade" id="order-modal" role="dialog">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header" style="color:black">
-            Estimated Race Day Quote:<button id="cl" class="close" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span></button>
-        </div>
-        <div class="modal-body" style="color:black">
-          <form id="session-form" name="session-form" method="POST">
-            
-            <div class="form-group">
-              <div style="width:50%; float:left; padding-right:5px;">
-                <label for="title">Name:</label>
-                <input type="text" id="title" name="title" class="form-control" required autofocus data-parsley-group="block1">
-              </div>
-              <div style="width:50%; float:left; padding-right:5px;">
-                <label for="email">Email:</label>
-                <input type="text" id="email" name="email" class="form-control" required autofocus data-parsley-group="block1">
-              </div>
-            </div>
-            <div class="form-group">
-              <label >Number of Tags:</label>
-              <input type="text" id="tags" name="organization" class="form-group form-control" required placeholder="5000" data-toggle="popover" title="Popover title" data-content="And here's some amazing content. It's very engaging. Right?">
-            </div>
-            <label>Tag Type:</label>
-            <div class="form-group">
-              <label class="btn btn-default">
-              <input type="radio" id="tag_type" name="tag_type" value="4"/> Durable
-              </label>
-              <label class="btn btn-default">
-              <input type="radio" id="tag_type" name="tag_type" value="1" checked="checked"/> Disposable w/ Bib
-              </label>
-            </div>
-            <div class="form-group">
-              <label >Number of Systems:</label><br>
-              <input type="text" id="systems" class="form-group form-control" placeholder="3">
-            </div>
-            <div class="form-group" style="overflow:hidden;">
-              <div style="width:50%; float:left; padding-right:5px;">
-                <label for="start-date">Race Start Date:</label>
-                <input type="text" id="start-date" name="start-date" class="form-control" required data-parsley-group="block1" data-parsley-date>
-              </div>
-              <div style="width:50%; float:left; padding-left:5px;">
-                <label for="start-time">Race Start Time:</label>
-                <div style="width:60%; float:left; padding-right:5px;">
-                  <input type="text" id="start-time" name="start-time" class="form-control" value="9:00" required data-parsley-group="block1" data-parsley-time>
-                </div>
-                <div style="width:40%; float:left; padding-left:5px;">
-                  <label for="start-am-pm" class="sr-only">AM/PM</label>
-                  <select class="form-control" id="start-am-pm">
-                    <option selected>AM</option>
-                    <option>PM</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-            <div class="form-group">
-            <label id="pricing">Estimated Price: $25.00</label>
-            <button class="btn btn-primary pull-right" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-            Ordering Guidelines
-            </button>
-              
-            </div>
-          </form>
-          <div class="collapse" id="collapseExample">
-                <div class="well">
-                  Durable Chips are worn on foot and are designed for practices. Disposable chips are sent on a racing bib. <br>
-                  System Rentals:<br>
-                  Mass start & finish line (>15ft): 1 <br>
-                  Mass start & wide finish line (<15ft): 2 <br>
-                  If you intend to have a chip timed start, that is not the finish, add 1 (>15ft) or 2 (<15ft)<br>
-                  For checkpoints, depending on the width, add the necessary number of systems. If races are circular, and start and finish in the same place, the same systems can be used.<br>
-                  For more information contact: info@tractiming.com
-
-                </div>
-              </div>
-        </div>
-        <div class="modal-footer">
-          <div class="btn-group center" role="group">
-            <button type="submit" id="quote" class="btn btn-primary" style="margin-left:2%">Submit Quote</button>
-          </div>
-          <div id="spinner-form"></div>
-        </div>
-      </div>
+  <script type="text/javascript">
+    /* <![CDATA[ */
+    var google_conversion_id = 878983580;
+    var google_custom_params = window.google_tag_params;
+    var google_remarketing_only = true;
+    /* ]]> */
+    </script>
+    <script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js">
+    </script>
+    <noscript>
+    <div style="display:inline;">
+    <img height="1" width="1" style="border-style:none;" alt="" src="//googleads.g.doubleclick.net/pagead/viewthroughconversion/878983580/?value=0&amp;guid=ON&amp;script=0"/>
     </div>
-  </div> -->
+    </noscript>
+     <script type="">
+    window.addEventListener('load',function(){
+    var timer = setInterval(function(){
+    if(jQuery('#success_reference').is(":visible") == true){
+    jQuery('body').append('<img height="1" width="1" style="border-style:none;" alt="" src="//www.googleadservices.com/pagead/conversion/878983580/?label=2OsSCMH3iGgQnPOQowM&amp;guid=ON&amp;script=0"/>");
+    clearInterval(timer);';
+    }
+    },1000);
+    })
+    </script>
 
-<div class="modal fade" id="payment-modal" role="dialog">
+
+
+
+    <script type="">
+    window.addEventListener('load',function(){
+    var timer = setInterval(function(){
+    if(jQuery('#success_reference').is(":visible") == true){
+    ga('send','event','Form','Submit','Quote');
+    clearInterval(timer);
+    }
+    },1000);
+    })
+    </script>
+    <div class="modal fade" id="email-modal" role="dialog">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header" style="color:black">
@@ -655,19 +446,16 @@ $("video").bind("ended", function() {
         </div>
         <div class="modal-body" style="color:black">
           <div id="success_reference">
-           We have emailed you a quote. We'll be in touch shortly about your race.
-            <!-- TODO: Take info, create account as necessary
+           Email Sent Successfully.
+
             <br><br>
-            To manage your event, and stay updated with your order please create an account: <br><center><button type="submit" id="submit" class="btn btn-primary" style="margin-left:2%; width:250px;" onclick="location.href='/register';" onclick="amplitude.logEvent('Create_Account_Payment_Popup');">Register</button> </center>-->
-            <br><br>
-            For more information regarding your order, email <a href="mailto:info@tractiming.com" style="color:#3577A8 !important;">info@tractiming.com</a>
+            Contact <a href="mailto:info@tractiming.com" style="color:#3577A8 !important;">info@tractiming.com</a> if you do not hear anything within 48 hours.
             </div>
          </div>
         <div class="modal-footer">
           <div class="btn-group pull-right" role="group">
             <button type="submit" data-dismiss="modal" class="btn btn-primary" style="margin-left:2%">Close</button>
           </div>
-          <div id="spinner-form"></div>
         </div>
       </div>
     </div>

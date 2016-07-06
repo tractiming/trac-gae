@@ -28,6 +28,7 @@ urlpatterns = [
     url(r'^send_email/$', user_views.send_email),
     url(r'^verifyLogin/$', auth_views.verify_login),
     url(r'^request_quote/$', user_views.request_quote),
+    url(r'^request_contact/$', user_views.request_contact),
     url(r'^rockblock/$', rockblock_views.rockblock_receive),
 
     url(r'^time/$', reader_views.current_time, name='time')

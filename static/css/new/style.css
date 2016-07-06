@@ -18,9 +18,6 @@ q:before, q:after {content: ''; }
 
 abbr, acronym { border: 0; font-variant: normal; }
 
-sup { vertical-align: text-top; }
-
-sub {vertical-align: text-bottom; }
 
 input, textarea, select {font-family: inherit;font-size: inherit;font-weight: inherit; }
 
@@ -38,7 +35,7 @@ src: url("../../fonts/GothamHTF-Book.eot?#iefix") format("embedded-opentype"), u
 /* Base */
 body {
   font-family: 'GothamHTF-Medium', 'Helvetica', 'Arial', sans;
-  color: #fff;
+  color: #555;
   height: 100%; }
 
 .pull-left {
