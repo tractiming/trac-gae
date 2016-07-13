@@ -133,6 +133,8 @@ $(function() {
                     var access_token = data.access_token;
                     var usertype = data.user.user_type;
                     var username = data.user.username;
+
+                    amplitude.setUserId(username);
                     
                     //Attempting to transition into localStorage.
                     localStorage.setItem('access_token', access_token);
