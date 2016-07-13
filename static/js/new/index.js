@@ -167,7 +167,7 @@ $(function() {
 					type: 'POST',
 					dataType:'json',
 					url: '/api/request_quote/',
-					headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+					headers: { Authorization: 'Bearer ' + localStorage.access_token },
 					data: {
 						name: name,
 						date: startDateTime.toISOString(),

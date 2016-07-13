@@ -87,7 +87,7 @@ google.setOnLoadCallback(function(){
 			$.ajax({
 				type: 'GET',
 				url: '/api/athletes/?primary_team=True',
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
 				dataType: 'json',
 				success: function(data) {
 					if (data.length === 0) {
@@ -131,7 +131,7 @@ google.setOnLoadCallback(function(){
 			$.ajax({
 				type: 'GET',
 				url: '/api/athletes/'+athleteID+'/completed_sessions/',
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
 				dataType: 'json',
 				success: function(data) {
 					if (isBase)

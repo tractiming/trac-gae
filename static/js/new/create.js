@@ -1,4 +1,4 @@
-if (sessionStorage.usertype == 'athlete'){
+if (localStorage.usertype == 'athlete'){
 	location.href = '/home.html';
 }
 
@@ -74,7 +74,7 @@ $(function() {
 		spinner.spin(document.getElementById('spinner-main'));
 		$.ajax({
 			url: '/api/sessions/',
-			headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+			headers: { Authorization: 'Bearer ' + localStorage.access_token },
 			data: {
 				offset: sessionFirst-1,
 				limit: SESSIONS_PER_PAGE,
@@ -331,7 +331,7 @@ $(function() {
 					type: 'POST',
 					dataType:'json',
 					url: '/api/sessions/',
-					headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+					headers: { Authorization: 'Bearer ' + localStorage.access_token },
 					data: {
 						name: title,
 						start_time: startDateTime.toISOString(),
@@ -497,7 +497,7 @@ $(function() {
 						type: 'POST',
 						dataType: 'json',
 						url: '/api/upload_workouts/',
-						headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+						headers: { Authorization: 'Bearer ' + localStorage.access_token },
 						data: JSON.stringify(json),
 						success: function(data) {
 							// hide spinner
@@ -695,7 +695,7 @@ $(function() {
 				type: 'PATCH',
 				dataType:'json',
 				url: '/api/sessions/'+id+'/',
-				headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+				headers: { Authorization: 'Bearer ' + localStorage.access_token },
 				data: {
 					name: title,
 					start_time: startDateTime.toISOString(),
@@ -766,7 +766,7 @@ $(function() {
 					type: 'DELETE',
 					dataType:'json',
 					url: '/api/sessions/'+id+'/',
-					headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+					headers: { Authorization: 'Bearer ' + localStorage.access_token },
 					success: function(data) {
 						// hide spinner
 						spinner.stop();

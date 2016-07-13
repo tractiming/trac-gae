@@ -35,7 +35,7 @@
           else {
           usSpinnerService.spin('roster-spinner');
           var url = '/api/athletes/?team=' + id + '&limit=10';
-            $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
+            $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token} })
             .success(function (response) { 
 
               $scope.$parent.rosterAthletes = response.results;

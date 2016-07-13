@@ -43,12 +43,12 @@
 <script type="text/javascript" src="{% static "js/timeConversion.js" %}"></script>
 <script>
     $(function() {
-        if (sessionStorage.access_token == null) {
+        if (localStorage.access_token == null) {
             location.href = '/login';
         }
         $(document).ready(function() {
             $("li a.logout").click(function(){
-                sessionStorage.clear();
+                localStorage.clear();
                 location.href = '/login';
             });
         });
@@ -60,7 +60,7 @@
                 dataType: 'json',
                 url: '/payments/charges/',
                 headers: {
-                    Authorization: 'Bearer ' + sessionStorage.access_token
+                    Authorization: 'Bearer ' + localStorage.access_token
                 },
                 success: function(data) {
                     if (data) {

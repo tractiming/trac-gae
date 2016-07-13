@@ -133,7 +133,7 @@ google.setOnLoadCallback(function(){
 				return;
 			ajaxRequest = $.ajax({
 				url: '/api/sessions/'+ idjson + '/individual_results',
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
 				data: data,
 				dataType: 'text',
 				success: function(data) {
@@ -406,7 +406,7 @@ google.setOnLoadCallback(function(){
 				method: 'GET',
 				url: 'api/athletes?registered_to_session=' + currentID +
                      '&session!=' + currentID,
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
 				data: {id: currentID, missed: true },
 				dataType: 'text',
 				success: function(data) {
@@ -465,7 +465,7 @@ google.setOnLoadCallback(function(){
 								method: 'POST',
 								url: 'api/sessions/'+currentID+'/upload_results/',
 								headers: {Authorization: 'Bearer ' +
-                                          sessionStorage.access_token},
+                                          localStorage.access_token},
 
 								data: JSON.stringify(data),
 								contentType: 'application/json',
@@ -518,7 +518,7 @@ google.setOnLoadCallback(function(){
                     method: 'POST',
                     url: '/api/sessions/' + currentID + '/export_results/',
                     headers: {
-                        Authorization: 'Bearer ' + sessionStorage.access_token
+                        Authorization: 'Bearer ' + localStorage.access_token
                     },
                     data: JSON.stringify({
                         'file_format': downloadFormat,
@@ -581,7 +581,7 @@ google.setOnLoadCallback(function(){
                     method: 'POST',
                     url: '/api/sessions/' + currentID + '/email_results/',
                     headers: {
-                        Authorization: 'Bearer ' + sessionStorage.access_token
+                        Authorization: 'Bearer ' + localStorage.access_token
                     },
                     data: {'full_results': resultsBoolean},
                     success: function(data) {
@@ -659,7 +659,7 @@ google.setOnLoadCallback(function(){
 				$.ajax({
 					method: 'POST',
 					url: 'api/edit_split/',
-					headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+					headers: {Authorization: 'Bearer ' + localStorage.access_token},
 					data: { id: currentID,
 									user_id: runnerID,
 									action: 'total_time',
@@ -691,7 +691,7 @@ google.setOnLoadCallback(function(){
 				$.ajax({
 					method: 'POST',
 					url: 'api/edit_split/',
-					headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+					headers: {Authorization: 'Bearer ' + localStorage.access_token},
 					data: { id: currentID,
 									user_id: runnerID,
 									action: 'unlink_total', },
@@ -746,7 +746,7 @@ google.setOnLoadCallback(function(){
 						type: 'PATCH',
 						dataType: 'json',
 						url: '/api/sessions/' + currentID + '/',
-						headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+						headers: { Authorization: 'Bearer ' + localStorage.access_token },
 						data: {
 							filter_choice: false,
 						},
@@ -863,7 +863,7 @@ google.setOnLoadCallback(function(){
 					$.ajax({
 						method: 'POST',
 						url: 'api/edit_split/',
-						headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+						headers: {Authorization: 'Bearer ' + localStorage.access_token},
 						data: { id: currentID,
 										user_id: runnerID,
 										action: 'insert',
@@ -975,7 +975,7 @@ google.setOnLoadCallback(function(){
 					$.ajax({
 						method: 'POST',
 						url: 'api/edit_split/',
-						headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+						headers: {Authorization: 'Bearer ' + localStorage.access_token},
 						data: { id: currentID,
 										user_id: runnerID,
 										action: 'edit',
@@ -1072,7 +1072,7 @@ google.setOnLoadCallback(function(){
 					$.ajax({
 						method: 'POST',
 						url: 'api/edit_split/',
-						headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+						headers: {Authorization: 'Bearer ' + localStorage.access_token},
 						data: { id: currentID,
 										user_id: runnerID,
 										action: 'delete',
@@ -1240,7 +1240,7 @@ google.setOnLoadCallback(function(){
 						$.ajax({
 							method: 'POST',
 							url: 'api/edit_split/',
-							headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+							headers: {Authorization: 'Bearer ' + localStorage.access_token},
 							data: { id: currentID,
 											user_id: runnerID,
 											action: 'split',
@@ -1487,7 +1487,7 @@ google.setOnLoadCallback(function(){
 
 			$.ajax({
 				url: '/api/sessions/'+currentID+'/individual_results/?gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
 					var results = $.parseJSON(data).results;
@@ -1544,7 +1544,7 @@ google.setOnLoadCallback(function(){
 			spinner.spin(target);
 			$.ajax({
 				url: 'api/sessions/'+currentID+'/team_results',
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
 					var results = $.parseJSON(data);
@@ -1637,7 +1637,7 @@ google.setOnLoadCallback(function(){
 							// get team members data
 							$.ajax({
 								url: 'api/sessions/'+currentID+'/filtered_results',
-								headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+								headers: {Authorization: 'Bearer ' + localStorage.access_token},
 								data: {
 									team: team.name,
 									offset: 0,
@@ -1688,7 +1688,7 @@ google.setOnLoadCallback(function(){
 
 			$.ajax({
 				url: '/api/sessions/',
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
 				dataType: 'json',
 				data: {
 					offset: sessionFirst-1,
@@ -1743,7 +1743,7 @@ google.setOnLoadCallback(function(){
 			cStop = localISOString(cStop._d);
 			$.ajax({
 				url:'/api/sessions/',
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
 				dataType: 'json',
 				data: {
 					offset: sessionFirst-1,
@@ -1846,7 +1846,7 @@ google.setOnLoadCallback(function(){
 
 				ajaxRequest = $.ajax({
 					url: '/api/sessions/'+ currentID,
-					headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+					headers: {Authorization: 'Bearer ' + localStorage.access_token},
 					dataType: 'text',
 					success: function(data) {
 						var json = $.parseJSON(data);
@@ -1888,7 +1888,7 @@ google.setOnLoadCallback(function(){
 							correctionAjaxRequest = $.ajax({
 								method: 'POST', 
 								url: '/stats/analyze/',
-								headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+								headers: { Authorization: 'Bearer ' + localStorage.access_token },
 								dataType: 'json',
 								data: {
 									id: currentID,
@@ -1997,7 +1997,7 @@ google.setOnLoadCallback(function(){
 
 			$.ajax({
 				url: '/api/sessions/'+currentID+'/tfrrs',
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
 					data = $.parseJSON(data);
@@ -2019,7 +2019,7 @@ google.setOnLoadCallback(function(){
 		function createFullCSV(){
 			$.ajax({
 				url: '/api/sessions/'+currentID+'/individual_results',
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
 
@@ -2100,7 +2100,7 @@ google.setOnLoadCallback(function(){
 
 			$.ajax({
 				url: '/api/sessions/'+currentID+'/individual_results/?gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
 					var results = $.parseJSON(data).results;
@@ -2144,7 +2144,7 @@ google.setOnLoadCallback(function(){
 		function createTeamCSV() {
 			$.ajax({
 				url: 'api/sessions/'+currentID+'/team_results',
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
 					var results = $.parseJSON(data);
@@ -2254,7 +2254,7 @@ google.setOnLoadCallback(function(){
 
 			$.ajax({
 				url: '/api/athletes/?session='+ currentID + '&search='+searchTerm,
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
 					var results = $.parseJSON(data);
@@ -2309,7 +2309,7 @@ google.setOnLoadCallback(function(){
 
 				    			$.ajax({
 									url: '/api/sessions/'+ currentID+'/individual_results/?athletes='+dynamicID,
-									headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+									headers: {Authorization: 'Bearer ' + localStorage.access_token},
 									dataType: 'text',
 									success: function(data) {
 										var total =0;

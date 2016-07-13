@@ -1,4 +1,4 @@
-if (sessionStorage.access_token == null) {
+if (localStorage.access_token == null) {
     //link to login page
     location.href= '/login';
 }
@@ -8,23 +8,27 @@ else{
 	  type: 'GET',
 	  url: '/api/verifyLogin/',
 	  data: {
-	  	token: sessionStorage.access_token
+	  	token: localStorage.access_token
 	  },
 	  dataType:'json',
 
 	  // Registration was successful.
-	  success: function(data) {},
+	  success: function(data) {
+	  	location.href="/home";
+	  },
 	  // Registration failed.
 	  error: function(xhr, errmsg, err) {
 	  	sessionStorage.clear();
+	  	localStorage.clear();
 	  	location.href='/login';
 	  },
 	  });
-
+}
 
 	$(document).ready(function() {
 		$('li a.logout').click(function(){	
 					sessionStorage.clear();
+					localStorage.clear();
 					location.href='/login';		
 			//$.ajax({
 				//type:"POST",
