@@ -118,7 +118,41 @@ $(function() {
                 $('p.notification.notification-critical3').hide();
                 $('p.notification.notification-success').show();
                 $('#register-form')[0].reset();
-                window.location.href = '/home';
+                $.ajax({
+                  type: 'POST',
+                  dataType: 'json',
+                  url: '/api/login/',
+                  data: {
+                    client_id: 'aHD4NUa4IRjA1OrPD2kJLXyz34c06Bi5eVX8O94p',
+                    username: username,
+                    password: password,
+                    grant_type: 'password'
+                  },
+                  success: function(data) {
+                    // Get the access token and store client side.
+                    var access_token = data.access_token;
+                    var usertype = data.user.user_type;
+                    var username = data.user.username;
+                    
+                    //Attempting to transition into localStorage.
+                    localStorage.setItem('access_token', access_token);
+                    localStorage.setItem('usertype', usertype);
+                    localStorage.setItem('username', username);
+                    
+                    location.href = '/home';
+                  },
+                // Login request failed.
+                  error: function(xhr, errmsg, err) {
+                    // hide spinner and show error message
+                    $('.spinner-container').hide();
+                    spinner.stop();
+                    $('#submit').show();
+                    $('p.notification.notification-critical').show();
+                    $('#login-form input')
+                        .removeClass('parsley-success')
+                        .addClass('parsley-error');
+                  }
+            });
               },
               // Registration failed.
               error: function(xhr, errmsg, err) {
