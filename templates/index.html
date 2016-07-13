@@ -87,6 +87,13 @@
 <link rel="stylesheet" href="static/css/colorbox.css" />  
 <script src="static/js/new/jquery.colorbox.js"></script>
 <script>
+  $(document).ready(function() {
+      $("li a.logout").click(function(){
+          localStorage.clear();
+          amplitude.setUserId(null);
+          location.href="/login";
+      });
+
   $(document).ready(function(){
     //$(".youtube").colorbox({iframe:true, innerWidth:640, innerHeight:390}); 
     $(".youtube").colorbox({iframe:true, width:"90%", height:"95%"}); 

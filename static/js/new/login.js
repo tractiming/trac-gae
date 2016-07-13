@@ -124,7 +124,9 @@ $(function() {
                     localStorage.setItem('access_token', access_token);
                     localStorage.setItem('usertype', usertype);
                     localStorage.setItem('username', username);
-                    
+
+                    //Amplitude Set User
+                    amplitude.setUserId(username);
                     location.href = '/home';
                 },
                 // Login request failed.

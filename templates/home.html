@@ -17,12 +17,30 @@ if (localStorage.access_token == null) {
     location.href="/login";
 }
 else{
-    
-}
+  console.log('hit else');
+  $.ajax({
+    type: 'GET',
+    url: '/api/verifyLogin/',
+    data: {
+      token: localStorage.access_token
+    },
+    dataType:'json',
 
+    // Registration was successful.
+    success: function(data) {
+    },
+    // Registration failed.
+    error: function(xhr, errmsg, err) {
+      sessionStorage.clear();
+      localStorage.clear();
+      location.href='/login';
+    },
+    });
+}
     $(document).ready(function() {
       $("li a.logout").click(function(){
           localStorage.clear();
+          amplitude.setUserId(null);
           location.href="/login";
       });
 

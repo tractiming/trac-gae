@@ -14,7 +14,6 @@ else{
 
 	  // Registration was successful.
 	  success: function(data) {
-	  	location.href="/home";
 	  },
 	  // Registration failed.
 	  error: function(xhr, errmsg, err) {
@@ -29,6 +28,7 @@ else{
 		$('li a.logout').click(function(){	
 					sessionStorage.clear();
 					localStorage.clear();
+					amplitude.setUserId(null);
 					location.href='/login';		
 			//$.ajax({
 				//type:"POST",
@@ -47,4 +47,4 @@ else{
 			//});
 		});
 	});
-}
+
