@@ -176,7 +176,7 @@
             <li><a href="/pricing" onclick="amplitude.logEvent('about');">Pricing</a></li>
             <li><a href="https://blog.tracchicago.com" target="_blank" onclick="amplitude.logEvent('blog');">Blog</a></li>
             <li><a href="/score/" onclick="amplitude.logEvent('score');">Results</a></li>
-            <li><a class="hidden-lg hidden-md"href="/login" class="scrollto" rel="bg6">Login</a></li>
+            <li><a class="hidden-lg hidden-md"href="/login" class="scrollto" rel="bg6">Log in</a></li>
             <li class="hidden-sm hidden-xs"><button class="btn btn-warning" style="margin-top:20%; margin-left:5%" onclick="location.href='/login'; amplitude.logEvent('toLogin');">Log in</button></li>
         </ul>
       </div><!--/.nav-collapse -->
@@ -185,23 +185,23 @@
 
 
      
-<div class="container-fluid content">
-      <div class="container" style="padding-top:12%; padding-bottom:5%">
+<div class="container-fluid content" style="background-image:url({% static "img/IMG_1598.jpg" %});background-position:-100px -200px; background-repeat: no-repeat;">
+      <div class="container" style="padding-top:12%; padding-bottom:5%;">
 
         <div class="row">
             <div class="col-lg-12 col-md-12 col-sm-12  col-xs-12">
               
-            <h2>Product</h2><br>
+            <h2 style="color:#e5e5e5;">Product</h2><br>
           </div>
         </div>
 
         <div class="container">
         <div class="row">
             <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
-             <img src={% static "img/IMG_1591.jpg" %} style="width:95%">
+
             </div>
             <div class="col-lg-7 col-md-7 col-sm-7 col-xs-5">
-               <p style="text-align:left" class="hidden-xs">
+               <p style="text-align:left; color:#e5e5e5;" class="hidden-xs">
                 &bull; Sends results to you immediately (as the race is running)<br>
                 &bull; Works in all weather (even snowstorms!)<br>
                 &bull; Portable, less than ten pounds<br>
@@ -209,10 +209,10 @@
                 &bull; Cost effective, less than half the price of a standard timing system<br>
                 &bull; No extra computers needed<br>
                 &bull; Works with other systems easily<br>
-                &bull; Setup everything in less than 2 minutes<br>
+                &bull; Set up everything in less than 2 minutes<br>
                 &bull; Battery life for more than 6 hours<br>
             </p>
-            <p style="text-align:left" class="hidden-lg hidden-md hidden-sm">
+            <p style="text-align:left; color:#e5e5e5;" class="hidden-lg hidden-md hidden-sm">
                 &bull; Sends results to you immediately (as the race is running)<br>
                 &bull; Works in all weather (even snowstorms!)<br>
                 &bull; Controlled by a simple smartphone app<br>
@@ -227,17 +227,15 @@
 
         </div>
       </div>
-      
-<hr>
-         
-
+    
       
       </div>
     </div>
 
 
           <div class="container-fluid content">
-      <div class="container" style=" padding-bottom:5%">
+      <div class="container" style=" padding-bottom:5%;padding-top:5%">
+        <hr>
         <h2 style="font-size:30px;">3 easy steps to running success</h2><br>
         <div class="row">
           <div class="col-lg-4 col-md-4 col-sm-12">
@@ -250,57 +248,58 @@
               <div id='circle' class="circle center">2</div>
               <br>
               <h4 style="text-align:center;">Connect System and Tags</h4>
-              <p style="text-align:center;">With our TRAC timing system, connect the app to users.</p>
+              <p style="text-align:center;">With our TRAC timing system, connect the app to system. Register tags to runners, and get running!</p>
            </div>
            <div class="col-lg-4 col-md-4 col-sm-12">
               <div id='circle' class="circle center">3</div>
               <br>
               <h4 style="text-align:center;">Analyze and Improve</h4>
-              <p style="text-align:center;">Do some stuff</p>
+              <p style="text-align:center;">Gain unique insights into your runner's fitness with the instant digitalization of results.</p>
            </div>
           </div>
           <hr>
       </div>
     </div>
-
-          <div class="container-fluid content">
-      <div class="container">
         <h2 style="font-size:30px;">Unharness all of the potential capabilites of the TRAC platform</h2><br>
+          <div class="container-fluid content" style="background-image:url({% static "img/cropped-runner.gif" %}); background-position: center; min-height:400px ">
+      <div class="container">
+        
+
       </div>
     </div>
   <div class="container-fluid content" style="padding-top:5%; padding-bottom:5%;  background-color:#3577A8 !important">
       <div class="container">
         <div class="row">
           <h3 style="color:white">Practice</h3>
-            <div class="col-lg-3">
-              <img src={% static "img/runningguy.png" %} height="150px">
+            <div class="col-lg-3 col-md-3">
+              <img src={% static "img/runningguy.png" %} height="150px" class="center">
             </div>
-            <div class="col-lg-1">
-              <img src={% static "img/wifi.png" %} height="100px">
+            <div class="col-lg-1 col-md-1">
+              <img src={% static "img/wifi.png" %} height="100px" class="center">
             </div>
-            <div class="col-lg-4">
-              <img src={% static "img/cloud.png" %} height="100px">
+            <div class="col-lg-4 col-md-4" >
+              <img src={% static "img/cloud.png" %} height="100px" class="center">
             </div>
-            <div class="col-lg-1">
-              <img src={% static "img/wifi.png" %} height="100px">
+            <div class="col-lg-1 col-md-1">
+              <img src={% static "img/wifi.png" %} height="100px" class="center">
             </div>
-            <div class="col-lg-3">
-              <img src={% static "img/phone.png" %} height="150px" style="padding-left:20%">
+            <div class="col-lg-3 col-md-3">
+              <img src={% static "img/phone.png" %} height="150px" class="center">
             </div>
 
           </div>
           <div class="row">
-            <div class="col-lg-3">
+            <div class="col-lg-3 col-md-3">
             
             <p style="color:white">
                 Run a practice like you normally would. Set your sensor down at the place where you would normally take splits.
               </p>
           </div>
-          <div class="col-lg-4 col-lg-offset-1">
+          <div class="col-lg-4 col-lg-offset-1 col-md-4 col-md-offset-1">
              <p style="color:white">As soon as a runner passes the sensor, results are immediately streamed to the cloud.</p>
           </div>
          
-          <div class="col-lg-3 col-lg-offset-1">
+          <div class="col-lg-3 col-lg-offset-1 col-md-3 col-md-offset-1">
              <p style="color:white">You and any of your assistant coaches can view results as they instantly appear everyone's phone.</p>
           </div>
           </div>
@@ -310,37 +309,37 @@
       <div class="container" >
         <div class="row">
           <h3 style="color:white">Races & XC Meets</h3>
-          <div class="col-lg-3">
-            <img src={% static "img/box-01.png" %} height="200px">
+          <div class="col-lg-3 col-md-3">
+            <img src={% static "img/box-01.png" %} height="200px" class="center">
             <p style="color:white">
               </p>
           </div>
-          <div class="col-lg-1">
-            <img src={% static "img/dashes-01.png" %} height="100px">
+          <div class="col-lg-1 col-md-1">
+            <img src={% static "img/dashes-01.png" %} height="100px" class="center">
           </div>
-          <div class="col-lg-4">
+          <div class="col-lg-4 col-md-4">
             <img src={% static "img/phone.png" %} height="150px" class="center">
           </div>
-          <div class="col-lg-1">
-            <img src={% static "img/dashes-01.png" %} height="100px">
+          <div class="col-lg-1 col-md-1">
+            <img src={% static "img/dashes-01.png" %} height="100px" class="center">
           </div>
-          <div class="col-lg-3">
-             <img src={% static "img/trophy-01.png" %} height="150px">
+          <div class="col-lg-3 col-md-3">
+             <img src={% static "img/trophy-01.png" %} height="150px" class="center">
           </div>
 
           </div>
           <div class="row">
-            <div class="col-lg-3">
+            <div class="col-lg-3 col-md-3">
             
             <p style="color:white">
                 Order everything necessary in preparation for race day--sensor & bibs. We ship it to you a few days before.
               </p>
           </div>
-          <div class="col-lg-4 col-lg-offset-1">
+          <div class="col-lg-4 col-lg-offset-1 col-md-4 col-md-offset-1">
               <p style="color:white">Run the entire system off your smartphone. No messy cables or equipment.</p>
           </div>
          
-          <div class="col-lg-3 col-lg-offset-1">
+          <div class="col-lg-3 col-lg-offset-1 col-md-3 col-md-offset-1">
              <p style="color:white">Results are streamed live to the web and immediately available for all participants.</p>
           </div>
         </div>
@@ -350,28 +349,28 @@
       <div class="container" >
         <div class="row">
           <h3 style="color:white">Software as a Service</h3>
-          <div class="col-lg-4">
-            <img src={% static "img/cloud.png" %} height="100px">
+          <div class="col-lg-4 col-md-4">
+            <img src={% static "img/cloud.png" %} height="100px" class="center">
           </div>
-          <div class="col-lg-4">
+          <div class="col-lg-4 col-md-4">
             <img src={% static "img/wifi.png" %} height="150px" class="center">
           </div>
 
-          <div class="col-lg-4">
+          <div class="col-lg-4 col-md-4">
             <img src={% static "img/trophy-01.png" %} height="150px" class="center">
              
           </div>
 
           </div>
           <div class="row">
-            <div class="col-lg-3">
+            <div class="col-lg-3 col-md-3">
             <p style="color:white">Push your results straight to our cloud platform. We parse the raw times and ID numbers and compute results immediately.</p>
           </div>
-          <div class="col-lg-4 col-lg-offset-1">
+          <div class="col-lg-4 col-lg-offset-1 col-md-4 col-lg-offset-1">
               <p style="color:white">Unofficial results can be instantly pushed live around the world. Use our platform to push text or email notifications when users pass specific checkpoints.</p>
           </div>
          
-          <div class="col-lg-3 col-lg-offset-1">
+          <div class="col-lg-3 col-lg-offset-1 col-md-3 col-lg-offset-1">
             <p style="color:white"> View results on our mobile web platform, or just share them internally amongst your team. Finalize results, publish them, and give out awards!</p>
           </div>
         </div>
@@ -384,16 +383,22 @@
               <h2 style="font-size:30px;">Flexible Software, Useable Anywhere</h2><br>
           </div>
           <div class="row">
-            <div class="col-lg-4">
-              <p> Text Goes here about the app.</p><br><br>
-               <p> Text Goes here about the app.</p><br><br>
-                <p> Text Goes here about the app.</p><br><br>
-                 <p> Text Goes here about the app.</p><br><br>
-                  <p> Text Goes here about the app.</p><br><br>
-                   <p> Text Goes here about the app.</p><br><br>
-                   
+            <div class="col-lg-6 col-md-6">
+              <br><br><br><br>
+              <p>&bull; Available for Android and iPhone<br>
+                &bull; Tablet compatable<br>
+                &bull; Operates autonomously or pairs with TRAC system<br>
+                &bull; Instantly pairs with TRAC system<br>
+                &bull; Works anywhere you have internet converage<br>
+                &bull; Instantly share splits between coaches<br>
+                &bull; View running and split time for each athlete<br>
+                &bull; Control an entire race through the platform<br>
+                &bull; Monitor your athletes in real time<br>
+                &bull; Switch between old and new workouts with a click<br>
+
+
             </div>
-            <div class="col-lg-8">
+            <div class="col-lg-6 col-md-6">
               <img src={% static "img/phone_screenshots.png" %} style="width:100%">
             </div>
           </div>
