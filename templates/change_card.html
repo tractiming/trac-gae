@@ -5,31 +5,7 @@
 <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
 <script type="text/javascript">
 jQuery(function($) {
-    if (localStorage.access_token == null) {
-        location.href="/login";
-    }
-    else{
-    console.log('hit else');
-    $.ajax({
-      type: 'GET',
-      url: '/api/verifyLogin/',
-      data: {
-        token: localStorage.access_token
-      },
-      dataType:'json',
 
-      // Registration was successful.
-      success: function(data) {
-        location.href="/home";
-      },
-      // Registration failed.
-      error: function(xhr, errmsg, err) {
-        localStorage.clear();
-        localStorage.clear();
-        location.href='/login';
-      },
-      });
-}
     $(document).ready(function() {
         $("li a.logout").click(function(){
             localStorage.clear();
