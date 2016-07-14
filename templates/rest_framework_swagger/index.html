@@ -16,13 +16,35 @@
         }
     </style>
     <script type="text/javascript">
-    if (sessionStorage.access_token == null) {
+    if (localStorage.access_token == null) {
         //link to login page
         location.href="/login";
     }
+    else{
+    console.log('hit else');
+    $.ajax({
+      type: 'GET',
+      url: '/api/verifyLogin/',
+      data: {
+        token: localStorage.access_token
+      },
+      dataType:'json',
+
+      // Registration was successful.
+      success: function(data) {
+        location.href="/home";
+      },
+      // Registration failed.
+      error: function(xhr, errmsg, err) {
+        sessionStorage.clear();
+        localStorage.clear();
+        location.href='/login';
+      },
+      });
+}
     $(document).ready(function() {
         $("li a.logout").click(function(){
-            sessionStorage.clear();
+            localStorage.clear();
             location.href="/login";
         });
     });
@@ -101,8 +123,8 @@
             window.authorizations.add('key',
                 new ApiKeyAuthorization('Authorization',
                     '{{ swagger_settings.token_type }} ' +
-                    sessionStorage.access_token, 'header'));
-            document.getElementsByName('apiKey')[0].value = sessionStorage.access_token;
+                    localStorage.access_token, 'header'));
+            document.getElementsByName('apiKey')[0].value = localStorage.access_token;
 
             window.swaggerUi.load();
         });

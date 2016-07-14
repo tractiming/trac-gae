@@ -12,17 +12,35 @@
 <script>
 var instanceFirst = 1;
 var instanceLast = 3;
-if (sessionStorage.access_token == null) {
+if (localStorage.access_token == null) {
     //link to login page
     location.href="/login";
 }
 else{
-    
-}
+  console.log('hit else');
+  $.ajax({
+    type: 'GET',
+    url: '/api/verifyLogin/',
+    data: {
+      token: localStorage.access_token
+    },
+    dataType:'json',
 
+    // Registration was successful.
+    success: function(data) {
+    },
+    // Registration failed.
+    error: function(xhr, errmsg, err) {
+      sessionStorage.clear();
+      localStorage.clear();
+      location.href='/login';
+    },
+    });
+}
     $(document).ready(function() {
       $("li a.logout").click(function(){
-          sessionStorage.clear();
+          localStorage.clear();
+          amplitude.setUserId(null);
           location.href="/login";
       });
 

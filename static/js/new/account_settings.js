@@ -11,7 +11,7 @@ $(document).ready(function(){
           $.ajax({
                   type: "GET",
                   url: "/api/users/me/",
-                  headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+                  headers: {Authorization: 'Bearer ' + localStorage.access_token},
                   success: function(data){
                     $('#edit-information #username').val(data['username']);
                     $('#edit-information #email').val(data['email']);
@@ -36,7 +36,7 @@ $(document).ready(function(){
           $('#edit-password').hide();
           $.ajax({
               url: '/api/athletes/?primary_team=True',
-              headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+              headers: {Authorization: 'Bearer ' + localStorage.access_token},
               dataType: 'text',
               success: function(data){
                           $('#athletes').empty();
@@ -93,7 +93,7 @@ $(document).ready(function(){
           $.ajax({
                   type: "PATCH",
                   url: "/api/users/me/",
-                  headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+                  headers: {Authorization: 'Bearer ' + localStorage.access_token},
                   data: {
                     //org: organization,
                     username: username,
@@ -127,7 +127,7 @@ $(document).ready(function(){
            type: "POST",
            dataType:'json',
            url: "/api/give_athlete_password/",
-           headers: {Authorization: "Bearer " + sessionStorage.access_token},
+           headers: {Authorization: "Bearer " + localStorage.access_token},
            data: {
                id: id,
                first_name: fname,
@@ -160,7 +160,7 @@ $(document).ready(function(){
           $.ajax({
                   type: "POST",
                   url: "/api/users/me/change_password/",
-                  headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+                  headers: {Authorization: 'Bearer ' + localStorage.access_token},
                   data: {
                     old_password: o_password,
                     new_password: password,
@@ -203,7 +203,7 @@ $(document).ready(function(){
         data:{
           public_team: publicBoolean,
         },
-        headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+        headers: {Authorization: 'Bearer ' + localStorage.access_token},
         success: function(data) {
           $('.notification').hide();
           $('.notification-success').show();
@@ -219,7 +219,7 @@ $(document).ready(function(){
       $.ajax({
         type: 'GET',
         url: '/api/teams/?primary_team=True',
-        headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+        headers: {Authorization: 'Bearer ' + localStorage.access_token},
         dataType: 'json',
         success: function(data) {
           if (data.length === 0) {

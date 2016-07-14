@@ -84,7 +84,7 @@ $(function() {
 	 function getLogo(team){
       var url = "/api/teams/"+team;
       $.ajax({
-       headers: {Authorization: "Bearer " + sessionStorage.access_token},
+       headers: {Authorization: "Bearer " + localStorage.access_token},
        url : url,
        type : 'GET',
        success : function(data) {
@@ -254,7 +254,7 @@ $(function() {
 			//spinner.spin(target);
 			$.ajax({
 				url: '/api/sessions/'+currentID+'/team_results/',
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
 					var results = $.parseJSON(data);
@@ -418,7 +418,7 @@ $(function() {
 
 			$.ajax({
 				url: '/api/athletes/?session='+ currentID + '&search='+searchTerm,
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
 					var results = $.parseJSON(data);
@@ -473,7 +473,7 @@ $(function() {
 
 				    			$.ajax({
 									url: '/api/sessions/'+ currentID+'/individual_results/?athletes='+dynamicID,
-									headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+									headers: {Authorization: 'Bearer ' + localStorage.access_token},
 									dataType: 'text',
 									success: function(data) {
 										var time = formatTime(Number($.parseJSON(data).results[0].total));

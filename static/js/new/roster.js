@@ -87,7 +87,7 @@
         var url = '/api/athletes/?registered_to_session='+ $scope.selectedID +'&limit=50';
 
 
-      $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
+      $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
         .success(function (response) { 
           $scope.athletes = response.results;
           $scope.count = response.count;
@@ -107,7 +107,7 @@
         var url = '/api/athletes/?registered_to_session='+ $scope.selectedID + '&search=' + $scope.search.change;
       else
         var url = '/api/athletes/?registered_to_session='+ $scope.selectedID +'&limit=50';
-      $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
+      $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
         .success(function (response) {
           $scope.athletes = response.results;
           $scope.count = response.count;
@@ -123,7 +123,7 @@
       $scope.search.change = $scope.search.model;
 
       var url = '/api/athletes/?registered_to_session='+ $scope.selectedID + '&search=' + $scope.search.change;
-      $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
+      $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
         .success(function (response) {
 
           $scope.athletes = response.results;
@@ -142,7 +142,7 @@
       $scope.search.change = '';
 
       var url = '/api/athletes/?registered_to_session='+ $scope.selectedID;
-      $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
+      $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
         .success(function (response) {
           $scope.athletes = response.results;
           $scope.count = response.count;
@@ -155,7 +155,7 @@
     $scope.loadRosterData = function(){
       if (!firedOnce){
         var url = '/api/teams/?primary_team=True';
-        $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
+        $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token} })
         .success(function (response) { 
           if(response.length == 0){
             $scope.rosterTeams = '';
@@ -166,7 +166,7 @@
             var rosterCount = response.length;
             $scope.rosterID = $scope.rosterTeams[0].id;
             var url = '/api/athletes/?team=' + $scope.rosterID + '&limit=10';
-            $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
+            $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token} })
             .success(function (response) { 
               $scope.rosterAthletes = response.results;
             });
@@ -192,7 +192,7 @@
             return;
           }
           var url = '/api/athletes/?team=' + $scope.rosterID;
-            $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:last, limit: 20} })
+            $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token}, params:{offset:last, limit: 20} })
             .success(function (response) { 
               if(response.results.length == 0) return;
               for(i=0; i < response.results.length; i++){
@@ -225,7 +225,7 @@ $scope.checkAll = function () {
       $scope.athleteSearchRoster = function(){
       $scope.searchRoster.change = $scope.searchRoster.model;
       var url = '/api/athletes/?primary_team=True&search=' +  $scope.searchRoster.change;
-      $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: 50} })
+      $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: 50} })
         .success(function (response) {
 
           $scope.rosterAthletes = response.results;
@@ -242,7 +242,7 @@ $scope.checkAll = function () {
       $scope.searchRoster.change = '';
 
       var url = '/api/athletes/';
-      $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
+      $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
         .success(function (response) {
 
           $scope.rosterAthletes = response.results;
@@ -254,7 +254,7 @@ $scope.checkAll = function () {
 
     //Load the heat menu bar on the left hand side of page
     usSpinnerService.spin('main-spinner');
-    $http({method: 'GET', url: '/api/sessions/', headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:0, limit:15} })
+    $http({method: 'GET', url: '/api/sessions/', headers: {Authorization: 'Bearer ' + localStorage.access_token}, params:{offset:0, limit:15} })
     .success(function (response) { 
       if (response.results == ''){
         usSpinnerService.stop('main-spinner');
@@ -271,7 +271,7 @@ $scope.checkAll = function () {
 
       //load the roster for the most recent workout\
       var url = '/api/athletes/?registered_to_session='+ mostRecentWorkout+'&limit=50';
-      $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
+      $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token} })
       .success(function (response) { 
         $scope.athletes = response.results;
         $scope.count = response.count;
@@ -295,7 +295,7 @@ $scope.checkAll = function () {
         $scope.selectedID = selected;
         $scope.workoutName = workout.name;
         var url = '/api/athletes/?registered_to_session='+ selected+'&limit=50';
-        $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
+        $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token} })
           .success(function (response) { 
             $scope.athletes = response.results;
             //Reset the page counter
@@ -317,7 +317,7 @@ $scope.checkAll = function () {
     //For See More button on Heat Menu
     $scope.seeMore = function(){
 
-      $http({method: 'GET', url: '/api/sessions/', headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.temporaryEnd, limit:15} })
+      $http({method: 'GET', url: '/api/sessions/', headers: {Authorization: 'Bearer ' + localStorage.access_token}, params:{offset:$scope.temporaryEnd, limit:15} })
         .success(function (response) { 
           //merge arrays
         $scope.temporaryEnd += 15;
@@ -330,11 +330,11 @@ $scope.checkAll = function () {
       
       //TODO: Do an ajax call, to actually delete
         var url = '/api/athletes/'+runner.id +'/';
-       $http({method: 'DELETE', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}})
+       $http({method: 'DELETE', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token}})
          .success(function (response) {
           //Update the Count
           var url = '/api/athletes/?registered_to_session='+ $scope.selectedID+'&limit=50';
-          $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
+          $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
             .success(function (response) { 
               $scope.athletes = response.results;
               $scope.count = response.count;
@@ -349,7 +349,7 @@ $scope.checkAll = function () {
               $scope.universalEdit = false;
           });
             var url = '/api/athletes/?team=' + $scope.rosterID + '&limit=10';
-            $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
+            $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token} })
             .success(function (response) { 
               $scope.rosterAthletes = response.results;
             });
@@ -360,11 +360,11 @@ $scope.checkAll = function () {
       
       //TODO: Do an ajax call, to actually delete
        var url = '/api/athletes/'+runner.id +'/';
-       $http({method: 'DELETE', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}})
+       $http({method: 'DELETE', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token}})
          .success(function (response) {
           //Update the Count
           var url = '/api/athletes/?registered_to_session='+ $scope.selectedID+'&limit=50';
-          $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
+          $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
             .success(function (response) { 
 
               $scope.rosterAthletes.splice(index, 1);
@@ -387,7 +387,7 @@ $scope.checkAll = function () {
     $scope.save = function(runner, allRunners){
       var url = '/api/athletes/'+runner.id +'/';
 
-      $http({method: 'PATCH', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{
+      $http({method: 'PATCH', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token}, data:{
         first_name: runner.first_name,
         last_name: runner.last_name,
         tag: runner.tag,
@@ -510,13 +510,13 @@ $scope.checkAll = function () {
         $('#notificationModal').modal('show');
       }
       var url = '/api/sessions/'+ $scope.selectedID +'/register_athletes/';
-      $http({method: 'POST', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{
+      $http({method: 'POST', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token}, data:{
         athletes: atlList,
        } 
       })
         .success(function (response) {
           var url = '/api/athletes/?registered_to_session='+ $scope.selectedID+'&limit=50';
-          $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
+          $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
             .success(function (response) { 
               $scope.athletes = response.results;
               $scope.count = response.count;
@@ -557,11 +557,11 @@ $scope.checkAll = function () {
       var url = "/api/teams/"+ id +"/upload_roster/";
       $('#csvModal').modal('hide');
       usSpinnerService.spin('roster-spinner');
-      $http({method: 'POST', url: url, cache:false, headers: {Authorization: 'Bearer ' + sessionStorage.access_token, 'Content-Type': undefined}, data:fd, transformRequest: angular.identity })
+      $http({method: 'POST', url: url, cache:false, headers: {Authorization: 'Bearer ' + localStorage.access_token, 'Content-Type': undefined}, data:fd, transformRequest: angular.identity })
             .success(function (response) { 
              
               var url = '/api/athletes/?team=' + $scope.rosterID + '&limit=10';
-            $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
+            $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token} })
             .success(function (response) { 
               $scope.rosterAthletes = response.results;
               usSpinnerService.stop('roster-spinner');
@@ -580,11 +580,11 @@ $scope.checkAll = function () {
       var url = "/api/teams/"+ id +"/upload_new_names/";
       $('#csvModal').modal('hide');
       usSpinnerService.spin('roster-spinner');
-      $http({method: 'POST', url: url, cache:false, headers: {Authorization: 'Bearer ' + sessionStorage.access_token, 'Content-Type': undefined}, data:fd, transformRequest: angular.identity })
+      $http({method: 'POST', url: url, cache:false, headers: {Authorization: 'Bearer ' + localStorage.access_token, 'Content-Type': undefined}, data:fd, transformRequest: angular.identity })
             .success(function (response) { 
              
               var url = '/api/athletes/?team=' + $scope.rosterID + '&limit=10';
-            $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
+            $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token} })
             .success(function (response) { 
               $scope.rosterAthletes = response.results;
               usSpinnerService.stop('roster-spinner');
@@ -605,10 +605,10 @@ $scope.checkAll = function () {
 
       var url = "/api/sessions/"+$scope.selectedID+"/upload_runners/";
       usSpinnerService.spin('main-spinner');
-      $http({method: 'POST', url: url, cache:false, headers: {Authorization: 'Bearer ' + sessionStorage.access_token, 'Content-Type': undefined}, data:fd, transformRequest: angular.identity })
+      $http({method: 'POST', url: url, cache:false, headers: {Authorization: 'Bearer ' + localStorage.access_token, 'Content-Type': undefined}, data:fd, transformRequest: angular.identity })
             .success(function (response) { 
               var url = '/api/athletes/?registered_to_session='+ $scope.selectedID+'&limit=50';
-            $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
+            $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
               .success(function (response) { 
                 $scope.athletes = response.results;
                 $scope.count = response.count;
@@ -632,7 +632,7 @@ $scope.checkAll = function () {
     }
 
     $scope.saveHeader = function(regForm){
-      $http({method: 'POST', url: '/api/athletes/', headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{
+      $http({method: 'POST', url: '/api/athletes/', headers: {Authorization: 'Bearer ' + localStorage.access_token}, data:{
         first_name: regForm.first_name,
         last_name: regForm.last_name,
         tag: regForm.tag,
@@ -643,7 +643,7 @@ $scope.checkAll = function () {
         .success(function (response) {
 
           var url = '/api/athletes/?team=' + $scope.rosterID + '&limit=10';
-          $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token} })
+          $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token} })
           .success(function (response) { 
 
             $scope.rosterAthletes = response.results;
@@ -682,12 +682,12 @@ $scope.checkAll = function () {
     $scope.remove = function(array,index,runner){
       $scope.athletes.splice(index, 1);
       var url = '/api/sessions/'+ $scope.selectedID +'/remove_athletes/';
-      $http({method: 'POST', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{
+      $http({method: 'POST', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token}, data:{
         athletes: [runner.id]} })
         .success(function (response) { 3
           $scope.universalEdit = false;
           var url = '/api/athletes/?registered_to_session='+ $scope.selectedID+'&limit=50';
-          $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
+          $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
             .success(function (response) { 
               $scope.athletes = response.results;
               $scope.count = response.count;
@@ -705,12 +705,12 @@ $scope.checkAll = function () {
 
     $scope.removeModal = function(runner){
       var url = '/api/sessions/'+ $scope.selectedID +'/remove_athletes/';
-      $http({method: 'POST', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{
+      $http({method: 'POST', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token}, data:{
         athletes: [runner.id]} })
         .success(function (response) { 3
           $scope.universalEdit = false;
           var url = '/api/athletes/?registered_to_session='+ $scope.selectedID+'&limit=50';
-          $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
+          $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
             .success(function (response) { 
               $scope.athletes = response.results;
               $scope.count = response.count;
@@ -761,7 +761,7 @@ $scope.checkAll = function () {
       var name = team.name;
       var bool = true;
       var url = '/api/teams/';
-      $http({method: 'POST', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{
+      $http({method: 'POST', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token}, data:{
         name: name,
         primary_team: bool,
        } 
@@ -775,7 +775,7 @@ $scope.checkAll = function () {
       var name = team.name;
       var bool = true;
       var url = '/api/teams/';
-      $http({method: 'POST', url: url, headers: {Authorization: 'Bearer ' + sessionStorage.access_token}, data:{
+      $http({method: 'POST', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token}, data:{
         name: name,
         primary_team: bool,
        } 

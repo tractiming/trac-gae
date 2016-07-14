@@ -58,7 +58,7 @@ google.setOnLoadCallback(function(){
 			ajaxRequest = $.ajax({
 				type: 'GET',
 				url: '/api/athletes/'+athleteID+'/completed_sessions/',
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
 				dataType: 'json',
 				success: function(data){
 					var name = data.name,
@@ -164,7 +164,7 @@ google.setOnLoadCallback(function(){
 			ajaxRequest = $.ajax({
 				type: 'GET',
 				url: '/api/athletes/'+athleteID+'/completed_sessions/',
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
 				dataType: 'json',
 				
 				success: function(data){
@@ -293,7 +293,7 @@ google.setOnLoadCallback(function(){
 			ajaxRequest = $.ajax({
 				type: 'GET',
 				url: '/api/athletes/'+athleteID+'/completed_sessions/',
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
 				dataType: 'json',
 				
 				success: function(data) {
@@ -311,7 +311,7 @@ google.setOnLoadCallback(function(){
 					$.ajax({
 						type: 'GET',
 						url: '/api/athletes/',
-						headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+						headers: {Authorization: 'Bearer ' + localStorage.access_token},
 						dataType: 'json',
 						success: function(data2) {
 							for (var i=0; i<data2.length; i++) {
@@ -336,7 +336,7 @@ google.setOnLoadCallback(function(){
 						$.ajax({
 							type: 'GET',
 							url: '/api/athletes/'+id+'/completed_sessions/',
-							headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+							headers: {Authorization: 'Bearer ' + localStorage.access_token},
 							dataType: 'json',
 							
 							success: function(data) {
