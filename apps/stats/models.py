@@ -8,6 +8,8 @@ class PerformanceRecord(models.Model):
     VO2 = models.IntegerField(null=True, blank=True)
     athlete = models.ForeignKey(Athlete, null=True)
     coach = models.ForeignKey(Coach, null=True)
+    date = models.DateTimeField(null=True)
+    event_name = models.CharField(max_length=100)
 
     def __unicode__(self):
         if self.athlete:

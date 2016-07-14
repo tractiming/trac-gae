@@ -17,6 +17,14 @@ def obtain_html(url):
 	table = all_tables.find('table', attrs={'id' : 'results_data'})
 	#t_body = table.find('tbody')
 	rows = table.find_all('tr')
+	result = []
+	for row in rows:
+		cols = row.find_all('td')
+		cols = [ele.text.strip() for ele in cols]
+		result.append(cols)
+	
+	return result
+	"""
 	with open("output.csv", "wb") as f:
 		writer = csv.writer(f)
 		for row in rows:
@@ -24,6 +32,7 @@ def obtain_html(url):
 			cols = [ele.text.strip() for ele in cols]
 			print cols
 			writer.writerow(cols)
+	"""
 
 
 
@@ -98,11 +107,7 @@ def obtain_id (name, team, meet):
 			url = url + val
 		url = url + ".html"
 		url_list.append(url)
-
-	obtain_html(url_list[0])
-
-
-def main():
-	obtain_id("Jamison Dale", 0, 0)
-
-main()
+	if url_list:
+		return url_list
+	else:
+		return "DNE"

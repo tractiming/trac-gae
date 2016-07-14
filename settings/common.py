@@ -77,6 +77,7 @@ THIRD_PARTY_APPS = (
 )
 
 LOCAL_APPS = (
+    'scraper',
     'accounts',
     'trac',
     'website',
@@ -95,7 +96,7 @@ if not APP_ENGINE:
 
     NOSE_ARGS = [
         '--with-coverage', '--cover-inclusive', '--cover-erase',
-        '--cover-package=trac,website,stats,accounts,notifications,scrapers'
+        '--cover-package=trac,website,stats,accounts,notifications,scraper'
     ]
 
 if SHIPPABLE:
@@ -147,7 +148,7 @@ REST_FRAMEWORK = {
         'splits': '100/minute'
     },
     'DATE_INPUT_FORMATS': [
-        'iso-8601', '%m/%d/%Y', '%m-%d-%Y', '%m/%d/%y', '%m-%d-%y'
+        'iso-8601', '%m/%d/%Y', '%m-%d-%Y', '%m/%d/%y', '%m-%d-%y', '%m-%d', '%m/%d'
     ]
 }
 OAUTH2_PROVIDER = {
@@ -384,7 +385,7 @@ SWAGGER_SETTINGS = {
     'is_authenticated': False,
     'is_superuser': False,
     'token_type': 'Bearer',
-    'exclude_namespaces': ['accounts', 'stats', 'internal', 'payments'],
+    'exclude_namespaces': ['accounts', 'stats', 'internal', 'payments', 'scraper'],
     'info': {
         'contact': 'info@trac-us.com',
         'title': 'TRAC API',
