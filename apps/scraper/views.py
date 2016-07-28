@@ -11,6 +11,9 @@ import po10 as po10_scraper
 
 import datetime
 import time
+import requests
+from bs4 import BeautifulSoup
+import urllib2
 
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))
@@ -23,6 +26,91 @@ def TFFRS_query(request):
 
 	return Response(search_results)
 
+@api_view(['POST'])
+@permission_classes((permissions.AllowAny,))
+def TFFRS_team_query(request):
+	Team = request.POST.get('team')
+	search_results = tffrs_scraper.obtain_id("0 0", Team, 0)
+
+	return Response(search_results)
+
+@api_view(['POST'])
+@permission_classes((permissions.AllowAny,))
+def TFFRS_scrape_team(request):
+	url = request.POST.get('url')
+	request = urllib2.Request(url, headers={'User-Agent' : "PC"})
+	site_open = urllib2.urlopen(request)	
+	html = site_open.read()
+	soup = BeautifulSoup(html, 'html.parser')
+	all_tables = soup.find('div', attrs={'class' : 'roster' })
+	table = all_tables.find_all('table')[1]
+	#print table
+	rows = table.find_all('tr')
+	for row in rows:
+		#print row
+		cols = row.find_all('td', attrs={'class' : 'name'})
+		for ele in cols:
+			name = ele.text.strip()
+			if name == "Name":
+				continue
+			else:
+				print name
+				Last_Name = name.split(' ')[0][:-1]
+				First_Name = name.split(' ')[1]
+				for a in ele.find_all('a', href=True):
+					link = a['href']
+					link = link.replace("	","")
+					link = 'http:' + link
+					print link
+				result = tffrs_scraper.obtain_html(link)
+
+				for row in result:
+					date = row[0]
+
+					edited_date = date[0:5]
+					edited_date_2 = date[-2:]
+					edited_date = edited_date.replace("/", "-")
+					edited_date_2 = "20" + edited_date_2
+					perf_date = edited_date_2 + "-" + edited_date
+	
+					meet = row[1]
+					if row[3] == "Mile":
+						distance = 1609
+					else:	
+						try:
+							distance = int(row[3].replace(",",""))
+						except:
+							if row[3][-1] == "K":
+								distance = int(float(row[3][:-1]) * 1000)
+								
+							else:		
+								continue
+					print "Distance is: %d" % distance
+					time = row[5]
+					time_2 = time.split(':')
+					try:
+						minutes = float(time_2[0])
+						try:
+							seconds = float(time_2[1])
+						except:
+							seconds = minutes
+							minutes = 0
+					except:
+						continue	
+					
+					perf_time = (60.0 * minutes) + seconds
+					#print "Checkpoint D"
+					#print First_Name
+					#print Last_Name
+					try:
+						usr = User.objects.get(first_name= First_Name, last_name= Last_Name)
+						#print "Checkpoint E"
+						atl = Athlete.objects.get(user = usr)
+						PerformanceRecord.objects.get_or_create(date= perf_date, event_name= meet, distance= distance, time= perf_time, athlete=atl)
+					except:
+						pass
+	return Response("Success")
+	
 @api_view(['POST'])
 @permission_classes((permissions.AllowAny,))
 def TFFRS_fetch(request):
@@ -45,15 +133,38 @@ def TFFRS_fetch(request):
 		if row[3] == "Mile":
 			distance = 1609
 		else:	
-			distance = int(row[3].replace(",",""))
+			try:
+				distance = int(row[3].replace(",",""))
+			except:
+				if row[3][-1] == "K":
+					distance = int(float(row[3][:-1]) * 1000)
+				
+				else:		
+					continue
+		print "Distance is: %d" % distance
 		time = row[5]
 		time_2 = time.split(':')
-		minutes = float(time_2[0])
-		seconds = float(time_2[1])
+		try:
+			minutes = float(time_2[0])
+			try:
+				seconds = float(time_2[1])
+			except:
+				seconds = minutes
+				minutes = 0
+		except:
+			continue	
+	
 		perf_time = (60.0 * minutes) + seconds
-		usr = User.objects.get(first_name= First_Name, last_name= Last_Name)
-		atl = Athlete.objects.get(user = usr)
-		PerformanceRecord.objects.get_or_create(date= perf_date, event_name= meet, distance= distance, time= perf_time, athlete=atl)
+		#print "Checkpoint D"
+		#print First_Name
+		#print Last_Name
+		try:
+			usr = User.objects.get(first_name= First_Name, last_name= Last_Name)
+			#print "Checkpoint E"
+			atl = Athlete.objects.get(user = usr)
+			PerformanceRecord.objects.get_or_create(date= perf_date, event_name= meet, distance= distance, time= perf_time, athlete=atl)
+		except:
+			pass
 
 	return Response(result)
 

@@ -40,7 +40,7 @@ def obtain_id (name, team, meet):
 	"""
 	THIS SECTION OBTAINS THE USER_ID FOR THE ATHLETE WE WANT IN THE TFFRS SYSTEM. 
 	"""
-	if name != 0:
+	if name != "0 0":
 		athlete_name = name
 	else:
 		athlete_name = "ATHLETE NAME"
@@ -60,54 +60,33 @@ def obtain_id (name, team, meet):
 	site_open = urllib2.urlopen(request)
 	html = site_open.read()
 
-	#print html
-
 	"""
 	THIS SECTION PARSES OUR HTML TO OBTAIN THE ID NUMBER.
 	"""
-	flag = 0
-	id_list = []
-	current_id = []
-	for letter in html:
-		if flag == 0:	
-			if letter == "<":
-				#print "a"
-				flag = 1
-				index = 0
-		elif flag == 1:
-			string = 'A HREF="//www.tfrrs.org/athletes/'
-			string2 = 'a href="//www.tfrrs.org/athletes/'
-			if letter == string[index] and index == len(string)-1:
-				flag = 2
-			elif letter == string2[index] and index == len(string)-1:
-				flag = 2
-			elif letter == string[index] or letter == string2[index]:
-				flag = 1
-				index += 1
-				#print index
-			else:
-				flag = 0
-		elif flag == 2:
-			if letter != '.':
-				current_id.append(letter)
-			else:
-				id_list.append(current_id)
-				current_id = []
-				flag = 0
+	soup = BeautifulSoup(html, 'html.parser')
+	all_tables = soup.find('div', attrs={'class' : 'data'})
+	#print all_tables
+	table = all_tables.find('table')
+	rows = table.find_all('tr')
+	result = []
+	#print athlete_name
+	for row in rows:
+		if athlete_name != "ATHLETE NAME":
+			cols = row.find_all('td', attrs={'class': 'date'})
 		else:
-			flag = 0
-
-	"""
-	THIS SECTION WILL PARSE URL TO PASS INTO PARSER
-	"""
-	url_list = []
-	for id_val in id_list:
-		url = "https://www.tfrrs.org/athletes/"
-		for val in id_val:
-			url = url + val
-		url = url + ".html"
-		url_list.append(url)
-	if url_list:
-		return url_list
+			cols = row.find_all('td', attrs={'class': 'date_submitted'})
+		#print cols
+		for ele in cols:
+			#print ele
+			ref = ele.text.strip()
+			for a in ele.find_all('a', href=True):
+				link = a['href']
+			#print link
+			if link:
+				tmp = {'name': ref, 'link' : link}
+				result.append(tmp)
+	
+	if result:
+		return result
 	else:
 		return "DNE"
