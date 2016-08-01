@@ -400,6 +400,58 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
         return Response(results)
 
+    @detail_route(methods=['post'])
+    def team_csv_results(self, request, pk=None):
+        session = self.get_object()
+        file_format = request.data.get('file_format', 'csv')
+
+        if file_format not in ('csv'):
+            return Response('Invalid file format',
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        results_type = request.data.get('results_type', 'teams')
+        if results_type not in ('teams'):
+            return Response('Invalid results type',
+                            status=status.HTTP_400_BAD_REQUEST)     
+
+        if file_format == 'csv':
+            modifier = '-teams2' if results_type == 'teams' else ''
+            extension = 'csv'
+
+        storage_path = '/'.join((settings.GCS_RESULTS_DIR,
+                                 str(session.pk),
+                                 'individual{modifier}.{extension}'.format(
+                                     extension=extension,
+                                     modifier=modifier)))
+
+        raw_results = session.team_results()
+
+        results = []
+
+        with gcs_writer(settings.GCS_RESULTS_BUCKET, storage_path, make_public=True) as _results:
+            if file_format in ('csv'):
+                writer = csv.writer(_results)
+                writer.writerow(['name', 'score', 'place'])
+            for place, result in enumerate(raw_results):
+                team_result = result
+                team_result['place'] = place+1
+                print team_result
+                results.append(team_result)
+                if file_format in ('csv'):
+                    writer = csv.writer(_results)
+                    writer.writerow([team_result['name'], team_result['score'], team_result['place']])
+                    writer. writerow([''])
+                    writer.writerow(['', 'Athlete Name', 'Athlete Time', 'Athlete Place'])
+
+                    for atl in team_result['athletes']:
+                        writer.writerow([' ', atl['name'], atl['total'], atl['place']])
+                    writer.writerow([''])
+        log.debug('Saved results to %s', storage_path)
+
+        return Response({'uri': get_public_link(settings.GCS_RESULTS_BUCKET,
+                                                storage_path)})
+
+        return Response("team CSV")
     @detail_route(methods=['get'])
     def team_results(self, request, pk=None):
         """Calculate team-level results.
@@ -637,6 +689,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                     (('Total', format_total_seconds(result.total)),)))
                 ) for result in results)
 
+        #print results_to_write
         with gcs_writer(settings.GCS_RESULTS_BUCKET, storage_path,
                         make_public=True) as _results:
             if file_format in ('csv', 'tfrrs'):
