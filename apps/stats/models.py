@@ -5,7 +5,7 @@ class PerformanceRecord(models.Model):
     distance = models.IntegerField()
     time = models.FloatField()
     interval = models.CharField(max_length=1)
-    VO2 = models.IntegerField(null=True, blank=True)
+    VO2 = models.FloatField(null=True, blank=True)
     athlete = models.ForeignKey(Athlete, null=True)
     coach = models.ForeignKey(Coach, null=True)
     date = models.DateTimeField(null=True)

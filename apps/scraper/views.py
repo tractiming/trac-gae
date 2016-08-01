@@ -3,6 +3,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
 from stats.models import PerformanceRecord
+from stats.vo2 import *
 from trac.models import *
 
 import tffrs_scraper as tffrs_scraper
@@ -44,24 +45,20 @@ def TFFRS_scrape_team(request):
 	soup = BeautifulSoup(html, 'html.parser')
 	all_tables = soup.find('div', attrs={'class' : 'roster' })
 	table = all_tables.find_all('table')[1]
-	#print table
 	rows = table.find_all('tr')
 	for row in rows:
-		#print row
 		cols = row.find_all('td', attrs={'class' : 'name'})
 		for ele in cols:
 			name = ele.text.strip()
 			if name == "Name":
 				continue
 			else:
-				print name
 				Last_Name = name.split(' ')[0][:-1]
 				First_Name = name.split(' ')[1]
 				for a in ele.find_all('a', href=True):
 					link = a['href']
 					link = link.replace("	","")
 					link = 'http:' + link
-					print link
 				result = tffrs_scraper.obtain_html(link)
 
 				for row in result:
@@ -72,8 +69,9 @@ def TFFRS_scrape_team(request):
 					edited_date = edited_date.replace("/", "-")
 					edited_date_2 = "20" + edited_date_2
 					perf_date = edited_date_2 + "-" + edited_date
-	
+
 					meet = row[1]
+
 					if row[3] == "Mile":
 						distance = 1609
 					else:	
@@ -85,7 +83,6 @@ def TFFRS_scrape_team(request):
 								
 							else:		
 								continue
-					print "Distance is: %d" % distance
 					time = row[5]
 					time_2 = time.split(':')
 					try:
@@ -99,16 +96,13 @@ def TFFRS_scrape_team(request):
 						continue	
 					
 					perf_time = (60.0 * minutes) + seconds
-					#print "Checkpoint D"
-					#print First_Name
-					#print Last_Name
 					try:
 						usr = User.objects.get(first_name= First_Name, last_name= Last_Name)
-						#print "Checkpoint E"
 						atl = Athlete.objects.get(user = usr)
-						PerformanceRecord.objects.get_or_create(date= perf_date, event_name= meet, distance= distance, time= perf_time, athlete=atl)
+						vo2 = stats.vo2.calc_vo2(float(distance), perf_time)
+						PerformanceRecord.objects.get_or_create(date= perf_date, event_name= meet, distance= distance, time= perf_time, athlete=atl, VO2 = vo2)
 					except:
-						pass
+						print "failed to write in DB"
 	return Response("Success")
 	
 @api_view(['POST'])
@@ -141,7 +135,7 @@ def TFFRS_fetch(request):
 				
 				else:		
 					continue
-		print "Distance is: %d" % distance
+		#print "Distance is: %d" % distance
 		time = row[5]
 		time_2 = time.split(':')
 		try:
@@ -155,16 +149,13 @@ def TFFRS_fetch(request):
 			continue	
 	
 		perf_time = (60.0 * minutes) + seconds
-		#print "Checkpoint D"
-		#print First_Name
-		#print Last_Name
 		try:
 			usr = User.objects.get(first_name= First_Name, last_name= Last_Name)
-			#print "Checkpoint E"
 			atl = Athlete.objects.get(user = usr)
-			PerformanceRecord.objects.get_or_create(date= perf_date, event_name= meet, distance= distance, time= perf_time, athlete=atl)
+			vo2 = calc_vo2(float(distance), perf_time)
+			PerformanceRecord.objects.get_or_create(date= perf_date, event_name= meet, distance= distance, time= perf_time, athlete=atl, VO2 =vo2)
 		except:
-			pass
+			print "failed to write in DB"
 
 	return Response(result)
 

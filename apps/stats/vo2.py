@@ -20,6 +20,7 @@ def calc_vo2(distance, time):
     vo2_max : float
         Estimated VO2 max.
     """
+
     minutes = time/60.0
     velocity = distance/minutes
     percent_max = (0.8 + 0.1894393*math.exp(-0.012778*minutes) +
