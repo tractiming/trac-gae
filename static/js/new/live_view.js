@@ -507,50 +507,96 @@ google.setOnLoadCallback(function(){
 			    spinner.spin(document.getElementById('spinner-download-results'));
 
                 downloadFormat = $('input[name="download-format"]:checked').val();
+                //console.log(downloadFormat);
                 if (downloadFormat.match('-splits'+'$') == '-splits') {
                     resultsType = 'splits';
                     downloadFormat = downloadFormat.slice(0, -7);
-                } else {
+                } 
+                else if (downloadFormat == 'teams'){
+                	resultsType = 'teams';
+                	downloadFormat = 'csv';
+                }
+                else {
                     resultsType = 'final';
                 }
+                if (downloadFormat == 'csv' && resultsType == 'teams'){
+                	 $.ajax({
+	                    method: 'POST',
+	                    url: '/api/sessions/' + currentID + '/team_csv_results/',
+	                    headers: {
+	                        Authorization: 'Bearer ' + localStorage.access_token
+	                    },
+	                    data: JSON.stringify({
+	                        'file_format': downloadFormat,
+	                        'results_type': resultsType
+	                    }),
+	                    contentType: 'application/json',
+	                    dataType: 'text',
+	                    success: function(data) {
+	                        var uri = $.parseJSON(data).uri;
+	                        var link = document.createElement('a');
+	                        link.href = uri;
+	                        link.style = 'visibility:hidden';
 
-                $.ajax({
-                    method: 'POST',
-                    url: '/api/sessions/' + currentID + '/export_results/',
-                    headers: {
-                        Authorization: 'Bearer ' + localStorage.access_token
-                    },
-                    data: JSON.stringify({
-                        'file_format': downloadFormat,
-                        'results_type': resultsType
-                    }),
-                    contentType: 'application/json',
-                    dataType: 'text',
-                    success: function(data) {
-                        var uri = $.parseJSON(data).uri;
-                        var link = document.createElement('a');
-                        link.href = uri;
-                        link.style = 'visibility:hidden';
+	                        spinner.stop();
+							$('#spinner-download-results').css('height', '');
+					        $('#download-results-modal').modal('hide');
 
-                        spinner.stop();
-						$('#spinner-download-results').css('height', '');
-				        $('#download-results-modal').modal('hide');
+	                        document.body.appendChild(link);
+	                        link.click();
+	                        document.body.removeChild(link);
 
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
+	                    },
+	                    error: function(jqXHR, exception) {
+	                    	spinner.stop();
+	                    	$('#spinner-download-results').css('height', '');
+					        $('#download-results-modal').modal('hide');
 
-                    },
-                    error: function(jqXHR, exception) {
-                    	spinner.stop();
-                    	$('#spinner-download-results').css('height', '');
-				        $('#download-results-modal').modal('hide');
+	                        $('#email-success').modal('show');
+	                    	$('#email-success-message').hide();
+	                        $('#email-failure-message').show();
+	                    }
+	                });
+                }
+                else {
+	                $.ajax({
+	                    method: 'POST',
+	                    url: '/api/sessions/' + currentID + '/export_results/',
+	                    headers: {
+	                        Authorization: 'Bearer ' + localStorage.access_token
+	                    },
+	                    data: JSON.stringify({
+	                        'file_format': downloadFormat,
+	                        'results_type': resultsType
+	                    }),
+	                    contentType: 'application/json',
+	                    dataType: 'text',
+	                    success: function(data) {
+	                        var uri = $.parseJSON(data).uri;
+	                        var link = document.createElement('a');
+	                        link.href = uri;
+	                        link.style = 'visibility:hidden';
 
-                        $('#email-success').modal('show');
-                    	$('#email-success-message').hide();
-                        $('#email-failure-message').show();
-                    }
-                });
+	                        spinner.stop();
+							$('#spinner-download-results').css('height', '');
+					        $('#download-results-modal').modal('hide');
+
+	                        document.body.appendChild(link);
+	                        link.click();
+	                        document.body.removeChild(link);
+
+	                    },
+	                    error: function(jqXHR, exception) {
+	                    	spinner.stop();
+	                    	$('#spinner-download-results').css('height', '');
+					        $('#download-results-modal').modal('hide');
+
+	                        $('#email-success').modal('show');
+	                    	$('#email-success-message').hide();
+	                        $('#email-failure-message').show();
+	                    }
+	                });
+	            }
             });
             $('body').off('click', '#download-results-cancel');
             $('body').on('click', '#download-results-cancel', function(e) {

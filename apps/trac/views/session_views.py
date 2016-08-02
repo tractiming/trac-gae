@@ -431,7 +431,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         with gcs_writer(settings.GCS_RESULTS_BUCKET, storage_path, make_public=True) as _results:
             if file_format in ('csv'):
                 writer = csv.writer(_results)
-                writer.writerow(['name', 'score', 'place'])
+                writer.writerow(['Team Name', 'Team Score', 'Team Place'])
             for place, result in enumerate(raw_results):
                 team_result = result
                 team_result['place'] = place+1
