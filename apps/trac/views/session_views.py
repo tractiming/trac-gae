@@ -397,7 +397,6 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                     }
                 })
             results['results'].append(individual_result)
-
         return Response(results)
 
     @detail_route(methods=['post'])
@@ -415,7 +414,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_400_BAD_REQUEST)     
 
         if file_format == 'csv':
-            modifier = '-teams2' if results_type == 'teams' else ''
+            modifier = '-teams5' if results_type == 'teams' else ''
             extension = 'csv'
 
         storage_path = '/'.join((settings.GCS_RESULTS_DIR,
@@ -425,16 +424,20 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                                      modifier=modifier)))
 
         raw_results = session.team_results()
-
         results = []
 
         with gcs_writer(settings.GCS_RESULTS_BUCKET, storage_path, make_public=True) as _results:
             if file_format in ('csv'):
                 writer = csv.writer(_results)
                 writer.writerow(['Team Name', 'Team Score', 'Team Place'])
+            counter = 1
             for place, result in enumerate(raw_results):
                 team_result = result
-                team_result['place'] = place+1
+                if team_result['score'] != 0:
+                    team_result['place'] = place + counter
+                else:
+                    team_result['place'] = 0
+                    counter -= 1
                 print team_result
                 results.append(team_result)
                 if file_format in ('csv'):
@@ -442,9 +445,14 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                     writer.writerow([team_result['name'], team_result['score'], team_result['place']])
                     writer. writerow([''])
                     writer.writerow(['', 'Athlete Name', 'Athlete Time', 'Athlete Place'])
-
+                    tmp = 0
                     for atl in team_result['athletes']:
-                        writer.writerow([' ', atl['name'], atl['total'], atl['place']])
+                        tmp += 1
+                        time = format_total_seconds(atl['total'])
+                        if tmp > 5:
+                            writer.writerow(['', atl['name'], time, '(' + str(atl['place']) + ')'])
+                        else:
+                            writer.writerow([' ', atl['name'], time, atl['place']])
                     writer.writerow([''])
         log.debug('Saved results to %s', storage_path)
 
@@ -487,9 +495,14 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         raw_results = session.team_results()
 
         results = []
+        counter = 1
         for place, result in enumerate(raw_results):
             team_result = result
-            team_result['place'] = place+1
+            if team_result['score'] != 0:
+                team_result['place'] = place + counter
+            else:
+                team_result['place'] = 0
+                counter -= 1
             results.append(team_result)
 
         return Response(results)

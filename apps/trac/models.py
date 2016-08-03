@@ -1,5 +1,6 @@
 import datetime
 from collections import namedtuple
+from collections import Counter
 
 from django.contrib.auth.models import User
 from django.core.cache import cache
@@ -430,34 +431,60 @@ class TimingSession(models.Model):
         Iterate through the runners and add their place to each team's score.
         """
         individual_results = self.individual_results()
-        team_names = set([runner.team for runner in individual_results
+        #team_names = set([runner.team for runner in individual_results
+        #                   if runner.team is not None])
+
+        team_names = Counter([runner.team for runner in individual_results
                             if runner.team is not None])
+        print team_names
 
         scores = {}
         for team in team_names:
+            print team_names[team]
             scores[team] = {
                 'athletes': [],
                 'score': 0,
                 'id': team.id,
-                'name': team.name
+                'name': team.name,
+                'num_athletes' : team_names[team]
             }
 
         place = 1
+        team_place = 1
         for athlete in individual_results:
             # Runners not on a team do not score or affect other scores.
-            if athlete.team in scores:
-                if len(scores[athlete.team]['athletes']) < num_scorers:
+            if athlete.team in scores and scores[athlete.team]['num_athletes'] > 3:
+                if len(scores[athlete.team]['athletes']) < 5:
                     scores[athlete.team]['athletes'].append({
                         'name': athlete.name,
-                        'place': place,
+                        'ind_place': place,
+                        'place' : team_place, #This is the team scored place.
                         'total': athlete.total
                     })
-                    scores[athlete.team]['score'] += place
+                    scores[athlete.team]['score'] += team_place
+                elif len(scores[athlete.team]['athletes']) < 7:
+                    scores[athlete.team]['athletes'].append({
+                        'name' : athlete.name,
+                        'ind_place' : place,
+                        'place' : team_place,
+                        'total' : athlete.total
+                    })
+                else:
+                    continue
+                team_place += 1
+                place += 1
+            elif athlete.team in scores:
+                scores[athlete.team]['athletes'].append({
+                    'name' : athlete.name,
+                    'ind_place' : place,
+                    'place' : 0,
+                    'total' : athlete.total
+                })
                 place += 1
 
         teams_with_enough_runners = (
                 [scores[team] for team in scores if
-                 len(scores[team]['athletes']) == num_scorers])
+                 len(scores[team]['athletes']) > 0])
 
         return sorted(teams_with_enough_runners, key=lambda x: x['score'])
 
