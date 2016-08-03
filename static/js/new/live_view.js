@@ -1655,7 +1655,7 @@ google.setOnLoadCallback(function(){
 						for (var j=0; j<team.athletes.length; j++) {
 							count = count + 1;
 							var athlete = team.athletes[j];
-							if (count > 5){
+							if (count > team.num_scorers){
 								var ed_place = '(' + athlete.place.toString() + ')';
 							}
 							else if (athlete.place == 0){ var ed_place = 'NP'; }

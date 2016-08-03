@@ -446,15 +446,16 @@ class TimingSession(models.Model):
                 'score': 0,
                 'id': team.id,
                 'name': team.name,
-                'num_athletes' : team_names[team]
+                'num_athletes' : team_names[team],
+                'num_scorers' : num_scorers
             }
 
         place = 1
         team_place = 1
         for athlete in individual_results:
             # Runners not on a team do not score or affect other scores.
-            if athlete.team in scores and scores[athlete.team]['num_athletes'] > 3:
-                if len(scores[athlete.team]['athletes']) < 5:
+            if athlete.team in scores and scores[athlete.team]['num_athletes'] >= num_scorers:
+                if len(scores[athlete.team]['athletes']) < num_scorers:
                     scores[athlete.team]['athletes'].append({
                         'name': athlete.name,
                         'ind_place': place,
@@ -462,7 +463,7 @@ class TimingSession(models.Model):
                         'total': athlete.total
                     })
                     scores[athlete.team]['score'] += team_place
-                elif len(scores[athlete.team]['athletes']) < 7:
+                elif len(scores[athlete.team]['athletes']) < num_scorers+2:
                     scores[athlete.team]['athletes'].append({
                         'name' : athlete.name,
                         'ind_place' : place,

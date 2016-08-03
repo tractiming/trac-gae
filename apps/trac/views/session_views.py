@@ -414,7 +414,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_400_BAD_REQUEST)     
 
         if file_format == 'csv':
-            modifier = '-teams5' if results_type == 'teams' else ''
+            modifier = '-teams7' if results_type == 'teams' else ''
             extension = 'csv'
 
         storage_path = '/'.join((settings.GCS_RESULTS_DIR,
@@ -449,7 +449,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                     for atl in team_result['athletes']:
                         tmp += 1
                         time = format_total_seconds(atl['total'])
-                        if tmp > 5:
+                        if tmp > team_result['num_scorers']:
                             writer.writerow(['', atl['name'], time, '(' + str(atl['place']) + ')'])
                         else:
                             writer.writerow([' ', atl['name'], time, atl['place']])
