@@ -3,7 +3,8 @@ google.setOnLoadCallback(function(){
 	$(function(){
 		//===================================== CONSTANTS & variables =====================================
 		var TABLE_VIEW = 0,
-				GRAPH_VIEW = 1;
+				GRAPH_VIEW = 1,
+					VO2_VIEW =2;
 
 		var baseData, compareData,
 				currentView = TABLE_VIEW;
@@ -153,12 +154,27 @@ google.setOnLoadCallback(function(){
 					target.prop('disabled', false);
 				}
 			});
+			update();
 		}
 
 		function update() {
-			// don't do anything if user hasn't select workouts to compare
-			if (!$('#base-workout-select').val() || !$('#compare-workout-select').val())
+			if (!$('#base-athlete-select').val() || !$('#compare-athlete-select').val()){
 				return;
+			}
+			// don't do anything if user hasn't select workouts to compare
+			if (!$('#base-workout-select').val() || !$('#compare-workout-select').val()){
+				if ($('#VO2').hasClass('active')){
+					if (currentView === VO2_VIEW){
+						console.log("VO2_VIEW");
+						drawVO2($('#base-athlete-select').val(), $('#compare-athlete-select').val());
+						return;
+					}
+				}
+				else {
+					$('.notification').show();
+					return;
+				}
+			}
 
 			// hide notifications
 			$('.notification').hide();
@@ -222,7 +238,18 @@ google.setOnLoadCallback(function(){
 			// show results
 			$('#results-table').show();
 		}
+		function drawVO2(base, compare){
+			//reset content
+			$('.results-tab-content').hide();
+			$('#graph-VO2').empty();
 
+			// show spinner
+			$('#spinner').css('height', 150);
+			spinner.spin(target);
+
+			//get PerformanceRecord Data
+			
+		}
 		function drawGraph(baseSession, compareSession) {
 			// reset content
 			$('.results-tab-content').hide();
