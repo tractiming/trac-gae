@@ -47,7 +47,7 @@ else{
 
        $.ajax({
           url: "api/users/me/tutorial_limiter/",
-          headers: {Authorization: "Bearer " + sessionStorage.access_token},
+          headers: {Authorization: "Bearer " + localStorage.access_token},
           dataType: 'text',
           success: function(data){
             var resp = $.parseJSON(data);
@@ -75,7 +75,7 @@ else{
 <script>
 
   $(document).ready(function(){
-    if (sessionStorage.usertype == 'athlete'){
+    if (localStorage.usertype == 'athlete'){
           $("div.right").hide();
           $('div.pictures').css('padding-left','200px');
           $('div.text').css('padding-left','200px');
@@ -112,7 +112,7 @@ else{
     data = {'limit': RESULTS_PER_PAGE, 'offset': resultOffset};
         $.ajax({
                     url: "api/athletes/",
-                    headers: {Authorization: "Bearer " + sessionStorage.access_token},
+                    headers: {Authorization: "Bearer " + localStorage.access_token},
                     data: data,
                     dataType: 'text',
                     success: function(data){
@@ -179,7 +179,7 @@ function loadworkouts(){
        $('#workouts').empty();
        $.ajax({
              url: "/api/sessions/",
-         headers: {Authorization: "Bearer " + sessionStorage.access_token},
+         headers: {Authorization: "Bearer " + localStorage.access_token},
                     //force to handle it as text
                     data: {
                       limit: instanceLast,
@@ -268,7 +268,7 @@ function loadworkouts(){
     function getLogo(){
       var url = "/api/teams/?primary_team=True";
       $.ajax({
-       headers: {Authorization: "Bearer " + sessionStorage.access_token},
+       headers: {Authorization: "Bearer " + localStorage.access_token},
        url : url,
        type : 'GET',
        success : function(data) {
@@ -290,7 +290,7 @@ function loadworkouts(){
       var fd = new FormData($('#imageForm')[0]);
       var url = "/api/teams/" + teamID +"/";
       $.ajax({
-       headers: {Authorization: "Bearer " + sessionStorage.access_token},
+       headers: {Authorization: "Bearer " + localStorage.access_token},
        url : url,
        type : 'PATCH',
        data : fd,

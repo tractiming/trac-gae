@@ -1615,14 +1615,20 @@ google.setOnLoadCallback(function(){
 						'<tbody>' +
 						'</tbody>'
 					);
-
 					// create table rows
 					for (var i=0; i<results.length; i++) {
 						var team = results[i];
+						var place = team.place;
+						if(place == 0){
+							var ed_place = "NP";
+						}
+						else{
+							var ed_place = place;
+						}
 						var id = team.id;
 						$('#team-table-canvas>tbody').append(
 							'<tr id="team-'+id+'" class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#team-table-canvas" data-target="#collapse-team-'+id+'" aria-expanded="false" aria-controls="collapse-team-'+id+'">' +
-								'<td>' + team.place + '</td>' +
+								'<td>' + ed_place + '</td>' +
 								'<td>' + team.name + '</td>' +
 								'<td>' + team.score + '</td>' +
 							'</tr>' +
@@ -1645,12 +1651,18 @@ google.setOnLoadCallback(function(){
 								'</td>' +
 							'</tr>'
 						);
-						
+						var count = 0;
 						for (var j=0; j<team.athletes.length; j++) {
+							count = count + 1;
 							var athlete = team.athletes[j];
+							if (count > team.num_scorers){
+								var ed_place = '(' + athlete.place.toString() + ')';
+							}
+							else if (athlete.place == 0){ var ed_place = 'NP'; }
+							else{ var ed_place = athlete.place; }
 							$('table#runners-team-'+id+' tbody').append(
 								'<tr>' +
-									'<td>' + athlete.place + '</td>' +
+									'<td>' + ed_place + '</td>' +
 									'<td>' + athlete.name + '</td>' +
 									'<td>' + formatTime(Number(athlete.total)) + '</td>' +
 								'</tr>'
