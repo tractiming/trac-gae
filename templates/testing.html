@@ -12,17 +12,37 @@
 <script type="text/javascript" src="{% static "js/timeConversion.js" %}" />
 <script type="text/javascript" src="{% static "js/access_token.js" %}"></script>
 <script>
-if (sessionStorage.access_token == null) {
+if (localStorage.access_token == null) {
     //link to login page
     location.href="/login";
 }
 else{
-    
-}
+    console.log('hit else');
+    $.ajax({
+      type: 'GET',
+      url: '/api/verifyLogin/',
+      data: {
+        token: localStorage.access_token
+      },
+      dataType:'json',
+
+      // Registration was successful.
+      success: function(data) {
+        location.href="/home";
+      },
+      // Registration failed.
+      error: function(xhr, errmsg, err) {
+        sessionStorage.clear();
+        localStorage.clear();
+        location.href='/login';
+      },
+});
+  }
 
     $(document).ready(function() {
 $("li a.logout").click(function(){
     sessionStorage.clear();
+    localStorage.clear();
     location.href="/login";
 });
     });

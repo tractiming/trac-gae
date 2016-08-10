@@ -16,6 +16,8 @@ urlpatterns = patterns('',
         name='index'),
     url(r'^product', TemplateView.as_view(template_name='product.html'),
         name='product'),
+        url(r'^pricing', TemplateView.as_view(template_name='pricing.html'),
+        name='pricing'),
     url(r'^quote', TemplateView.as_view(template_name='quote.html'),
         name='quote'),
 

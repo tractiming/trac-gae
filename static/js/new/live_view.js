@@ -133,7 +133,7 @@ google.setOnLoadCallback(function(){
 				return;
 			ajaxRequest = $.ajax({
 				url: '/api/sessions/'+ idjson + '/individual_results',
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
 				data: data,
 				dataType: 'text',
 				success: function(data) {
@@ -406,7 +406,7 @@ google.setOnLoadCallback(function(){
 				method: 'GET',
 				url: 'api/athletes?registered_to_session=' + currentID +
                      '&session!=' + currentID,
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
 				data: {id: currentID, missed: true },
 				dataType: 'text',
 				success: function(data) {
@@ -465,7 +465,7 @@ google.setOnLoadCallback(function(){
 								method: 'POST',
 								url: 'api/sessions/'+currentID+'/upload_results/',
 								headers: {Authorization: 'Bearer ' +
-                                          sessionStorage.access_token},
+                                          localStorage.access_token},
 
 								data: JSON.stringify(data),
 								contentType: 'application/json',
@@ -507,50 +507,96 @@ google.setOnLoadCallback(function(){
 			    spinner.spin(document.getElementById('spinner-download-results'));
 
                 downloadFormat = $('input[name="download-format"]:checked').val();
+                //console.log(downloadFormat);
                 if (downloadFormat.match('-splits'+'$') == '-splits') {
                     resultsType = 'splits';
                     downloadFormat = downloadFormat.slice(0, -7);
-                } else {
+                } 
+                else if (downloadFormat == 'teams'){
+                	resultsType = 'teams';
+                	downloadFormat = 'csv';
+                }
+                else {
                     resultsType = 'final';
                 }
+                if (downloadFormat == 'csv' && resultsType == 'teams'){
+                	 $.ajax({
+	                    method: 'POST',
+	                    url: '/api/sessions/' + currentID + '/team_csv_results/',
+	                    headers: {
+	                        Authorization: 'Bearer ' + localStorage.access_token
+	                    },
+	                    data: JSON.stringify({
+	                        'file_format': downloadFormat,
+	                        'results_type': resultsType
+	                    }),
+	                    contentType: 'application/json',
+	                    dataType: 'text',
+	                    success: function(data) {
+	                        var uri = $.parseJSON(data).uri;
+	                        var link = document.createElement('a');
+	                        link.href = uri;
+	                        link.style = 'visibility:hidden';
 
-                $.ajax({
-                    method: 'POST',
-                    url: '/api/sessions/' + currentID + '/export_results/',
-                    headers: {
-                        Authorization: 'Bearer ' + sessionStorage.access_token
-                    },
-                    data: JSON.stringify({
-                        'file_format': downloadFormat,
-                        'results_type': resultsType
-                    }),
-                    contentType: 'application/json',
-                    dataType: 'text',
-                    success: function(data) {
-                        var uri = $.parseJSON(data).uri;
-                        var link = document.createElement('a');
-                        link.href = uri;
-                        link.style = 'visibility:hidden';
+	                        spinner.stop();
+							$('#spinner-download-results').css('height', '');
+					        $('#download-results-modal').modal('hide');
 
-                        spinner.stop();
-						$('#spinner-download-results').css('height', '');
-				        $('#download-results-modal').modal('hide');
+	                        document.body.appendChild(link);
+	                        link.click();
+	                        document.body.removeChild(link);
 
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
+	                    },
+	                    error: function(jqXHR, exception) {
+	                    	spinner.stop();
+	                    	$('#spinner-download-results').css('height', '');
+					        $('#download-results-modal').modal('hide');
 
-                    },
-                    error: function(jqXHR, exception) {
-                    	spinner.stop();
-                    	$('#spinner-download-results').css('height', '');
-				        $('#download-results-modal').modal('hide');
+	                        $('#email-success').modal('show');
+	                    	$('#email-success-message').hide();
+	                        $('#email-failure-message').show();
+	                    }
+	                });
+                }
+                else {
+	                $.ajax({
+	                    method: 'POST',
+	                    url: '/api/sessions/' + currentID + '/export_results/',
+	                    headers: {
+	                        Authorization: 'Bearer ' + localStorage.access_token
+	                    },
+	                    data: JSON.stringify({
+	                        'file_format': downloadFormat,
+	                        'results_type': resultsType
+	                    }),
+	                    contentType: 'application/json',
+	                    dataType: 'text',
+	                    success: function(data) {
+	                        var uri = $.parseJSON(data).uri;
+	                        var link = document.createElement('a');
+	                        link.href = uri;
+	                        link.style = 'visibility:hidden';
 
-                        $('#email-success').modal('show');
-                    	$('#email-success-message').hide();
-                        $('#email-failure-message').show();
-                    }
-                });
+	                        spinner.stop();
+							$('#spinner-download-results').css('height', '');
+					        $('#download-results-modal').modal('hide');
+
+	                        document.body.appendChild(link);
+	                        link.click();
+	                        document.body.removeChild(link);
+
+	                    },
+	                    error: function(jqXHR, exception) {
+	                    	spinner.stop();
+	                    	$('#spinner-download-results').css('height', '');
+					        $('#download-results-modal').modal('hide');
+
+	                        $('#email-success').modal('show');
+	                    	$('#email-success-message').hide();
+	                        $('#email-failure-message').show();
+	                    }
+	                });
+	            }
             });
             $('body').off('click', '#download-results-cancel');
             $('body').on('click', '#download-results-cancel', function(e) {
@@ -581,7 +627,7 @@ google.setOnLoadCallback(function(){
                     method: 'POST',
                     url: '/api/sessions/' + currentID + '/email_results/',
                     headers: {
-                        Authorization: 'Bearer ' + sessionStorage.access_token
+                        Authorization: 'Bearer ' + localStorage.access_token
                     },
                     data: {'full_results': resultsBoolean},
                     success: function(data) {
@@ -659,7 +705,7 @@ google.setOnLoadCallback(function(){
 				$.ajax({
 					method: 'POST',
 					url: 'api/edit_split/',
-					headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+					headers: {Authorization: 'Bearer ' + localStorage.access_token},
 					data: { id: currentID,
 									user_id: runnerID,
 									action: 'total_time',
@@ -691,7 +737,7 @@ google.setOnLoadCallback(function(){
 				$.ajax({
 					method: 'POST',
 					url: 'api/edit_split/',
-					headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+					headers: {Authorization: 'Bearer ' + localStorage.access_token},
 					data: { id: currentID,
 									user_id: runnerID,
 									action: 'unlink_total', },
@@ -746,7 +792,7 @@ google.setOnLoadCallback(function(){
 						type: 'PATCH',
 						dataType: 'json',
 						url: '/api/sessions/' + currentID + '/',
-						headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+						headers: { Authorization: 'Bearer ' + localStorage.access_token },
 						data: {
 							filter_choice: false,
 						},
@@ -863,7 +909,7 @@ google.setOnLoadCallback(function(){
 					$.ajax({
 						method: 'POST',
 						url: 'api/edit_split/',
-						headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+						headers: {Authorization: 'Bearer ' + localStorage.access_token},
 						data: { id: currentID,
 										user_id: runnerID,
 										action: 'insert',
@@ -975,7 +1021,7 @@ google.setOnLoadCallback(function(){
 					$.ajax({
 						method: 'POST',
 						url: 'api/edit_split/',
-						headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+						headers: {Authorization: 'Bearer ' + localStorage.access_token},
 						data: { id: currentID,
 										user_id: runnerID,
 										action: 'edit',
@@ -1072,7 +1118,7 @@ google.setOnLoadCallback(function(){
 					$.ajax({
 						method: 'POST',
 						url: 'api/edit_split/',
-						headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+						headers: {Authorization: 'Bearer ' + localStorage.access_token},
 						data: { id: currentID,
 										user_id: runnerID,
 										action: 'delete',
@@ -1240,7 +1286,7 @@ google.setOnLoadCallback(function(){
 						$.ajax({
 							method: 'POST',
 							url: 'api/edit_split/',
-							headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+							headers: {Authorization: 'Bearer ' + localStorage.access_token},
 							data: { id: currentID,
 											user_id: runnerID,
 											action: 'split',
@@ -1487,7 +1533,7 @@ google.setOnLoadCallback(function(){
 
 			$.ajax({
 				url: '/api/sessions/'+currentID+'/individual_results/?gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
 					var results = $.parseJSON(data).results;
@@ -1544,7 +1590,7 @@ google.setOnLoadCallback(function(){
 			spinner.spin(target);
 			$.ajax({
 				url: 'api/sessions/'+currentID+'/team_results',
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
 					var results = $.parseJSON(data);
@@ -1569,14 +1615,20 @@ google.setOnLoadCallback(function(){
 						'<tbody>' +
 						'</tbody>'
 					);
-
 					// create table rows
 					for (var i=0; i<results.length; i++) {
 						var team = results[i];
+						var place = team.place;
+						if(place == 0){
+							var ed_place = "NP";
+						}
+						else{
+							var ed_place = place;
+						}
 						var id = team.id;
 						$('#team-table-canvas>tbody').append(
 							'<tr id="team-'+id+'" class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#team-table-canvas" data-target="#collapse-team-'+id+'" aria-expanded="false" aria-controls="collapse-team-'+id+'">' +
-								'<td>' + team.place + '</td>' +
+								'<td>' + ed_place + '</td>' +
 								'<td>' + team.name + '</td>' +
 								'<td>' + team.score + '</td>' +
 							'</tr>' +
@@ -1599,12 +1651,18 @@ google.setOnLoadCallback(function(){
 								'</td>' +
 							'</tr>'
 						);
-						
+						var count = 0;
 						for (var j=0; j<team.athletes.length; j++) {
+							count = count + 1;
 							var athlete = team.athletes[j];
+							if (count > team.num_scorers){
+								var ed_place = '(' + athlete.place.toString() + ')';
+							}
+							else if (athlete.place == 0){ var ed_place = 'NP'; }
+							else{ var ed_place = athlete.place; }
 							$('table#runners-team-'+id+' tbody').append(
 								'<tr>' +
-									'<td>' + athlete.place + '</td>' +
+									'<td>' + ed_place + '</td>' +
 									'<td>' + athlete.name + '</td>' +
 									'<td>' + formatTime(Number(athlete.total)) + '</td>' +
 								'</tr>'
@@ -1637,7 +1695,7 @@ google.setOnLoadCallback(function(){
 							// get team members data
 							$.ajax({
 								url: 'api/sessions/'+currentID+'/filtered_results',
-								headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+								headers: {Authorization: 'Bearer ' + localStorage.access_token},
 								data: {
 									team: team.name,
 									offset: 0,
@@ -1688,7 +1746,7 @@ google.setOnLoadCallback(function(){
 
 			$.ajax({
 				url: '/api/sessions/',
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
 				dataType: 'json',
 				data: {
 					offset: sessionFirst-1,
@@ -1743,7 +1801,7 @@ google.setOnLoadCallback(function(){
 			cStop = localISOString(cStop._d);
 			$.ajax({
 				url:'/api/sessions/',
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
 				dataType: 'json',
 				data: {
 					offset: sessionFirst-1,
@@ -1846,7 +1904,7 @@ google.setOnLoadCallback(function(){
 
 				ajaxRequest = $.ajax({
 					url: '/api/sessions/'+ currentID,
-					headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+					headers: {Authorization: 'Bearer ' + localStorage.access_token},
 					dataType: 'text',
 					success: function(data) {
 						var json = $.parseJSON(data);
@@ -1888,7 +1946,7 @@ google.setOnLoadCallback(function(){
 							correctionAjaxRequest = $.ajax({
 								method: 'POST', 
 								url: '/stats/analyze/',
-								headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+								headers: { Authorization: 'Bearer ' + localStorage.access_token },
 								dataType: 'json',
 								data: {
 									id: currentID,
@@ -1997,7 +2055,7 @@ google.setOnLoadCallback(function(){
 
 			$.ajax({
 				url: '/api/sessions/'+currentID+'/tfrrs',
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
 					data = $.parseJSON(data);
@@ -2019,7 +2077,7 @@ google.setOnLoadCallback(function(){
 		function createFullCSV(){
 			$.ajax({
 				url: '/api/sessions/'+currentID+'/individual_results',
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
 
@@ -2100,7 +2158,7 @@ google.setOnLoadCallback(function(){
 
 			$.ajax({
 				url: '/api/sessions/'+currentID+'/individual_results/?gender='+gender+'&age_gte='+age_gte+'&age_lte='+age_lte,
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
 					var results = $.parseJSON(data).results;
@@ -2144,7 +2202,7 @@ google.setOnLoadCallback(function(){
 		function createTeamCSV() {
 			$.ajax({
 				url: 'api/sessions/'+currentID+'/team_results',
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
 					var results = $.parseJSON(data);
@@ -2254,7 +2312,7 @@ google.setOnLoadCallback(function(){
 
 			$.ajax({
 				url: '/api/athletes/?session='+ currentID + '&search='+searchTerm,
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
 				dataType: 'text',
 				success: function(data) {
 					var results = $.parseJSON(data);
@@ -2309,7 +2367,7 @@ google.setOnLoadCallback(function(){
 
 				    			$.ajax({
 									url: '/api/sessions/'+ currentID+'/individual_results/?athletes='+dynamicID,
-									headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+									headers: {Authorization: 'Bearer ' + localStorage.access_token},
 									dataType: 'text',
 									success: function(data) {
 										var total =0;

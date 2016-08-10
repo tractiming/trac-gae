@@ -325,6 +325,26 @@ def request_quote(request):
 
 @csrf_exempt
 @permission_classes((permissions.AllowAny,))
+def request_contact(request):
+    """
+    If user requests quote, have it email founders to proceed from there.
+    """
+    email = request.POST.get('email')
+    name = request.POST.get('name')
+    body = request.POST.get('body')
+
+    context = {'name': name, 'body':body}
+    send_mail(
+        'Contact Form: TRAC Timing',
+        loader.render_to_string('../templates/email_templates/contact.txt', context),
+        'tracchicago@gmail.com',
+        [email, 'founders@tracchicago.com'],
+        fail_silently=False)
+    return HttpResponse(status.HTTP_200_OK)
+
+
+@csrf_exempt
+@permission_classes((permissions.AllowAny,))
 def give_athlete_password(request):
     """
     Endpoint to email athletes via the settings page. 

@@ -29,8 +29,8 @@ function attachSignin(element) {
             success: function(data) {
                 var access_token = data.access_token;
                 var user_type = data.user.user_type;
-                sessionStorage.setItem('access_token', access_token);
-                sessionStorage.setItem('usertype', user_type);
+                localStorage.setItem('access_token', access_token);
+                localStorage.setItem('usertype', user_type);
                 location.href = '/home';
             },
             error: function(xhr, errmsg, err){

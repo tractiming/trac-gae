@@ -39,7 +39,7 @@ $(function() {
           type: 'POST',
           dataType:'json',
           url: '/payments/charges/',
-          headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+          headers: { Authorization: 'Bearer ' + localStorage.access_token },
           data: {
               amount: stripePrice
           },
@@ -67,7 +67,7 @@ $(function() {
           type: 'POST',
           dataType:'json',
           url: '/payments/charges/',
-          headers: { Authorization: 'Bearer ' + sessionStorage.access_token },
+          headers: { Authorization: 'Bearer ' + localStorage.access_token },
           data: {
               amount: stripePrice
           },
@@ -138,7 +138,7 @@ $('#couponButton').on('click', function(e) {
                     stripe_plan: plan
                 },
                 headers: {
-                    Authorization: 'Bearer ' + sessionStorage.access_token
+                    Authorization: 'Bearer ' + localStorage.access_token
                 },
                 success: function(data) {
                     $('#payment-modal').on('hidden.bs.modal', function() {
@@ -160,7 +160,7 @@ $('#couponButton').on('click', function(e) {
                 dataType: 'json',
                 url: '/payments/subscription/',
                 headers: {
-                    Authorization: 'Bearer ' + sessionStorage.access_token
+                    Authorization: 'Bearer ' + localStorage.access_token
                 },
                 success: function(data) {
                     if (data.plan == "yearly") {

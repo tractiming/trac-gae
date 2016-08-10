@@ -1,4 +1,4 @@
-if (sessionStorage.usertype == 'athlete'){
+if (localStorage.usertype == 'athlete'){
 	location.href='/home.html';
 }
 
@@ -50,7 +50,7 @@ $(function() {
 
 		$.ajax({
 			url: '/api/readers/',
-			headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+			headers: {Authorization: 'Bearer ' + localStorage.access_token},
 			dataType: 'text',
 			success: function(data) {
 				var json = $.parseJSON(data);
@@ -125,7 +125,7 @@ $(function() {
 					type: 'POST',
 					dataType: 'json',
 					url: '/api/readers/',
-					headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+					headers: {Authorization: 'Bearer ' + localStorage.access_token},
 					data: {
 						name: name,
 						id_str: idstr
@@ -168,7 +168,7 @@ $(function() {
 				type: 'PUT',
 				dataType:'json',
 				url: '/api/readers/'+id,
-				headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
 				data: {
 					name: name,
 					id_str: idstr
@@ -207,7 +207,7 @@ $(function() {
 					type: 'DELETE',
 					dataType: 'json',
 					url: '/api/readers/'+id,
-					headers: {Authorization: 'Bearer ' + sessionStorage.access_token},
+					headers: {Authorization: 'Bearer ' + localStorage.access_token},
 					success: function(data) {
 						spinner.stop();
 						getReaders();

@@ -4,7 +4,7 @@
 {% block content %}
    <script>
 	$(document).ready(function(){
-	if (sessionStorage.usertype == 'athlete'){
+	if (localStorage.usertype == 'athlete'){
 		$("form#coachform").hide();
 		load();
 		}
@@ -41,7 +41,7 @@
            contentType:'application/json',
            url: "/api/tags/",
 
-	   headers: {Authorization: "Bearer " + sessionStorage.access_token
+	   headers: {Authorization: "Bearer " + localStorage.access_token
 		   },
            data: JSON.stringify(JSONObject),
            // Login was successful.
@@ -140,7 +140,7 @@ $("body").on('click', 'tr',function(){
            type: "PUT",
            dataType:'json',
            url: "/api/tags/"+id,
-	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
+	   headers: {Authorization: "Bearer " + localStorage.access_token},
 	   data: {
                id: refnum,
                id_str:rfidnum,
@@ -213,7 +213,7 @@ $("body").on('click', 'tr',function(){
            type: "DELETE",
            dataType:'json',
            url: "/api/tags/"+id,
-	   headers: {Authorization: "Bearer " + sessionStorage.access_token},
+	   headers: {Authorization: "Bearer " + localStorage.access_token},
          
            // Login was successful.
            success: function(data) {
@@ -269,7 +269,7 @@ $("body").on('click', 'tr',function(){
 		  //alert(path);
 		   $.ajax({
                      url: "/api/tags/",
-		     headers: {Authorization: "Bearer " + sessionStorage.access_token},
+		     headers: {Authorization: "Bearer " + localStorage.access_token},
                     //force to handle it as text
                     dataType: "text",
                     success: function(data) {

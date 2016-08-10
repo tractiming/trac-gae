@@ -18,21 +18,16 @@
 {% endblock %}
 
 {% block js_scripts %}
+  <script type="text/javascript" src="{% static "js/access_token.js" %}"></script>
   <script type="text/javascript">
     var page = "{{ page }}";
   </script>
   <script type="text/javascript" src="{% static "js/new/account_settings.js" %}"></script>
 <script>
-if (sessionStorage.access_token == null) {
-    //link to login page
-    location.href="/login";
-}
-else{
-    
-}
+
     $(document).ready(function() {
 $("li a.logout").click(function(){
-    sessionStorage.clear();
+    localStorage.clear();
     location.href="/login";
 });
     });
