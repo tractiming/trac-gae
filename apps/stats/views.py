@@ -108,7 +108,7 @@ class PerformanceRecordViewSet(viewsets.ModelViewSet):
 	pagination_class = pagination.LimitOffsetPagination
 	filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter,)
 	filter_class = PerformanceRecord_Filter
-	search_fields = ('event_name', 'athlete_first_name', 'athlete_last_name', 'team_name', 'distance')
+	search_fields = ('event_name', 'athlete', 'team_name', 'distance', 'date')
 
 	def get_queryset(self):
 		"""Filter sessions by user.

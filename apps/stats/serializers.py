@@ -9,4 +9,4 @@ class PerformanceRecord_Serializer(serializers.ModelSerializer):
 
     class Meta:
         model = PerformanceRecord
-        fields = ('athlete', 'event_name', 'distance', 'VO2', 'time')
+        fields = ('athlete', 'event_name', 'distance', 'VO2', 'time', 'date')

@@ -6,7 +6,7 @@ google.setOnLoadCallback(function(){
 				GRAPH_VIEW = 1,
 					VO2_VIEW =2;
 
-		var baseData, compareData,
+		var baseData, compareData, baseVO2, compareVO2,
 				currentView = TABLE_VIEW;
 
 		//===================================== spinner configuration =====================================
@@ -46,7 +46,7 @@ google.setOnLoadCallback(function(){
 				var id = $(this).val();
 				var target = $(this).closest('.row').find('.workout-select');
 				var isBase = $(this).attr('id') == 'base-athlete-select';
-				
+				loadVO2(id, isBase);
 				loadSessions(id, target, isBase);
 			});
 
@@ -124,7 +124,27 @@ google.setOnLoadCallback(function(){
 				}
 			});
 		}
-
+		function loadVO2(athlete, isBase){
+			$.ajax({
+				type: 'GET',
+				url: '/stats/performancerecords/',
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
+				dataType: 'json',
+				data: {
+					athlete : athlete,
+				},
+				success: function(data) {
+					if (isBase){
+						console.log('base');
+						baseVO2 = data; 
+					}
+					else {
+						console.log('compare');
+						compareVO2 = data; }
+					update();
+				}
+			});
+		}
 		function loadSessions(athleteID, target, isBase) {
 			// clear workout select options
 			target.children().first().nextAll().remove();
@@ -153,7 +173,7 @@ google.setOnLoadCallback(function(){
 					// enable workout select
 					target.prop('disabled', false);
 				}
-			});
+			}); 
 			update();
 		}
 
@@ -163,31 +183,28 @@ google.setOnLoadCallback(function(){
 			}
 			// don't do anything if user hasn't select workouts to compare
 			if (!$('#base-workout-select').val() || !$('#compare-workout-select').val()){
-				if ($('#VO2').hasClass('active')){
-					if (currentView === VO2_VIEW){
-						console.log("VO2_VIEW");
-						drawVO2($('#base-athlete-select').val(), $('#compare-athlete-select').val());
-						return;
-					}
-				}
-				else {
-					$('.notification').show();
+				if ($('#graph').hasClass('active') || $('#table').hasClass('active')){
 					return;
 				}
 			}
 
 			// hide notifications
-			$('.notification').hide();
+			$('.notification').hide();     
 
 			// get the correct session data
-			var baseSession = baseData.sessions[$('#base-workout-select option:selected').index()-1],
+			if ($('#graph').hasClass('active') || $('#table').hasClass('active')){
+					var baseSession = baseData.sessions[$('#base-workout-select option:selected').index()-1],
 					compareSession = compareData.sessions[$('#compare-workout-select option:selected').index()-1];
-
+				}
 			// update results based on view
 			if (currentView === TABLE_VIEW)
-				drawTable(baseSession, compareSession)
+				drawTable(baseSession, compareSession);
 			else if (currentView === GRAPH_VIEW)
-				drawGraph(baseSession, compareSession)
+				drawGraph(baseSession, compareSession);
+			else if (currentView === VO2_VIEW)
+				console.log(baseVO2);
+				console.log(compareVO2);
+				drawVO2($('#base-athlete-select option:selected').text(), $('#compare-athlete-select option:selected').text());
 		}
 
 		function drawTable(baseSession, compareSession) {
@@ -238,7 +255,7 @@ google.setOnLoadCallback(function(){
 			// show results
 			$('#results-table').show();
 		}
-		function drawVO2(base, compare){
+		function drawVO2(athlete, compare){
 			//reset content
 			$('.results-tab-content').hide();
 			$('#graph-VO2').empty();
@@ -246,10 +263,89 @@ google.setOnLoadCallback(function(){
 			// show spinner
 			$('#spinner').css('height', 150);
 			spinner.spin(target);
-
-			//get PerformanceRecord Data
 			
-		}
+			var graph = new google.visualization.DataTable();
+			graph.addColumn('datetime', 'Date');
+			graph.addColumn('number', athlete);
+			graph.addColumn('number', compare);
+
+			var num = Math.max(baseVO2.length, compareVO2.length);
+			$('.results-tab-content').hide();
+			for (var i=num-1; i>= 0; i--){
+				if(baseVO2[i] && compareVO2[i]){
+					if (baseVO2[i]['date'] == compareVO2[i]['date']){
+						var datestring = baseVO2[i]['date'].slice(0,10);
+						var year = datestring.slice(0,4);
+						var month = datestring.slice(5,7);
+						var day = datestring.slice(8,10);
+						var row = [new Date(year, month, day, 00, 00, 00, 00)];
+						var row = [new Date()];
+						if (baseVO2[i])
+							row.push(Number(baseVO2[i]['VO2']));
+						else
+							row.push(NaN);
+
+						if (compareVO2[i])
+							row.push(Number(compareVO2[i]['VO2']));
+						else
+							row.push(NaN);
+
+						graph.addRow(row);
+					}
+				}
+				if (baseVO2[i]){
+						var datestring = baseVO2[i]['date'].slice(0,10);
+						var year = datestring.slice(0,4);
+						var month = datestring.slice(5,7);
+						var day = datestring.slice(8,10);
+						var row = [new Date(year, month, day, 00, 00, 00, 00)];
+						row.push(Number(baseVO2[i]['VO2']));
+						row.push(NaN); 
+						graph.addRow(row);
+				}
+
+				if (compareVO2[i]){
+						var datestring = compareVO2[i]['date'].slice(0,10);
+						var year = datestring.slice(0,4);
+						var month = datestring.slice(5,7);
+						var day = datestring.slice(8,10);
+						var row = [new Date(year, month, day, 00, 00, 00, 00)];
+						row.push(NaN);
+						row.push(Number(compareVO2[i]['VO2'])); 
+						graph.addRow(row);
+				}
+			}
+
+			var height = 300;
+			if (window.innerWidth > 768)
+				height = 500;
+
+			var options = {
+				title: 'VO2',
+				height: height,
+				hAxis:  {format:'MMM d, y'},
+				vAxis: { title: 'VO2'},
+				axes: {
+					y: {
+						all: {
+							format: {
+								pattern: 'decimal'
+							}
+						}
+					}
+				},
+				legend: { position: 'right' }
+			};
+
+			$('#VO2-graph').show();
+			var chart = new google.visualization.ScatterChart(document.getElementById('graph-VO2'));
+			chart.draw(graph, options);
+
+			// hide spinner
+			spinner.stop();
+			$('#spinner').css('height', '');
+			}
+
 		function drawGraph(baseSession, compareSession) {
 			// reset content
 			$('.results-tab-content').hide();
