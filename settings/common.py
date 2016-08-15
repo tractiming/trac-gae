@@ -176,11 +176,9 @@ if APP_ENGINE:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'HOST': 'aacfxbxdij42di.cg776luj0kxg.us-west-2.rds.amazonaws.com',
-            'PORT': '3306',
+            'HOST': '/cloudsql/{}'.format(sql_name),
             'NAME': 'tracdb',
             'USER': 'root',
-            'PASSWORD':'YCombinator',
             'ATOMIC_REQUESTS': True,
         }
     }
@@ -192,11 +190,10 @@ elif SETTINGS_MODE in ('prod', 'stage'):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'HOST': 'aacfxbxdij42di.cg776luj0kxg.us-west-2.rds.amazonaws.com',
-            'PORT': '3306',
+            'HOST': _ip_addresses[SETTINGS_MODE],
             'NAME': 'tracdb',
             'USER': 'root',
-            'PASSWORD':'YCombinator',
+            'PASSWORD': 'sub4mile'
         }
     }
 
