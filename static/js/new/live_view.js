@@ -390,6 +390,7 @@ google.setOnLoadCallback(function(){
 			e.stopPropagation();
 
 			// show warning modal
+			$('.modal-rifd').hide();
 			$('.notification').hide();
 			$('#add-missed-runner-modal').modal('show');
 
@@ -421,7 +422,56 @@ google.setOnLoadCallback(function(){
 						spinner.stop();
 						$('#spinner-add-missed-runner').css('height', '');
 						$('.notification.no-missed-runners').show();
+						$('#add-missed-runner-rfid').show();
 						$('#add-missed-runner-body').hide();
+
+						// register handlers for athlete ID modal 
+						$('body').off('click', '#add-missed-runner-confirm-rf-code');
+						$('body').on('click', '#add-missed-runner-confirm-rf-code', function(e) {
+							e.preventDefault();
+
+							athleteID = $('#add-missed-rf-code').val();
+							hrs = Number($('#add-missed-runner-hrs-rf-code').val());
+							mins = Number($('#add-missed-runner-mins-rf-code').val());
+							secs = Number($('#add-missed-runner-secs-rf-code').val());
+							ms = Number($('#add-missed-runner-ms-rf-code').val());
+
+							if ((mins > 59) || (secs > 59) || (ms > 999)) {
+								$('.notification.add-missed-runner-error').show();
+								return;
+							}
+                            var data = [{
+                                "rfid": athleteID,
+                                "splits": [hrs*3600 + mins*60 + secs + ms/1000.0]
+                            }];
+
+							$.ajax({
+								method: 'POST',
+								url: 'api/sessions/'+currentID+'/missed_runner/',
+								headers: {Authorization: 'Bearer ' +
+                                          localStorage.access_token},
+
+								data: JSON.stringify(data),
+								contentType: 'application/json',
+								success: function(data) {
+									$('#table-canvas').empty();
+									spinner.spin(target);
+									update(currentID, currentView);
+								},
+								error: function(jqXHR, exception) {
+									$('.notification.server-error').show();
+								}
+							});
+
+							$('#add-missed-runner-modal').modal('hide');
+						});
+
+						$('body').off('click', '#add-missed-runner-cancel-rf-code');
+						$('body').on('click', '#add-missed-runner-cancel-rf-code', function(e) {
+							e.preventDefault();
+							$('#add-missed-runner-modal').modal('hide');
+						});
+
 					} else {
 						$('#add-missed-runner-select').prop('disabled', false);
 
@@ -439,6 +489,7 @@ google.setOnLoadCallback(function(){
 						$('#spinner-add-missed-runner').css('height', '');
 
 						$('.notification.add-missed-runner').show();
+						$('#add-missed-runner-rfid').hide();
 						$('#add-missed-runner-body').show();
 
 						// register handlers for button clicks

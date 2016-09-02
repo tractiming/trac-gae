@@ -67,6 +67,37 @@
 							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Input is an invalid time. Please try again.
 						</p>
 					</div>
+					<div id="add-missed-runner-rfid">
+						<div class="center" style="margin-bottom:15px; width:;300px;">
+							<label for="add-missed-runner-select-code" class="sr-only">Select athlete:</label>
+							<input type="text" id="add-missed-rf-code" name="rf-code" class="form-control numeric-input" placeholder="RFID Number" autofocus>
+						</div>
+						<div class="center" style="margin-bottom:15px;">
+							<div class="add-missed-runner-input">
+								<label for="add-missed-runner-hrs" class="sr-only">Hours</label>
+								<input type="text" id="add-missed-runner-hrs-rf-code" name="add-missed-runner-hrs" class="form-control numeric-input" placeholder="hh" autofocus>
+							</div>
+							<span class="add-missed-runner-separator">:</span>
+							<div class="add-missed-runner-input">
+								<label for="add-missed-runner-mins" class="sr-only">Minutes</label>
+								<input type="text" id="add-missed-runner-mins-rf-code" name="add-missed-runner-mins" class="form-control numeric-input" placeholder="mm">
+							</div>
+							<span class="add-missed-runner-separator">:</span>
+							<div class="add-missed-runner-input">
+								<label for="add-missed-runner-secs" class="sr-only">Seconds</label>
+								<input type="text" id="add-missed-runner-secs-rf-code" name="add-missed-runner-secs" class="form-control numeric-input" placeholder="ss">
+							</div>
+							<span class="add-missed-runner-separator">.</span>
+							<div class="add-missed-runner-input" style="width:60px;">
+								<label for="add-missed-runner-ms" class="sr-only">Milliseconds</label>
+								<input type="text" id="add-missed-runner-ms-rf-code" name="add-missed-runner-ms" class="form-control numeric-input" placeholder="ms">
+							</div>
+						</div>
+						<div class="center">
+							<button id="add-missed-runner-confirm-rf-code" class="btn btn-primary btn-md" style="margin-right: 10px;">Confirm</button>
+							<button id="add-missed-runner-cancel-rf-code" class="btn btn-danger btn-md">Cancel</button>
+						</div>
+					</div>
 					<div id="add-missed-runner-body">
 						<div class="center" style="margin-bottom:15px; width:252px;">
 							<label for="add-missed-runner-select" class="sr-only">Select athlete:</label>
