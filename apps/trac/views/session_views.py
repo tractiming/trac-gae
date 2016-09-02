@@ -661,7 +661,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             modifier = '-tfrrs'
             extension = 'csv'
         elif file_format == 'csv':
-            modifier = '-splits' if results_type == 'splits' else '12'
+            modifier = '-splits' if results_type == 'splits' else ''
             extension = 'csv'
         else:
             modifier = ''
