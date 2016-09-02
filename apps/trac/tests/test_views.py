@@ -514,8 +514,8 @@ class TimingSessionViewSetTest(APITestCase):
         mock_writer.assert_called_with(settings.GCS_RESULTS_BUCKET,
                                        results_path, make_public=True)
         mock_csv.DictWriter().writerow.assert_has_calls([
-            mock.call({'Name': 'Cam Levins', 'Gender': 'M', 'Age': 26, 'Time': '05:18.601'}),
-            mock.call({'Name': 'Galen Rupp', 'Gender': None, 'Age': None, 'Time': '06:29.045'})])
+            mock.call({'Name': 'Cam Levins', 'Gender': 'M', 'Age': 26, 'Time': '05:18.601', 'Team': 'Nike'}),
+            mock.call({'Name': 'Galen Rupp', 'Gender': None, 'Age': None, 'Time': '06:29.045', 'Team': 'Nike'})])
         self.assertEqual(resp.data['uri'], 'filedownloadurl.csv')
 
     @mock.patch.object(trac.views.session_views, 'csv')
