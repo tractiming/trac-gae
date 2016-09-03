@@ -739,9 +739,10 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                     ('Name', result.name),
                     ('Gender', result.gender),
                     ('Age', result.age),
-                    ('Time', format_total_seconds(result.total)))
+                    ('Time', format_total_seconds(result.total)),
+                    ('Team', result.team.name))
                 ) for result in results)
-                header = ('Name', 'Gender', 'Age', 'Time')
+                header = ('Name', 'Gender', 'Age', 'Time', 'Team')
             else:
                 max_splits = max(len(result.splits) for result in results)
                 header = list(itertools.chain(
@@ -749,14 +750,16 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                     ('Gender',),
                     ('Age',),
                     ('Interval {}'.format(i+1) for i in xrange(max_splits)),
-                    ('Total',)))
+                    ('Total',),
+                    ('Team',)))
                 results_to_write = (OrderedDict(list(itertools.chain(
                     (('Name', result.name),),
                     (('Gender', result.gender),),
                     (('Age', result.age),),
                     (('Interval {}'.format(num+1), split)
                         for num, split in enumerate(result.splits)),
-                    (('Total', format_total_seconds(result.total)),)))
+                    (('Total', format_total_seconds(result.total)),),
+                    (('Team', result.team.name),)))
                 ) for result in results)
 
         #print results_to_write
