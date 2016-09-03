@@ -387,7 +387,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                 'last_seen': result.last_seen,
                 'gender': result.gender,
                 'age': result.age,
-                'bib': result.bib
+                'bib': result.bib,
+                'team': result.team.name,
             }
             if query['calc_paces']:
                 individual_result.update({

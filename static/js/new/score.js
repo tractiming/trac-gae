@@ -195,6 +195,7 @@ $(function() {
 							'<tr>' +
 								'<th>Place</th>' +
 								'<th>Name</th>' +
+								'<th>Team</th>' +
 								'<th>Final Time</th>' +
 							'</tr>' +
 						'</thead>' +
@@ -211,6 +212,7 @@ $(function() {
 							'<tr>' +
 								'<td>' + parseInt(resultOffset + (i+1), 10) + '</td>' +  
 								'<td>' + runner.name + '</td>' + 
+								'<td>' + runner.team + '</td>' + 
 								'<td>' + time + '</td>' + 
 							'</tr>'
 						);
