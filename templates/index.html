@@ -127,6 +127,13 @@
 
     amplitude.init("682ef0da1e09065f2b2359619f592ded");
   </script>
+  <script>
+  $(document).ready(function(){
+    //$(".youtube").colorbox({iframe:true, innerWidth:640, innerHeight:390}); 
+    $(".youtube").colorbox({iframe:true, width:"90%", height:"95%"}); 
+    $(".iframe").colorbox({iframe:true, width:"50%", height:"65%"}); 
+  });
+</script>
   <style>
   #subcontainer {
   }
@@ -181,8 +188,8 @@
 
 
 
-      
-  <div class="container-fluid content" style="background-image:url({% static "img/splash2dark.JPG" %}); background-position: 0px -150px; padding-bottom:5% ">
+  <a href='https://www.youtube.com/embed/G5D0iDwHUno' class='youtube' onclick="amplitude.logEvent('promoVideo');">    
+  <div class="container-fluid content" style="background-image:url({% static "img/splash2dark2.JPG" %}); background-position: 0px -150px; padding-bottom:5% ">
       <div class="container" style="padding-top:12%; padding-bottom:10%">
         <div class="row">
           <div class="col-lg-5 col-md-5 col-sm-12">
@@ -193,6 +200,7 @@
           </div>
       </div>
     </div>
+  </a>
   <div class="container-fluid content">
       <div class="container" style="padding-top:5%">
         <div class="row">
