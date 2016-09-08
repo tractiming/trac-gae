@@ -567,6 +567,10 @@ google.setOnLoadCallback(function(){
                 	resultsType = 'teams';
                 	downloadFormat = 'csv';
                 }
+                else if (downloadFormat == 'age'){
+                	resultsType = 'age';
+                	downloadFormat = 'csv';
+                }
                 else {
                     resultsType = 'final';
                 }
@@ -574,6 +578,45 @@ google.setOnLoadCallback(function(){
                 	 $.ajax({
 	                    method: 'POST',
 	                    url: '/api/sessions/' + currentID + '/team_csv_results/',
+	                    headers: {
+	                        Authorization: 'Bearer ' + localStorage.access_token
+	                    },
+	                    data: JSON.stringify({
+	                        'file_format': downloadFormat,
+	                        'results_type': resultsType
+	                    }),
+	                    contentType: 'application/json',
+	                    dataType: 'text',
+	                    success: function(data) {
+	                        var uri = $.parseJSON(data).uri;
+	                        var link = document.createElement('a');
+	                        link.href = uri;
+	                        link.style = 'visibility:hidden';
+
+	                        spinner.stop();
+							$('#spinner-download-results').css('height', '');
+					        $('#download-results-modal').modal('hide');
+
+	                        document.body.appendChild(link);
+	                        link.click();
+	                        document.body.removeChild(link);
+
+	                    },
+	                    error: function(jqXHR, exception) {
+	                    	spinner.stop();
+	                    	$('#spinner-download-results').css('height', '');
+					        $('#download-results-modal').modal('hide');
+
+	                        $('#email-success').modal('show');
+	                    	$('#email-success-message').hide();
+	                        $('#email-failure-message').show();
+	                    }
+	                });
+                }
+                else if (downloadFormat == 'csv' && resultsType == 'age'){
+                	 $.ajax({
+	                    method: 'POST',
+	                    url: '/api/sessions/' + currentID + '/export_age_results/',
 	                    headers: {
 	                        Authorization: 'Bearer ' + localStorage.access_token
 	                    },
