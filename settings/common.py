@@ -33,6 +33,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     'www.trac-us.appspot.com',
     'trac-us.appspot.com',
+    'tracchicago.com',
     'www.tracchicago.com',
     '1.trac-us.appspot.com',
     'default.trac-us.appspot.com',  # Stackdriver
