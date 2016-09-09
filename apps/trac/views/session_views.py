@@ -400,6 +400,91 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             results['results'].append(individual_result)
         return Response(results)
 
+        @detail_route(methods=['post'])
+        def export_age_results(self, request, pk=None):
+            session = self.get_object()
+            file_format = request.data.get('file_format', 'csv')
+
+            if file_format not in ('csv'):
+                return Response('Invalid file format', status=status.HTTP_400_BAD_REQUEST)
+
+            results_type = request.data.get('results_type', 'age')
+            if results_type not in ('age'):
+                return Response('Invalid results type', status=status.HTTP_400_BAD_REQUEST)
+
+            if file_format == 'csv':
+                    modifier = '-age79' if results_type == 'age' else ''
+                    extension = 'csv'
+
+            storage_path = '/'.join((settings.GCS_RESULTS_DIR, str(session.pk), 'age{modifier}.{extension}'.format(extension=extension, modifier=modifier)))
+            raw_results = session.individual_results()
+            results = []
+            male_list = []
+            female_list = []
+            unknown_list = []
+            for runner in raw_results:
+                if runner.gender == 'M':
+                    male_list.append(runner)
+                elif runner.gender == 'F':
+                    female_list.append(runner)
+                else:
+                    unknown_list.append(runner)
+            male_list.sort(key=lambda x: x.age, reverse=True)
+            female_list.sort(key=lambda x: x.age, reverse=True)
+            male_age_counter = 0
+            male_age_bound = 14
+            female_age_counter = 0
+            female_age_bound = 14
+            with gcs_writer(settings.GCS_RESULTS_BUCKET, storage_path, make_public=True) as _results:
+                if file_format in ('csv'):
+                    writer = csv.writer(_results)
+                    writer.writerow(['Gender'])
+                    writer.writerow([''])
+                    writer.writerow(['M'])
+                    writer.writerow(['','Age Range'])
+                    while male_list:
+                        athlete_in_question = male_list.pop()
+                        age = athlete_in_question.age
+                        print age
+                        if age >= male_age_bound:
+                            while age > male_age_bound:
+                                writer.writerow(['',str(male_age_counter)+'-'+str(male_age_bound)])
+                                writer.writerow([''])
+                                male_age_counter = male_age_bound + 1
+                                male_age_bound = male_age_counter + 4
+                            writer.writerow(['',str(male_age_counter)+'-'+str(male_age_bound)])
+                            writer.writerow([''])
+                            writer.writerow(['', '', 'Athlete Name', 'Athlete Time', 'Athlete Age', 'Athlete Team'])
+                            writer.writerow(['', '', athlete_in_question.name, format_total_seconds(athlete_in_question.total), age, athlete_in_question.team.name])
+                        else:
+                            writer.writerow(['', '', athlete_in_question.name, format_total_seconds(athlete_in_question.total), age, athlete_in_question.team.name])
+                    writer.writerow([''])
+                    writer.writerow(['F'])
+                    writer.writerow([''])
+                    writer.writerow(['', 'Age Range'])
+                    while female_list:
+                        athlete_in_question = female_list.pop()
+                        age = athlete_in_question.age
+                        if age >= female_age_bound:
+                            while age > female_age_bound:
+                                writer.writerow(['',str(female_age_counter)+'-'+str(female_age_bound)])
+                                writer.writerow([''])
+                                female_age_counter = female_age_bound + 1
+                                female_age_bound = female_age_counter + 4
+                            writer.writerow(['',str(female_age_counter)+'-'+str(female_age_bound)])
+                            writer.writerow([''])
+                            writer.writerow(['', '', 'Athlete Name', 'Athlete Time', 'Athlete Age', 'Athlete Team'])
+                            writer.writerow(['', '', athlete_in_question.name, format_total_seconds(athlete_in_question.total), age, athlete_in_question.team.name])
+                        else:
+                            writer.writerow(['', '', athlete_in_question.name, format_total_seconds(athlete_in_question.total), age, athlete_in_question.team.name])
+
+            return Response({'uri': get_public_link(settings.GCS_RESULTS_BUCKET,
+                                                                                            storage_path)})
+
+            return "Age CSV"
+
+
+
     @detail_route(methods=['post'])
     def team_csv_results(self, request, pk=None):
         session = self.get_object()
