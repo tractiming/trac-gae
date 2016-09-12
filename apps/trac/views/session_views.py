@@ -453,7 +453,8 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                     		writer.writerow(['',str(male_age_counter)+'-'+str(male_age_bound)])
                     		written_row = True
                     	else:
-                    		continue
+                    		#Dummy variable
+                    		a = 0
                         while age > male_age_bound:
                             male_age_counter = male_age_bound + 1
                             male_age_bound = male_age_counter + 4
@@ -465,7 +466,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                         	writer.writerow(['', '', 'Athlete Name', 'Athlete Time', 'Athlete Age', 'Athlete Team'])
                         	written_athlete_row = True
                         else:
-                        	continue
+                        	a = 0
                         writer.writerow(['', '', athlete_in_question.name, format_total_seconds(athlete_in_question.total), age, athlete_in_question.team.name])
                     else:
                     	if written_row == True:
@@ -493,7 +494,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                     		writer.writerow(['',str(female_age_counter)+'-'+str(female_age_bound)])
                     		written_row = True
                     	else:
-                    		continue
+                    		a = 0
                         while age > female_age_bound:
                             female_age_counter = female_age_bound + 1
                             female_age_bound = female_age_counter + 4
@@ -505,7 +506,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                         	writer.writerow(['', '', 'Athlete Name', 'Athlete Time', 'Athlete Age', 'Athlete Team'])
                         	written_athlete_row = True
                         else:
-                        	continue
+                        	a = 0
                         writer.writerow(['', '', athlete_in_question.name, format_total_seconds(athlete_in_question.total), age, athlete_in_question.team.name])
                     else:
                     	if written_row == True:
@@ -514,7 +515,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                     			writer.writerow(['', '', 'Athlete Name', 'Athlete Time', 'Athlete Age', 'Athlete Team'])
                     			written_athlete_row = True
                     		else:
-                    			continue
+                    			a = 0
                     		writer.writerow(['', '', athlete_in_question.name, format_total_seconds(athlete_in_question.total), age, athlete_in_question.team.name])
                     	else:
 							writer.writerow(['',str(female_age_counter)+'-'+str(female_age_bound)])
@@ -524,7 +525,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 								writer.writerow(['', '', 'Athlete Name', 'Athlete Time', 'Athlete Age', 'Athlete Team'])
 								written_athlete_row = True
 							else:
-								continue
+								a = 0
 							writer.writerow(['', '', athlete_in_question.name, format_total_seconds(athlete_in_question.total), age, athlete_in_question.team.name])
 
         return Response({'uri': get_public_link(settings.GCS_RESULTS_BUCKET,
