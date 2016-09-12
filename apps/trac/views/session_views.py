@@ -413,7 +413,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             return Response('Invalid results type', status=status.HTTP_400_BAD_REQUEST)
 
         if file_format == 'csv':
-                modifier = '-age2' if results_type == 'age' else ''
+                modifier = '-age3' if results_type == 'age' else ''
                 extension = 'csv'
 
         storage_path = '/'.join((settings.GCS_RESULTS_DIR, str(session.pk), 'age{modifier}.{extension}'.format(extension=extension, modifier=modifier)))
