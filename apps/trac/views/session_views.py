@@ -477,7 +477,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                 	else:
                 		pass
                 	for element in array:
-                		writer.writerow(['', '', athlete_in_question.name, format_total_seconds(athlete_in_question.total), age, athlete_in_question.team.name])
+                		writer.writerow(['', '', element.name, format_total_seconds(element.total), age, element.team.name])
                 
                 writer.writerow(['F'])
                 writer.writerow([''])
@@ -519,7 +519,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                 	else:
                 		pass
                 	for element in array:
-                		writer.writerow(['', '', athlete_in_question.name, format_total_seconds(athlete_in_question.total), age, athlete_in_question.team.name])
+                		writer.writerow(['', '', element.name, format_total_seconds(element.total), age, element.team.name])
 
         return Response({'uri': get_public_link(settings.GCS_RESULTS_BUCKET,
                                                                                         storage_path)})
