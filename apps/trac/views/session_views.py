@@ -529,7 +529,6 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
 
         return Response({'uri': get_public_link(settings.GCS_RESULTS_BUCKET,
                                                                                         storage_path)})
-
         return "Age CSV"
 
 
