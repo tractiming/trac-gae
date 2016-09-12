@@ -413,7 +413,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
             return Response('Invalid results type', status=status.HTTP_400_BAD_REQUEST)
 
         if file_format == 'csv':
-                modifier = '-age79' if results_type == 'age' else ''
+                modifier = '-age2' if results_type == 'age' else ''
                 extension = 'csv'
 
         storage_path = '/'.join((settings.GCS_RESULTS_DIR, str(session.pk), 'age{modifier}.{extension}'.format(extension=extension, modifier=modifier)))
@@ -442,41 +442,90 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                 writer.writerow([''])
                 writer.writerow(['M'])
                 writer.writerow(['','Age Range'])
+                written_row = False
+                written_athlete_row = False
                 while male_list:
                     athlete_in_question = male_list.pop()
                     age = athlete_in_question.age
                     print age
                     if age >= male_age_bound:
+                    	if written_row == False:
+                    		writer.writerow(['',str(male_age_counter)+'-'+str(male_age_bound)])
+                    		written_row = True
+                    	else:
+                    		continue
                         while age > male_age_bound:
-                            writer.writerow(['',str(male_age_counter)+'-'+str(male_age_bound)])
-                            writer.writerow([''])
                             male_age_counter = male_age_bound + 1
                             male_age_bound = male_age_counter + 4
-                        writer.writerow(['',str(male_age_counter)+'-'+str(male_age_bound)])
-                        writer.writerow([''])
-                        writer.writerow(['', '', 'Athlete Name', 'Athlete Time', 'Athlete Age', 'Athlete Team'])
+                            writer.writerow(['',str(male_age_counter)+'-'+str(male_age_bound)])
+                            written_row = True
+                            written_athlete_row = False
+                        if written_athlete_row == False:
+                        	writer.writerow([''])
+                        	writer.writerow(['', '', 'Athlete Name', 'Athlete Time', 'Athlete Age', 'Athlete Team'])
+                        	written_athlete_row = True
+                        else:
+                        	continue
                         writer.writerow(['', '', athlete_in_question.name, format_total_seconds(athlete_in_question.total), age, athlete_in_question.team.name])
                     else:
-                        writer.writerow(['', '', athlete_in_question.name, format_total_seconds(athlete_in_question.total), age, athlete_in_question.team.name])
+                    	if written_row == True:
+                    		writer.writerow(['', '', athlete_in_question.name, format_total_seconds(athlete_in_question.total), age, athlete_in_question.team.name])
+                    	else:
+							writer.writerow(['',str(male_age_counter)+'-'+str(male_age_bound)])
+							written_row = True
+							if written_athlete_row == False:
+								writer.writerow([''])
+								writer.writerow(['', '', 'Athlete Name', 'Athlete Time', 'Athlete Age', 'Athlete Team'])
+								written_athlete_row = True
+							writer.writerow(['', '', athlete_in_question.name, format_total_seconds(athlete_in_question.total), age, athlete_in_question.team.name])                
                 writer.writerow([''])
                 writer.writerow(['F'])
                 writer.writerow([''])
                 writer.writerow(['', 'Age Range'])
+                written_row = False
+                written_athlete_row = False
                 while female_list:
                     athlete_in_question = female_list.pop()
                     age = athlete_in_question.age
+                    print age
                     if age >= female_age_bound:
+                    	if written_row == False:
+                    		writer.writerow(['',str(female_age_counter)+'-'+str(female_age_bound)])
+                    		written_row = True
+                    	else:
+                    		continue
                         while age > female_age_bound:
-                            writer.writerow(['',str(female_age_counter)+'-'+str(female_age_bound)])
-                            writer.writerow([''])
                             female_age_counter = female_age_bound + 1
                             female_age_bound = female_age_counter + 4
-                        writer.writerow(['',str(female_age_counter)+'-'+str(female_age_bound)])
-                        writer.writerow([''])
-                        writer.writerow(['', '', 'Athlete Name', 'Athlete Time', 'Athlete Age', 'Athlete Team'])
+                            writer.writerow(['',str(female_age_counter)+'-'+str(female_age_bound)])
+                            written_row = True
+                            written_athlete_row = False
+                        if written_athlete_row == False:
+                        	writer.writerow([''])
+                        	writer.writerow(['', '', 'Athlete Name', 'Athlete Time', 'Athlete Age', 'Athlete Team'])
+                        	written_athlete_row = True
+                        else:
+                        	continue
                         writer.writerow(['', '', athlete_in_question.name, format_total_seconds(athlete_in_question.total), age, athlete_in_question.team.name])
                     else:
-                        writer.writerow(['', '', athlete_in_question.name, format_total_seconds(athlete_in_question.total), age, athlete_in_question.team.name])
+                    	if written_row == True:
+                    		if written_athlete_row == False:
+                    			writer.writerow([''])
+                    			writer.writerow(['', '', 'Athlete Name', 'Athlete Time', 'Athlete Age', 'Athlete Team'])
+                    			written_athlete_row = True
+                    		else:
+                    			continue
+                    		writer.writerow(['', '', athlete_in_question.name, format_total_seconds(athlete_in_question.total), age, athlete_in_question.team.name])
+                    	else:
+							writer.writerow(['',str(female_age_counter)+'-'+str(female_age_bound)])
+							written_row = True
+							if written_athlete_row == False:
+								writer.writerow([''])
+								writer.writerow(['', '', 'Athlete Name', 'Athlete Time', 'Athlete Age', 'Athlete Team'])
+								written_athlete_row = True
+							else:
+								continue
+							writer.writerow(['', '', athlete_in_question.name, format_total_seconds(athlete_in_question.total), age, athlete_in_question.team.name])
 
         return Response({'uri': get_public_link(settings.GCS_RESULTS_BUCKET,
                                                                                         storage_path)})
