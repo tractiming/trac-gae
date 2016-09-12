@@ -465,7 +465,6 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                 	for row in BIG_ARRAY:
                 		if age >= row[0] and age <= row[1]:
                 			row.append(athlete_in_question)
-                			continue
 
                 for array in BIG_ARRAY:
                 	writer.writerow(['', str(array[0])+'-'+str(array[1])])
@@ -507,7 +506,6 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                 	for row in BIG_ARRAY:
                 		if age >= row[0] and age <= row[1]:
                 			row.append(athlete_in_question)
-                			continue
 
                 for array in BIG_ARRAY:
                 	writer.writerow(['', str(array[0])+'-'+str(array[1])])
