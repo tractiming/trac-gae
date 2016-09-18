@@ -291,29 +291,6 @@ google.setOnLoadCallback(function(){
 				'</tr>'
 			);
 
-			//var total = 0;
-			for (var j=0; j < splits.length; j++) {
-				var split = Number(splits[j][0]).toFixed(3);
-
-				// add splits to subtable
-				$('table#splits-'+id+'>tbody').append(
-					'<tr>' + 
-						'<td class="split-number">' + (j+1) + '</td>' + 
-						'<td class="split-time">' + split + '</td>' + 
-						'<td class="split-edit-options hidden-xs">' +
-							'<div class="modify-splits modify-splits-'+id+' pull-right" style="display:none;">' +
-								'<div class="insert-split"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></div>' +
-								'<div class="insert-split"><span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span></div>' +
-								'<div class="edit-split"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
-								'<div class="delete-split"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></div>' +
-							'</div>' +
-						'</td>' + 
-					'</tr>'
-				);
-
-				// now calculate total time
-				//total += Number(split);
-			}
 
 			// display total time
 			total = formatTime(total);
