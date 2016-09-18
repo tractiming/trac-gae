@@ -217,20 +217,6 @@ google.setOnLoadCallback(function(){
 						//var totalTime = $('#total-time-'+id).html().split(':');
 						//var total = Number(totalTime[0])*60 + Number(totalTime[1]);
 						
-						// add the new splits if not already displayed
-						for (var j=numDisplayedSplits; j<splits.length; j++) {
-							var split = Number(splits[j][0]).toFixed(3);
-							$('table#splits-'+id+'>tbody').append(
-								'<tr>' + 
-									'<td class="split-number">' + (j+1) + '</td>' + 
-									'<td class="split-time">' + split + '</td>' + 
-									'<td class="split-edit-options hidden-xs">' +
-										
-									'</td>' + 
-								'</tr>'
-							);
-							//total += Number(split);
-						}
 
 						// then update latest split and total time
 						$('#place-'+id).html(place);
