@@ -274,7 +274,7 @@ google.setOnLoadCallback(function(){
 					'<td id="total-time-'+id+'"></td>' + 
 					'<td id="modify-total-time-'+id+'" class="hidden-xs" style="width:50px;">' +
 						'<div class="modify-total-time pull-right" style="display:none;">' +
-							'<div class="edit-total"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
+							
 						'</div>' +
 					'</td>' +
 				'</tr>' + 
