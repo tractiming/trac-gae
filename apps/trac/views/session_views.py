@@ -441,21 +441,13 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                 written_row = False
                 written_athlete_row = False
                 BIG_ARRAY = [
-                	[0,14],
-                	[15,19],
-                	[20,24],
-                	[25,29],
-                	[30,34],
-                	[35,39],
-                	[40,44],
-                	[45,49],
-                	[50,54],
-                	[55,59],
-                	[60,64],
-                	[65,69],
-                	[70,74],
-                	[75,79],
-                	[80,120] ]
+                	[0,19],
+                	[20,29],
+                	[30,39],
+                	[40,49],
+                	[50,59],
+                	[60,69],
+                	[70,120] ]
 
                 while male_list:
 
@@ -482,21 +474,13 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                 writer.writerow([''])
                 writer.writerow(['', 'Age Range'])
                 BIG_ARRAY = [
-                	[0,14],
-                	[15,19],
-                	[20,24],
-                	[25,29],
-                	[30,34],
-                	[35,39],
-                	[40,44],
-                	[45,49],
-                	[50,54],
-                	[55,59],
-                	[60,64],
-                	[65,69],
-                	[70,74],
-                	[75,79],
-                	[80,120] ]
+                    [0,19],
+                    [20,29],
+                    [30,39],
+                    [40,49],
+                    [50,59],
+                    [60,69],
+                    [70,120] ]
 
                 while female_list:
 
