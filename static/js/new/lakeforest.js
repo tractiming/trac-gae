@@ -190,7 +190,6 @@ google.setOnLoadCallback(function(){
 						'<tr>' +
 							'<th>Place</th>' +
 							'<th>Name</th>' +
-							'<th>Latest Split</th>' +
 							'<th>Total Time</th>' +
 							'<th class="hidden-xs" style="width:50px;"></th>' +
 						'</tr>' +
@@ -286,7 +285,6 @@ google.setOnLoadCallback(function(){
 				'<tr id="results-'+id+'" class="accordion-toggle" data-toggle="collapse" data-parent="#table-canvas" data-target="#collapse-'+id+'" aria-expanded="false" aria-controls="collapse-'+id+'">' + 
 					'<td id="place-+'+id+'"">' + place + '</td>'+
 					'<td>' + name + '</td>' +
-					'<td id="latest-split-'+id+'">' + latestSplit + '</td>' + 
 					'<td id="total-time-'+id+'"></td>' + 
 					'<td id="modify-total-time-'+id+'" class="hidden-xs" style="width:50px;">' +
 						'<div class="modify-total-time pull-right" style="display:none;">' +
@@ -2268,41 +2266,7 @@ google.setOnLoadCallback(function(){
 									'</td>' +
 								'</tr>'
 							);
-							$("#resultsLink-"+runner.id).on('click', function(){
-				    			//Sent the binder, load the data
-				    			var dynamicID = $(this).attr('id').split('-')[1];
-				    			$('table#splits-'+dynamicID+'>tbody').empty();
 
-				    			$.ajax({
-									url: '/api/sessions/1298/individual_results/?athletes='+dynamicID,
-									headers: {Authorization: 'Bearer ' + localStorage.access_token},
-									dataType: 'text',
-									success: function(data) {
-										var total =0;
-										var splits = $.parseJSON(data).results[0].splits;
-										console.log(splits);
-										for (var j=0; j < splits.length; j++) {
-											console.log(splits[j]);
-											console.log(runner.id);
-											//console.log($'$this')
-											$('table#splits-'+dynamicID+'>tbody').append(
-													'<tr>' + 
-														'<td class="split-number">' + (j+1) + '</td>' + 
-														'<td class="split-time">' + splits[j] + '</td>' + 
-														'<td class="split-edit-options hidden-xs">' +
-															'<div class="modify-splits modify-splits-'+runner.id+' pull-right" style="display:none;">' +
-																'<div class="insert-split"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></div>' +
-																'<div class="insert-split"><span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span></div>' +
-																'<div class="edit-split"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
-																'<div class="delete-split"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></div>' +
-															'</div>' +
-														'</td>' + 
-													'</tr>'
-												);
-										}
-									}
-								});
-				    	});
 
 
 						}
