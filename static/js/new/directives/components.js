@@ -41,6 +41,7 @@
               $scope.$parent.rosterAthletes = response.results;
               $scope.$parent.rosterID = id;
               usSpinnerService.stop('roster-spinner');
+              $scope.$apply();
             });
           }
         }

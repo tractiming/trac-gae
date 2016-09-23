@@ -37,6 +37,9 @@
     $scope.sessionFirst = 1;
     $scope.sessionLast = SESSIONS_PER_PAGE;
     $scope.universalEdit = false;
+    $scope.searchRoster = '';
+    $scope.searchRoster.model = '';
+
 
     $scope.fileNameChanged = function() {
       var input = $('.roster_'+$scope.rosterID+' :file'),
@@ -154,7 +157,7 @@
     var holdTilFinish = true;
     $scope.loadRosterData = function(){
       if (!firedOnce){
-        var url = '/api/teams/?primary_team=True';
+        var url = '/api/teams/';
         $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token} })
         .success(function (response) { 
           if(response.length == 0){
@@ -222,10 +225,11 @@ $scope.checkAll = function () {
 
 
       //Search for Roster
-      $scope.athleteSearchRoster = function(){
-      $scope.searchRoster.change = $scope.searchRoster.model;
-      var url = '/api/athletes/?primary_team=True&search=' +  $scope.searchRoster.change;
-      $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: 50} })
+      $scope.athleteSearchRoster = function(text){
+        console.log(text);
+      //$scope.searchRoster.change = $scope.searchRoster.model;
+      var url = '/api/athletes/?team='+$scope.rosterID +'&search=' +  text;
+      $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: 5} })
         .success(function (response) {
 
           $scope.rosterAthletes = response.results;
@@ -241,7 +245,7 @@ $scope.checkAll = function () {
     $scope.searchResetRoster = function(){
       $scope.searchRoster.change = '';
 
-      var url = '/api/athletes/';
+      var url = '/api/athletes/?team='+$scope.rosterID
       $http({method: 'GET', url: url, headers: {Authorization: 'Bearer ' + localStorage.access_token}, params:{offset:$scope.sessionFirst-1, limit: SESSIONS_PER_PAGE} })
         .success(function (response) {
 
