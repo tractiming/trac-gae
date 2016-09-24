@@ -96,6 +96,10 @@ google.setOnLoadCallback(function(){
 			update(currentID, currentView);
 		}
 
+		function infotypeSubmission(info, timingsessionID){
+			alert(info.value) 
+		}
+
 		function update(idjson, view) {			
 			
 			// abort current update and start new ajax request
@@ -289,7 +293,7 @@ google.setOnLoadCallback(function(){
 					'<td>' + name + '</td>' + 
 					'<td id="latest-split-'+id+'">' + latestSplit + '</td>' + 
 					'<td id="total-time-'+id+'"></td>' + 
-					'<td>' + info + '</td>' + 
+					'<td><select onchange="infotypeSubmission(this);"><option selected hidden>'+info+'</option><option value="1M">1M</option><option value="5K">5K</option></select></td>' + 
 					'<td id="modify-total-time-'+id+'" class="hidden-xs" style="width:50px;">' +
 						'<div class="modify-total-time pull-right" style="display:none;">' +
 							'<div class="edit-total"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
@@ -298,7 +302,7 @@ google.setOnLoadCallback(function(){
 				'</tr>' + 
 				'<tr></tr>'	+		// for correct stripes 
 				'<tr class="splits">' +
-					'<td colspan="4">' +
+					'<td colspan="5">' +
 						'<div id="collapse-'+id+'" class="accordion-body collapse" aria-labelledby="results-'+id+'">' + 
 							'<table id="splits-'+id+'" class="table" style="text-align:center; background-color:transparent">' +
 								'<tbody>' +

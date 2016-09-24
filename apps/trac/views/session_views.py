@@ -71,8 +71,8 @@ class InfoViewSet(viewsets.ModelViewSet):
         return Info.objects.filter(timingsession_id=session_pk)
 
     def create(self, request, **kwargs):
-        session = request.data.pop('session_id', None)
-        athlete = request.data.pop('athlete_id', None)
+        session = request.POST['session_id']
+        athlete = request.POST['athlete_id']
         i = request.data.pop('info', None)
         ts = TimingSession.objects.get(id=session)
         a = Athlete.objects.get(id=athlete)
@@ -80,8 +80,8 @@ class InfoViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_201_CREATED)
 
     def update(self, request, **kwargs):
-        session = request.data.pop('session_id', None)
-        athlete = request.data.pop('athlete_id', None)
+        session = request.POST['session_id']
+        athlete = request.POST['athlete_id']
         ts = TimingSession.objects.get(id=session)
         a = Athlete.objects.get(id=athlete)
         i = request.data.pop('info', None)
