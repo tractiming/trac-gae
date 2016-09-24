@@ -1,4 +1,5 @@
 // setup Google charts api
+var currentID;
 google.load('visualization', '1', {packages:['corechart']});
 google.setOnLoadCallback(function(){
 	$(function() {
@@ -15,7 +16,7 @@ google.setOnLoadCallback(function(){
 		var RESULTS_PER_PAGE = 25;				// number of results per page
 
 		var idArray = [],
-				currentID, currentView,												// used to identify current session and view
+				 currentView,												// used to identify current session and view
 				updateHandler, idleHandler,										// interval handlers
 				ajaxRequest, correctionAjaxRequest,						// used to keep track of ajax requests
 				sessionData, sessionResults,									// current session data

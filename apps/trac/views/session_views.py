@@ -73,19 +73,10 @@ class InfoViewSet(viewsets.ModelViewSet):
     def create(self, request, **kwargs):
         session = request.POST['session_id']
         athlete = request.POST['athlete_id']
-        i = request.data.pop('info', None)
+        i = request.POST['info']
         ts = TimingSession.objects.get(id=session)
         a = Athlete.objects.get(id=athlete)
-        Info.objects.create(timingsession=ts, athlete=a, info=i)
-        return Response(status=status.HTTP_201_CREATED)
-
-    def update(self, request, **kwargs):
-        session = request.POST['session_id']
-        athlete = request.POST['athlete_id']
-        ts = TimingSession.objects.get(id=session)
-        a = Athlete.objects.get(id=athlete)
-        i = request.data.pop('info', None)
-        inf = Info.objects.get(timingsession=ts, athlete=a)
+        inf, created = Info.objects.get_or_create(timingsession=ts, athlete=a)
         inf.info = i
         inf.save()
         return Response(status=status.HTTP_201_CREATED)

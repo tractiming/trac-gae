@@ -23,10 +23,18 @@
 <script>
 
 		function infotypeSubmission(info, timingsessionID){
-			alert(info.value);
-			var runnerID = $(this).closest('td').attr('id').split('-')[1];
-			alert(runnerID);
-			alert(currentID);
+			var runnerID = $(info).closest('td').attr('id').split('-')[1];
+
+			$.ajax({
+				method: 'POST',
+				url: 'api/info/',
+				headers: {Authorization: 'Bearer ' + localStorage.access_token},
+				data: {session_id: currentID, athlete_id: runnerID, info: String(info.value) },
+				dataType: 'text',
+				success: function(data) {
+					console.log('success');
+				}
+			});
 		}
 
 </script>
