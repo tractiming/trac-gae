@@ -23,7 +23,10 @@
 <script>
 
 		function infotypeSubmission(info, timingsessionID){
-			alert(info.value) 
+			alert(info.value);
+			var runnerID = $(this).closest('td').attr('id').split('-')[1];
+			alert(runnerID);
+			alert(currentID);
 		}
 
 </script>

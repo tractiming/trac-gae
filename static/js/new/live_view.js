@@ -75,6 +75,7 @@ google.setOnLoadCallback(function(){
 		startUpdates();
 
 		//====================================== live_view functions ======================================
+
 		function startUpdates() {
 			// stop execution if session is over
 			if (sessionData && (new Date() > new Date(sessionData.stop_time)))
@@ -94,10 +95,6 @@ google.setOnLoadCallback(function(){
 
 		function lastSelected(){
 			update(currentID, currentView);
-		}
-
-		function infotypeSubmission(info, timingsessionID){
-			alert(info.value) 
 		}
 
 		function update(idjson, view) {			
@@ -293,7 +290,7 @@ google.setOnLoadCallback(function(){
 					'<td>' + name + '</td>' + 
 					'<td id="latest-split-'+id+'">' + latestSplit + '</td>' + 
 					'<td id="total-time-'+id+'"></td>' + 
-					'<td><select onchange="infotypeSubmission(this);"><option selected hidden>'+info+'</option><option value="1M">1M</option><option value="5K">5K</option></select></td>' + 
+					'<td id="info-'+id+'"><select onchange="infotypeSubmission(this);"><option selected hidden>'+info+'</option><option value="1M">1M</option><option value="5K">5K</option></select></td>' + 
 					'<td id="modify-total-time-'+id+'" class="hidden-xs" style="width:50px;">' +
 						'<div class="modify-total-time pull-right" style="display:none;">' +
 							'<div class="edit-total"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +
