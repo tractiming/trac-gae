@@ -24,11 +24,11 @@ from rest_framework.parsers import FileUploadParser
 from backends._gcs import gcs_writer, get_public_link
 from trac.filters import TimingSessionFilter, CheckpointFilter
 from trac.models import (
-    TimingSession, Reader, Tag, Split, Team, Athlete, SplitFilter, Checkpoint
+    TimingSession, Reader, Tag, Split, Team, Athlete, SplitFilter, Checkpoint, Info
 )
 from trac.serializers import (
     TimingSessionSerializer, AthleteSerializer, TagSerializer,
-    IndividualResultsQuerySerializer, CheckpointSerializer
+    IndividualResultsQuerySerializer, CheckpointSerializer, InfoSerializer
 )
 from trac.utils.integrations import tfrrs
 from trac.utils.pdf_util import write_pdf_results
@@ -54,6 +54,41 @@ def _query_to_list(val):
     if not isinstance(list_, Iterable):
         list_ = [list_]
     return list(list_)
+
+class InfoViewSet(viewsets.ModelViewSet):
+    """Checkpoint resource.
+
+    This resource lives as a nested attribute of a TimingSession.
+    """
+    serializer_class = InfoSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    pagination_class = pagination.LimitOffsetPagination
+    filter_backends = (filters.DjangoFilterBackend,)
+    
+    def get_queryset(self):
+        # Return only checkpoints belonging to the parent session.
+        session_pk = self.kwargs.get('session_pk', None)
+        return Info.objects.filter(timingsession_id=session_pk)
+
+    def create(self, request, **kwargs):
+        session = request.data.pop('session_id', None)
+        athlete = request.data.pop('athlete_id', None)
+        i = request.data.pop('info', None)
+        ts = TimingSession.objects.get(id=session)
+        a = Athlete.objects.get(id=athlete)
+        Info.objects.create(timingsession=ts, athlete=a, info=i)
+        return Response(status=status.HTTP_201_CREATED)
+
+    def update(self, request, **kwargs):
+        session = request.data.pop('session_id', None)
+        athlete = request.data.pop('athlete_id', None)
+        ts = TimingSession.objects.get(id=session)
+        a = Athlete.objects.get(id=athlete)
+        i = request.data.pop('info', None)
+        inf = Info.objects.get(timingsession=ts, athlete=a)
+        inf.info = i
+        inf.save()
+        return Response(status=status.HTTP_201_CREATED)
 
 
 class CheckpointViewSet(viewsets.ModelViewSet):
@@ -342,6 +377,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
         session = self.get_object()
         raw_results = session.individual_results(athlete_ids=athletes,
                                                  teams=teams, **query)
+        print(raw_results)
 
         extra_results = []
         distinct_ids = set(session.splits.values_list('athlete_id',
@@ -389,6 +425,7 @@ class TimingSessionViewSet(viewsets.ModelViewSet):
                 'age': result.age,
                 'bib': result.bib,
                 'team': result.team.name,
+                'info': result.info,
             }
             if query['calc_paces']:
                 individual_result.update({

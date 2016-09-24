@@ -88,7 +88,6 @@ class Athlete(models.Model):
         else:
             return today.year-self.birth_date.year
 
-
 class Tag(models.Model):
     """
     An RFID tag that is worn by an athlete. Each athlete can have only one tag.
@@ -317,7 +316,7 @@ class TimingSession(models.Model):
 
         Results = namedtuple(
             'Results',
-            'user_id name team splits total first_seen last_seen paces bib gender age')
+            'user_id name team splits total first_seen last_seen paces bib gender age info')
         if not results:
             athlete = Athlete.objects.get(id=athlete_id)
             name = athlete.user.get_full_name() or athlete.user.username
@@ -379,8 +378,13 @@ class TimingSession(models.Model):
             except ObjectDoesNotExist:
                 age = None
 
+            try:
+                info = athlete.info_set.filter(timingsession_id=self.id).first().info
+            except AttributeError:
+                info = None
+
             results = (athlete_id, name, athlete.team, splits,
-                       sum(splits), first_seen, last_seen, paces, bib, gender, age)
+                       sum(splits), first_seen, last_seen, paces, bib, gender, age, info)
 
             if use_cache:
                 cache.set(('ts_%i_athlete_%i_results'
@@ -436,11 +440,11 @@ class TimingSession(models.Model):
 
         team_names = Counter([runner.team for runner in individual_results
                             if runner.team is not None])
-        print team_names
+        #print team_names
 
         scores = {}
         for team in team_names:
-            print team_names[team]
+            #print team_names[team]
             scores[team] = {
                 'athletes': [],
                 'score': 0,
@@ -669,6 +673,10 @@ class SplitFilter(models.Model):
             self.filtered = self.determine_filter()
         return super(SplitFilter, self).save(*args, **kwargs)
 
+class Info(models.Model):
+    athlete = models.ForeignKey(Athlete)
+    timingsession = models.ForeignKey(TimingSession)
+    info = models.CharField(max_length=250, blank=True)
 
 class Checkpoint(models.Model):
     """

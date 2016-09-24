@@ -189,6 +189,7 @@ google.setOnLoadCallback(function(){
 							'<th>Name</th>' +
 							'<th>Latest Split</th>' +
 							'<th>Total Time</th>' +
+							'<th>Info</th>' +
 							'<th class="hidden-xs" style="width:50px;"></th>' +
 						'</tr>' +
 					'</thead>' +
@@ -203,7 +204,8 @@ google.setOnLoadCallback(function(){
 				var id = runner.id,
 						name = runner.name,
 						splits = runner.splits,
-						total = Number(runner.total);
+						total = Number(runner.total),
+						info = runner.info;
 
 				// check if row exists
 				var row = $('#table-canvas>tbody>tr#results-'+id);
@@ -239,7 +241,7 @@ google.setOnLoadCallback(function(){
 						$('#total-time-'+id).html(formatTime(total));
 					}
 				} else {
-					addNewRow(id, name, splits, total);
+					addNewRow(id, name, splits, total, info);
 				}
 			}
 
@@ -275,7 +277,7 @@ google.setOnLoadCallback(function(){
 			$('#download-container').show();
 		}
 
-		function addNewRow(id, name, splits, total){
+		function addNewRow(id, name, splits, total, info){
 			var split = 0;
 			if (splits.length > 0)
 				latestSplit = splits[splits.length-1][0];
@@ -287,6 +289,7 @@ google.setOnLoadCallback(function(){
 					'<td>' + name + '</td>' + 
 					'<td id="latest-split-'+id+'">' + latestSplit + '</td>' + 
 					'<td id="total-time-'+id+'"></td>' + 
+					'<td>' + info + '</td>' + 
 					'<td id="modify-total-time-'+id+'" class="hidden-xs" style="width:50px;">' +
 						'<div class="modify-total-time pull-right" style="display:none;">' +
 							'<div class="edit-total"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></div>' +

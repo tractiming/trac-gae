@@ -7,7 +7,7 @@ from rest_framework.exceptions import ValidationError
 
 from trac.models import (
     TimingSession, Tag, Reader, Athlete, Coach, Team, Split, SplitFilter,
-    Checkpoint
+    Checkpoint, Info
 )
 from trac.utils.user_util import (
     is_coach, is_athlete, user_type, random_username,
@@ -173,7 +173,7 @@ class AthleteSerializer(SaveUserMixin,
         fields = (
             'id', 'username', 'first_name', 'last_name', 'email',
             'team', 'age', 'birth_date', 'gender', 'tfrrs_id', 'tag',
-            'password', 'team_name'
+            'password', 'team_name',
         )
         read_only_fields = ('age',)
 
@@ -275,6 +275,15 @@ class TimingSessionSerializer(FilterRelatedMixin,
         session = super(TimingSessionSerializer, self).create(validated_data)
         session.readers.add(*readers)
         return session
+
+
+class InfoSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Info
+        fields = (
+            'timingsession','athlete','info',
+        )
 
 
 class ScoringSerializer(serializers.ModelSerializer):
