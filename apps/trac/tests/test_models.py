@@ -172,7 +172,7 @@ class TimingSessionTestCase(TestCase):
         mock_cache.get.assert_called_with('ts_1_athlete_1_results')
         mock_cache.set.assert_called_with('ts_1_athlete_1_results',
                 (res_1.user_id, res_1.name, res_1.team, res_1.splits,
-                 res_1.total, res_1.first_seen, res_1.last_seen, res_1.paces, res_1.bib, res_1.gender, res_1.age))
+                 res_1.total, res_1.first_seen, res_1.last_seen, res_1.paces, res_1.bib, res_1.gender, res_1.age, None))
         self.assertListEqual(res_1.splits, [122.003, 197.237, 69.805])
         self.assertEqual(sum(res_1.splits), res_1.total)
 
@@ -180,7 +180,7 @@ class TimingSessionTestCase(TestCase):
         mock_cache.get.assert_called_with('ts_1_athlete_2_results')
         mock_cache.set.assert_called_with('ts_1_athlete_2_results',
                 (res_2.user_id, res_2.name, res_2.team, res_2.splits,
-                 res_2.total, res_2.first_seen, res_2.last_seen, res_2.paces, res_2.bib, res_2.gender, res_2.age))
+                 res_2.total, res_2.first_seen, res_2.last_seen, res_2.paces, res_2.bib, res_2.gender, res_2.age, None))
         self.assertListEqual(res_2.splits, [123.021, 195.58])
         self.assertEqual(sum(res_2.splits), res_2.total)
 
