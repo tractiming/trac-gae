@@ -1,0 +1,1142 @@
+html { color: #000; background: #FFF; }
+
+body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, code, form, fieldset, legend, input, textarea, p, blockquote, th, td { margin: 0; padding: 0; }
+
+table { border-collapse: collapse;  border-spacing: 0; }
+
+fieldset, img {border: 0; }
+
+address, caption, cite, code, dfn, em, strong, th, var {font-style: normal; font-weight: normal; }
+
+ol, ul { list-style: none; }
+
+caption { text-align: left; }
+
+h1, h2, h3, h4, h5, h6 { font-size: 100%; font-weight: normal; }
+
+q:before, q:after {content: ''; }
+
+abbr, acronym { border: 0; font-variant: normal; }
+
+sup { vertical-align: text-top; }
+
+sub {vertical-align: text-bottom; }
+
+input, textarea, select {font-family: inherit;font-size: inherit;font-weight: inherit;}
+
+input, textarea, select { font-size: 100%; }
+
+legend {color: #000; }
+
+@font-face {font-family: 'GothamHTF-Book';
+src: url("../fonts/GothamHTF-Book.eot?#iefix") format("embedded-opentype"), url("../fonts/GothamHTF-Book.ttf") format("truetype"), url("../fonts/GothamHTF-Book.svg#GothamHTF-Book") format("svg"); }
+
+@font-face {
+  font-family: 'GothamHTF-Medium';
+  src: url("../fonts/GothamHTF-Medium.eot?#iefix") format("embedded-opentype"), url("../fonts/GothamHTF-Medium.ttf") format("truetype"), url("../fonts/GothamHTF-Medium.svg#GothamHTF-Medium") format("svg"); }
+
+@-webkit-keyframes rotation {
+  from {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+@-moz-keyframes rotation {
+  from {
+    -moz-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -moz-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+@-o-keyframes rotation {
+  from {
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -o-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
+}
+
+/* Base */
+body {
+  font-family: 'GothamHTF-Medium', 'Helvetica', 'Arial', sans;
+  color: #fff;
+  height: 100%; }
+
+.pull-left {
+  float: left; }
+
+.pull-right {
+  float: right; }
+
+.clear {
+  clear: both; }
+
+.clearfix:after {
+  visibility: hidden;
+  display: block;
+  font-size: 0;
+  content: " ";
+  clear: both;
+  height: 0; }
+
+.container {
+  margin: 0 auto;
+  max-width: 960px; }
+  
+tr.odd{background-color:#a3a3a3}
+
+h2 {
+  font-family: 'GothamHTF-Book', 'Helvetica', 'Arial', sans;
+  font-size: 48px;
+  margin-bottom: 24px;
+  text-transform: uppercase;
+  transition: font-size 0.3s ease; }
+  @media only screen and (max-width: 719px) {
+    h2 {
+      font-size: 32px; } }
+
+h3 {
+  font-family: "Georgia", "Times", serif;
+  font-size: 22px;
+  font-style: italic;
+  margin-bottom: 24px;
+  text-transform: lowercase; }
+  
+  h4{ font-family: 'GothamHTF-Book', 'Helvetica', 'Arial', sans;
+  font-size: 14px;
+  margin-bottom: 24px;
+  text-transform: uppercase;
+  transition: font-size 0.3s ease;
+   line-height: 24px;
+  margin-bottom: 24px;
+  width: 95%;
+  margin: 0 auto;
+  }
+  h5{
+  font-size: 22px;
+  margin-bottom: 24px;
+  width: 95%;
+  margin: 0 auto;
+  transition: font-size 0.3s ease; }
+  @media only screen and (max-width: 719px) {
+    h5{
+      font-size: 1.2em;
+      line-height: 20px; } }
+h6{
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #2c2e2f;
+  font-size: 93.75%;
+}
+
+p {
+  line-height: 32px;
+  margin-bottom: 32px;
+  width: 95%;
+  margin: 0 auto;
+  transition: font-size 0.3s ease; }
+  @media only screen and (max-width: 719px) {
+    p {
+      font-size: 0.9em;
+      line-height: 20px; } }
+
+a {
+  color: #fff;
+  text-decoration: none; }
+  a:hover {
+    text-decoration: underline; }
+
+.align-center {
+  text-align: center; }
+
+form label {
+  font-size: 18px;
+  font-weight: bold; }
+form input[type=text],
+form input[type=password],
+form textarea {
+  -webkit-box-shadow: inset 1px 1px 0 0 rgba(0, 0, 0, 0.1);
+  box-shadow: inset 1px 1px 0 0 rgba(0, 0, 0, 0.1);
+  border: 1px solid #aaa;
+  font-size: 15px;
+  padding: 0px 0px 6px 0px;
+  width: 100%; }
+form input[type=submit] {
+  cursor: pointer; }
+
+/* Header */
+div#bowtruss-header {
+  background-color: white;
+  color: black;
+  position: fixed;
+  width: 100%;
+  max-width: none;
+  top: 0;
+  z-index: 100; }
+  div#bowtruss-header a {
+    color: #3577A8;
+    text-decoration: none;
+    }
+    div#bowtruss-header a:hover {
+      color: #F0B922; }
+    div#bowtruss-header a.logo {
+      background: url("../img/trac_small.gif") no-repeat;
+      display: inline-block;
+      width: 200px;
+      height: 60px;
+      text-indent: -999999px; }
+      @media all and (-webkit-min-device-pixel-ratio: 1.5) {
+        div#bowtruss-header a.logo {
+          background-image: url("../img/trac_small.gif");
+          background-size: 200px 60px; } }
+      @media only screen and (max-width: 719px) {
+        div#bowtruss-header a.logo {
+          text-indent: 0;
+          background: none;
+          width: auto; } }
+  div#bowtruss-header ul {
+    margin: 0 auto;
+    width: 1000px;
+    transition: width 0.3s ease;
+    overflow: hidden;
+    }
+    div#bowtruss-header ul:after {
+      visibility: hidden;
+      display: block;
+      font-size: 0;
+      content: " ";
+      clear: both;
+      height: 0; }
+    @media only screen and (min-width: 720px) and (max-width: 959px) {
+      div#bowtruss-header ul {
+         } }
+    div#bowtruss-header ul li {
+      float: left;
+      height: 60px;
+      line-height: 60px;
+      padding: 0 20px;
+      text-transform: uppercase;
+      transition: padding 0.3s ease;
+      }
+      @media only screen and (min-width: 720px) and (max-width: 959px) {
+        div#bowtruss-header ul li {
+          padding: 0 21px; } }
+      @media only screen and (max-width: 719px) {
+        div#bowtruss-header ul li {
+          height: 45px;
+          padding: 0; } }
+        div#bowtruss-header ul li button {
+          height: 30px;
+          width: 80px;
+          border-radius:6px;
+          background-color: #ffffff;
+          
+          border: 1px solid rgba(0, 0, 0, 0.3);
+          
+        }
+  div#bowtruss-header a#pull {
+    overflow: hidden;
+    display: none;
+    background: url("../img/trac_small.gif") no-repeat center;
+    background-size: 200px 60px; }
+
+@media only screen and (max-width: 719px) {
+  div#bowtruss-header {
+    text-align: center; }
+    div#bowtruss-header ul {
+      display: none;
+      height: auto;
+      position: relative;
+      width: 100%; }
+      div#bowtruss-header ul li {
+        display: block;
+        float: none;
+        width: 100%;
+        line-height: 45px; }
+        div#bowtruss-header ul li:after {
+          visibility: hidden;
+          display: block;
+          font-size: 0;
+          content: " ";
+          clear: both;
+          height: 0; }
+    div#bowtruss-header a#pull {
+      display: block;
+      height: 45px;
+      width: 75px;
+      background-color: #fff;
+      width: 100%; }
+      div#bowtruss-header a#pull:after {
+        content: "";
+        background: url("../img/trac_small.gif") no-repeat;
+        background-size: 200px 60px;
+        width: 31px;
+        height: 19px;
+        display: inline-block;
+        position: absolute;
+        right: 18px;
+        top: 12px; } }
+        
+        
+        
+        
+        
+        
+        
+        
+/* Backgrounds */
+div.parallax {
+  position: absolute;
+  width: 100%; }
+  div.parallax > div {
+    background-size: cover;
+    margin: 0 auto;
+    width: 100%; }
+    @media only screen and (device-width: 768px) {
+      div.parallax > div {
+        background-attachment: scroll !important; } }
+    @media only screen and (device-width: 320px) {
+      div.parallax > div {
+        background-attachment: scroll !important; } }
+    div.parallax > div div.content {
+      margin: 0 auto;
+      max-width: 960px;}
+  
+      div.parallax .modal-animate {
+z-index: 17;
+position: absolute;
+width: 100px;
+margin-left: -50px;
+top: 24%;
+left: 50%;
+min-height: 125px;
+overflow: hidden;
+display:none;
+}
+
+div.parallax .modal-animate .rotate {
+  content: "";
+  height: 46px;
+  width: 46px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 6;
+  margin-left: -23px;
+  border-left: 8px solid rgba(0, 0, 0, 0.2);
+  border-right: 8px solid rgba(0, 0, 0, 0.2);
+  border-bottom: 8px solid rgba(0, 0, 0, 0.2);
+  border-top: 8px solid #2180c0;
+  border-radius: 100%;
+  -webkit-animation: rotation .7s infinite linear;
+  -moz-animation: rotation .7s infinite linear;
+  -o-animation: rotation .7s infinite linear;
+  animation: rotation .7s infinite linear;
+}
+div.parallax .modal-animate .rotate .lower-than-ie9 .rotate,
+div.parallax .modal-animate .rotate .lower-than-ie10 .rotate {
+  background: transparent url("../images/blue_spinner.gif") top center no-repeat;
+  border-left: 0;
+  border-right: 0;
+  border-bottom: 0;
+  border-top: 0;
+}
+div.parallax .modal-animate .rotate .lower-than-ie10 .rotate {
+  background-size: 100%;
+}
+div.parallax .modal-animate .rotate .lower-than-ie9 .rotate {
+  height: 48px;
+  width: 48px;
+  margin-left: -24px;
+}
+  
+  
+  /* Login */
+   div.parallax div#log {
+            padding-top:200px;
+    background: url("../img/track.jpg") no-repeat center;
+    background-size:100%;
+    text-align: center; }
+    @media only screen and (min-width: 960px) {
+      div.parallax div#log {
+        min-height: 500px; } }
+
+  div.parallax div#log #contentleft div#notifications {
+    width: 300px;
+  /* Add this class when you want to animate the notification component. */
+}
+div.parallax div#log #contentleft div#notifications.animatable {
+  display: none;
+}
+div.parallax div#log #contentleft div#notifications .notification {
+  display: none;
+  margin-top: 0;
+  padding: 15px 15px 15px 44px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  border-radius: 5px;
+  border-width: 1px;
+  border-style: solid;
+  text-align: left;
+  font-size: 1em;
+  background: url("../img/icon_alert_sprite-2x.png") no-repeat;
+  background-size: 20px;
+  /* Default is the informational message */
+}
+div.parallax div#log #contentleft div#notifications .notification.notification-critical {
+  background-color: #fff7f7;
+background-position: 12px -387px;
+border-color: #c72e2e;
+}
+
+
+          
+     div.parallax div#log #contentleft {
+     background-color: #F0B922;
+     border-radius: 5px;
+     border: 2px solid;
+     opacity:.9;
+      height:300px;
+     
+      display: inline-table}
+      @media only screen and (min-width: 720px) and (max-width: 959px) {
+        div.parallax div#log #contentleft {
+
+          display: inline-table} }
+      @media only screen and (max-width: 719px) {
+        div.parallax div#log #contentleft {
+
+ 
+          display: inline-table} }
+    /*div.parallax div#create #contentleft div.form-row{font-size:17px; color:#ffffff; overflow:hidden; margin:10px 0 12px 0;}
+    div.parallax div#create #contentleft div.form-row label{float:left; color:#ffffff; margin:0 10px 0 0;}
+    div.parallax div#create #contentleft div.form-row  span{float:left;}*/
+    div.parallax div#log #contentleft #myform .button-container{padding:40px 2px 0;}
+    div.parallax div#log #contentleft #myform .button-container input{float:none; width:80px; background:#3577A8; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
+
+  
+    /* register */
+   div.parallax div#regi {
+            padding-top:200px;
+            padding-bottom:50px;
+    background: url("../img/startup.jpg") no-repeat center;
+    background-size:cover;
+    text-align: center; }
+    @media only screen and (min-width: 960px) {
+      div.parallax div#log {
+        min-height: 500px; } }
+
+          
+     div.parallax div#regi #contentleft {
+     background-color: #F0B922;
+     border-radius: 5px;
+     border: 2px solid;
+     opacity:.95;
+      height:500px;
+     
+      display: inline-table}
+      @media only screen and (min-width: 720px) and (max-width: 959px) {
+        div.parallax div#regi #contentleft {
+         ;
+
+          display: inline-table} }
+      @media only screen and (max-width: 719px) {
+        div.parallax div#regi #contentleft {
+          ;
+ 
+          display: inline-table} }
+          
+            div.parallax div#create #contentleft div#notifications {
+            margin-left:auto;
+            margin-right:auto;
+    width: 300px;
+  /* Add this class when you want to animate the notification component. */
+}
+div.parallax div#regi #contentleft div#notifications.animatable {
+  display: none;
+}
+div.parallax div#regi #contentleft div#notifications .notification {
+  display:none;
+  margin-top: 0;
+  padding: 15px 15px 15px 44px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  border-radius: 5px;
+  border-width: 1px;
+  border-style: solid;
+  text-align: left;
+  font-size: 1em;
+  background: url("../img/icon_alert_sprite-2x.png") no-repeat;
+  background-size: 20px;
+  /* Default is the informational message */
+}
+div.parallax div#regi #contentleft div#notifications .notification.notification-critical {
+  background-color: #fff7f7;
+background-position: 12px -387px;
+border-color: #c72e2e;
+}
+div.parallax div#regi #contentleft div#notifications .notification.notification-critical2 {
+  background-color: #fff7f7;
+background-position: 12px -387px;
+border-color: #c72e2e;
+}
+div.parallax div#regi #contentleft div#notifications .notification.notification-success {
+  background-color: #f7fff7;
+  background-position: 12px 12px;
+  border-color: #1b9e1b;
+}      
+    /*div.parallax div#create #contentleft div.form-row{font-size:17px; color:#ffffff; overflow:hidden; margin:10px 0 12px 0;}
+    div.parallax div#create #contentleft div.form-row label{float:left; color:#ffffff; margin:0 10px 0 0;}
+    div.parallax div#create #contentleft div.form-row  span{float:left;}*/
+    div.parallax div#regi #contentleft #myform .button-container{padding:40px 2px 0;}
+    div.parallax div#regi #contentleft #myform .button-container input{float:none; width:80px; background:#3577A8; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
+
+  
+  
+  
+  
+  
+          
+          /* Home Page */
+          div.parallax div#home {
+            padding-top:200px;
+    background: #3577A8;
+    text-align: center; }
+    @media only screen and (min-width: 960px) {
+      div.parallax div#home {
+        min-height: 500px; } }
+    div.parallax div#bg2 div.content {
+      padding-top: 135px;
+      padding-bottom: 135px; }
+      @media only screen and (min-width: 720px) and (max-width: 959px) {
+        div.parallax div#home div.content {
+          padding-top: 100px;
+          padding-bottom: 100px; } }
+      @media only screen and (max-width: 719px) {
+        div.parallax div#home div.content {
+          padding-top: 80px;
+          padding-bottom: 80px; } }
+          div.parallax div#home div.content .pictures{
+            width: inherit;
+          }
+          div.parallax div#home div.content .pictures .left{
+            float:left;
+            width: 150px;
+            height:150px;
+          }
+
+          div.parallax div#home div.content .pictures .mid{
+            width: 269px;
+            padding-top:25px;
+            display: inline;
+            height: 100px;
+          }
+
+          div.parallax div#home div.content .pictures .right{
+            float:right;
+            padding-top:20px;
+            width: 89px;
+            height: 100px;
+          }
+          div.parallax div#home div.content .text{padding-top: 100px;}
+          
+          div.parallax div#home div.content .text .left{
+            float:left;
+            width: 150px;
+            height:150px;
+          }
+        
+          div.parallax div#home div.content .text .mid{
+            width: 269px;
+            display: inline-table;
+           
+            height: 100px;
+          }
+         
+          div.parallax div#home div.content .text .right{
+            float:right;
+            width: 150px;
+            height: 150px;
+          }
+          
+    /* Create Page */
+      div.parallax div#create {
+    background: #3577A8;
+    text-align: center;
+    padding-top:135px;
+    }
+    @media only screen and (min-width: 960px) {
+      div.parallax div#create {
+        
+        padding-top:100px;} }
+              div.parallax div#create select#choice{border-radius:5px;}
+        
+        div.parallax div#create div#notifications {
+            margin-left:auto;
+            margin-right:auto;
+    width: 300px;
+  /* Add this class when you want to animate the notification component. */
+}
+div.parallax div#create div#notifications.animatable {
+  display: none;
+}
+div.parallax div#create div#notifications .notification {
+  display:none;
+  margin-top: 0;
+  padding: 15px 15px 15px 44px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  border-radius: 5px;
+  border-width: 1px;
+  border-style: solid;
+  text-align: left;
+  font-size: 1em;
+  background: url("../img/icon_alert_sprite-2x.png") no-repeat;
+  background-size: 20px;
+  /* Default is the informational message */
+}
+div.parallax div#create div#notifications .notification.notification-critical {
+  background-color: #fff7f7;
+background-position: 12px -387px;
+border-color: #c72e2e;
+}
+div.parallax div#create div#notifications .notification.notification-success {
+  background-color: #f7fff7;
+  background-position: 12px 12px;
+  border-color: #1b9e1b;
+}
+div.parallax div#create div#notifications .notification.update-success {
+  background-color: #f7fff7;
+  background-position: 12px 12px;
+  border-color: #1b9e1b;
+}
+div.parallax div#create div#notifications .notification.delete-success {
+  background-color: #f7fff7;
+  background-position: 12px 12px;
+  border-color: #1b9e1b;
+}
+
+div.parallax div#create div#notifications .notification.notification-warning{background-color:#fffcf7;background-position:12px -188px;border-color:#f8981f}
+div.parallax div#create div#notifications .notification.notification-warning .container {padding-left:10px; padding-top:10px; width:175px;}
+div.parallax div#create div#notifications .notification.notification-warning .container button{width:60px; background:#f8981f; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; }
+        
+    div.parallax div#create #contentleft {
+     
+      
+      padding-top: 30px;
+      padding-bottom: 135px;
+      padding-left:100px;
+      display: inline-table}
+      @media only screen and (min-width: 720px) and (max-width: 959px) {
+        div.parallax div#create #contentleft {
+          padding-top: 30px;
+          padding-bottom: 100px;
+          display: inline-table} }
+      @media only screen and (max-width: 719px) {
+        div.parallax div#create #contentleft {
+          padding-top: 20px;
+          padding-bottom: 80px;
+          display: inline-table} }
+
+
+div.parallax div#create #contentleft button{float:none; width:140px; float:left; background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; border-radius:3px; border:none; margin:0 auto; cursor:pointer;padding:4px 0px 4px;}
+div.parallax div#create #contentleft button#individualbutton{display:none;}
+div.parallax div#create #contentleft button#example{background:#1b9e1b;display:none;float:right;width:100px}
+    /*div.parallax div#create #contentleft div.form-row{font-size:17px; color:#ffffff; overflow:hidden; margin:10px 0 12px 0;}
+    div.parallax div#create #contentleft div.form-row label{float:left; color:#ffffff; margin:0 10px 0 0;}
+    div.parallax div#create #contentleft div.form-row  span{float:left;}*/
+      div.parallax div#create #contentleft #myform p#idnumber{display:none; }
+    div.parallax div#create #contentleft #myform .button-container{padding:40px 2px 0; padding-bottom:35px;}
+        div.parallax div#create #contentleft #myform .button-container-two{display:none; padding:40px 2px 0; padding-bottom:35px;}
+        div.parallax div#create #contentleft #myform .button-container-two input#create{float:left; width:150px; background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
+
+    div.parallax div#create #contentleft #myform .button-container input#submit{float:none; width:80px; background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
+         div.parallax div#create #contentleft #myform .button-container input#delete{display:none; float:left; width:80px; background:#c72e2e; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
+
+    div.parallax div#create #contentleft #myform .button-container input#update{display:none; float:right; width:80px; background:#1b9e1b; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
+
+div.parallax div#create #contentleft #coachform{padding-top:30px;}       
+div.parallax div#create #contentleft #coachform .button-container{padding:40px 2px 0;}
+    div.parallax div#create #contentleft #coachform .button-container input{float:none; width:80px; background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
+     
+        
+       div.parallax div#create #contentleft #readerform .button-container{padding:40px 2px 0;}
+    div.parallax div#create #contentleft #readerform .button-container input{float:none; width:80px; background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
+    
+ div.parallax div#create #contentleft #csvform{display:none;padding-top:30px;}
+     div.parallax div#create #contentleft #csvform div.button-container{padding:10px 2px 0;}
+div.parallax div#create #contentleft #csvform div.button-container input#file{padding-bottom:20px;padding-top:10px;}
+div.parallax div#create #contentleft #csvform div.button-container input#upload{float:none;  background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
+    
+     
+     
+          div.parallax div#create #contentright {
+            display: inline-table;
+      width:300px;
+      height:auto;
+      padding-top: 30px;
+      padding-bottom: 135px;
+      padding-left:100px;
+     }
+
+      @media only screen and (min-width: 720px) and (max-width: 959px) {
+        div.parallax div#create #contentright {
+          padding-top: 30px;
+          padding-bottom: 100px;
+} }
+      @media only screen and (max-width: 719px) {
+        div.parallax div#create #contentright{
+          padding-top: 20px;
+          padding-bottom: 80px;
+         } }
+         
+                   div.parallax div#create #contentright table#results{
+            
+  table-layout: fixed; 
+  width: 100%;
+  *margin-left: -100px;/*ie7*/}
+   div.parallax div#create #contentright table#results tr *:nth-child(1){
+   display:none;}
+  
+ div.parallax div#create #contentright table#results td {
+  vertical-align: top;
+  cursor: pointer;
+  padding:10px;
+  width:100px;
+}
+ div.parallax div#create #contentright table#results th {
+  vertical-align: top;
+  cursor: auto;
+  padding:10px;
+  width:100px;
+  
+}
+
+                   div.parallax div#create #contentright table#tagresults{
+            
+  table-layout: fixed; 
+  width: 100%;
+  *margin-left: -100px;/*ie7*/}
+   div.parallax div#create #contentright table#tagresults tr *:nth-child(1){
+   display:none;}
+      div.parallax div#create #contentright table#tagresults tr *:nth-child(3){
+   display:none;}
+  
+ div.parallax div#create #contentright table#tagresults td {
+  vertical-align: top;
+  cursor: pointer;
+  padding:10px;
+  width:100px;
+}
+ div.parallax div#create #contentright table#tagresults th {
+  vertical-align: top;
+  cursor: auto;
+  padding:10px;
+  width:100px;
+  
+}
+div.parallax div#create #contentright .title {text-align: left;width: 100%}
+div.parallax div#create #contentright .title p{line-height: 20px;
+margin-bottom: 32px;
+width: 95%;
+margin: 0 auto;
+transition: font-size 0.3s ease;}
+ div.parallax div#create #contentright .outer {position:relative}
+ div.parallax div#create #contentright .inner {
+  overflow-x:scroll;
+  overflow-y:visible;
+  width:600px; 
+  
+}
+          
+          
+          div.parallax div#create #contentright div#notifications {
+            margin-left:auto;
+            margin-right:auto;
+    width: 300px;
+    padding-left:150px;
+    padding-right:150px;
+  /* Add this class when you want to animate the notification component. */
+}
+ div.parallax div#create #contentright div#notifications.animatable {
+  display: none;
+}
+div.parallax div#create #contentright div#notifications .notification {
+  display: none;
+  margin-top: 0;
+  padding: 15px 15px 15px 44px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  border-radius: 5px;
+  border-width: 1px;
+  border-style: solid;
+  text-align: left;
+  font-size: 1em;
+  background: url("../img/icon_alert_sprite-2x.png") no-repeat;
+  background-size: 20px;
+  /* Default is the informational message */
+}
+div.parallax div#create #contentright div#notifications .notification.notification-default {
+  margin-top:30px;
+  background-color: #f7f9fa;
+  background-position: 12px -788px;
+  border-color: #afabae;
+}
+
+
+
+          
+          
+          /* Live Split Page */
+  div.parallax div#bg2 {
+    background: #3577A8;
+    text-align: center;
+  }
+    @media only screen and (min-width: 960px) {
+      div.parallax div#bg2 {
+        min-height: 800px; } }
+    div.parallax div#bg2 div.content {
+      padding-top: 135px;
+      padding-bottom: 135px; }
+      @media only screen and (min-width: 720px) and (max-width: 959px) {
+        div.parallax div#bg2 div.content {
+          padding-top: 100px;
+          padding-bottom: 100px; } }
+      @media only screen and (max-width: 719px) {
+        div.parallax div#bg2 div.content {
+          padding-top: 80px;
+          padding-bottom: 80px; } }
+
+div.parallax div#bg2 div.content div#container div.menu-btn{background:#c9c9c9;border-radius:3px;width:175px; cursor: pointer;}
+          div.parallax div#bg2 div.content div.inner{ 
+          width:100%%;
+          overflow-x:scroll;
+  overflow-y:visible;
+  display:none;
+ 
+  }
+    
+          div.parallax div#bg2 div.content div.inner table#results{table-layout: fixed; ;
+}
+ div.parallax div#bg2 div.content div.inner table#results td {
+  vertical-align: top;
+  
+  padding:10px;
+  width:100px;
+}
+ div.parallax div#bg2 div.content div.inner table#results th {
+  vertical-align: top;
+  
+  padding:10px;
+  width:100px;
+  position:absolute;
+  *position: relative; /*ie7*/
+  left:0; 
+  width:100px;
+}
+
+div.parallax div#bg2 div.content div.outer div.final table#finaltimes{table-layout: fixed; ;
+}
+
+ div.parallax div#bg2 div.content div.outer div.final table#finaltimes td {
+  vertical-align: top;
+  
+  padding:10px;
+  width:100px;
+  height:18px;
+}
+
+ div.parallax div#bg2 div.content div.outer div.final table#finaltimes th {
+  vertical-align: top;
+  
+  padding:10px;
+  width:100px;
+  position:absolute;
+  *position: relative; /*ie7*/
+  left:0; 
+  width:100px;
+}
+div.parallax div#bg2 div.content div.outer div.names table#nametable{table-layout: fixed; ;
+}
+
+ div.parallax div#bg2 div.content div.outer div.names table#nametable td {
+  vertical-align: top;
+  
+  padding:10px;
+  width:100px;
+  height:18px;
+}
+
+ div.parallax div#bg2 div.content div.outer div.names table#nametable th {
+  vertical-align: top;
+  
+  padding:10px;
+  width:100px;
+  position:absolute;
+  *position: relative; /*ie7*/
+  left:0; 
+  width:100px;
+}
+          div.parallax div#bg2 div#notifications {
+            margin-left:auto;
+            margin-right:auto;
+    width: 300px;
+  /* Add this class when you want to animate the notification component. */
+}
+div.parallax div#bg2 div#notifications.animatable {
+  display: none;
+}
+div.parallax div#bg2 div#notifications .notification {
+  display: none;
+  margin-top: 0;
+  padding: 15px 15px 15px 44px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  border-radius: 5px;
+  border-width: 1px;
+  border-style: solid;
+  text-align: left;
+  font-size: 1em;
+  background: url("../img/icon_alert_sprite-2x.png") no-repeat;
+  background-size: 20px;
+  /* Default is the informational message */
+}
+div.parallax div#bg2 div#notifications .notification.notification-default {
+  background-color: #f7f9fa;
+  background-position: 12px -788px;
+  border-color: #afabae;
+}
+div.parallax div#bg2 div#notifications .notification.notification-default2 {
+  background-color: #f7f9fa;
+  background-position: 12px -788px;
+  border-color: #afabae;
+}
+          
+          div.parallax div#bg2 div.content div.button-container{padding:40px 2px 0;}
+    div.parallax div#bg2 div.content div.button-container input{display:none; float:none; width:120px; background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
+     
+     
+          
+          
+             /* Calendar Page */
+            div.parallax div#calendar {
+    background: #3577A8;
+    text-align: center; }
+    @media only screen and (min-width: 960px) {
+      div.parallax div#calendar {
+        min-height: 800px; } }
+    div.parallax div#calendar #contentleft {
+      width:575px;
+      height:400px;
+      padding-top: 135px;
+      padding-bottom: 135px;
+      padding-left:100px;
+      float:left;}
+      @media only screen and (min-width: 720px) and (max-width: 959px) {
+        div.parallax div#calendar #contentleft {
+          padding-top: 100px;
+          padding-bottom: 100px;
+          float:left;} }
+      @media only screen and (max-width: 719px) {
+        div.parallax div#calendar #contentleft {
+          padding-top: 80px;
+          padding-bottom: 80px;
+          float:left;} }
+         
+          div.parallax div#calendar #contentright {
+            display: inline-table;
+      width:550px;
+      height:auto;
+      padding-top: 205px;
+      padding-bottom: 135px;
+      padding-left:100px;
+     }
+      @media only screen and (min-width: 720px) and (max-width: 959px) {
+        div.parallax div#calendar #contentright {
+          padding-top: 150px;
+          padding-bottom: 100px;
+          display: inline-table;} }
+      @media only screen and (max-width: 719px) {
+        div.parallax div#calendar #contentright{
+          padding-top: 120px;
+          padding-bottom: 80px;
+         display: inline-table;} }
+     div.parallax div#calendar #contentright table#results{
+            
+  table-layout: fixed; 
+  width: 100%;
+  *margin-left: -100px;/*ie7*/}
+ div.parallax div#calendar #contentright table#results td {
+  vertical-align: top;
+  
+  padding:10px;
+  width:100px;
+}
+ div.parallax div#calendar #contentright table#results th {
+  vertical-align: top;
+  
+  padding:10px;
+  width:100px;
+  position:absolute;
+  *position: relative; /*ie7*/
+  left:0; 
+  width:100px;
+}
+div.parallax div#calendar #contentright .title {width: 100%}
+div.parallax div#calendar #contentright .title p{line-height: 20px;
+margin-bottom: 32px;
+width: 95%;
+margin: 0 auto;
+transition: font-size 0.3s ease;}
+ div.parallax div#calendar #contentright .outer {display:none; position:relative}
+ div.parallax div#calendar #contentright .inner {
+  overflow-x:scroll;
+  overflow-y:visible;
+  width:550px; 
+  
+}
+          
+          
+          
+div.parallax div#calendar #contentright div#notifications {
+            margin-left:auto;
+            margin-right:auto;
+    width: 300px;
+  /* Add this class when you want to animate the notification component. */
+}
+div.parallax div#calendar #contentright div#notifications.animatable {
+  display: none;
+}
+div.parallax div#calendar #contentright div#notifications .notification {
+  display: none;
+  margin-top: 0;
+  padding: 15px 15px 15px 44px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  border-radius: 5px;
+  border-width: 1px;
+  border-style: solid;
+  text-align: left;
+  font-size: 1em;
+  background: url("../img/icon_alert_sprite-2x.png") no-repeat;
+  background-size: 20px;
+  /* Default is the informational message */
+}
+div.parallax div#calendar #contentright div#notifications .notification.notification-default {
+  margin-top:30px;
+  background-color: #f7f9fa;
+  background-position: 12px -788px;
+  border-color: #afabae;
+}
+
+div.parallax div#calendar #contentright div#notifications .notification.notification-default2 {
+  margin-top:30px;
+  background-color: #f7f9fa;
+  background-position: 12px -788px;
+  border-color: #afabae;
+}
+          div.parallax div#calendar #contentright .button-container{padding:40px 2px 0;}
+    div.parallax div#calendar #contentright .button-container input{display:none; float:none; width:120px; background:#F0B922; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer;}
+     div.parallax div#calendar #contentright .button-container button{float:none; width:120px; background:#1b9e1b; font-size:15px; font-weight:bold; color:#FFF; padding:7px; border-radius:3px; border:none; margin:0 auto; cursor:pointer; display:none}
+          
+          
+
+        
+        
+        
+  div.parallax div#footer {
+    background: #3577A8;
+    text-align: center; }
+    @media only screen and (min-width: 960px) {
+      div.parallax div#footer {
+        min-height: 400px; } }
+    div.parallax div#footer div.content {
+      padding-top: 100px;
+      padding-bottom: 100px;
+      font-size: 11px;}
+      @media only screen and (min-width: 720px) and (max-width: 959px) {
+        div.parallax div#footer div.content {
+          padding-top: 100px;
+          padding-bottom: 100px;
+          font-size: 11px;} }
+      @media only screen and (max-width: 719px) {
+        div.parallax div#footer div.content {  
+          padding-top: 80px;
+          padding-bottom: 80px;
+          font-size: 11px;} }
+      div.parallax div#footer div.content .contactModule .bottom {clear:both; margin-top:27px; text-align:right;}
+ div.parallax div#footer div.content .bottom a {border-left:1px solid #FFF; border-right:medium none; margin-left:6px; padding:0 0 0 10px;}
+ div.parallax div#footer div.content .bottom span a:first-child {border-left:medium none;}
+  div.parallax div#footer div.content .contactModule .copyright {float:left;}
+ 
+ 
+
+
+
+/*alernative footer*/
+
+div.parallax div#footer2 {
+  width:100%;
+  height:125px;
+  margin:0 auto;
+  display:block;
+  color: #222;
+padding-top:42px;
+}
+div.parallax div#footer2 div.row { 
+display:block;
+ color: #222;}
+  div.parallax div#footer2 div.row div.left {width:25%;
+  padding-left: 30px;
+  position: relative;
+min-height: 1px;
+padding-right: 15px;
+box-sizing: border-box;
+float:left;
+}
+div.parallax div#footer2 div.row div.col-md-3 {width:25%;
+  position: relative;
+min-height: 1px;
+padding-left: 15px;
+padding-right: 15px;
+box-sizing: border-box;
+float:left;
+}
+div.parallax div#footer2 div.row div.col-md-3 ul.list-reset a{color:#3577A8; text-decoration: none;}
+div.parallax div#footer2 div.row div.col-md-3 ul.list-reset a:hover{color:#F0B922; text-decoration: none;}
+
+
+
+ 
+
+ 
+
+
+ 
+ 
+
+
+ 

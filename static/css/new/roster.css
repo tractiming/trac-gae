@@ -1,0 +1,97 @@
+
+    #coachform{
+      width:300px;
+      margin: 0 auto;
+    }
+    label{
+      display:block;
+    }
+    input,textarea{
+      width:75%;
+    }
+    @media (min-width: 768px) {
+      .modal-xl {
+        width: 90%;
+       max-width:1200px;
+      }
+    }
+
+    #rosterModal .modal-body {
+    max-height: 450px;
+    overflow-y: auto;
+}
+  .glyphicon{
+    cursor: pointer;
+  }
+  .glyphicon-pencil{
+    color: #ccc;
+  }
+  .glyphicon-remove, .glyphicon-eject, .glyphicon-save, .glyphicon-share-alt{
+    color: #ccc;
+  }
+    .glyphicon-pencil:hover { color: #337ab7; }
+    .glyphicon-remove:hover { color: #d9534f; }
+    .glyphicon-eject:hover { color: #ffad33; }
+    .glyphicon-save:hover { color: #337ab7;}
+    .glyphicon-share-alt:hover { color: #ffad33; }
+    .form-group{
+      margin-bottom: 0px !important;
+    }
+  nav ul{
+    margin-bottom:0px !important;
+  }
+  .red {
+    color: rgb(217, 83, 79) !important;
+    background-color: rgb(242, 222, 222) !important;
+}
+
+#searchclear {
+    position: absolute;
+    right: 5px;
+    top: 0;
+    bottom: 0;
+    height: 14px;
+    margin: auto;
+    font-size: 14px;
+    cursor: pointer;
+    color: #ccc;
+}
+#searchclearRoster {
+    position: absolute;
+    right: 5px;
+    top: 0;
+    bottom: 0;
+    height: 14px;
+    margin: auto;
+    font-size: 14px;
+    cursor: pointer;
+    color: #ccc;
+}
+.animate-hide {
+  -webkit-transition: all linear 0.75s;
+  -o-transition: all linear 0.75s;
+  transition: all linear 0.75s;
+}
+
+.animate-hide.ng-hide {
+  width:0;
+}
+.fade.ng-hide {
+  transition:0.25s linear all;
+  opacity:0;
+}
+.fade{
+  opacity:1;
+}
+.no-animate {
+   -webkit-transition: none !important;
+   transition: none !important;
+}
+.expand.ng-hide{
+  transition:1.05s linear all;
+  opacity:0;
+}
+.expand{
+  opacity:1;
+  transition:1.05s linear all;
+}

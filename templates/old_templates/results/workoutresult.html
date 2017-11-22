@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}trac - workout result{% endblock %}
+{% block content %}
+    Results for workout<br /><br />
+
+    Coach: {{ user.username }}<br /><br />
+    date: {{ wdate }}<br />
+    workout id: {{ wid }}<br />
+    <br />
+    Athletes in this workout:<br />
+    {% for a in athletes %}
+    {{ a.username }}<br />
+    {% endfor %}
+
+    Times in this workout:<br />
+    {% for tt in tag_times %}
+        {{ tt.time }}<br />
+    {% endfor %}
+    
+{% endblock %}

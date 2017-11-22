@@ -1,0 +1,332 @@
+[
+{
+    "pk": 1,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Alberto",
+        "last_name": "Salazar",
+        "username": "alsal",
+        "password": "pbkdf2_sha256$20000$o7ymeyvNvzCL$7l4kQxi0LUIgcLky4WaZEl9N3CrMobtkU2dgQJiVbqg="
+    }
+},
+{
+    "pk": 2,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Galen",
+        "last_name": "Rupp",
+        "username": "grupp",
+        "password": "sha1$e2fd5$96edae9adc8870fd87a65c051e7fdace6226b5a8",
+        "email": "grupp@nike.com"
+    }
+},
+{
+    "pk": 3,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Cam",
+        "last_name": "Levins",
+        "username": "clevins",
+        "password": "sha1$e2fd5$96edae9adc8870fd87a65c051e7fdace6226b5a8"
+    }
+},
+{
+    "pk": 4,
+    "model": "auth.user",
+    "fields": {
+        "first_name": "Brad",
+        "last_name": "Hudson",
+        "username": "bhudson",
+        "password": "sha1$e2fd5$96edae9adc8870fd87a65c051e7fdace6226b5a9"
+    }
+},
+{
+    "pk": 1,
+    "model": "trac.coach",
+    "fields": {
+        "user": 1,
+        "payment": null
+    }
+},
+{
+    "pk": 2,
+    "model": "trac.coach",
+    "fields": {
+        "user": 4,
+        "payment": null
+    }
+},
+{
+    "pk": 1,
+    "model": "trac.team",
+    "fields": {
+        "tfrrs_code": "",
+        "coach": 1,
+        "name": "Nike",
+        "primary_team": true,
+        "public_team": false
+    }
+},
+{
+    "pk": 1,
+    "model": "trac.athlete",
+    "fields": {
+        "gender": null,
+        "team": 1,
+        "user": 2,
+        "year": null,
+        "birth_date": null,
+        "tfrrs_id": null
+    }
+},
+{
+    "pk": 2,
+    "model": "trac.athlete",
+    "fields": {
+        "gender": "M",
+        "team": 1,
+        "user": 3,
+        "year": null,
+        "birth_date": "1990-05-26",
+        "tfrrs_id": null
+    }
+},
+{
+    "pk": 1,
+    "model": "trac.tag",
+    "fields": {
+        "athlete": 1,
+        "id_str": "AAAA 0001",
+        "bib": "101"
+    }
+},
+{
+    "pk": 2,
+    "model": "trac.tag",
+    "fields": {
+        "athlete": 2,
+        "id_str": "AAAA 0002"
+    }
+},
+{
+    "pk": 1,
+    "model": "trac.reader",
+    "fields": {
+        "coach": 1,
+        "name": "Alien 1",
+        "id_str": "A1010"
+    }
+},
+{
+    "pk": 2,
+    "model": "trac.reader",
+    "fields": {
+        "coach": 1,
+        "name": "Alien 2",
+        "id_str": "A1011"
+    }
+},
+{
+    "pk": 3,
+    "model": "trac.reader",
+    "fields": {
+        "coach": 2,
+        "name": "Alien 3",
+        "id_str": "A1012"
+    }
+},
+{
+    "pk": 1,
+    "model": "trac.split",
+    "fields": {
+        "athlete": 1,
+        "tag": 1,
+        "time": 1440647434003,
+        "reader": 1
+    }
+},
+{
+    "pk": 2,
+    "model": "trac.split",
+    "fields": {
+        "athlete": 2,
+        "tag": 2,
+        "time": 1440647435021,
+        "reader": 1
+    }
+},
+{
+    "pk": 3,
+    "model": "trac.split",
+    "fields": {
+        "athlete": 2,
+        "tag": 2,
+        "time": 1440647630601,
+        "reader": 2
+    }
+},
+{
+    "pk": 4,
+    "model": "trac.split",
+    "fields": {
+        "athlete": 1,
+        "tag": 1,
+        "time": 1440647631240,
+        "reader": 2
+    }
+},
+{
+    "pk": 5,
+    "model": "trac.split",
+    "fields": {
+        "athlete": 1,
+        "tag": 1,
+        "time": 1440647701045,
+        "reader": 1
+    }
+},
+{
+    "pk": 6,
+    "model": "trac.split",
+    "fields": {
+        "athlete": 2,
+        "tag": 1,
+        "time": 1440647701047,
+        "reader": 1
+    }
+},
+{
+    "pk": 7,
+    "model": "trac.split",
+    "fields": {
+        "athlete": 2,
+        "tag": 1,
+        "time": 1440647703047,
+        "reader": 1
+    }
+},
+{
+    "pk": 1,
+    "model": "trac.timingsession",
+    "fields": {
+        "comment": "",
+        "coach": 1,
+        "name": "60 x 400m",
+        "readers": [
+            1,
+            2
+        ],
+        "use_registered_athletes_only": false,
+        "start_time": "2015-08-27T03:47:28Z",
+        "registered_athletes": [],
+        "private": false,
+        "filter_choice": false,
+        "interval_distance": 400,
+        "start_button_time": 1440647312000,
+        "stop_time": "2015-08-28T03:47:28Z",
+        "rest_time": 0,
+        "track_size": 400,
+        "interval_number": 0
+    }
+},
+{
+    "pk": 2,
+    "model": "trac.timingsession",
+    "fields": {
+        "comment": "",
+        "coach": 1,
+        "name": "Mile Repeats",
+        "readers": [
+            1
+        ],
+        "use_registered_athletes_only": false,
+        "start_time": "2015-10-10T01:32:39Z",
+        "registered_athletes": [],
+        "private": true,
+        "filter_choice": false,
+        "interval_distance": 1609,
+        "start_button_time": 1440647312000,
+        "stop_time": "2015-10-11T01:32:39Z",
+        "rest_time": 0,
+        "track_size": 1609,
+        "interval_number": 0
+    }
+},
+{
+    "pk": 1,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 1,
+        "split": 1
+    }
+},
+{
+    "pk": 2,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 1,
+        "split": 2
+    }
+},
+{
+    "pk": 3,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 1,
+        "split": 3
+    }
+},
+{
+    "pk": 4,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 1,
+        "split": 4
+    }
+},
+{
+    "pk": 5,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 1,
+        "split": 5
+    }
+},
+{
+    "pk": 6,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 2,
+        "split": 6
+    }
+},
+{
+    "pk": 7,
+    "model": "trac.splitfilter",
+    "fields": {
+        "filtered": false,
+        "timingsession": 2,
+        "split": 7
+    }
+},
+{
+    "pk": 1,
+    "model": "oauth2_provider.application",
+    "fields": {
+        "redirect_uris": "",
+        "name": "frontend-app",
+        "client_type": "public",
+        "user": 1,
+        "client_id": "aHD4NUa4IRjA1OrPD2kJLXyz34c06Bi5eVX8O94p",
+        "client_secret": "OlRUU56IVCQMTiThEj0sw2Z6qV70Lncu8kd1WL5y8TVjOQkAhdeBtGx2S1dxgx3DyUM7XOdDKkbXJekFMfawKNwAnDRQA2tCPwwLFVPh4GPvvJBijwfjadEFBDw85G71",
+        "skip_authorization": false,
+        "authorization_grant_type": "password"
+    }
+}
+]

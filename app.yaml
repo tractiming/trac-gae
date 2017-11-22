@@ -1,0 +1,59 @@
+application: trac-us
+version: 1
+runtime: python27
+api_version: 1
+threadsafe: yes
+instance_class: F1
+automatic_scaling:
+  min_idle_instances: 1
+  max_idle_instances: 1
+  min_pending_latency: 1000ms
+  max_pending_latency: automatic
+  max_concurrent_requests: 80
+
+libraries:
+- name: MySQLdb
+  version: "latest"
+
+- name: ssl
+  version: "latest"
+
+- name: pycrypto
+  version: "2.6"
+
+- name: yaml
+  version: "latest"
+
+- name: PIL
+  version: "latest"
+
+builtins:
+- remote_api: on
+- appstats: on
+
+inbound_services:
+- warmup
+
+handlers:
+- url: /static
+  static_dir: static
+  secure: always
+
+- url: /api/splits/.*
+  script: main.application
+  secure: optional
+
+- url: /api/time/.*
+  script: main.application
+  secure: optional
+
+- url: /.*
+  script: main.application
+  secure: always
+
+skip_files:
+- local
+- venv
+- requirements
+- .git
+- ^(.*/)?.*\.py[co]$

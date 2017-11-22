@@ -1,0 +1,9 @@
+Hi {{name}},
+
+You particpated in a run on {{date}}. The results can be downloaded
+at: {{link}}
+
+Best,
+
+The TRAC Team
+

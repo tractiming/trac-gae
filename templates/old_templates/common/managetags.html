@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}trac - add tag{% endblock %}
+{% block content %}
+    Manage my RFID tags<br /><br />
+
+    My tags:
+    {% for t in tag_list %}
+    {{ t }}, 
+    {% endfor %}
+    <br /><br />
+
+
+    <a href="{% url 'add_tag' %}">register an RFID tag</a><br />
+    
+{% endblock %}

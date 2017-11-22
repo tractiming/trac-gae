@@ -1,0 +1,16 @@
+#results {
+	padding-left: 15px;
+	padding-right: 15px;
+}
+
+#results-table {
+	margin-top: 20px; }
+	#splits-table {
+		text-align: center; }
+		#splits-table th {
+			text-align: center;
+}
+
+#notifications {
+	margin-top: 20px;
+}

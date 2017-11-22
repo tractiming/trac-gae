@@ -1,0 +1,187 @@
+{% extends "base_new.html" %}
+
+{% load static %}
+
+<!-- Head -->
+{% block stylesheets %}
+  <!--<link href="{% static "css/new/login.css" %}" rel="stylesheet" type="text/css">-->
+  <style>
+  ::-moz-selection {
+        background: #b3d4fc;
+        text-shadow: none;
+      }
+
+      ::selection {
+        background: #b3d4fc;gi
+        text-shadow: none;
+      }
+
+      html {
+        padding: 30px 10px;
+        font-size: 20px;
+        line-height: 1.4;
+        color: #737373;
+        background: #f0f0f0;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+      }
+
+      html,
+      input {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      }
+
+
+      .panel {
+        max-width: 500px;
+
+        padding: 30px 20px 50px;
+        border: 1px solid #b3b3b3;
+        border-radius: 4px;
+        margin: 0 auto;
+        box-shadow: 0 1px 10px #a7a7a7, inset 0 1px 0 #fff;
+        background: #fcfcfc;
+      }
+
+      h1 {
+        margin: 0 10px;
+        font-size: 50px;
+        text-align: center;
+      }
+
+      h1 span {
+        color: #bbb;
+      }
+
+      h3 {
+        margin: 1.5em 0 0.5em;
+      }
+
+      p {
+        margin: 1em 0;
+      }
+
+      ul {
+        padding: 0 0 0 40px;
+        margin: 1em 0;
+      }
+      ul#reasons li {
+        list-style-type:circle;
+        list-style:initial;
+      }
+   /* google search */
+
+      #goog-fixurl ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      #goog-fixurl form {
+        margin: 0;
+      }
+
+      #goog-wm-qt,
+      #goog-wm-sb {
+        border: 1px solid #bbb;
+        font-size: 16px;
+        line-height: normal;
+        vertical-align: top;
+        color: #444;
+        border-radius: 2px;
+      }
+
+      #goog-wm-qt {
+        width: 220px;
+        padding: 5px;
+        margin: 5px 10px 0 0;
+        box-shadow: inset 0 1px 1px #ccc;
+        border-radius: 3px;
+        height: 20px;
+        padding: 5px;
+        margin: 5px 10px 0 0;
+        box-shadow: inset 0 1px 1px #ccc;
+      }
+
+      #goog-wm-sb {
+        display: inline-block;
+        border-radius: 3px;
+        height: 32px;
+        padding: 0 10px;
+        margin: 5px 0 0;
+        white-space: nowrap;
+        cursor: pointer;
+        background-color: #f5f5f5;
+        background-image: -webkit-linear-gradient(rgba(255,255,255,0), #f1f1f1);
+        background-image: -moz-linear-gradient(rgba(255,255,255,0), #f1f1f1);
+        background-image: -ms-linear-gradient(rgba(255,255,255,0), #f1f1f1);
+        background-image: -o-linear-gradient(rgba(255,255,255,0), #f1f1f1);
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+      }
+
+      #goog-wm-sb:hover,
+      #goog-wm-sb:focus {
+        border-color: #aaa;
+        box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+        background-color: #f8f8f8;
+      }
+
+      #goog-wm-qt:hover,
+      #goog-wm-qt:focus {
+        border-color: #105cb6;
+        outline: 0;
+        color: #222;
+      }
+
+      input::-moz-focus-inner {
+        padding: 0;
+        border: 0;
+      }</style> 
+{% endblock %}
+
+{% block js_scripts %}
+
+{% endblock %}
+
+<!-- Body -->
+{% block nav-items %}
+  <li><a href="/login">Login</a></li>
+  <li><a href="/register">Register</a></li>
+  <li><a href="http://www.trac-us.com">About</a></li>
+  <li><a href="/score">Live Results</a></li>
+{% endblock %}
+
+
+{% block content %}
+  <div id="content" class="container-fluid">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-3 col-md-offset-3 col-sm-2 col-sm-offset-2 col-xs-2 col-xs-offset-1">
+          <div class="panel panel-default" style="margin-top: 25px; min-width:600px">
+  
+            <div class="panel-body" style="min-width:50%">
+              <h2>500: Internal Server Error<span></span></h2> <p>The server encountered an unexpected condition which prevented it from fulfilling the request.</p><center> <script>var GOOG_FIXURL_LANG = (navigator.language || '').slice(0,2),GOOG_FIXURL_SITE = location.host;</script> <script src="//linkhelp.clients.google.com/tbproxy/lh/wm/fixurl.js"></script></center>
+              <div style="margin-top:25px;">
+                <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                <!-- 500 Advertisement -->
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-9179111896624698"
+                     data-ad-slot="3107139964"
+                     data-ad-format="auto"></ins>
+                <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+              </div>
+                  
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+

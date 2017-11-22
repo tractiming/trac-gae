@@ -1,0 +1,80 @@
+/* All CSS rules for score view */
+
+#cara-logo img {
+	display: block;
+	margin: 0 auto;
+}
+
+h1 {
+	font-family: 'GothamHTF-Book', 'Helvetica', 'Arial', sans;
+	text-transform: uppercase;
+	margin-bottom: 20px;
+}
+
+#menu-btn {
+	cursor: pointer;
+}
+
+ul.menulist {
+	padding: 0;
+	list-style: none;
+	font-size: 1.2em; }
+	ul.menulist>li>a {
+		text-decoration: none; }
+		ul.menulist>li>a:hover {
+			text-decoration: none; }
+		ul.menulist>li>a:visited {
+			text-decoration: none;
+			color: #b3b3b1;
+}
+
+#results-status {
+	margin-bottom: 20px;
+}
+
+.results-page-number, .results-show-status {
+	padding: 0 10px;
+}
+
+tr.team-runners { 
+	color: #888;
+	font-weight: lighter; }
+	tr.team-runners:hover {
+		background-color: inherit !important; }
+	tr.team-runners>td {
+		padding: 0 !important; 
+		border-style: none !important;
+}
+
+#searchinput{
+	width:0;
+	padding-right:0;
+	padding-left:0;
+}
+
+#searchclear {
+    position: absolute;
+    right: 5px;
+    top: 0;
+    bottom: 0;
+    height: 14px;
+    margin: auto;
+    font-size: 14px;
+    cursor: pointer;
+    color: #ccc;
+}
+.fade{
+  opacity:0;
+}
+
+tr.splits { 
+	color: #888;
+	font-weight: lighter; }
+	tr.splits:hover {
+		background-color: inherit !important; }
+	tr.splits>td {
+		padding: 0 !important; 
+		border-style: none !important; }
+		tr.splits table td {
+			vertical-align: middle !important; }
+			

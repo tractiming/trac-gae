@@ -1,0 +1,165 @@
+/* All CSS rules for internal live view page */
+
+h1 {
+  font-family: 'GothamHTF-Book', 'Helvetica', 'Arial', sans;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+ul.menulist {
+	padding: 0;
+	list-style: none;
+	font-size: 1.2em; }
+	ul.menulist>li>a {
+		text-decoration: none; }
+		ul.menulist>li>a:hover {
+			text-decoration: none; }
+		ul.menulist>li>a:visited {
+			text-decoration: none;
+			color: #b3b3b1;
+}
+
+#menu-btn, #calendar-btn {
+	cursor: pointer;
+	background-color:#f5f5f5; 
+	border-radius:4px;
+	padding:5px
+}
+#menu-btn:hover, #calendar-btn:hover {
+	cursor: pointer;
+	background-color:#aec8dc; 
+	border-radius:4px;
+	padding:5px
+}
+
+#calendar-overlay {
+	display: block;
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 9999;
+	background-color: rgba(0,0,0,0.5);
+	-webkit-animation: fade 500ms;
+	-moz-animation: fade 500ms;
+	-o-animation: fade 500ms;
+	animation: fade 500ms;
+	-webkit-transform-style: preserve-3d;
+	-moz-transform-style: preserve-3d;
+	transform-style: preserve-3d; }
+	#calendar-overlay .calendar-container {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		-webkit-transform: translate(-50%, -50%);
+		-moz-transform: translate(-50%, -50%);
+		transform: translate(-50%, -50%); }
+		#calendar-overlay .calendar-container .calendar-dialog {
+			padding: 20px 15px;
+			background-color: white;
+			text-align: center;
+			border: 2px solid #e7e7e7; }
+			.fc-today {
+			background-color: #D6D6EB !important;	}
+			.fc-event {
+				border: 1px solid #3577A8;
+				background-color: #3577A8; }
+			.fc-title {
+				color: white;
+}
+
+#results-status {
+	margin-bottom: 20px;
+}
+
+.results-navigate-container {
+	margin-top: 20px;
+}
+.results-page-number, .results-show-status {
+	padding: 0 10px;
+}
+
+#table-canvas>tbody .modify-total-time span.glyphicon { margin-right: 10px; }
+#table-canvas>tbody .modify-total-time div.edit-total span.glyphicon:hover { color: #f0b922; }
+#table-canvas>tbody .modify-total-time div.delete-total span.glyphicon:hover { color: #d9534f; }
+
+tr.splits { 
+	color: #888;
+	font-weight: lighter; }
+	tr.splits:hover {
+		background-color: inherit !important; }
+	tr.splits>td {
+		padding: 0 !important; 
+		border-style: none !important; }
+		tr.splits table td {
+			vertical-align: middle !important; }
+			tr.splits table td.split-time { }
+				tr.splits table td.split-time input {
+					width: 90px;
+					margin: 0 auto; }
+			tr.splits table td.split-edit-options {
+				width: 160px; }
+				tr.splits table td.split-edit-options .modify-splits {}
+					tr.splits table td.split-edit-options .modify-splits>div {
+						float: left; }
+					tr.splits table td.split-edit-options .modify-splits span.glyphicon {
+						margin-right: 10px }
+					tr.splits table td.split-edit-options .modify-splits div.insert-split span.glyphicon:hover { color: #3c763d; }
+					tr.splits table td.split-edit-options .modify-splits div.edit-split span.glyphicon:hover { color: #f0b922; }
+					tr.splits table td.split-edit-options .modify-splits div.delete-split span.glyphicon:hover { color: #d9534f; }
+
+.modify-total-time-input, .add-missed-runner-input {
+	float: left;
+	margin: 0 5px;
+	width: 50px; }
+	.modify-total-time-input input, .add-missed-runner-input input { text-align: center; }
+.modify-total-time-separator, .add-missed-runner-separator {
+	float: left;
+	margin-top: 7px;
+	color: #777;
+}
+
+#enable-corrections-container {
+	margin-top: 10px;
+}
+
+
+tr.team-runners { 
+	color: #888;
+	font-weight: lighter; }
+	tr.team-runners:hover {
+		background-color: inherit !important; }
+	tr.team-runners>td {
+		padding: 0 !important; 
+		border-style: none !important;
+}
+
+#results-graph {
+	margin-bottom: 20px;
+}
+
+#graph-toggle-options label, #graph-toggle-options input {
+	cursor: pointer;
+}
+
+#searchinput{
+	width:0;
+	padding-right:0;
+	padding-left:0;
+}
+
+#searchclear {
+    position: absolute;
+    right: 5px;
+    top: 0;
+    bottom: 0;
+    height: 14px;
+    margin: auto;
+    font-size: 14px;
+    cursor: pointer;
+    color: #ccc;
+}
+.fade{
+  opacity:0;
+}

@@ -1,0 +1,208 @@
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+.demo {
+  margin: 0 auto;
+  position: relative;
+}
+.demo h3 {
+  background: url(../img/images.png) top no-repeat;
+  background-size: 120px 361px;
+  text-indent: -9999px;
+}
+.demo .numbers {
+  -webkit-box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  -moz-box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  background-color: #fff;
+  border: 1px solid #bbc;
+  left: 80px;
+  margin-bottom: 28px;
+  padding: 14px 20px;
+  position: absolute;
+  top: 156px;
+  z-index: 10;
+}
+.demo .numbers p {
+  margin-bottom: 0;
+}
+.demo .numbers .list {
+  margin-bottom: 0;
+}
+
+#features {
+  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 84px;
+  padding-bottom: 83px;
+}
+#features h3 {
+  line-height: 28px;
+  padding: 14px 0;
+}
+#open-source h3 {
+  background: url(../images/images-2.png) -1566px center no-repeat;
+  background-size: 1633px 56px;
+  padding-left: 88px;
+}
+#major-cards-recognised h3 {
+  background: url(../images/images-2.png) 0 center no-repeat;
+  background-size: 1633px 56px;
+  padding-left: 102px;
+}
+#always-free h3 {
+  background: url(../images/images-2.png) -782px center no-repeat;
+  background-size: 1633px 56px;
+  padding-left: 104px;
+}
+#manual {
+  margin: 0 auto;
+}
+#manual div {
+  margin-bottom: 112px;
+}
+#manual h3 {
+  font-size: 52px;
+  margin-bottom: 56px;
+  text-align: center;
+}
+
+form h2 {
+  color: #555;
+  font-family: "ff-dagny-web-pro", "Helvetica Neue", Verdana, Geneva, Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  margin-bottom: 0;
+  text-align: left;
+}
+form li {
+  margin: 8px 0;
+}
+form li .help {
+  color: #aaa;
+  display: block;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 14px;
+  padding-top: 14px;
+}
+form li .help a {
+  color: #76a1cd;
+}
+form label {
+  color: #555;
+  display: block;
+  font-size: 14px;
+  font-weight: 400;
+}
+form input {
+  background-color: #fff;
+  border: 1px solid #e5e5e5;
+  color: #333;
+  display: block;
+  font-size: 18px;
+  height: 32px;
+  padding: 0 5px;
+  width: 275px;
+  -moz-box-sizing: content-box;
+  -webkit-box-sizing: content-box;
+}
+form input::-webkit-input-placeholder {
+  color: #ddd;
+}
+form input:-moz-placeholder {
+  color: #ddd;
+  opacity: 1;
+}
+form input::-moz-placeholder {
+  color: #ddd;
+  opacity: 1;
+}
+form input:-ms-input-placeholder {
+  color: #ddd;
+}
+form input:focus {
+  outline: 1px solid #3388dd;
+}
+form #card_number {
+  background-image: url(../img/images.png), url(../img/images.png);
+  background-position: 2px -121px, 260px -61px;
+  background-size: 120px 361px, 120px 361px;
+  background-repeat: no-repeat;
+  padding-left: 54px;
+  width: 225px;
+}
+form #card_number.visa {
+  background-position: 2px -163px, 260px -61px;
+}
+form #card_number.visa_electron {
+  background-position: 2px -205px, 260px -61px;
+}
+form #card_number.mastercard {
+  background-position: 2px -247px, 260px -61px;
+}
+form #card_number.maestro {
+  background-position: 2px -289px, 260px -61px;
+}
+form #card_number.discover {
+  background-position: 2px -331px, 260px -61px;
+}
+form #card_number.valid.visa {
+  background-position: 2px -163px, 260px -87px;
+}
+form #card_number.valid.visa_electron {
+  background-position: 2px -205px, 260px -87px;
+}
+form #card_number.valid.mastercard {
+  background-position: 2px -247px, 260px -87px;
+}
+form #card_number.valid.maestro {
+  background-position: 2px -289px, 260px -87px;
+}
+form #card_number.valid.discover {
+  background-position: 2px -331px, 260px -87px;
+}
+form #card_number.valid.amex {
+  background-position:  260px -87px;
+}
+form #card_number.valid.diners_club_carte_blanche {
+  background-position:  260px -87px;
+}
+form #card_number.valid.diners_club_international {
+  background-position:  260px -87px;
+}
+form #card_number.valid.jcb {
+  background-position:  260px -87px;
+}
+
+.vertical {
+  overflow: hidden;
+}
+.vertical li {
+  float: left;
+  width: 140px;
+}
+.vertical li .or {
+  color: #aaa;
+  float: left;
+  font-size: 12px;
+  margin-left: -8px;
+  margin-top: 32px;
+}
+.vertical li:last-child {
+  float: right;
+  text-align: right;
+}
+.vertical li:last-child input {
+  float: right;
+}
+.vertical input {
+  width: 68px;
+}
+ins {
+  overflow: hidden;
+  width: 100%;
+}
+
+}

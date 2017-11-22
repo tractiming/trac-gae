@@ -1,0 +1,27 @@
+/* All CSS rules for the settings view */
+
+#menu-btn {
+	cursor: pointer;
+	background-color:#f5f5f5; 
+	border-radius:4px;
+	padding:5px
+}
+
+#menu-btn:hover {
+	cursor: pointer;
+	background-color:#aec8dc; 
+	border-radius:4px;
+	padding:5px
+}
+ul.menulist {
+	padding: 0;
+	list-style: none;
+	font-size: 1.2em; }
+	ul.menulist>li>a {
+		text-decoration: none; }
+		ul.menulist>li>a:hover {
+			text-decoration: none; }
+		ul.menulist>li>a:visited {
+			text-decoration: none;
+			color: #b3b3b1;
+}

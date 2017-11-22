@@ -1,0 +1,59 @@
+{% extends "djstripe/base.html" %}
+
+{% block title %}Cancel Subscription{% endblock title %}
+
+{% block content %}
+<div id="content" class="container-fluid">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <ul class="breadcrumb">
+                  <li><a href="{% url 'djstripe:account' %}">Home</a></li>
+                  <li class="active">Cancel Subscription</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12">
+                <h2>Cancel Subscription</h2>
+                
+        		{% if not customer.current_subscription %}
+        			<p>You have no subscription on file.</p>
+        			<p>See your <a href="{% url 'djstripe:account' %}">account status</a> or better yet, <a href="{% url 'djstripe:subscribe' %}">subscribe</a>.</p>
+
+        		{% elif customer.current_subscription.status == customer.current_subscription.STATUS_CANCELLED %}
+        			<p>Your subscription has already been canceled.</p>
+        			<p>See your <a href="{% url 'djstripe:account' %}">account status</a> or better yet, get a <a href="{% url 'djstripe:subscribe' %}">fresh subscription</a>.</p>
+        			
+            	{% elif customer.current_subscription.is_status_temporarily_current %}
+         
+        			<p>Your subscription has already been canceled.</p>		
+        			<p>However, you can still use the site for another {{ customer.current_subscription.current_period_end|timeuntil }}.</p>
+        			
+            	{% else %}        
+
+                
+
+
+                {% block cancellation_ramifications %}
+                <h3 style="margin-top:2%">What you lose by cancelling your subscription:</h3>
+                <ul style="text-align:center">
+                  <li>Access to subscription-only content.</li>
+                  <li>Ability to use subscription-only features.</li>
+                </ul>
+                {% endblock cancellation_ramifications %}
+
+                <form action="{% url 'djstripe:cancel_subscription' %}" method="post" id="cancel-form" style="margin-bottom:2%; margin-top:2%; text-align:center">
+                    {% csrf_token %}
+                    <a href="{% url 'djstripe:account' %}" class="btn btn-primary">I changed my mind!</a>
+                    <button class="btn btn-danger">Cancel my subscription!</button>
+                </form>
+                
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+

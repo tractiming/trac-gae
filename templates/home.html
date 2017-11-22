@@ -1,0 +1,643 @@
+{% extends "base_new.html" %}
+{% load static %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static "css/new/main.css" %}" />
+<link rel="stylesheet" href="{% static "css/new/score.css" %}" />
+<link rel="stylesheet" href="{% static "css/new/create.css" %}" />
+{% endblock %}
+
+{% block js_scripts %}
+<script type="text/javascript" src="{% static "js/new/roster_jquery.js" %}"></script>
+<script>
+var instanceFirst = 1;
+var instanceLast = 3;
+if (localStorage.access_token == null) {
+    //link to login page
+    location.href="/login";
+}
+else{
+  console.log('hit else');
+  $.ajax({
+    type: 'GET',
+    url: '/api/verifyLogin/',
+    data: {
+      token: localStorage.access_token
+    },
+    dataType:'json',
+
+    // Registration was successful.
+    success: function(data) {
+    },
+    // Registration failed.
+    error: function(xhr, errmsg, err) {
+      sessionStorage.clear();
+      localStorage.clear();
+      location.href='/login';
+    },
+    });
+}
+    $(document).ready(function() {
+      $("li a.logout").click(function(){
+          localStorage.clear();
+          amplitude.setUserId(null);
+          location.href="/login";
+      });
+
+
+       $.ajax({
+          url: "api/users/me/tutorial_limiter/",
+          headers: {Authorization: "Bearer " + localStorage.access_token},
+          dataType: 'text',
+          success: function(data){
+            var resp = $.parseJSON(data);
+            if (resp.show_tutorial){
+              $('div#tutorial').show();
+            }
+
+          },
+          error: function(xhr, errmsg, err) {
+            $('div#tutorial').show();
+          }
+
+        });
+
+
+
+    });
+
+</script>
+<script type="text/javascript" src="{% static "js/timeConversion.js" %}" />
+{% endblock %}
+
+
+{% block content %}
+<script>
+
+  $(document).ready(function(){
+    if (localStorage.usertype == 'athlete'){
+          $("div.right").hide();
+          $('div.pictures').css('padding-left','200px');
+          $('div.text').css('padding-left','200px');
+      }
+      loadAthletes();
+      loadworkouts();
+      getLogo();
+  });
+
+  var RESULTS_PER_PAGE = 5, currentPage = 1, resultOffset = 0, teamID; 
+
+  $('body').on('click', 'button.prev', function(e){
+    e.preventDefault();
+
+    if (currentPage != 1) {
+      resultOffset -= RESULTS_PER_PAGE;
+      currentPage--;
+    }
+
+    loadAthletes();
+  });
+
+  $('body').on('click', 'button.next', function(e){
+    e.preventDefault();
+
+    resultOffset += RESULTS_PER_PAGE;
+    currentPage++;
+
+    loadAthletes();
+  });
+
+  function loadAthletes(){
+    $('#athletes').empty();
+    data = {'limit': RESULTS_PER_PAGE, 'offset': resultOffset};
+        $.ajax({
+                    url: "api/athletes/",
+                    headers: {Authorization: "Bearer " + localStorage.access_token},
+                    data: data,
+                    dataType: 'text',
+                    success: function(data){
+                          var json = $.parseJSON(data).results;
+                          //json = json.reverse();
+                          if (json == ""){
+                            $('#athletes').append("<center><a href='/tutorial/2/' style='center'>Click Here for Quick Setup</a></center>");
+
+                          }
+                            else{
+                          $('#athletes').append(
+                                  '<table id="workouts-table" class="table table-striped table-hover">' +
+                                        '<thead>' +
+                                              '<tr>' +
+                                                    '<th class="hidden-xs hidden-sm hidden-md hidden-lg">id</th>'+
+                                                    '<th>First Name</th>'+
+                                                    '<th>Last Name</th>' + 
+                                                   // '<th>Username</th>' + 
+                                              '</tr>'+
+                                        '</thead>'+
+                                        '<tbody>'+
+                                        '</tbody>' +
+                                  '</table>');
+                          $('#athletes').addClass('col-md-6 col-md-offset-0 colr-sm-8 col-sm-offset-0');
+                          for (var ii=0;ii < json.length ;ii++){
+               //alert(ii);
+                                id = json[ii].id;
+                                fname = json[ii].first_name;
+                                lname = json[ii].last_name;
+                                uname = json[ii].username;
+                                $('#athletes tbody').append(
+                                      '<tr data-href="/individual/'+id+'/">' +
+                                          '<td class="hidden-xs hidden-sm hidden-md hidden-lg">' + id + '</td>' +
+                                          '<td>'+fname+'</td>'+
+                                          '<td>'+lname+'</td>'+
+                                          //'<td>'+uname+'</td>' +
+                                      '</tr>');
+                          }
+                          var numResults = json.count;
+                          var numReturned = 5;
+
+                          if (numResults < RESULTS_PER_PAGE) {
+                            $('button.prev').attr('disabled', true);
+                            $('button.next').attr('disabled', true);
+                          } else {
+                            if ((numReturned < RESULTS_PER_PAGE) || (numReturned * currentPage == numResults))
+                              $('button.next').attr('disabled', true);
+                            else
+                              $('button.next').attr('disabled', false);
+
+                            if (currentPage == 1)
+                              $('button.prev').attr('disabled', true);
+                            else
+                              $('button.prev').attr('disabled', false);
+                          }
+
+                          $('.results-page-number').html(currentPage);
+                    }
+                  }
+              });
+  }
+
+function loadworkouts(){
+       $('#workouts').empty();
+       $.ajax({
+             url: "/api/sessions/",
+         headers: {Authorization: "Bearer " + localStorage.access_token},
+                    //force to handle it as text
+                    data: {
+                      limit: instanceLast,
+                    },
+                    dataType: "text",
+                    success: function(data) {
+                        //alert(data);
+                        //data downloaded so we call parseJSON function 
+                        //and pass downloaded data
+                        //console.log(data);
+                        var json = $.parseJSON(data);
+                       //alert(json[0].id_str)
+                       var results = json.results;
+
+                       if (results == "") {
+        $(".outer").hide();
+        $(".modal-animate").hide();
+        $('#workouts').empty();
+            $('button#next').hide();
+            $('button#prev').show();        
+          $("div.notification.notification-default").show();
+          $('#workouts').append("<center><a href='/tutorial/4/' style='center'>Click Here for Quick Setup</a></center>");
+
+
+      }
+      // show name and date, dont show message, but show button
+      else {
+                       $(".outer").show();
+                        $("div.notification.notification-default").hide();
+                        $('#workouts').append(
+                        '<table id="workouts-table" class="table table-striped table-hover">' +
+                          '<thead>' +
+                  '<tr>' +
+                  '<th class="hidden-xs hidden-sm hidden-md hidden-lg">id</th>'+
+                    '<th>Workout Name</th>'+
+                    '<th>Start Date</th>'+
+                    '<th class="hidden-xs hidden-sm">End Date</th>'+
+                    '<th class="hidden-xs hidden-sm">Distance</th>'+
+                    '<th class="hidden-xs hidden-sm">Track</th>'+
+                    '<th>Filtered</th>'+
+                    '<th class="hidden-xs hidden-sm">Private</th>'+
+                  '</tr>'+
+                '</thead>'+
+                '<tbody>'+
+                '</tbody>'+
+              '</tbody>');
+              $('#workouts').addClass('col-md-6 col-md-offset-0 colr-sm-8 col-sm-offset-0');
+              var maximum = 0;
+                       for (var ii=0; ii < results.length;ii++){
+               //alert(ii);
+               if (ii > maximum){
+                maximum = ii;
+               }
+               id = results[ii].id;
+               name = results[ii].name;
+               distance = results[ii].interval_distance;
+               track = results[ii].track_size;
+              // time = time.slice(0,10);
+               filter= results[ii].filter_choice;
+               privateselect = results [ii].private;
+               var sTS = UTC2local(results[ii].start_time);
+               sTS = sTS.substring(0, 25);
+               var sTE = UTC2local(results[ii].stop_time);
+               sTE = sTE.substring(0,25);
+                $('#workouts tbody').append(
+                  '<tr>'+
+                  '<td class="hidden-xs hidden-sm hidden-md hidden-lg">' + id + '</td>' +
+                    '<td>'+name+'</td>'+
+                    '<td>'+sTS+'</td>'+
+                    '<td class="hidden-xs hidden-sm">'+sTE+'</td>'+
+                    '<td class="hidden-xs hidden-sm">'+distance+'</td>'+
+                    '<td class="hidden-xs hidden-sm">'+track+'</td>'+
+                    '<td>'+filter+'</td>'+
+                    '<td class="hidden-xs hidden-sm">'+privateselect+'</td>'+
+                  '</tr>');
+               }
+             }
+
+      }
+      
+      
+      
+                    });
+       
+}
+    function getLogo(){
+      var url = "/api/teams/?primary_team=True";
+      $.ajax({
+       headers: {Authorization: "Bearer " + localStorage.access_token},
+       url : url,
+       type : 'GET',
+       success : function(data) {
+          var image =  data[0].logo;
+          teamID = data[0].id;
+          if (image !== null){
+            $('#imageForm').hide();
+            $('#logoImage').attr('src', image);
+          }
+          else
+            $('#logoImage').attr('src', image);
+          
+        }
+      });
+    }
+
+
+    function uploadImage(){
+      var fd = new FormData($('#imageForm')[0]);
+      var url = "/api/teams/" + teamID +"/";
+      $.ajax({
+       headers: {Authorization: "Bearer " + localStorage.access_token},
+       url : url,
+       type : 'PATCH',
+       data : fd,
+       processData: false,  // tell jQuery not to process the data
+       contentType: false,
+       cache: false, 
+       success : function(data) {
+           console.log(data);
+           getLogo();
+        }
+      });
+    }
+
+    $("body").on('click', '#uploadLogo' ,function(e){
+      e.preventDefault();
+      uploadImage();
+    });
+
+</script>
+<script>
+ 
+ 
+$("body").on('click', '#athletes tr' ,function(){
+    window.document.location = $(this).data("href");
+  /*
+  $('#myModal').modal('toggle');
+  var value = $(this).html();
+  $("button#delete").show();
+  $("input#update").show();
+  $("div.button-container-two").show();
+  $("input#create").show();
+  $("p#idnumber").show();
+  $("label#id_str").hide();
+  $("input#id_str").hide();
+  $("input#save").hide();
+  $(value).each(function(index){
+    //alert( $(this).html() );
+    console.log( index+ ":"+ $(this).html());
+    if (index ==0)
+    {
+      var input =$('input#idnumber');
+      input.val($(this).html() );
+    }
+    else if (index ==1)
+    {
+      var input =$('input#first_name');
+      input.val($(this).html() );
+      }
+    else if (index == 2)
+    {
+      var input = $('input#last_name');
+       input.val($(this).html() );
+    }
+  });
+*/
+});
+
+/*$("body").on('click', 'button#plus', function(e){
+  //alert($(this).html());
+    e.preventDefault();
+    $("#coachform")[0].reset();
+  var value = $(this).html();
+  $("button#delete").hide();
+  $("input#update").hide();
+  $("input#save").show();
+  $("p#idnumber").hide();
+  $("label#id_str").show();
+  $("input#id_str").show();
+  //$("input#create").hide();
+
+  });
+
+$("button#delete").off('click');
+  $("body").on('click', 'button#delete', function(f){
+  //alert($(this).html());
+    f.preventDefault();
+    $("div.notification.notification-warning").show();
+    $("div.notification.notification-critical").hide();
+    $("div.notification.notification-critical").hide();
+    $("div.notification.notification-success").hide();
+    $("div.notification.update-success").hide();
+  });
+
+ 
+  $("body").on('click', 'button#warning-yes', function(event){
+  console.log("On:", event.target);
+  var value = $(this).html();
+   $(".modal-animate").show();
+    
+   var id=$('input[id=idnumber]').val();
+  //alert(id);
+  
+    //alert(filter);
+        $.ajax({
+           type: "POST",
+           dataType:'json',
+           url: "/api/edit_athletes/",
+           data:
+           {id: id,
+          submethod: 'Delete'},
+          headers: {Authorization: "Bearer " + sessionStorage.access_token},
+         
+           // Login was successful.
+           success: function(data) {
+                  $(".modal-animate").hide();
+                   $("div.notification.notification-critical").hide();
+                    $("div.notification.notification-success").hide();
+                   $("div.notification.update-success").hide();
+                  $("div.notification.delete-success").show();
+                 $("div.notification.notification-warning").hide();
+                $("#coachform")[0].reset();
+               $("button#delete").hide();
+               $("input#update").hide();
+                $("input#save").show();
+                 $("p#idnumber").hide();
+                 //$("input#create").hide();
+                  $("#athletes").empty();
+                 loadAthletes();
+              },
+              // Login request failed.
+           error: function(xhr, errmsg, err) {
+      //hide spinner, show error modal
+      $(".modal-animate").hide();
+      $("div.notification.notification-success").hide();
+       $("div.notification.notification-warning").hide();
+        $("div.notification.update-success").hide();
+        $("div.notification.delete-success").hide();
+        $("div.notification.notification-critical").show();
+           }
+            });  
+});
+
+
+$("button#warning-no").click(function(event){
+    $(".modal-animate").hide();
+      $("div.notification.notification-success").hide();
+      $("div.notification.notification-warning").hide();
+   });
+
+
+$("body").on('hidden.bs.modal', '#notificationModal', function(){
+          $("div.notification.delete-success").hide();
+          $("div.notification.notification-warning").hide();
+    });*/
+$("body").on('click', 'button#cl', function(e){
+  e.preventDefault();
+  $('div#tutorial').slideUp();
+});
+
+/*   $("body").on('click','input#update', function(e){
+         e.preventDefault();
+          var id=$('input[id=idnumber]').val();   
+            var fname=$('input[id=first_name]').val();
+            var lname=$('input[id=last_name]').val();
+        $.ajax({
+           type: "POST",
+           dataType:'json',
+           url: "/api/edit_athletes/",
+           headers: {Authorization: "Bearer " + sessionStorage.access_token},
+           data: {
+               id: id,
+               first_name: fname,
+               last_name: lname,
+               submethod: 'Update'
+           }, 
+                      success: function(data) {
+                      $("#coachform")[0].reset();
+                      loadAthletes();
+                      $("div.notification.update-success").show();
+                    }
+                });
+           
+      });*/
+
+</script>
+
+<style>
+    #coachform{
+      width:300px;
+      margin: 0 auto;
+    }
+    label{
+      display:block;
+    }
+    input,textarea{
+      width:75%;
+    }
+    .image{
+     /* background: url('../../static/img/AlexMorgan.png'); */
+      position: relative;
+    }
+    .image:hover>.overlay{
+    background-color:#000;
+    opacity:0.05;
+    position: relative;
+    border-radius:10px;
+    }
+</style>
+
+    <div id="home">  
+        <div class="container-fluid content">
+          <div id="container" class="container">
+            <div class="row">
+              <div id="tutorial" class="panel panel-default hidden-sm hidden-xs" style="margin: 2%; display:none">
+                <div class="panel-heading clearfix">
+                    <h1 class="panel-title pull-left">TRAC Tutorial</h1>
+                    <button id="cl" class="close"><span class="glyphicon glyphicon-remove"></span></button>
+                </div>
+                <div class="panel-body">
+                  <ul align="center" style="padding: 0px;">
+                    <li class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                      <div class="row" style="height:80%; background: white; color: white; margin: 1%; border-style: solid; border-color: white;">
+                        <a href="/tutorial/3">
+                        <div class="image" style="height:200px;"><div class="overlay" style="height: 100%; width: 100%;"><img width="100%" src="static/img/case.png"></div></div>
+                        <div>Register Readers</div>
+                        </a>
+                      </div>
+                    </li>
+                    <li class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                      <div class="row" style="height:80%; background: white; color: white; margin: 1%; border-style: solid; border-color: white;">
+                        <a href="/tutorial/4">
+                        <div class="image" style="height:200px;"><div class="overlay" style="height: 100%; width: 100%;"><img width="100%" src="static/img/start.png"></div></div>
+                        <div>Create Workouts</div>
+                      </a>
+                      </div>
+                    </li>
+                    <li class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                      <div class="row" style="height:80%; background: white; color: white; margin:1%; border-style: solid; border-color: white;">
+                        <a href="/tutorial/5">
+                        <div class="image" style="height:200px;"><div class="overlay" style="height: 100%; width: 100%;"><img width="100%" src="static/img/stopwatch.png"></div></div>
+                        <div>Roster Management</div>
+                      </a>
+                  </div>
+                    </li>
+                    <li class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                      <div class="row" style="height:80%; background: white; color: white; margin: 1%; border-style: solid; border-color: white;">
+                        <a href="/tutorial/8">
+                        <div class="image" style="height:200px;"><div class="overlay" style="height: 100%; width: 100%;"><img width="100%" src="static/img/gears.png"></div></div>
+                        <div>Advanced Features</div>
+                      </a>
+                  </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-lg-5 col-md-5 sm-hidden xs-hidden" style="padding-bottom:7%">
+                <div class="panel panel-default" style="margin-top:5%;">
+                  <div class="panel-body">
+                      <img class="center" id="logoImage" style="max-width: 100%; border-radius:4px"/>
+                    </div>
+                  </div>
+                <form id="imageForm" >
+                  <div class="form-group">
+                    <label for="file">Upload Logo:</label>
+                    <div class="input-group">
+                        <span class="input-group-btn">
+                          <span class="btn btn-default btn-file">
+                            Browse&hellip; <input type="file" id="file" name="logo" data-parsley-errors-container="#csv-parsley-errors">
+                          </span>
+                        </span>
+                        <input type="text" class="form-control" readonly required data-parsley-errors-container="#csv-parsley-errors" style="width:55%; border-top-right-radius:4px !important; border-bottom-right-radius:4px !important;">
+                        <div class="pull-right" style="width:40%"> 
+                          <button name="" class="btn btn-primary" id="uploadLogo">Upload</button>
+                        </div>
+                    </div>
+                    <div id="csv-parsley-errors"></div>
+                  </div>
+                </form>
+
+
+                <div id="athletes" class="table">
+                </div>
+                <div class="center">
+                  <div id="results-navigate-footer" class="results-navigate">
+                    <button type="button" class="prev btn btn-default">
+                      <span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span>
+                    </button>
+                    <span class="results-page-number"></span>
+                    <button type="button" class="next btn btn-default">
+                      <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-7 col-md-7 col-sm-7 col-xs-7 hidden-sm hidden-xs">
+                <h1 id="score-title">Recent Workouts</h1>
+                <div id="workouts" class="table">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+              <div id="create" class="container">
+  <div class="modal fade" id="notificationModal" role="dialog">
+    <div class="modal-dialog">
+      <div class ="modal-content">
+        <div class="modal-body">
+          <div id="notifications">
+              <div class="notification notification-critical" role="alert">Some information you entered isn't right.</div>
+            <div class="notification notification-success" role="alert">You have successfully created a workout!</div>
+            <div class="notification update-success" role="alert">You have successfully updated a workout!</div>
+            <div class="notification delete-success" role="alert">You have successfully deleted a workout!</div>
+            <div class="notification notification-warning" role="alert">Are you sure? <div id="screen-selector"><button href="#" type="button" id="warning-yes">Yes</button><button id="warning-no" href="#" type="button" style="float:right" data-dismiss="modal" data-toggle="modal" data-target="#myModal">Cancel</button></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        <div class="container">
+ <div class="modal fade" id="myModal" role="dialog">
+  <div class="modal-dialog">
+  <div class="modal-content">
+    <div class="modal-header">
+    </div>
+      <div class="modal-body">
+      <form name="tracform" id="coachform" method="POST" data-parsley-validate>
+        <div class="button-container-two">
+          </div>
+          <p id="idnumber">
+           
+            <input type="hidden" id="idnumber" value="" placeholder="" required data-parsley-group="block1" readonly/>
+        </p>
+       <p>
+           <label for="">First Name:</label> 
+           <input data-progression="" type="text" id="first_name" value="" placeholder="" required data-parsley-group="block1" />
+       </p>
+        <p>
+           <label for="">Last Name:</label> 
+           <input data-progression="" type="text" id="last_name" value="" placeholder="" required data-parsley-group="block1" />
+       </p>
+       <p>
+        <label for="" id="id_str">Tag ID:</label>
+        <input data-progression="" type="text" id="id_str" value="" placeholder="" required data-parsley-group="block1" />
+      </p>
+          <br>
+         
+              <div class="button-container modal-footer">
+      <button name="" class="btn btn-primary col-md-3 col-sm-3 col-xs-3" id="delete" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal">Delete</button>
+        <input type="submit" name="" class="btn btn-primary" id="save" value="Save" />
+        <input type="submit" name="" class="btn btn-primary col-md-5 col-sm-5 col-xs-5" id="update" value="Update" data-dismiss="modal" data-toggle="modal" data-target="#notificationModal" />
+                           </div>
+                        </form>   
+                     </div>        
+                 </div>
+              </div>
+          </div>
+      </div>
+    </div>
+{% endblock %}

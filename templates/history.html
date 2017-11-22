@@ -1,0 +1,105 @@
+{% extends "djstripe/base.html" %}
+{% load staticfiles %}
+{% block title %}Payment History{% endblock title %}
+
+{% block content %}
+<div id="content" class="container-fluid">
+    <div class="container">
+      <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3 pull-left">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title" style="text-align:left">Settings</h3>
+            </div>
+              <div class="panel-body">
+                <a href="/account_settings/1/" id="e_profile"><img src="{% static "img/general.png" %}" width="20px"> General</a><br>
+                <a href="/account_settings/2/" id="e_password"><img src="{% static "img/security.png" %}" width="20px"> Security</a><br>
+                <a href="/account_settings/3/" id="e_roster"><img src="{% static "img/peopleicon.png" %}" width="20px"> Team</a><br>
+                <a href="/payments/change_card/" id="e_payment"><img src="{% static "img/payment.png" %}" width="20px"> Payments</a><br>
+                <a href="/payments/subscribe/" id="e_payment"><span class="glyphicon glyphicon-retweet"></span> Subscription</a><br>
+                <a href="/payments/history/" id="e_payment"><span class="glyphicon glyphicon-book"></span> History</a><br>
+              </div>
+          </div>
+        </div>
+        <div class = "col-lg-9 col-md-9 col-sm-9 col-xs-9">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title" id="display-title">Payment History</h3>
+            </div>
+              <div class="panel-body">
+                <div class="row">
+                  <div class="col-xs-12">
+                    <div id="history-table" class="table"></div>
+                  </div>
+                </div>
+            </div>
+          </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block js_scripts %}
+{{ block.super }}
+<script type="text/javascript" src="{% static "js/timeConversion.js" %}"></script>
+<script>
+    $(function() {
+        if (localStorage.access_token == null) {
+            location.href = '/login';
+        }
+        $(document).ready(function() {
+            $("li a.logout").click(function(){
+                localStorage.clear();
+                location.href = '/login';
+            });
+        });
+        loadInvoices();
+
+        function loadInvoices() {
+            $.ajax({
+                type: 'GET',
+                dataType: 'json',
+                url: '/payments/charges/',
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.access_token
+                },
+                success: function(data) {
+                    if (data) {
+                        $('#history-table').append(
+                            '<table class="table table-striped">' +
+                                '<thead>' +
+                                    '<tr>' +
+                                        '<th>Transaction ID</th>' +
+                                        '<th>Date</th>' +
+                                        '<th>Amount</th>' +
+                                    '</tr>' +
+                                '</thead>' +
+                                '<tbody>' +
+                                '</tbody>' +
+                            '</table>'
+                        );
+
+                        for (var i=0; i < data.length; i++) {
+                            id = data[i].id;
+						    var payDate = UTC2local(data[i].charge_created);
+                            amount = data[i].amount;
+
+                            $('#history-table tbody').append(
+                                '<tr>'+
+                                    '<td>' + id + '</td>' +
+                                    '<td>' + payDate + '</td>' +
+                                    '<td>' + amount + '</td>' +
+                                '</tr>'
+                            );
+                        }
+                    } else {
+					    $('#results').empty();
+                    }
+                },
+                error: function(xhr, errmsg, err) {
+                    alert('Error retrieving payment info');
+                }
+            });
+        };
+    });
+</script>
+{% endblock js_scripts %}

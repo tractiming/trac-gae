@@ -1,0 +1,99 @@
+{% extends "base_new.html" %}
+{% load static %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static "css/new/main.css" %}" />
+<link rel="stylesheet" href="{% static "css/new/score.css" %}" />
+<link rel="stylesheet" href="{% static "css/new/create.css" %}" />
+{% endblock %}
+
+{% block content %}
+<script>
+$(document).ready(function(){
+
+    var token = "{{ token }}";
+    var header_token = token;
+    var pk = "{{ pk }}";
+    $.ajax({
+      type:"GET",
+      url:"/api/verifyLogin/",
+      headers:{Authorization: "Bearer " + token},
+      data: {
+        token: header_token
+      },
+      success: function(data){
+      },
+      error: function(xhr, errmsg, err){
+        location.href = '/login'
+      }
+    });
+
+  $('body').on('submit', 'form#pform', function(e){
+    e.preventDefault();
+    var password =  $('input#pfield').val();
+    var v_password =  $('input#pfieldverify').val();
+    if (password == v_password){
+      var string = escapeString(password);
+    }
+
+    function escapeString(string){
+      var specialChars = { 
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': '&quot;',
+      "'": '&#39;',
+      "/": '&#x2F;'
+    };
+      string = String(string).replace(/[&<>"'\/]/g, function(s){
+        return specialChars[s];
+      });
+      return string;
+    }
+    $.ajax({
+      type:"POST",
+      url:"/api/reset_password/",
+      headers:{Authorization: "Bearer " + token},
+      data: {
+        user: pk,
+        password: string,
+      },
+      success: function(data){
+        if (data != 403){
+        alert('password changed');
+        location.href="/login";
+      }
+      else{
+        alert('Invalid Authentication');
+      }
+      },
+      error: function(xhr, errmsg, err){
+        if (xhr.status == 401){
+          alert('Invalid Token');
+        }
+      }
+    });
+  });
+});
+</script>
+<div class="container-fluid content">
+  <div id="content" class="content">
+    <div align="center">
+    <h1>Reset Your Password</h1>
+    <p>Enter your new password and then confirm it. There are no password rules yet, but there really should be.</p>
+    <form id="pform" style="margin: 2%; width: 25%;" method="post" align="center">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="pfield">New Password</label>
+      <input type="password" id="pfield" class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="pfieldverify">Confirm Password</label>
+      <input type="password" id="pfieldverify" class="form-control">
+    </div>
+      <button type="submit" id="edit-submit" class="btn btn-primary" style="margin:2%;">Submit</button>
+    </form>
+  </div>
+  </div>
+</div>
+{% endblock %}

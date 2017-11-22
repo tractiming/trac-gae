@@ -1,0 +1,10 @@
+Hi {{name}},
+
+You are recieving this email as you have received a quote of ${{price}} for your upcoming race on {{date}}. You have requested {{system_number}} TRAC systems, and {{tag_number}} {{tag_type}}. We will follow up shortly with more information regarding your request. 
+
+For all any questions or concerns contact founders@tracchicago.com
+
+Best,
+
+The TRAC Team
+

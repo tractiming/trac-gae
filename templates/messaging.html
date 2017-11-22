@@ -1,0 +1,142 @@
+{% extends "base_new.html" %}
+{% load static %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static "css/new/main.css" %}" />
+<style>
+.phone-number .col-xs-3::after{
+    content: "-";
+    position:absolute;
+    right: 5px;
+    color: black;
+    border: 0px solid;
+    top: 5px;
+}
+
+.phone-number .col-xs-4{
+    width:25%;
+}
+
+.phone-number .col-xs-3, .phone-number .col-xs-4{
+    padding-left:0;
+    padding-bottom: 1cm;
+}
+</style>
+{% endblock %}
+
+{% block js_scripts %}
+<script>
+$(document).ready(function() {
+    $("li a.logout").click(function(){
+        localStorage.clear();
+        location.href="/login";
+    });
+});
+</script>
+<script type="text/javascript" src="{% static "js/trac-ajax.js" %}"}></script>
+<script type="text/javascript" src="{% static "js/new/messaging.js"%}"}></script>
+{% endblock %}
+
+{% block nav-items %}
+  <li><a href="/login">Login</a></li>
+  <li><a href="/register">Register</a></li>
+  <li><a href="/#bg3">About</a></li>
+  <li><a href="/score">Results</a></li>
+{% endblock %}
+
+{% block content %}
+<div class="modal fade" id="notification-modal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <p class="notification notification-success center"
+                id="subscribe-success-message" role="alert">
+                    <span class="glyphicon glyphicon-info-sign"></span>
+                    You have successfully signed up for text updates for this
+                    athlete.
+                </p>
+                <p class="notification notification-error select-group center"
+                id="subscribe-failure-message" role="alert">
+                    <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                    Internal Server Error
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="content" class="container-fluid">
+    <div class="container">
+        <div class="row">
+            <h1>RESULTS MESSAGING - SIGN UP</h1>
+        </div>
+        <div id="subscription-select" class="row" style="display:none;">
+            <div class="subscription-select
+                col-lg-6 col-md-6 col-sm-6 col-xs-6
+                col-lg-offset-3 col-md-offset-3 col-sm-offset-3 col-xs-3">
+                <div class="row">
+                    <div class="session-select-container
+                        col-lg-6 col-md-6
+                        col-lg-offset-3 col-md-offset-3">
+                        <div class="form-group">
+                            <label for="session-select" class="sr-only">Select session 1:</label>
+                            <select class="session-select form-control" id="session-select">
+                                <option disabled selected>Select a race</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="athlete-select-container
+                        col-lg-6 col-md-6
+                        col-lg-offset-3 col-md-offset-3">
+                        <div class="form-group">
+                            <label for="athlete-select" class="sr-only">Select an athlete 1:</label>
+                            <select class="athlete-select form-control" id="athlete-select">
+                                <option disabled selected>Select athlete</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-8 col-xs-offset-3">
+                        <div class="form-group phone-number">
+
+                            <div class="col-xs-3">
+                                <input type="tel" name="phone"
+                                class="form-control" value=""
+                                size="3" maxlength="3" required="required"
+                                title="" id="phone1">
+                            </div>
+
+                            <div class="col-xs-3">
+                                <input type="tel" name="phone"
+                                class="form-control" value=""
+                                size="3" maxlength="3" required="required"
+                                title="" id="phone2">
+                            </div>
+
+
+                            <div class="col-xs-4">
+                                <input type="tel" name="phone"
+                                class="form-control" value=""
+                                size="4" maxlength="4" required="required"
+                                title="" id="phone3">
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="subscribe-button
+                        col-lg-4 col-lg-offset-4
+                        col-md-4 col-md-offset-4">
+                        <button type="submit" id="submit"class="btn btn-success form-control">
+                            Subscribe
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

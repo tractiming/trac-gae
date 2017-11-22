@@ -1,0 +1,315 @@
+{% extends "base_new.html" %}
+
+    <title>
+        {% block title %}
+        Tutorial
+        {% endblock %}
+    </title>
+
+{% load static %}
+
+<!-- Head -->
+{% block stylesheets %}
+<meta name="description"  content="Learn how to use the app and find solutions to common problems."> 
+  <link href="{% static "css/new/main.css" %}" rel="stylesheet" type="text/css">
+  <link href="{% static "css/new/score.css" %}" rel='stylesheet' type='text/css'>
+  <style>
+p { 
+  display: block; 
+ font-family: proxima-nova,"Helvetica Neue Light","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif;
+ line-height:28px;
+ font-size: 16px;
+}
+.header{
+    display:none;
+}
+.tutorial{
+    display:none;
+}
+
+</style>
+
+{% endblock %}
+
+{% block js_scripts %}
+<script type="text/javascript" src="{% static "js/timeConversion.js" %}" ></script>
+  <script type="text/javascript">
+   $(document).ready(function(){
+    var page = "{{ page }}";
+    if (page == 1)
+    {
+        $('#nav-1').addClass('active');
+        $('#header-1').show();
+        $('#tutorial-1').show();
+    }
+    else if (page ==2)
+    {
+        $('#nav-2').addClass('active');
+        $('#header-2').show();
+        $('#tutorial-2').show();
+    }
+    else if (page ==3)
+    {
+        $('#nav-3').addClass('active');
+        $('#header-3').show();
+        $('#tutorial-3').show();
+    }
+    else if (page ==4)
+    {
+        $('#nav-4').addClass('active');
+        $('#header-4').show();
+        $('#tutorial-4').show();
+    }
+    else if (page ==5)
+    {
+        $('#nav-5').addClass('active');
+        $('#header-5').show();
+        $('#tutorial-5').show();
+    }
+    else if (page ==6)
+    {
+        $('#nav-6').addClass('active');
+        $('#header-6').show();
+        $('#tutorial-6').show();
+    }
+    else if (page ==7)
+    {
+        $('#nav-7').addClass('active');
+        $('#header-7').show();
+        $('#tutorial-7').show();
+    }
+    else if (page ==8)
+    {
+        $('#nav-8').addClass('active');
+        $('#header-8').show();
+        $('#tutorial-8').show();
+    }
+    else
+        window.location.href = "/tutorial/8/"
+
+
+    $('.next-button').on('click', function (){
+        if (page>7)
+        {
+            return;
+        }
+        page = Number(page)+1;
+        window.location.href = "/tutorial/"+page;
+    });
+
+});
+  </script>
+  <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+  <link href="{% static "css/colorbox.css" %}" rel="stylesheet" type="text/css">
+  <script src="{% static "js/new/jquery.colorbox.js" %}" type="text/javascript"></script>
+<script>
+    $(document).ready(function(){
+        //$(".youtube").colorbox({iframe:true, innerWidth:640, innerHeight:390});   
+        $(".youtube").colorbox({iframe:true, width:"90%", height:"95%"});   
+        $(".iframe").colorbox({iframe:true, width:"50%", height:"65%"}); 
+    });
+</script>
+{% endblock %}
+<!-- Body -->
+{% block nav-items %}
+  <li><a href="/login">Login</a></li>
+  <li><a href="/register">Register</a></li>
+  <li><a href="/#bg3">About</a></li>
+  <li><a href="/score">Results</a></li>
+{% endblock %}
+
+{% block content %}
+
+
+<div id="content" class="container-fluid">
+    <div class="container">
+        <div class="row col-lg-9 col-lg-offset-1" style="border-bottom:1px solid #eee">
+            <div >
+               <h2 class="pull-left header" id="header-1">1. Installing the App</h2>
+               <h2 class="pull-left header" id="header-2">2. Create A Roster</h2>
+               <h2 class="pull-left header" id="header-3">3. Using a Reader</h2>
+               <h2 class="pull-left header" id="header-4">4. Create Workouts</h2>
+               <h2 class="pull-left header" id="header-5">5. Import Athletes</h2>
+               <h2 class="pull-left header" id="header-6">6. Controlling Workouts</h2>
+               <h2 class="pull-left header" id="header-7">7. Viewing Results</h2>
+               <h2 class="pull-left header" id="header-8">8. Comparing Athletes</h2>
+            </div>
+            <div id="paginate">
+                <nav class="pull-right" >
+                  <ul class="pagination pagination-lg">
+                    <li id="nav-1"><a href="/tutorial/1/">1</a></li>
+                    <li id="nav-2"><a href="/tutorial/2/">2</a></li>
+                    <li id="nav-3"><a href="/tutorial/3/">3</a></li>
+                    <li id="nav-4"><a href="/tutorial/4/">4</a></li>
+                    <li id="nav-5"><a href="/tutorial/5">5</a></li>
+                    <li id="nav-6"><a href="/tutorial/6/">6</a></li>
+                    <li id="nav-7"><a href="/tutorial/7/">7</a></li>
+                    <li id="nav-8"><a href="/tutorial/8/">8</a></li>
+                    <li>
+                      <a style="cursor:pointer" class="next-button" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                      </a>
+                    </li>
+                  </ul>
+                </nav>
+            </div>
+        </div>
+        <div id="tutorial-body" class="row col-lg-9 col-lg-offset-1" style="margin-top:2%">
+            <div class="tutorial" id="tutorial-1">
+                <div class="row">
+                    <div class="col-lg-9">
+                        <p><b>TRAC relies on its mobile applications in order to fully utilize our website. </b> These apps can be found on the App Store for iOS and PlayStore for Android. </p>
+                        <center><a href="https://play.google.com/store/apps/details?id=com.trac.tracdroid"><img src={% static "img/android_googleplay.png" %} style='height:38px' /></a>
+                        <a href="https://itunes.apple.com/us/app/t.r.a.c./id1011232830?ls=1&mt=8"><img src={% static "img/appleicon.svg" %} style='height:38px' /></a></center>
+                        <p style="margin-top:2%">Once downloaded, create an account and get timing! </p>
+                    </div>
+                    <div class="col-lg-3">
+                        <a type="button" class="btn btn-warning" href="/tutorial/2/">I downloaded the app ></a>
+                         <a type="button" class="btn btn-primary youtube" style="margin-top:5%"href="https://www.youtube.com/embed/-U6RAqUoB4c">Video Walkthrough</a>
+                    </div>
+                </div>
+                <div class="panel panel-default" style="margin-top:2%;">
+                  <div class="panel-body">
+                    <img src="{% static "img/phoneapps.png" %}" style="max-width:100%; border-radius:4px">
+                  </div>
+                </div>
+            </div>
+            <div class="tutorial" id="tutorial-2">
+                <div class="row">
+                    <div class="col-lg-9">
+                        <p><b>To create a roster, you first need to create a team.</b> Your team will have been automatically created for you unless you signed in via Google.  Otherwise create your team now, by clicking the 'Add Team' tab.</p>
+
+                        <p>You will only need to ever do this once, unless new athletes join your team. If you are using RFID tags, associate the tags with the athletes, otherwise leave the 'Tag' field blank.</p>
+                    </div>
+                    <div class="col-lg-3">
+                        <a type="button" class="btn btn-warning" href="/tutorial/3/">I created my roster ></a>
+                        <a type="button" class="btn btn-primary youtube" style="margin-top:5%"href="https://www.youtube.com/embed/IQwq-yW5TfM">Video Walkthrough</a>
+                    </div>
+                </div>
+                <div class="panel panel-default" style="margin-top:2%;">
+                  <div class="panel-body">
+                    <img src="{% static "img/create_athlete.png" %}" style="max-width:100%; border-radius:4px">
+                  </div>
+                </div>
+            </div>
+            <div class="tutorial" id="tutorial-3">
+                <div class="row">
+                    <div class="col-lg-9">
+                        <p><b>To use a reader, you will first need to register it before creating a workout.</b> By using a reader, the split taking process becomes 100% automated.</p>
+                        <p>To get to this page, click on the down carrot, and select 'Readers'. Then give your reader a nickname, and under reader number, type in the reader number that was provided to you with your system. Click create and the reader should appear in the list. Do this for as many readers as you are using.</p>
+                        <p>Once you do this, you will never have to do it again.</p>
+                    </div>
+                    <div class="col-lg-3">
+                        <a type="button" class="btn btn-success" href="/tutorial/4/">I set it up ></a>
+                        <a style="margin-top:5%" type="button" class="btn btn-warning" href="/tutorial/4/">I don't have a reader ></a>
+                        <a type="button" class="btn btn-primary youtube" style="margin-top:5%" href="https://www.youtube.com/embed/z1wQ4rWaScI">Video Walkthrough</a>
+                    </div>
+                </div>
+                <div class="panel panel-default" style="margin-top:2%;">
+                  <div class="panel-body">
+                    <img src="{% static "img/register_readers.png" %}" style="max-width:100%; border-radius:4px">
+                  </div>
+                </div>
+            </div>
+            <div class="tutorial" id="tutorial-4">
+                <div class="row">
+                    <div class="col-lg-9">
+                        <p><b>Creating workouts can be done on the website or on the app. You have more control when doing it on the website.</b> This is because you can set specific start and end dates for each workout as well as specify distance. More data now helps us produce meaningful analytics in the future.</p>
+                        <p> You can also filter workouts, meaning any times less than 30 seconds will be removed. Additionally, if you select a workout to be not private, it will be visible to the public via the public score page. This is handy when hosting races to allow spectators to get live results. </p>
+                        <p>Finally, you can add old workout data to the system for analytics purposes by uploading them by the 'CSV Upload' tab. </p>
+                    </div>
+                    <div class="col-lg-3">
+                        <a type="button" class="btn btn-warning" href="/tutorial/5/">I created a workout ></a>
+                        <a type="button" class="btn btn-primary youtube" style="margin-top:5%" href="https://www.youtube.com/embed/eF-uVeQpWwA">Video Walkthrough</a>
+                    </div>
+                </div>
+                <div class="panel panel-default" style="margin-top:2%;">
+                  <div class="panel-body">
+                    <img src="{% static "img/create_tutorial.png" %}" style="max-width:100%; border-radius:4px">
+                  </div>
+                </div>
+            </div>
+            <div class="tutorial" id="tutorial-5">
+                <div class="row">
+                    <div class="col-lg-9">
+                        <p><b>Arguably the most important part of the process, you should do this everytime before a practice.</b> Click on the workout you will be running in the near future on the left hand bar, then select roster you created earlier. Check the runners that will be in the workout and click 'Register Runners.'</p>
+                        <p>If you own a reader, and don't register runners, they will dynamically appear on the screen when a workout starts, however it is a best practice to preregister runners.</p>
+                        <p>If you are hosting a race, you can upload the entire roster of runners directly into the workout by clicking the 'CSV Upload' button on the main page. This will add them to the workout, but not your roster.</p>
+                    </div>
+                    <div class="col-lg-3">
+                        <a type="button" class="btn btn-warning" href="/tutorial/6/">I imported my athletes ></a>
+                        <a type="button" class="btn btn-primary youtube" style="margin-top:5%" href="https://www.youtube.com/embed/_QwP85lTNFg">Video Walkthrough</a>
+                    </div>
+                </div>
+                <div class="panel panel-default" style="margin-top:2%;">
+                  <div class="panel-body">
+                    <img src="{% static "img/register_athlete.png" %}" style="max-width:100%; border-radius:4px">
+                  </div>
+                </div>
+            </div>
+             <div class="tutorial" id="tutorial-6">
+                <div class="row">
+                    <div class="col-lg-9">
+                         <p><b>This is done in the app.</b> Notice how there is no 'Stop' button. This is because at TRAC we believe every time is important including that rest split. This allows us to do powerful data analysis.<p>
+                        <p>Anytime that the reset button is hit, its only a reset on the running clock within the phone. You can view this time by long-pressing on a specific athlete. Anytime the split button is hit, the time is then recorded.</p>
+                        <p>On the controls page, most of the buttons are self explanatory aside from calibrate and stop. These buttons help the readers determine where to put new split information. If a workout is not calibrated, new times may not appear. Its not necessary to use these buttons if you recorded the correct start and stop times of the workout when you created it. Stop a workout when it is finished to prevent new times being added. </p> 
+                        <p>Go! is a mass start button when splitting every athlete to start is difficult. Its best used in races when you have a big mass start.</p>
+                    </div>
+                    <div class="col-lg-3">
+                        <a type="button" class="btn btn-warning" href="/tutorial/7/">I started my workout ></a>
+                        <a type="button" class="btn btn-primary youtube" style="margin-top:5%" href="https://www.youtube.com/embed/NXP5zxKa0D8">Video Walkthrough</a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="panel panel-default col-lg-4" style="margin-top:2%;">
+                      <div class="panel-body">
+                        <img src="{% static "img/ios_timer.png" %}" style="max-width:100%; border-radius:4px">
+                      </div>
+                    </div>
+                    <div class="panel panel-default col-lg-offset-2 col-lg-4" style="margin-top:2%;">
+                      <div class="panel-body">
+                        <img src="{% static "img/ios_controls.png" %}" style="max-width:100%; border-radius:4px">
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tutorial" id="tutorial-7">
+                <div class="row">
+                    <div class="col-lg-9">
+                        <p><b>You can view results in the app or on the website.</b> You can more easily view results on the site and drill down into splits by graphing them.<p>
+                        <p>You can also edit and delete splits as necessary as well as insert splits. In race situations, if a runner was missed, by clicking the 'Missed Runner' button, you can know who your system missed out of those athletes that were registered.</p>
+                        <p>When using a reader, sometimes runners will run outside of the range of the antenna, missing splits. Sometimes you miss a split when handtiming. Toggle auto-correction to find those places where a split may have been missed.</p>
+                    </div>
+                    <div class="col-lg-3">
+                        <a type="button" class="btn btn-warning" href="/tutorial/7/">I see my results ></a>
+                        <!--<a type="button" class="btn btn-primary" style="margin-top:5%"href="youtube.com/video">Video Walkthrough</a>-->
+                    </div>
+                </div>
+                <div class="panel panel-default" style="margin-top:2%;">
+                  <div class="panel-body">
+                    <img src="{% static "img/results_view.png" %}" style="max-width:100%; border-radius:4px">
+                  </div>
+                </div>
+            </div>
+            <div class="tutorial" id="tutorial-8">
+                <div class="row">
+                    <div class="col-lg-9">
+                       <p><b>Compare two the results of two athletes head to head, or the same runner over two different workouts.</b> Drill down and see each individual split, or graph the two side by side.<p>
+                        <p>In the future new analytics features can be expected on this page. If you're a developer or just a data junkie, contact us for more details about using our API.</p> 
+                    </div>
+                    <div class="col-lg-3">
+                        <a type="button" class="btn btn-success" href="/faqs/">To FAQs ></a>
+                        <a type="button" class="btn btn-primary" href="mailto:founders@tracchicago.com" style="margin-top:5%">Developer? Contact us!</a>
+                        <!--<a type="button" class="btn btn-primary" style="margin-top:5%"href="youtube.com/video">Video Walkthrough</a>-->
+                    </div>
+                </div>
+                <div class="panel panel-default" style="margin-top:2%;">
+                  <div class="panel-body">
+                    <img src="{% static "img/anlysis_page.png" %}" style="max-width:100%; border-radius:4px">
+                  </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

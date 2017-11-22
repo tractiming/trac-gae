@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}trac - my results{% endblock %}
+{% block content %}
+    {{ user.username }}'s workout home<br /><br />
+
+    Click on a workout to view results:<br />
+    {% for x in session_list %}
+    <a href="{% url 'workout_results' wnum=x.id %}">Workout {{ x.id }}: {{ x.name }}</a>
+    <br \>
+    {% endfor %}
+    
+{% endblock %}

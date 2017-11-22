@@ -1,0 +1,370 @@
+{% extends "base_new.html" %}
+
+    <title>
+        {% block title %}
+        Tutorial
+        {% endblock %}
+    </title>
+
+{% load static %}
+
+<!-- Head -->
+{% block stylesheets %}
+<meta name="description"  content="Learn how to use the app and find solutions to common problems."> 
+  <link href="{% static "css/new/main.css" %}" rel="stylesheet" type="text/css">
+  <link href="{% static "css/new/score.css" %}" rel='stylesheet' type='text/css'>
+{% endblock %}
+
+{% block js_scripts %}
+<script type="text/javascript" src="{% static "js/timeConversion.js" %}" ></script>
+  <script type="text/javascript">
+    var page = "{{ page }}";
+  </script>
+  <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+{% endblock %}
+<!-- Body -->
+{% block nav-items %}
+  <li><a href="/login">Login</a></li>
+  <li><a href="/register">Register</a></li>
+  <li><a href="#/bg3">About</a></li>
+  <li><a href="/score">Results</a></li>
+{% endblock %}
+
+{% block content %}
+<style>
+p:before { 
+  display: block; 
+  content: " "; 
+  margin-top: -60px; 
+  height: 60px; 
+  visibility: hidden; 
+}
+
+</style>
+<script>
+$(document).ready(function(){
+   if(page==1){
+    $('#step1').append(
+        '<h1>Registering Readers</h1>' +
+        '<div id="header"></div><br>' +
+        '<div id="header2"></div><br>'
+    );
+    $('#header').append(
+        '<h3 style="text-align: left;">Register</h2>' +
+        '<div id="paragraph" class="pull-left"></div>'
+    );
+ 
+    $('#header2').append(
+        '<h3 style="text-align: left;">Update & Delete</h2>' +
+        '<div id="paragraph2" class="pull-left"></div>'
+    );
+    $('#paragraph').append(
+        '<br><p>Select Readers from the dropdown menu. Then select "Add New Reader."</p>' +
+        '<img src="../../static/img/Tutorial1.png">' +
+        '<br>' +
+        '<br>' +'<p>Name your reader and add the reader number provided then click create reader.</p>'+
+        '<br>'+
+        '<br>' 
+    );
+    
+    $('#paragraph2').append(
+        '<p>Click on a row.' +
+        ' Change either the name of id number of the reader.' +
+        ' Select update or delete</p>' +
+        '<br>'
+    );
+  }
+  if(page==2){
+    $('#step1').append(
+        '<h1>Creating Workouts</h1>' +
+        '<div id="header" text-align="left"></div><br>' +
+        '<div id="header1" text-align="left"></div><br>' +
+        '<br><br><div id="header2" text-align="left"></div><br>' +
+        '<br><br><div id="header3" text-align="left"></div><br>'
+    );
+    $('#header').append(
+        '<h3 style="text-align: left;">Making Races & Workouts</h3>' +
+        '<div id="paragraph" class="pull-left"></div>'
+    );
+    $('#header1').append(
+        '<h3 style="text-align: left;"></h3>' +
+        '<div id="paragraph1" class="pull-left"></div>'
+    );
+    $('#header2').append(
+        '<h3 style="text-align: left;"></h3>' +
+        '<div id="paragraph2" class="pull-left"></div>'
+    );
+    $('#header3').append(
+        '<h3 style="text-align: left;">Updating Workout & Race Info</h3>' +
+        '<div id="paragraph3" class="pull-left"></div>'
+    );      
+    $('#paragraph').append(
+        '<p>Note: Make sure you have registered all readers before beginning this process. Select the "create" button from the header. </p>'
+    );
+    $('#paragraph1').append(
+        '<img src="../../static/img/Tutorial4.png" style="width: 80%;">' +
+        '<br>' +
+        '<br>'
+    );
+    $('#paragraph2').append(
+        '<p>Click on the plus button in the corner and fill out the desired information.</p>' +
+         
+        '<p>To make workouts publicly viewable: change the private toggle to “no”. This allows people without accounts to view the data. Toggle the filter to “Yes” to delete any times that are less than 30 seconds; otherwise it will default to “No." The track size and interval distance fields are not required, but help to create more powerful algorithms in fitness prediction. When finished click "Save" to add to your list of workouts. </p>' +
+        '<br>' +
+        '<br>'
+    );
+    $('#paragraph3').append(
+        '<p>Click on the row of the workout you want to change. The more information that is accurately input into the fields, the more powerful our system can become in outputting results.</p>' +
+        '<br>' +
+        '<br>'
+    );
+  }
+  if(page==3){
+   $('#step1').append(
+        '<h1>Race Management</h1>' +
+        '<div id="header" text-align="left"></div><br>' +
+        '<div id="header1" text-align="left"></div><br>' +
+        '<br><br><div id="header2" text-align="left"></div><br>' +
+        '<br><br><div id="header3" text-align="left"></div><br>'
+    );
+
+    $('#header1').append(
+        '<h3 style="text-align: left;">Adding Athletes</h3>' +
+        '<div id="paragraph1" class="pull-left"></div>'+'<br><br>'
+    );
+    $('#header2').append(
+        '<h3 style="text-align: left;">Stopwatch Buttons</h3>' +
+        '<div id="paragraph2" class="pull-left"></div>'
+    );
+
+    $('#paragraph1').append(
+        '<br>'+'<p>Select a heat from the heat menu to the left hand side of the screen. The athletes registered to the selected workout will appear. If none appear, every tag that is registered in the entire system that crosses the reader will appear into your workout. </p><br>' + '<p>To add additional athletes into your workout, use the right column and checkboxes to select athletes you want added to the workout. After you have selected all the runners you want to add, click "Register Athletes." They will then be added to the workout. </p>'+'<p>Note: the Tag ID row can be left blank if using as a stopwatch.</p><br><br>'
+    );
+    $('#paragraph2').append(
+      '<img src="../../static/img/Tutorial6.png" style="width: 80%;"><br><br>' +
+        
+        '<p>The three buttons on the upper right hand corner are important for workout management. The "Open" button changes the "Start Date" of a workout to the current time, and the workouts "Finish Time" to 24 hours in advance of the moment the button is pressed. The "Stop" button changes the "Stop Time" to the current time. Both of these buttons help to ensure that athletes or times that are not desired to show up in a workout, do not appear in the results. </p><br>'+
+        
+        '<p>The "Start" button creates a universal start time for all runners that enter into a workout. Everyone will have the same start time regardless of when they pass the reader. It is best used for large starts, or races, when a reader cannot pick up all runners at once.</p>' +
+        '<br>' +
+        '<br>'
+    );
+
+  }
+  if(page==4){
+    $('#step1').append(
+        '<h1>Advanced Features</h1>' +
+        '<div id="header" class="pull-left"></div>'
+    );
+    $('#header').append(
+        '<h2 style="text-align: left;">Tips & Tricks</h2>' +
+        '<div id="subheader" class="pull-left"></div>'+'<div id="subheader2" class="pull-left"></div>'
+    );
+    $('#subheader').append(
+        '<h3 style="text-align: left;">Uploading a CSV</h3>' +
+        '<div id="paragraph"></div>'
+    );
+      $('#subheader2').append(
+        '<h3 style="text-align: left;">Download into Excel</h3>' +
+        '<div id="paragraph2"></div>'
+    );
+    $('#paragraph').append(
+        '<p>This saves time and effort and can create a workout and upload athletes through a single form upload</p>'+
+        '<img src="../../static/img/Tutorial10.png" style="width: 80%;">' + '<p>To start, fill out the form, choose the file you want to upload, and ensure it is in the correct format (First Name, Last Name, RFID Tag, Age, Gender). Click upload. This will automatically create all information.</p><br><br>' 
+    );
+      $('#paragraph2').append(
+        '<p>First go to the Live View page.</p>'+
+        '<img src="../../static/img/Tutorial9.png" style="width: 80%;"><br><br>' + '<p>Then click on a workout from the workout menu or calendar. The split information from each athlete in the workout will appear. At the bottom an icon with the word "Download" will appear. Click it, and a CSV file will be generated that can be formatted into Excel.</p><br><br>' 
+    );
+  }
+    if(page==5){
+    $('#step1').append(
+        '<h1>Frequently Asked Questions</h1>' +
+        '<div id="header" class="pull-left"></div>'
+    );
+    $('#header').append(
+        '<h2 style="text-align: left;">Reference for the TRAC system</h2>' +
+        '<div id="subheader" class="pull-left"></div>' +
+        '<div id="subheader2" class="pull-left"></div>' +
+        '<div id="subheader3" class="pull-left"></div>' +
+        '<div id="subheader4" class="pull-left"></div>'
+    );
+    $('#subheader').append(
+        '<h3 style="text-align: left;">Hardware Questions</h3>' +
+        '<div id="paragraph"></div>'
+    );
+    $('#paragraph').append(
+        '<ul><li type="circle"><a href="/Tutorial/5/#1" class="scrollto">Can you give me an overview of how the system works?</a></li><li type="circle"><a href="/Tutorial/5/#2" class="scrollto">How do I know that the system is on?</a></li><li type="circle"><a class="scrollto" href="/Tutorial/5/#3">How do I know that the system is working? That it’s connected to the server?</a></li><li type="circle"><a href="/Tutorial/5/#4" class="scrollto">Where can I wear the bib or tag?</a></li><li type="circle"><a href="/Tutorial/5/#5" class="scrollto">How accurate is the system?</a></li><li type="circle"><a href="/Tutorial/5/#6" class="scrollto">What’s the reading range of the reader?</a></li><li type="circle"><a href="/Tutorial/5/#7" class="scrollto">What’s that beep I keep hearing?</a></li><li type="circle"><a href="/Tutorial/5/#8" class="scrollto">Why does the battery light indicator change colors? What do these colors mean?</a></li><li type="circle"><a href="/Tutorial/5/#9" class="scrollto">How do I charge the battery?</a></li><li type="circle"><a href="/Tutorial/5/#10" class="scrollto">How do I know when it’s time to charge the battery?</a></li><li type="circle"><a href="/Tutorial/5/#11" class="scrollto">Which way is up? How do I orient the box?</a></li><li type="circle"><a href="/Tutorial/5/#12" class="scrollto">Why does it come with a tripod?</a></li><li type="circle"><a href="/Tutorial/5/#12" class="scrollto">Do I have to use it with a tripod?</a></li><li type="circle"><a href="/Tutorial/5/#13" class="scrollto">Does the system work with any type of bib tag?</a></li><li type="circle"><a href="/Tutorial/5/#14" class="scrollto">The box is putting off heat, should I be concerned?</a></li><li type="circle"><a href="/Tutorial/5/#15" class="scrollto">Does the system work outside? In inclement weather?</a>'
+    );
+    $('#subheader2').append(
+        '<h3 style="text-align: left;">Software Questions</h3>' +
+        '<div id="paragraph2"></div>'
+    );
+    $('#paragraph2').append(
+        '<ul><li type="circle"><a href="/Tutorial/5/#16" class="scrollto">How do I create a workout?</a></li><li type="circle"><a href="/Tutorial/5/#17" class="scrollto">What does the filter do?</a></li><li type="circle"><a href="/Tutorial/5/#18" class="scrollto">What do the start, stop, & go buttons do?</a></li><li type="circle"><a href="/Tutorial/5/#19" class="scrollto">What does the private setting do?</a></li><li type="circle"><a href="/Tutorial/5/#20" class="scrollto">How often do the results update?</a></li><li type="circle"><a href="/Tutorial/5/#21" class="scrollto">Do the final results update?</a></li><li type="circle"><a href="/Tutorial/5/#22" class="scrollto">How do I add a reader?</a></li><li type="circle"><a href="/Tutorial/5/#23" class="scrollto">If I want to use another coaches reader in a race, how do I set that up?</a></li><li type="circle"><a href="/Tutorial/5/#24" class="scrollto">How many readers should I use in a workout?</a></li><li type="circle"><a href="/Tutorial/5/#25" class="scrollto">How many people can be in a workout/race?</a></li><li type="circle"><a href="/Tutorial/5/#26" class="scrollto">How does the CSV file work?</a></li><li type="circle"><a href="/Tutorial/5/#27" class="scrollto">How do I access my times?</a></li><li type="circle"><a href="/Tutorial/5/#28" class="scrollto">How do I export my times to an excel spreadsheet?</a></li></ul>'
+    );
+    $('#subheader3').append(
+        '<h3 style="text-align: left;">Other Questions</h3>' +
+        '<div id="paragraph3"></div>'
+    );
+    $('#paragraph3').append(
+        '<ul><li type="circle"><a href="/Tutorial/5/#29" class="scrollto">Can the system be used for other types of races?</a></li><li type="circle"><a href="/Tutorial/5/#30" class="scrollto">Can you rent systems?</a></li><li type="circle"><a href="/Tutorial/5/#31" class="scrollto">My box seems to be broken. How can I get it repaired or replaced?</a></li><li type="circle"><a href="/Tutorial/5/#32" class="scrollto">I lost/damaged my tag. Can I get a replacement?</a></li><li type="circle"><a href="/Tutorial/5/#33" class="scrollto">My times don’t appear on the app/website. How can I fix this?</a></li><li type="circle"><a href="/Tutorial/5/#34" class="scrollto">Where can I purchase the system or more tags?</a></li><li type="circle"><a href="/Tutorial/5/#35" class="scrollto"> Is the app available on iOS and Android?</a></li><li type="circle"><a href="/Tutorial/5/#36" class="scrollto">Do your tags work with other systems?</a></li><li type="circle"><a href="/Tutorial/5/#37" class="scrollto">Does the system come with a warranty?</a></li><li type="circle"><a href="/Tutorial/5/#38" class="scrollto">Do I need to do any maintenance on the box?</a></li><li type="circle"><a href="/Tutorial/5/#39" class="scrollto">Will I need to update the box?</a></li></ul>'
+    );
+    $('#subheader4').append(
+        '<br><br><br>'+
+        '<p id="1">Q: Can you give me an overview of how the system works?</p>'+
+    '<p>A: Each runner is given an RFID tag which registers each time the runner passes the reader. The reader then records the difference in time between each time the runner passes the reader.</p><br>'+ '<p id="2">Q: How do I know that the system is on?</p>'+
+        '<p>A: When the system is on, you should notice a green light on the box. </p><br>'+ '<p id="3">Q: How do I know that the system is working? That it’s connected to the server?</p>'+
+        '<p>A: To check the system’s connectivity a red light should flash each time a tag passes the reader. About a minute after the green LED comes on, the red LED should start rapidly flashing to indicate that the system is connected to the internet, but not ready to operate. When it turns a solid red, the system is ready to use. </p><br>'+ '<p id="4">Q: Where can I wear the bib or tag?</p>'+
+        '<p>A: Depending on the tag type, they are designed to be worn on the chest, foot, or wrist.</p><br>'+ '<p id="5">Q: How accurate is the system?</p>'+
+        '<p>A:The system is more accurate than hand time, but not as accurate as fully automated timing systems. Our delay is 0.18 seconds when compared to fully automated timing.</p><br>'+ '<p id="6">Q: What’s the reading range of the reader?</p>'+
+        '<p>A: Depending on the type of tag being used, the maximum range of the reader is 25 feet.</p><br>'+ '<p id="7">Q: What’s that beep I keep hearing?</p>'+
+        '<p>A: The beeps refer to the reader registering when a runner bases the system.</p><br>'+ '<p id="8">Q: Why does the battery light indicator change colors? What do these colors mean?</p>'+
+        '<p>A: Four lights (full charge), three lights (mostly charged), two lights (needs charging), one light (charge immediately)</p><br>'+ '<p id="9">Q: How do I charge the battery?</p>'+
+        '<p>A: The battery can be charged using the provided cord, which attaches to the box and any standard power outlet. Use only the provided charger.</p><br>'+ '<p id="10">Q: How do I know when it’s time to charge the battery?</p>'+
+        '<p>A: The battery light indicator alerts you when it is time to charge the battery. If you see one or two lights it is time to charge the battery.</p><br>'+ '<p id="11">Q: Which way is up? How do I orient the box?</p>'+
+        '<p>A: Place the box with the handle up and the TRAC logo facing the area you are trying to register.</p><br>'+ '<p id="12">Q:  Why does it come with a tripod?</p>'+
+        '<p>A: It is ideal to place the reader on a tripod when the runners are wearing tags on their chest. This helps the system obtain the best splits. If using foot tags, the system will still operate on the ground, but will perform optimally when placed on the tripod. </p><br>'+ '<p id="12">Q: Do I have to use it with a tripod?</p>'+
+        '<p>A: You do not have to use it with a tripod. However it is encouraged to achieve the best results.</p><br>'+ '<p id="13">Q: Does the system work with any type of bib tag?</p>'+
+        '<p>A: Yes, however, for optimal performance, we recommend using tags provided by TRAC.</p><br>'+ '<p id="14">Q: The box is putting off heat, should I be concerned?</p>'+
+        '<p>A: All electronics equipment puts off heat. There is nothing to be worried about.</p><br>'+ '<p id="15">Q: Does the system work outside? In inclement weather?</p>'+
+        '<p>A: Yes, the system is weatherproof and waterproof. It is not submersible in water.</p><br>'+ '<p id="16">Q: How do I create a workout?</p>'+
+        '<p>A: See the tutorials page for more details on how to create a workout.</p><br>'+ '<p id="17">Q: What does the filter do?</p>'+
+        '<p>A: The filter will try not include any splits in a workout that are less than a standard value, such as times from repetitively walking around the reader in less than 10 second intervals. </p><br>'+ '<p id="18">Q: What do the start, stop, & go buttons do?</p>'+
+        '<p>A: See the tutorial for details on these buttons.</p><br>'+ '<p id="19">Q: What does the private setting do?</p>'+
+        '<p>A: The private setting allows only certain people to view a runner’s times. If set to “false,” the workout will be publically viewable through the external live splits page. </p><br>'+ '<p id="20">Q: How often do the results update?</p>'+
+        '<p>A: The results update every five seconds on every platform.</p><br>'+ '<p id="21">Q: Do the final results update?</p>'+
+        '<p>A: The final results only update when you select them from the select dropdowns. To refresh them, re-select the desired criteria.</p><br>'+ '<p id="22">Q: How do I add a reader?</p>'+
+        '<p>A: See the tutorial on readers for details. </p><br>'+ '<p id="23">Q: If I want to use another coaches reader in a race, how do I set that up?</p>'+
+        '<p>A: To register another coach\'s reader, the prefered method is to register it through the CSV file on the “Race Management” page. This will one time register the reader to the workout, however you will also need to register your own readers to this workout.</p><br>'+ '<p id="24">Q: How many readers should I use in a workout?</p>'+
+        '<p>A: One reader should be sufficient for a basic workout. However if you are trying to measure additional splits at various intervals, a reader would be necessary for each of these locations.</p><br>'+ '<p id="25">Q: How many people can be in a workout/race?</p>'+
+        '<p>A: The reader has the capability to register as many racers as desired. However there may be costs for additional data usage if the race is particularly large.</p><br>'+ '<p id="26">Q: How does the CSV file work?</p>'+
+        '<p>A: The CSV file is a quick and efficient way to create workouts and add athletes. It is best suited for races. See the tutorial for more details on uploading CSV files. </p><br>'+ '<p id="27">Q: How do I access my times?</p>'+
+        '<p>A: There are several ways to access your times in both real time and after the race or workout is over. On the website, navigate to “Live Results,” use the workout menu to select your session and use the four tabs to see live splits, graphs, and filtered results. On mobile, log into your account and select your workout to see live splits.</p><br>'+ '<p id="28">Q: How do I export my times to an excel spreadsheet?</p>'+
+        '<p>A: On the website, log in and go to “Live Results.” Use the workout menu to select the session and click the “Download” button at the bottom of the page. All of the times will be populated into a spreadsheet automatically.</p><br>'+ '<p id="29">Q: Can the system be used for other types of races?</p>'+
+        '<p>A: The system can be a replacement for any type of race or workout that would be traditionally timed by stopwatch.</p><br>'+ '<p id="30">Q: Can you rent systems?</p>'+
+        '<p>A: Yes, we have an rental plans for both individual meets and seasons. Send us an email for more information.</p><br>'+'<p id="31">Q: My box seems to be broken. How can I get it repaired or replaced?</p>'+'<p>A: Please contact us for specific technical issues.</p><br>'+ 
+         '<p id="32">Q: I lost/damaged my tag. Can I get a replacement?</p>'+
+        '<p>A: Yes, we can send you a replacement tag. We can’t do anything to fix a damaged tag, but we can send you a new one. </p><br>'+ '<p id="33">Q: My times don’t appear on the app/website. How can I fix this?</p>'+
+        '<p>A: There are a few possible reasons why a tag might not be showing up. First check that the tag has been registered and assigned to a user. Second, check that the workout is set up to receive times from that tag. Finally, make sure that the tag is being worn correctly on the shoe or bib and is coming within range of the reader.</p><br>'+ '<p id="34">Q: Where can I purchase the system or more tags?</p>'+
+        '<p>A: Contact us directly to purchase a system. We can also supply you with more tags as necessary. </p><br>' + '<p id="35">Q: Is the app available on iOS and Android?</p>'+
+        '<p>A: We have apps for both iOS and Android. They are not available on the Playstore or App Store, but we distribute them directly to you once you purchase a system. Additionally, our website is mobile-friendly, and everything that is viewable on the app is also viewable on this site. </p><br>' + '<p id="36">Q: Do your tags work with other systems?</p>'+
+        '<p>A: Our tags can work with certain systems, but not all. Additionally, specific tags from systems are compatible with ours. Even if you are wearing another company’s tag, this won’t interfere with the use of our system. For more details on this, contact us directly.  </p><br>'+ '<p id="37">Q: Does the system come with a warranty?</p>'+
+        '<p>A: The system comes with a six month warranty. An additional year warranty can be purchased if desired. </p><br>'+'<p id="38">Q: Do I need to do any maintenance on the box?</p>'+
+        '<p>A: No maintenance is necessary on the box. If issues arise we will send a member of our team to fix the issue. </p><br>'+ '<p id="39">Q:Will I need to update the box?</p>'+
+        '<p>A: Updates will occur throughout the year. Software updates will be pushed through the cloud immediately allowing you to access new features on the app and website. Improvements on the physical system will be available for an upgrade fee, which we will manually install for you. </p><br>'
+
+        
+        
+    );
+     $('a.scrollto').click(function(e) {
+         e.preventDefault();
+
+          $.scrollTo('p#' + $(this).attr('href').split('#')[1], 500);
+          //alert('p#' + $(this).attr('href').split('#')[1]);
+         }
+        );
+
+    
+  }
+    if(page==6){
+    $('#step1').append(
+        '<h1 >Hardware Guide</h1>' +
+        '<div id="header" class="pull-left"></div>'
+    );
+    $('#header').append(
+        '<h2 style="text-align: left;">Using your TRAC Reader</h2>' +
+        '<div id="subheader" class="pull-left"></div>'+
+        '<div id="subheader2" class="pull-left"></div>'
+    );
+    $('#subheader').append(
+        '<h3 style="text-align: left;">Turn it on</h3>' +
+        '<div id="paragraph"></div>'
+    );
+    $('#paragraph').append(
+        '<p>Press the green button on top of the TRAC box. Within 8 seconds, the "Power" light will turn on indicating the system is on. Within another minute, the "Connectivity" LED should light up. It will flash rapidly when it has connected to the Internet, and turn solid when the system is ready to use. If the "Connectivity" LED does not turn on, you may not have cellular connectivity in your area.</p>'
+    );
+    $('#subheader2').append(
+        '<h3 style="text-align: left;">Ready to Run?</h3>' +
+        '<div id="paragraph2"></div>'
+    );
+    $('#paragraph2').append(
+        '<p>If both the "Power" & "Connectivity" LEDs are solid, the system is ready to use. Everytime a runner wearing a tag passes the box, the "Connectivity" LED will flash. The system will operate on a single charge for around 6 hours.</p>'
+    );
+  }
+if(page==7){
+    $('#step1').append(
+        '<h1 >Mobile Apps</h1>' +
+        '<div id="header" class="pull-left"></div>'
+    );
+    $('#header').append(
+        '<h2 style="text-align: left;">Using the apps</h2>' +
+        '<div id="subheader" class="pull-left"></div>'+
+        '<div id="subheader2" class="pull-left"></div>'
+    );
+    $('#subheader').append(
+        '<h3 style="text-align: left;">iPhone & Android</h3>' +
+        '<div id="paragraph"></div>'
+    );
+    $('#paragraph').append(
+        '<p>Login and navigate to your workout using the calendar view. Use the search icon at the top to find a specific workout. The "+" sign allows you to create workouts on the go using pre-set default settings. After you select a workout, the "Live" page updates every five seconds. The "Summary" page displays a summary of every split for every runner in the workout. Pull the screen down to refresh the data. Select the "Settings" page for race management type features: "Calibrate Workout," "Go!, "Stop Workout," and "Reset Workout." These same features are available on the website, except for the "Reset" Button which will delete all athletes in the workout.</p>'
++'<img src="../../static/img/android_screenshot.png" style="padding-right:2%" width="50%">' +
+        '<img src="../../static/img/ios_screenshot.png" width="48%">' 
+
+        +'<p>To use as a stopwatch, and add splits, click the "edit" button. A toolbar will appear displaying "Split" and "Reset" Buttons. Click the checkboxes next to runners names, then "split" to push splits. Long press a individual runner to get their running time. </p>'+'<p>Note: There is no "Stop" button unlike a traditional stopwatch. Therefore, all times will be saved, including rest times on our server. The reset button is only done locally on the phone and will not be reflected when viewed on the phones of others. </p>' 
+        
+    );
+}
+  if(page==8){
+    $('#step1').append(
+        '<h1 >Quick Tutorial</h1>' +
+        '<div id="header" class="pull-left"></div>'
+    );
+    $('#header').append(
+        '<h2 style="text-align: left;"></h2>' +
+        '<div id="subheader" class="pull-left"></div>'+
+        '<div id="subheader2" class="pull-left"></div>'
+    );
+    $('#subheader').append(
+        '<h3 style="text-align: left;"></h3>' +
+        '<div id="paragraph"></div>'
+    );
+    $('#paragraph').append(
+        '<p>1. Download the apps on <a href="https://play.google.com/store/apps/details?id=com.trac.trac">Google Playstore</a> or Apple App Store.</p>' +
+        '<p>2. Create username and <a href="/register/">register!</a></p>' +
+        '<p>3. <a href="/Tutorial/2/">Create a workout.</a></p>' +
+        '<p>4. <a href="/Tutorial/3/">Add your roster.</a></p>' +
+        '<p>5. <a href="/Tutorial/3/">Add runners to workout.</a></p>' +
+        '<p>6. Start Timing!</p>'
+
+        
+    );
+  }
+    $('body').on('click', '.question', function(e) {
+        e.preventDefault();
+        e.run();
+        window.scrollY+=60;
+    });
+});
+
+</script>
+
+<div class="container fluid content">
+    <div class="content" id="content">
+          <div id="step1" class="col-lg-7 col-md-7 col-sm-7 col-xs-7">
+          </div>
+          <div id="articles" class="pull-right" style="border-left: 1px solid #eee; padding-left: 2%;">
+            <h2 style="text-align: left;">Articles</h2>
+            <a id="h" href="/Tutorial/8">Quick Start</a></br>
+            <a id="h" href="/Tutorial/6">Hardware Guide</a></br>
+            <a id="r" href="/Tutorial/1">Reader Setup</a></br>
+            <a id="c" href="/Tutorial/2">Create Workout</a></br>
+            <a id="m" href="/Tutorial/3">Manage Race</a></br>
+            <a id="v" href="/Tutorial/4">Advanced Features</a></br>
+            <a id="i" href="/Tutorial/7">Mobile Applications</a></br>
+            <a id="f" href="/Tutorial/5">Frequently Asked Questions</a></br>
+          </div>
+    </div>
+</div>
+{% endblock %}

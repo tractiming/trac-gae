@@ -1,0 +1,203 @@
+@font-face {font-family: 'GothamHTF-Book';
+src: url("../fonts/GothamHTF-Book.eot?#iefix") format("embedded-opentype"), url("../../fonts/GothamHTF-Book.ttf") format("truetype"), url("../fonts/GothamHTF-Book.svg#GothamHTF-Book") format("svg"); }
+
+@font-face {
+  font-family: 'GothamHTF-Medium';
+  src: url("../fonts/GothamHTF-Medium.eot?#iefix") format("embedded-opentype"), url("../../fonts/GothamHTF-Medium.ttf") format("truetype"), url("../fonts/GothamHTF-Medium.svg#GothamHTF-Medium") format("svg"); }
+
+/* Universal */
+html { overflow-y: scroll; }
+
+body { 
+	padding-top: 60px; 
+	padding-bottom: 10px;
+	font-family: 'GothamHTF-Medium', 'Helvetica', 'Arial', sans;
+  height: 100%;
+  color: #555;
+}
+
+a {
+  text-decoration: none; }
+  a:hover { text-decoration: none; }
+  a:visited { text-decoration: none;
+}
+
+.center {
+	display: table;
+	margin: 0 auto;
+}
+
+
+
+/* Header */
+.navbar-header .navbar-toggle {
+	margin-top: 13px;
+}
+
+.navbar {
+	background-color: white; 
+}
+
+.navbar-nav>li>a {
+	padding-top: 20px;
+	text-transform: uppercase;
+	color: #3577A8 !important; }
+	.navbar-nav>li>a:hover {
+		color: #F0B922 !important;
+}
+
+#logo {
+	padding-top: 0;
+	display: inline-block;
+	width: 200px;
+	height: 60px; }
+	#logo:hover {
+  	color: white;
+  	text-decoration: none;
+}
+
+.navbar li#dropdown-button{
+    padding-top:13px;
+    padding-left: 10px;
+}
+
+/* General */
+#content {
+	background-color: white;
+	padding-top: 20px;
+	padding-bottom: 20px;
+	min-height: 500px;
+}
+
+#idle-overlay {
+	display: block;
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 9999;
+	background-color: rgba(0,0,0,0.5);
+	-webkit-animation: fade 500ms;
+	-moz-animation: fade 500ms;
+	-o-animation: fade 500ms;
+	animation: fade 500ms;
+	-webkit-transform-style: preserve-3d;
+	-moz-transform-style: preserve-3d;
+	transform-style: preserve-3d; }
+	#idle-overlay .idle-container {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		-webkit-transform: translate(-50%, -50%);
+		-moz-transform: translate(-50%, -50%);
+		transform: translate(-50%, -50%); }
+		#idle-overlay .idle-container .idle-dialog {
+			padding: 20px 15px;
+			background-color: white;
+			text-align: center;
+			border: 2px solid #e7e7e7;
+}
+
+/* Forms */
+.btn-file {
+  position: relative;
+  overflow: hidden;
+}
+.btn-file input[type=file] {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 100%;
+  min-height: 100%;
+  font-size: 100px;
+  text-align: right;
+  filter: alpha(opacity=0);
+  opacity: 0;
+  background: red;
+  cursor: inherit;
+  display: block;
+}
+/* Forms */
+.btn-fileRoster {
+  position: relative;
+  overflow: hidden;
+}
+.btn-fileRoster input[type=file] {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 100%;
+  min-height: 100%;
+  font-size: 100px;
+  text-align: right;
+  filter: alpha(opacity=0);
+  opacity: 0;
+  background: red;
+  cursor: inherit;
+  display: block;
+}
+input[readonly] {
+  background-color: white !important;
+  cursor: text !important;
+}
+
+/* Notifications */
+#notifications { text-align: center; }
+.notification-success { color: #468847; }
+.notification-info { color: #2e6da4; }
+.notification-warning { color: #d58512; }
+.notification-error { color: #b94a48; }
+
+
+.parsley-error {
+	color: #B94A48;
+  background-color: #F2DEDE;
+  border: 1px solid #EED3D7;
+}
+
+/* Typography */
+h1, h2, h3 {
+	text-align: center;
+}
+
+h1 {
+	font-family: 'GothamHTF-Book', 'Helvetica', 'Arial', sans;
+	text-transform: uppercase;
+	margin-bottom: 20px;
+}
+
+ul {
+	list-style: none;
+}
+
+/* Footer */
+footer {
+	border-top: 3px solid #e7e7e7;
+	padding-top: 20px; 
+	text-align: center; }
+	footer ul {
+		padding: 0; }
+	footer .footer-item {
+		padding-top: 20px;
+		margin: 0 auto;
+		min-height: 80px; }
+	footer .footer-img {
+		display: block;
+		margin: 0 auto; }
+	footer .internal {
+		display: block;
+		margin: 0 auto; }
+	footer .external {
+		display: inline-block;
+		margin: 0 auto;
+		text-align: left; }
+		footer .external ul>li>a {
+			color: #3577A8 !important; }
+			footer .external ul>li>a:hover {
+				color: #F0B922 !important; }
+	footer address {
+		display: inline-block;
+		margin: 0 auto;
+		text-align: left;
+}

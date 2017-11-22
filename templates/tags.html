@@ -1,0 +1,381 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+   <script>
+	$(document).ready(function(){
+	if (localStorage.usertype == 'athlete'){
+		$("form#coachform").hide();
+		load();
+		}
+		//if a coach
+	else {
+		location.href="/home.html";
+}
+	});
+	</script>
+
+
+	<script>
+		//for athlete load their personal tags
+    $(document).ready(function() {
+		//loadtags();
+        $("#myform").on('click', '#submit', function(e){
+            e.preventDefault();
+	    $(".modal-animate").show();
+
+
+
+	    
+	    
+          
+	            // var title=$('input[id=title]').val();
+		      var id_number=$('input[id=id_number]').val();
+		   
+               JSONObject = {'id_str':id_number};
+                            
+           		    
+	      $.ajax({
+          type: "POST",
+           dataType:'json',
+           contentType:'application/json',
+           url: "/api/tags/",
+
+	   headers: {Authorization: "Bearer " + localStorage.access_token
+		   },
+           data: JSON.stringify(JSONObject),
+           // Login was successful.
+           success: function(data) {
+		    $(".modal-animate").hide();
+		    $("h6.notification.notification-critical").hide();
+		    $("h6.notification.notification-success").show();
+		    $("h6.notification.update-success").hide();
+		    $("h6.notification.delete-success").hide();
+		    $("#myform")[0].reset();
+		    load();
+                   
+           },
+
+           // Login request failed.
+           error: function(xhr, errmsg, err) {
+			   $(".modal-animate").hide();
+	    $("h6.notification.notification-success").hide();
+               $("h6.notification.notification-critical").show();
+               $("h6.notification.update-success").hide();
+               $("h6.notification.delete-success").hide();
+           }
+           
+      });
+               
+            
+        });
+    });
+    
+    //add new button functionality for individual athlete
+    
+    
+
+$("body").on('click', 'tr',function(){
+	//alert($(this).html());
+	var value = $(this).html();
+	$("input#delete").show();
+	$("input#update").show();
+	$("div.button-container-two").show();
+	$("input#create").show();
+	$("p#idnumber").show();
+	$("input#submit").hide();
+	$(value).each(function(index){
+		//alert( $(this).html() );
+		console.log( index+ ":"+ $(this).html());
+		if (index ==0)
+		{
+			var input =$('input#idnumber');
+			input.val($(this).html() );
+		}
+		else if (index ==1)
+		{
+			var input =$('input#id_number');
+			input.val($(this).html() );
+			}
+		else if (index ==2)
+		{
+			var input =$('input#userid');
+			input.val($(this).html() );
+			}
+
+	});
+	
+	
+
+	
+	
+	});
+	
+	$("body").on('click', 'input#create',function(e){
+	//alert($(this).html());
+	  e.preventDefault();
+	  $("#myform")[0].reset();
+	var value = $(this).html();
+	$("input#delete").hide();
+	$("input#update").hide();
+	$("input#submit").show();
+	$("p#idnumber").hide();
+	$("input#create").hide();
+
+	});
+
+
+		$("body").on('click', 'input#update',function(f){
+	//alert($(this).html());
+	  f.preventDefault();
+	   $(".modal-animate").show();
+	 var id=$('input[id=idnumber]').val();
+	           var refnum=$('input[id=idnumber]').val();
+		      var rfidnum=$('input[id=id_number]').val();
+		      var user_id=$('input[id=userid]').val();
+
+	
+		//alert(filter);
+	      $.ajax({
+           type: "PUT",
+           dataType:'json',
+           url: "/api/tags/"+id,
+	   headers: {Authorization: "Bearer " + localStorage.access_token},
+	   data: {
+               id: refnum,
+               id_str:rfidnum,
+               user:user_id
+               
+           },
+
+           // Login was successful.
+           success: function(data) {
+		    //hide spinner, success modal, and reset form
+		    $(".modal-animate").hide();
+		    $("h6.notification.notification-critical").hide();
+		    $("h6.notification.notification-success").hide();
+		    $("h6.notification.delete-success").hide();
+		    $("h6.notification.update-success").show();
+		    $("#myform")[0].reset();
+		    	$("input#delete").hide();
+	$("input#update").hide();
+	$("input#submit").show();
+	$("p#idnumber").hide();
+	$("input#create").hide();
+		    load();
+                   
+           },
+
+           // Login request failed.
+           error: function(xhr, errmsg, err) {
+	    //hide spinner, show error modal
+	    $(".modal-animate").hide();
+	    $("h6.notification.notification-success").hide();
+	     $("h6.notification.notification-warning").hide();
+	      $("h6.notification.update-success").hide();
+		    $("h6.notification.delete-success").hide();
+               $("h6.notification.notification-critical").show();
+           }
+           
+      });
+	
+	});
+
+
+
+
+	$("body").on('click', 'input#delete',deleteTags);
+		
+			function deleteTags(f){
+	//alert($(this).html());
+	
+	  f.preventDefault();
+	  $("h6.notification.notification-warning").show();
+	  $("h6.notification.notification-critical").hide();
+	  $("h6.notification.delete-success").hide();
+	  		    $("h6.notification.notification-critical").hide();
+		    $("h6.notification.notification-success").hide();
+		
+	  
+	  $("body").on('click','button', function(event){
+	console.log("On:", event.target);
+	var value = $(this).html();
+	
+	
+	if (value == 'Yes'){ $(".modal-animate").show();
+	  
+	 var id=$('input[id=idnumber]').val();
+	//alert(id);
+	//alert('test');
+	//alert(value);
+		//alert(filter);
+	      $.ajax({
+           type: "DELETE",
+           dataType:'json',
+           url: "/api/tags/"+id,
+	   headers: {Authorization: "Bearer " + localStorage.access_token},
+         
+           // Login was successful.
+           success: function(data) {
+		    //hide spinner, success modal, and reset form
+		    $(".modal-animate").hide();
+		    $("h6.notification.notification-critical").hide();
+		    $("h6.notification.notification-success").hide();
+		$("h6.notification.update-success").hide();
+		    $("h6.notification.delete-success").show();
+		     $("h6.notification.notification-warning").hide();
+		    $("#myform")[0].reset();
+		    	$("input#delete").hide();
+	$("input#update").hide();
+	$("input#submit").show();
+	$("p#idnumber").hide();
+	$("input#create").hide();
+		    load();
+		    $("button#warning-yes").unbind('click',deleteTags);
+                   
+           },
+
+           // Login request failed.
+           error: function(xhr, errmsg, err) {
+	    //hide spinner, show error modal
+	    $(".modal-animate").hide();
+	    $("h6.notification.notification-success").hide();
+	     $("h6.notification.notification-warning").hide();
+	$("h6.notification.update-success").hide();
+		    $("h6.notification.delete-success").hide();
+               $("h6.notification.notification-critical").show();
+           }
+           
+      });
+      }
+	else if(value =='Cancel'){
+		$(".modal-animate").hide();
+	    $("h6.notification.notification-success").hide();
+	    $("h6.notification.notification-warning").hide();
+              
+		}
+	
+	 });
+	  
+	  
+	
+	}
+			
+			
+			//loads info for personal tag
+		  function load(){
+			 $('#tagresults').empty();
+		  //alert(path);
+		  //alert(path);
+		   $.ajax({
+                     url: "/api/tags/",
+		     headers: {Authorization: "Bearer " + localStorage.access_token},
+                    //force to handle it as text
+                    dataType: "text",
+                    success: function(data) {
+                        //alert(data);
+                        //data downloaded so we call parseJSON function 
+                        //and pass downloaded data
+                        
+                        var json = $.parseJSON(data);
+                       //alert(json[0].id_str)
+                       for (var ii=0;json.length;ii++){
+						   //alert(ii);
+						   id = json[ii].id;
+						   name = json[ii].id_str;
+						   userid = json[ii].user;
+						  if (ii==0) {
+			    $('#tagresults').append('<tr><th>ID</th><th>Tag ID</th><th>UserID</th></tr>');
+			    $('#tagresults').append('<tr class="odd"><td>'+id+'</td><td>'+name+'</td><td>'+userid+'</td></tr>');
+			    //alert(name);
+			  }
+			  else if((ii)%2 ==0) {
+			    $('#tagresults').append('<tr class="odd"><td>'+id+'</td><td>'+name+'</td><td>'+userid+'</td></tr>');
+			  }
+			  else{
+			    $('#tagresults').append('<tr><td>'+id+'</td><td>'+name+'</td><td>'+userid+'</td></tr>');
+			    //alert(name);
+			  }
+						   }
+
+			}
+			
+			
+			
+                    });
+		   
+}
+
+
+    
+	    </script>
+	
+	
+
+
+<div class="modal-animate hide">
+    <div class="rotate"></div>
+
+</div>
+
+    <div id="create">  
+     <h2>Tags</h2>
+     
+	  <div id="notifications">
+        <h6 class="notification notification-critical" role="alert">Some information you entered isn't right.</h6>
+	<h6 class="notification notification-success" role="alert">You have successfully registered an ID!</h6>
+			<h6 class="notification update-success" role="alert">You have successfully updated a tag!</h6>
+		<h6 class="notification delete-success" role="alert">You have successfully deleted an ID!</h6>
+	<h6 class="notification notification-warning" role="alert">Are you sure? <div class="container" id="screen-selector"><button href="#" type="button" id="warning-yes">Yes</button><button id="warning-no" href="#" type="button" style="float:right">Cancel</button></div></h6>
+    </div>
+	  
+    <div id="contentleft">
+					
+		<form name="tracform" id="myform" method="POST" data-parsley-validate>
+						<div class="button-container-two">
+		    <input type="submit" name="" class="validate" id="create" value="+ Create New" />
+		    </div>
+		    <p id="idnumber">
+		      
+		      <input type="hidden" id="idnumber" value="" placeholder="" required data-parsley-group="block1" readonly/>
+		  </p>
+		   <p>
+		      <label for="">ID Number:</label> 
+		      <input data-progression="" type="text" data-helper="" id="id_number" value="" placeholder="" required data-parsley-group="block1" />
+		  </p>
+		  <p id="userid">
+		      
+		      <input type="hidden" id="userid" value="" placeholder="" required data-parsley-group="block1" readonly/>
+		  </p>
+		
+		     
+		     
+		          <div class="button-container">
+			<input type="submit" name="" class="validate" id="delete" value="Delete" />
+		    <input type="submit" name="" class="validate" id="submit" value="Save" />
+		    <input type="submit" name="" class="validate" id="update" value="Update" />
+	                         </div>
+		</form>
+		
+		
+
+					
+				
+    </div>
+                   <div id="contentright">
+			      <div class ="outer">
+      <div class="inner">
+       <table id="tagresults" style="width:100%"></table>
+       </div>
+       </div>
+              </div>
+    
+    
+     
+      </div>
+    {% endblock %} 
+    
+    
+    
+</html>
+

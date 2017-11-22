@@ -1,0 +1,30 @@
+language: python
+
+python:
+  - 2.7
+
+env:
+  global:
+    - SETTINGS_MODE=test
+    - GAE_DIR=/tmp/gae
+    - secure: OOoXacQsrlYPVG4Tnfar4P7TnH9j9nu/boza3YXwNxYapQzZElIBPwktTqCkvp3zchsE53fJ3GKP9CQJvbwUr+jBa/yoQtjQ1B2JnrI0Q9rQaq3EdFYhio8uOkoVXQiAy8X9zOXLvxlyE8JLqQQZ0APyDivedzHfKcv3ADzyxhNPVhWCX0jAgUflI0oxKjyy/bnte+t3ygZrG+9OSV1157NtO0L/W6ghZyuC14au+d0UXsEfFFuZ2VQbbahFB7GoYISwK6PS6V/kYj6qinjHtiHQZ43uny+k/BaRr9PZzUNdMo+sWAV6YUE3PhTBdz6adICyrMTU2XkfkRxM6nkGww==
+
+install:
+  - pip install -r requirements/production.txt
+  - pip install -r requirements/test.txt
+
+before_script:
+  - mkdir -p shippable/testresults
+  - mkdir -p shippable/codecoverage
+  - mysql -e 'create database test;'
+
+script:
+  - python manage.py test apps
+
+after_success:
+  - >
+    if [ "$BRANCH" == "master" ] && [ "$PULL_REQUEST" = false ]; then
+    (test -e $GAE_DIR || (mkdir -p $GAE_DIR &&
+    wget 'https://storage.googleapis.com/appengine-sdks/featured/google_appengine_1.9.25.zip' -q -O /tmp/gae.zip &&
+    unzip /tmp/gae.zip -d $GAE_DIR -x "google_appengine/lib/django*")) && ./deploy.sh;
+    fi

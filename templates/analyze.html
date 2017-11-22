@@ -1,0 +1,98 @@
+{% extends "base_new.html" %}
+{% load static %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{% static "css/new/analyze.css" %}" />
+{% endblock %}
+
+{% block js_scripts %}
+	<script type="text/javascript" src="{% static "js/timeConversion.js" %}"></script>
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	<script type="text/javascript" src="{% static "js/access_token.js" %}"></script>
+	<script type="text/javascript" src="{% static "js/new/analyze.js" %}"></script>
+{% endblock %}
+
+<!-- Body -->
+{% block content %}
+	<div id="content" class="container-fluid">
+		<div class="container">
+			<div class="row">
+				<h1>Analysis</h1>
+			</div>
+			
+			<div id="compare-options" class="row" style="display:none;">
+				<div class="compare-select col-lg-6 col-md-6 col-sm-6 col-xs-6">
+					<h5>Compare:</h5>
+					<div class="row">
+						<div class="athlete-select-container col-lg-6 col-md-6">
+							<div class="form-group">
+								<label for="base-athlete-select" class="sr-only">Select athlete 1:</label>
+								<select class="athlete-select form-control" id="base-athlete-select">
+									<option disabled selected>Select athlete</option>
+								</select>
+							</div>
+						</div>
+						<div class="workout-select-container col-lg-6 col-md-6">
+							<div class="form-group">
+								<label for="base-workout-select" class="sr-only">Select workout for athlete 1:</label>
+								<select class="workout-select form-control" id="base-workout-select">
+									<option disabled selected>Select workout</option>
+								</select>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<div class="compare-select col-lg-6 col-md-6 col-sm-6 col-xs-6">
+					<h5>To:</h5>
+					<div class="row">
+						<div class="athlete-select-container col-lg-6 col-md-6">
+							<div class="form-group">
+								<label for="base-athlete-select" class="sr-only">Select athlete 2:</label>
+								<select class="athlete-select form-control" id="compare-athlete-select">
+									<option disabled selected>Select athlete</option>
+								</select>
+							</div>
+						</div>
+						<div class="workout-select-container col-lg-6 col-md-6">
+							<div class="form-group">
+								<label for="base-workout-select" class="sr-only">Select workout for athlete 2:</label>
+								<select class="workout-select form-control" id="compare-workout-select">
+									<option disabled selected>Select workout</option>
+								</select>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div id="results" class="row" style="display:none;">
+				<ul id="results-nav" class="nav nav-tabs">
+					<li role="presentation" class="active" id="table"><a href="#">Table</a></li>
+					<li role="presentation" id="graph"><a href="#">Graph</a></li>
+				</ul>
+
+				<div id="results-table" class="table results-tab-content" style="display:none;">
+					<table id="splits-table" class="table table-striped table-hover"></table>
+				</div>
+
+				<div id="results-graph" class="results-tab-content" style="display:none;">
+					<div id="graph-canvas"></div>
+				</div>
+
+			</div>
+
+			<div id="notifications" class="row">
+				<p class="notification notification-error no-athletes" role="alert" style="display:none;">
+					<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> There no athletes in your roster.
+				</p>
+				<p class="notification notification-warning select-sessions" role="alert" style="display:none;">
+					<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Please select two sessions to compare.
+				</p>
+			</div>
+
+			<div id="spinner"></div>
+
+		</div>
+	</div>
+{% endblock %}

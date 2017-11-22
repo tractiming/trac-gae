@@ -1,0 +1,89 @@
+{% extends "base_new.html" %}
+{% load static %}
+
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static "css/new/main.css" %}" />
+<link rel="stylesheet" href="{% static "css/new/score.css" %}" />
+<link rel="stylesheet" href="{% static "css/new/create.css" %}" />
+{% endblock %}
+
+{% block js_scripts %}
+<script type="text/javascript" src="{% static "js/timeConversion.js" %}" />
+<script type="text/javascript" src="{% static "js/access_token.js" %}"></script>
+<script>
+if (localStorage.access_token == null) {
+    //link to login page
+    location.href="/login";
+}
+else{
+    console.log('hit else');
+    $.ajax({
+      type: 'GET',
+      url: '/api/verifyLogin/',
+      data: {
+        token: localStorage.access_token
+      },
+      dataType:'json',
+
+      // Registration was successful.
+      success: function(data) {
+        location.href="/home";
+      },
+      // Registration failed.
+      error: function(xhr, errmsg, err) {
+        sessionStorage.clear();
+        localStorage.clear();
+        location.href='/login';
+      },
+});
+  }
+
+    $(document).ready(function() {
+$("li a.logout").click(function(){
+    sessionStorage.clear();
+    localStorage.clear();
+    location.href="/login";
+});
+    });
+
+</script>
+{% endblock %}
+
+{% block nav-items %}
+  <li><a href="/home">Home</a></li>
+  <li><a href="/liveview">Live View</a></li>
+  <li><a href="/calendar">Calendar</a></li>
+  <li><a href="/create">Create</a></li>
+  <li><a class="hidden-sm hidden-md hidden-lg" href="/readers">Readers</a></li>
+  <li><a class="hidden-sm hidden-md hidden-lg" href="/settings">Settings</a></li>
+  <li><a class="logout hidden-sm hidden-md hidden-lg" href="">Logout</a></li>
+<!-- Single button -->
+  <li id="dropdown-button" class="btn-group hidden-xs">
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <span class="glyphicon glyphicon-menu-down" aria-hidden="true"></span>
+    </button>
+    <ul class="dropdown-menu" >
+      <li><a href="/readers">Readers</a></li>
+      <li><a href="/settings">Settings</a></li>
+      <li role="separator" class="divider"></li>
+      <li><a class="logout" href="">Logout</a></li>
+    </ul>
+  </li>
+{% endblock %}
+
+{% block content %}
+<script>
+$(document).ready(function() {
+        $.ajax({
+                type: 'GET',
+                url: '/api/reg_tag/',
+                headers: {Authorization: "Bearer " + sessionStorage.access_token},
+                data: {id: 14},
+                success: function(data){
+                  alert (data);
+                }
+        });
+  });
+</script>
+{% endblock %}

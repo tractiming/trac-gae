@@ -1,0 +1,1 @@
+[TRAC Timing] Payment Receipt (Invoice #{{ charge.pk }})
