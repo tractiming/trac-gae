@@ -1,9 +1,9 @@
-trac-gae
+Timing and Racing Around the Clock Server Code
 ====
 
-google appengine code for the trac platform
+TRAC (YC W16) aimed to simpilfy the track and field timing process. Through RFID hardware (see other repos for embedded code and designs) you could push split times to the server. From there the mobile web, Android and iOS apps long polled for splits. 
 
-[![Build Status](https://img.shields.io/shippable/55e26f9a1895ca447410d895.svg)](https://app.shippable.com/projects/55e26f9a1895ca447410d895)
+Built for google appengine, code for the trac platform
 
 ### Getting started
 Follow these steps to get the development server up and running on your local
